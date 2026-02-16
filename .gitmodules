@@ -1,0 +1,3 @@
+[submodule "Dokumentation"]
+	path = Dokumentation
+	url = https://github.com/staehtho/BA-Dokumentation.git
