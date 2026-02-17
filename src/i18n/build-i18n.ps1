@@ -15,12 +15,12 @@
 $scriptDir = $PSScriptRoot
 
 # Projekt-Root
-$projectRoot = Resolve-Path (Join-Path $scriptDir "..\..")
+$projectRoot = Resolve-Path (Join-Path $scriptDir "..\..\..")
 
 # -----------------------------
 # Load languages.json
 # -----------------------------
-$configFile = Join-Path $projectRoot "src/i18n/languages.json"
+$configFile = Join-Path $projectRoot "Control_Optimizer\src\i18n\languages.json"
 
 if (!(Test-Path $configFile)) {
     Write-Error "languages.json not found: $configFile"
@@ -63,7 +63,7 @@ foreach ($lang in $languages) {
     $validFiles += (Split-Path $config.languages.$lang.qm -Leaf)
 }
 
-$i18nDir = Join-Path $projectRoot "src/i18n"
+$i18nDir = Join-Path $projectRoot "Control_Optimizer\src\i18n"
 
 Get-ChildItem -Path $i18nDir -File |
 Where-Object { $_.Extension -in ".ts", ".qm" } |
@@ -78,11 +78,11 @@ ForEach-Object {
 # Gather all relevant Python files
 # -----------------------------
 $includeDirs = @("app_engine", "models", "resources", "services", "utils", "viewmodels", "views")
-$sourceFiles = Get-ChildItem -Path (Join-Path $projectRoot "src") -Recurse -Include *.py |
+$sourceFiles = Get-ChildItem -Path (Join-Path $projectRoot "Control_Optimizer\src") -Recurse -Include *.py |
     Where-Object { $includeDirs -contains $_.Directory.Name } |
     ForEach-Object { $_.FullName }
 
-$sourceFiles += Join-Path $projectRoot "src\main.py"
+$sourceFiles += Join-Path $projectRoot "Control_Optimizer\src\main.py"
 
 Write-Host "Found $($sourceFiles.Count) Python files to scan for translation"
 
@@ -92,8 +92,8 @@ Write-Host "Found $($sourceFiles.Count) Python files to scan for translation"
 foreach ($lang in $languages) {
 
     $langCfg = $config.languages.$lang
-    $tsFile = Join-Path $projectRoot (Join-Path "src" $langCfg.ts)
-    $qmFile = Join-Path $projectRoot (Join-Path "src" $langCfg.qm)
+    $tsFile = Join-Path $projectRoot (Join-Path "Control_Optimizer\src" $langCfg.ts)
+    $qmFile = Join-Path $projectRoot (Join-Path "Control_Optimizer\src" $langCfg.qm)
 
     Write-Host "Processing language: $lang"
     Write-Host " TS: $tsFile"
