@@ -1,47 +1,56 @@
 from PySide6.QtCore import QObject, Signal, Property
 from services.controlsys import MySolver, Plant
+import logging
 
 class PlantModel(QObject):
     """Model representing a plant (transfer function) for control system simulations.
 
     This model maintains numerator and denominator coefficients, solver type,
     and validity state. It emits signals when properties change, enabling
-    MVVM-style bindings in Qt.
+    MVVM-style bindings in Qt. All significant state changes are logged.
     """
 
-    # Signals for property change notifications
+    # Signals
     numChanged = Signal()
     denChanged = Signal()
     isValidChanged = Signal()
     solverChanged = Signal()
 
-    def __init__(self, parent: QObject = None):
-        """Initializes the PlantModel with default values.
+    def __init__(self, num: list[float] = None, den: list[float] = None,
+                 solver: MySolver = MySolver.RK4, parent: QObject = None):
+        """Initializes the PlantModel with optional coefficients and solver.
 
         Args:
-            parent (QObject, optional): Optional Qt parent object. Defaults to None.
+            num (list[float], optional): Initial numerator coefficients. Defaults to empty list.
+            den (list[float], optional): Initial denominator coefficients. Defaults to empty list.
+            solver (MySolver, optional): Initial numerical solver. Defaults to MySolver.RK4.
+            parent (QObject, optional): Optional Qt parent. Defaults to None.
         """
         super().__init__(parent)
 
-        # Numerator and denominator coefficients
-        self._num: list[float] = []
-        self._den: list[float] = []
+        self._logger = logging.getLogger(f"Model.{self.__class__.__name__}")
 
-        # Numerical solver for plant simulation
-        self._solver: MySolver = MySolver.RK4
+        self._num = num if num is not None else []
+        self._den = den if den is not None else []
+        self._solver = solver
 
-        # Internal plant representation
-        self._plant: Plant = Plant([1], [1, 1], self._solver)
+        # Check whether the provided numerator and denominator define a valid plant
+        # A plant is considered valid if both lists are non-empty
+        self._is_valid = self._check_validity()
 
-        # Indicates whether the current coefficients are valid
-        self._is_valid: bool = False
+        # If the coefficients are valid, create the Plant using the provided num, den, and solver
+        if self._is_valid:
+            self._plant = Plant(self._num, self._den, self._solver)
+        else:
+            # If coefficients are invalid (empty), create a default Plant (1 / (s+1)) as fallback
+            self._plant = Plant([1], [1, 1], self._solver)
 
-    # =========================================================
-    # Properties
-    # =========================================================
+        self._logger.info(f"PlantModel initialized with solver={self._solver} "
+                          f"and initial num={self._num}, den={self._den}")
+
 
     # -------------------
-    # num
+    # num Property
     # -------------------
     def _get_num(self) -> list[float]:
         """Returns the numerator coefficients.
@@ -58,6 +67,7 @@ class PlantModel(QObject):
             value (list[float]): New numerator coefficients.
         """
         if self._num != value:
+            self._logger.debug(f"Numerator updated: {self._num} -> {value}")
             self._num = value
             self.numChanged.emit()
             self._update_state()
@@ -65,7 +75,7 @@ class PlantModel(QObject):
     num = Property(list, _get_num, _set_num, notify=numChanged)  # type: ignore[assignment]
 
     # -------------------
-    # den
+    # den Property
     # -------------------
     def _get_den(self) -> list[float]:
         """Returns the denominator coefficients.
@@ -82,6 +92,7 @@ class PlantModel(QObject):
             value (list[float]): New denominator coefficients.
         """
         if self._den != value:
+            self._logger.debug(f"Denominator updated: {self._den} -> {value}")
             self._den = value
             self.denChanged.emit()
             self._update_state()
@@ -89,7 +100,22 @@ class PlantModel(QObject):
     den = Property(list, _get_den, _set_den, notify=denChanged)  # type: ignore[assignment]
 
     # -------------------
-    # plant
+    # solver Property
+    # -------------------
+    def get_solver(self) -> MySolver:
+        return self._solver
+
+    def set_solver(self, value: MySolver) -> None:
+        if self._solver != value:
+            self._logger.info(f"Solver changed: {self._solver} -> {value}")
+            self._solver = value
+            self.solverChanged.emit()
+            self._update_state()
+
+    solver = Property(MySolver, get_solver, set_solver, notify=solverChanged)  # type: ignore[assignment]
+
+    # -------------------
+    # plant Property (read-only)
     # -------------------
     def get_plant(self) -> Plant:
         """Returns the internal Plant object.
@@ -100,7 +126,7 @@ class PlantModel(QObject):
         return self._plant
 
     # -------------------
-    # Validity
+    # is_valid Property
     # -------------------
     def is_valid(self) -> bool:
         """Returns whether the current numerator and denominator are valid.
@@ -109,6 +135,8 @@ class PlantModel(QObject):
             bool: True if both numerator and denominator are non-empty.
         """
         return self._is_valid
+
+    isValid = Property(bool, is_valid, notify=isValidChanged)   # type: ignore[assignment]
 
     # -------------------
     # Solver
@@ -145,9 +173,11 @@ class PlantModel(QObject):
 
         # Emit signal if validity has changed
         if is_valid != self._is_valid:
+            self._logger.info(f"Validity changed: {self._is_valid} -> {is_valid}")
             self._is_valid = is_valid
             self.isValidChanged.emit()
 
     def _update_plant(self):
         """Creates a new Plant instance with current coefficients and solver."""
         self._plant = Plant(self._num, self._den, self._solver)
+        self._logger.debug(f"Plant updated: num={self._num}, den={self._den}, solver={self._solver}")
