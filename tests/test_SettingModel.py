@@ -37,3 +37,8 @@ def test_pos_iterations():
     value = settings.get_pso_iterations()
     settings.set_pso_iterations(value)
     assert settings.get_pso_iterations() == value
+
+def test_get_qm_file():
+    settings = SettingsModel()
+
+    assert settings.get_qm_file("en").name == "app_en.qm"

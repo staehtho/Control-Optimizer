@@ -22,6 +22,10 @@ class SettingsModel:
         self._config_base_dir = Path(__file__).parent.parent / "config"
         self._logger.debug(f"Config base dir: {self._config_base_dir}")
 
+        # Store base directory for i18n translation files
+        self._i18n_base_dir = self._config_base_dir.parent / "i18n"
+        self._logger.debug(f"i18n base dir: {self._i18n_base_dir}")
+
         # File name for the QSettings INI file
         settings_file = "settings.ini"
 
@@ -32,19 +36,19 @@ class SettingsModel:
         )
 
         # Load language configuration JSON
-        self._languages_cfg: dict = self._load_json(
+        self._lang_cfg: dict = self._load_json(
             self._config_base_dir / "languages.json"
         ).get("languages", {})
 
         # Log initialization with info level
-        self._logger.info(f"SettingsModel initialized, config dir: {self._config_base_dir}, languages loaded: {list(self._languages_cfg.keys())}")
+        self._logger.info(f"SettingsModel initialized, config dir: {self._config_base_dir}, languages loaded: {list(self._lang_cfg.keys())}")
 
     # -------------------
     # language config accessors
     # -------------------
     def get_languages_cfg(self) -> dict:
         """Returns the dictionary of available language configurations."""
-        return self._languages_cfg
+        return self._lang_cfg
 
     # -------------------
     # UI language
@@ -178,6 +182,16 @@ class SettingsModel:
         self._settings.setValue("pso/iterations", pso_iterations)
 
     # -------------------
+    # QM-File loader
+    # -------------------
+    def get_qm_file(self, lang: str) -> Path:
+        """Returns the path to the QM file.
+        Args:
+            lang (str): Language of the QM file.
+        """
+        return self._i18n_base_dir / self._lang_cfg[lang]["qm"]
+
+    # -------------------
     # JSON loader helper
     # -------------------
     def _load_json(self, path: Path | str) -> dict:
@@ -203,3 +217,4 @@ class SettingsModel:
         with open(path, "r", encoding="utf-8") as f:
             self._logger.debug(f"Loaded JSON from {path}")
             return json.load(f)
+
