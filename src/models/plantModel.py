@@ -102,17 +102,17 @@ class PlantModel(QObject):
     # -------------------
     # solver Property
     # -------------------
-    def get_solver(self) -> MySolver:
+    def _get_solver(self) -> MySolver:
         return self._solver
 
-    def set_solver(self, value: MySolver) -> None:
+    def _set_solver(self, value: MySolver) -> None:
         if self._solver != value:
             self._logger.info(f"Solver changed: {self._solver} -> {value}")
             self._solver = value
             self.solverChanged.emit()
             self._update_state()
 
-    solver = Property(MySolver, get_solver, set_solver, notify=solverChanged)  # type: ignore[assignment]
+    solver = Property(MySolver, _get_solver, _set_solver, notify=solverChanged)  # type: ignore[assignment]
 
     # -------------------
     # plant Property (read-only)
@@ -128,7 +128,7 @@ class PlantModel(QObject):
     # -------------------
     # is_valid Property
     # -------------------
-    def is_valid(self) -> bool:
+    def _get_is_valid(self) -> bool:
         """Returns whether the current numerator and denominator are valid.
 
         Returns:
@@ -136,21 +136,7 @@ class PlantModel(QObject):
         """
         return self._is_valid
 
-    isValid = Property(bool, is_valid, notify=isValidChanged)   # type: ignore[assignment]
-
-    # -------------------
-    # Solver
-    # -------------------
-    def set_solver(self, value: MySolver) -> None:
-        """Sets the numerical solver and updates the plant state.
-
-        Args:
-            value (MySolver): New solver to use for the plant.
-        """
-        if self._solver != value:
-            self._solver = value
-            self.solverChanged.emit()
-            self._update_state()
+    is_valid = Property(bool, _get_is_valid, notify=isValidChanged)   # type: ignore[assignment]
 
     # =========================================================
     # Helper Methods

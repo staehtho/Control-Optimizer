@@ -81,12 +81,12 @@ def test_model_is_valid(num, den, expected):
 
     # nach num noch nicht valid und kein Signal ausgelöst
     assert spy.size() == 0
-    assert not model.is_valid()
+    assert not model.is_valid
 
     model.den = den
 
     assert spy.size() == (1 if expected else 0)
-    assert model.is_valid() is expected
+    assert model.is_valid is expected
 
 @pytest.mark.parametrize(
     "num, den, expected",
@@ -104,10 +104,10 @@ def test_model_plant_num_den_changed(num, den, expected):
     plant = model.get_plant()
     if expected:
         # Länge muss übereinstimmen, wenn beide model.is_valid
-        assert model.is_valid()
+        assert model.is_valid
         assert len(list(plant.num)) == len(num)
         assert len(list(plant.den)) == len(den)
     else:
-        assert not model.is_valid()
+        assert not model.is_valid
         assert len(list(plant.num)) != len(num) or len(list(plant.den)) != len(den)
 
