@@ -1,5 +1,4 @@
 from PySide6.QtCore import QObject, QTranslator, QCoreApplication, Slot, Signal, Property
-import logging
 
 from models import SettingsModel
 from .baseViewModel import BaseViewModel
@@ -19,8 +18,6 @@ class LanguageViewModel(BaseViewModel):
 
     def __init__(self, settings: SettingsModel, parent: QObject = None):
         super().__init__(parent)
-
-        self._logger = logging.getLogger(f"ViewModel.{self.__class__.__name__}")
 
         self._settings = settings
         self._translator = QTranslator()

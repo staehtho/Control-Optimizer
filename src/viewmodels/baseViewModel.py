@@ -1,6 +1,7 @@
 from PySide6.QtCore import QObject
 from typing import Iterator
 from contextlib import contextmanager
+import logging
 
 class BaseViewModel(QObject):
     """
@@ -11,6 +12,8 @@ class BaseViewModel(QObject):
     def __init__(self, parent: QObject=None):
         super().__init__(parent)
         self._updating_fields: set[str] = set()
+
+        self._logger = logging.getLogger(f"ViewModel.{self.__class__.__name__}")
 
     @contextmanager
     def updating(self, field: str) -> Iterator[None]:

@@ -1,5 +1,4 @@
 from PySide6.QtCore import QObject, Signal, Property
-import logging
 
 from .baseViewModel import BaseViewModel
 from models import PlantModel
@@ -14,8 +13,6 @@ class PlantViewModel(BaseViewModel):
     def __init__(self, plant_modle: PlantModel, parent: QObject = None):
 
         super().__init__(parent)
-
-        self._logger = logging.getLogger(f"ViewModel.{self.__class__.__name__}")
 
         self._plant_model = plant_modle
 
