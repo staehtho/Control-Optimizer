@@ -20,7 +20,7 @@ $projectRoot = Resolve-Path (Join-Path $scriptDir "..\..\..")
 # -----------------------------
 # Load languages.json
 # -----------------------------
-$configFile = Join-Path $projectRoot "Control_Optimizer\src\i18n\languages.json"
+$configFile = Join-Path $projectRoot "Control_Optimizer\src\config\languages.json"
 
 if (!(Test-Path $configFile)) {
     Write-Error "languages.json not found: $configFile"
