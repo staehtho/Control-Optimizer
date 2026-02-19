@@ -4,6 +4,8 @@ from pathlib import Path
 import json
 import logging
 
+from services.controlsys import MySolver
+
 class SettingsModel:
     """Model handling application settings with persistent storage and logging.
 
@@ -17,7 +19,8 @@ class SettingsModel:
         self._logger = logging.getLogger(f"Model.{self.__class__.__name__}")
 
         # Store base directory for config files
-        self._config_base_dir = Path().resolve() / "config"
+        self._config_base_dir = Path(__file__).parent.parent / "config"
+        self._logger.debug(f"Config base dir: {self._config_base_dir}")
 
         # File name for the QSettings INI file
         settings_file = "settings.ini"
@@ -37,12 +40,8 @@ class SettingsModel:
         self._logger.info(f"SettingsModel initialized, config dir: {self._config_base_dir}, languages loaded: {list(self._languages_cfg.keys())}")
 
     # -------------------
-    # Base directory and language config accessors
+    # language config accessors
     # -------------------
-    def get_config_base_dir(self) -> Path:
-        """Returns the base directory for config files."""
-        return self._config_base_dir
-
     def get_languages_cfg(self) -> dict:
         """Returns the dictionary of available language configurations."""
         return self._languages_cfg
@@ -94,6 +93,89 @@ class SettingsModel:
         """
         self._logger.debug(f"Setting window maximized to {maximize}")
         self._settings.setValue("window/maximized", maximize)
+
+    # -------------------
+    # Solver Property
+    # -------------------
+    def get_solver(self) -> MySolver:
+        """Returns the currently selected numerical solver from settings.
+
+        Returns:
+            MySolver: The currently selected solver. Defaults to MySolver.RK4 if no setting is found.
+        """
+        # Retrieve the solver name from QSettings, default to 'rk4'
+        solver_name = str(
+            self._settings.value("solver/solver", MySolver.RK4.name.lower(), type=str)
+        )
+
+        # Convert string back to Enum using uppercase (Enum keys are uppercase)
+        return MySolver[solver_name.upper()]
+
+    def set_solver(self, solver: MySolver) -> None:
+        """Sets the current solver in QSettings and logs the change.
+
+        Args:
+            solver (MySolver): The solver to set (e.g., MySolver.RK4)
+        """
+        # Log the change for debugging
+        self._logger.debug(f"Setting solver to '{solver.name.lower()}'")
+
+        # Store the solver as lowercase string in QSettings
+        self._settings.setValue("solver/solver", solver.name.lower())
+
+    # -------------------
+    # Time Step Property
+    # -------------------
+    def get_time_step(self) -> float:
+        """Returns the current time step in seconds.
+        Returns:
+            float: Current time step in seconds.
+        """
+        return float(str(self._settings.value("solver/time_step", str(1e-4), type=str)))
+
+    def set_time_step(self, time_step: float) -> None:
+        """Sets the time step in seconds.
+        Args:
+            time_step (float): Time step in seconds.
+        """
+        self._logger.debug(f"Setting time step to '{time_step}'")
+        self._settings.setValue("solver/time_step", str(time_step))
+
+    # -------------------
+    # Particle Property
+    # -------------------
+    def get_pso_particle(self) -> int:
+        """Returns the number of PSO particles.
+        Returns:
+            int: Number of PSO particles.
+        """
+        return int(str(self._settings.value("pso/particle", 40, type=int)))
+
+    def set_pso_particle(self, pso_particle: int) -> None:
+        """Sets the number of PSO particles.
+        Args:
+            pso_particle (int): Number of PSO particles.
+        """
+        self._logger.debug(f"Setting PSO particle to '{pso_particle}'")
+        self._settings.setValue("pso/particle", pso_particle)
+
+    # -------------------
+    # PSO Iteration Property
+    # -------------------
+    def get_pso_iterations(self) -> int:
+        """Returns the number of PSO iterations.
+        Returns:
+            int: Number of PSO iterations.
+        """
+        return int(str(self._settings.value("pso/iterations", 14, type=int)))
+
+    def set_pso_iterations(self, pso_iterations: int) -> None:
+        """Sets the number of PSO iterations.
+        Args:
+            pso_iterations (int): Number of PSO iterations.
+        """
+        self._logger.debug(f"Setting PSO iterations to '{pso_iterations}'")
+        self._settings.setValue("pso/iterations", pso_iterations)
 
     # -------------------
     # JSON loader helper
