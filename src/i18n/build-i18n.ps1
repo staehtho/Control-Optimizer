@@ -20,7 +20,7 @@ $projectRoot = Resolve-Path (Join-Path $scriptDir "..\..\..")
 # -----------------------------
 # Load languages.json
 # -----------------------------
-$configFile = Join-Path $projectRoot "Control_Optimizer\src\i18n\languages.json"
+$configFile = Join-Path $projectRoot "Control_Optimizer\src\config\languages.json"
 
 if (!(Test-Path $configFile)) {
     Write-Error "languages.json not found: $configFile"
@@ -92,8 +92,8 @@ Write-Host "Found $($sourceFiles.Count) Python files to scan for translation"
 foreach ($lang in $languages) {
 
     $langCfg = $config.languages.$lang
-    $tsFile = Join-Path $projectRoot (Join-Path "Control_Optimizer\src" $langCfg.ts)
-    $qmFile = Join-Path $projectRoot (Join-Path "Control_Optimizer\src" $langCfg.qm)
+    $tsFile = Join-Path $i18nDir $langCfg.ts
+    $qmFile = Join-Path $i18nDir $langCfg.qm
 
     Write-Host "Processing language: $lang"
     Write-Host " TS: $tsFile"

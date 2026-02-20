@@ -1,0 +1,68 @@
+import logging
+from viewmodels import LanguageViewModel
+
+class BaseView:
+    """
+    Base class for all Views in the application.
+
+    Responsibilities:
+    - Bind to LanguageViewModel for UI translations
+    - Provide a logger for debugging
+    - Structured lifecycle: UI creation, signals, ViewModel bindings
+    - Abstract methods enforce that concrete Views implement required functionality
+    """
+
+    def __init__(self, lang_vm: LanguageViewModel):
+
+        # -----------------------------
+        # Language support
+        # -----------------------------
+        # Store reference to the LanguageViewModel
+        self._lang_vm = lang_vm
+        # Connect signal: whenever language changes, call _retranslate
+        self._lang_vm.languageChanged.connect(self._retranslate)
+
+        # -----------------------------
+        # Logging setup
+        # -----------------------------
+        self.logger = logging.getLogger(f"View.{self.__class__.__name__}")
+        self.logger.debug(f"{self.__class__.__name__} initialized")
+
+        # -----------------------------
+        # View lifecycle
+        # -----------------------------
+        # Step 1: Initialize UI components (widgets, layouts, etc.)
+        self._init_ui()
+        self.logger.debug("UI initialized")
+
+        # Step 2: Connect UI signals (buttons, inputs, etc.)
+        self._connect_signals()
+        self.logger.debug("UI signals connected")
+
+        # Step 3: Bind ViewModel signals to the View
+        self._bind_viewmodel()
+        self.logger.debug("ViewModel bindings set up")
+
+        # Step 4: Initial translation
+        # Call _retranslate explicitly because the signal only fires on changes,
+        # ensuring UI shows the correct initial language
+        self._retranslate()
+        self.logger.debug("initial translation applied")
+
+    # ---------- Lifecycle abstract methods ----------
+
+    def _init_ui(self) -> None:
+        """Create and configure UI elements (widgets, layouts, etc.)."""
+        raise NotImplementedError
+
+    def _connect_signals(self) -> None:
+        """Connect UI signals (buttons, input fields, etc.) to handlers."""
+        raise NotImplementedError
+
+    def _bind_viewmodel(self) -> None:
+        """Bind ViewModel signals to View updates (model → view)."""
+        raise NotImplementedError
+
+    def _retranslate(self) -> None:
+        """Update all UI texts after a language change."""
+        raise NotImplementedError
