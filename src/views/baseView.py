@@ -40,7 +40,7 @@ class BaseView:
         self.logger.debug("UI signals connected")
 
         # Step 3: Bind ViewModel signals to the View
-        self._bind_viewmodel()
+        self._bind_vm()
         self.logger.debug("ViewModel bindings set up")
 
         # Step 4: Initial translation
@@ -59,7 +59,7 @@ class BaseView:
         """Connect UI signals (buttons, input fields, etc.) to handlers."""
         raise NotImplementedError
 
-    def _bind_viewmodel(self) -> None:
+    def _bind_vm(self) -> None:
         """Bind ViewModel signals to View updates (model → view)."""
         raise NotImplementedError
 
