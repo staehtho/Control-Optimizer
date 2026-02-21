@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QApplication
 
 class LatexRenderer:
     @staticmethod
-    def latex_to_pixmap(text: str, font_size: int = 0) -> QPixmap:
+    def latex_to_pixmap(text: str, font_size: int = 0, font_size_scale: float = 1.0) -> QPixmap:
         logger = logging.getLogger("matplotlib.font_manager")
 
         old_level = logger.level
@@ -30,6 +30,9 @@ class LatexRenderer:
             qt_point_size = font.pointSizeF()
         else:
             qt_point_size = font_size
+
+        # scale font size
+        qt_point_size *= font_size_scale
 
         screen = app.primaryScreen()
         logical_dpi = screen.logicalDotsPerInch() if screen else 96.0
