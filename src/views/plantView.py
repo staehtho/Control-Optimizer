@@ -50,7 +50,6 @@ class PlantView(BaseView, QWidget):
 
         self._txt_num = QLineEdit()
         self._txt_num.setValidator(validator)
-        self._txt_num.setPlaceholderText("b_n, b_n-1, ..., b_1, b_0")
 
         # Set fixed width (height follows style automatically)
         self._txt_num.setFixedWidth(220)
@@ -65,7 +64,6 @@ class PlantView(BaseView, QWidget):
 
         self._txt_den = QLineEdit()
         self._txt_den.setValidator(validator)
-        self._txt_den.setPlaceholderText("a_n, a_n-1, ..., a_1, a_0")
 
         # Same fixed width for visual consistency
         self._txt_den.setFixedWidth(220)
@@ -83,7 +81,7 @@ class PlantView(BaseView, QWidget):
                 font_size_scale=self._formula_font_size_scale,
             )
         )
-        self._lbl_formula.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)  # type: ignore[attr-defined]
+        self._lbl_formula.setAlignment(Qt.AlignVCenter)  # type: ignore[attr-defined]
 
         # --- Scroll area for label ---
         scroll_formula = QScrollArea()
@@ -92,6 +90,7 @@ class PlantView(BaseView, QWidget):
         scroll_formula.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)   # type: ignore[attr-defined]
         scroll_formula.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded) # type: ignore[attr-defined]
         scroll_formula.setFrameShape(QScrollArea.NoFrame)   # type: ignore[attr-defined]
+        scroll_formula.setFocusPolicy(Qt.NoFocus)   # type: ignore[attr-defined]  # cannot be focused at all
 
         main_layout.addWidget(scroll_formula, 0, 2, 2, 2)
 
@@ -136,6 +135,12 @@ class PlantView(BaseView, QWidget):
     def _retranslate(self) -> None:
         self._lbl_num.setText(self.tr("plant.num"))
         self._lbl_den.setText(self.tr("plant.den"))
+        self._txt_num.setPlaceholderText(self.tr("e.g. 1  → 1"))
+        self._txt_den.setPlaceholderText(self.tr("e.g. 1, 0, 0  → 1*s^2 + 0*s + 0"))
+
+        tooltip_text = self.tr("tooltip_num_den")
+        self._txt_num.setToolTip(tooltip_text)
+        self._txt_den.setToolTip(tooltip_text)
 
     # -------------------------------------------------
     # ViewModel change handlers

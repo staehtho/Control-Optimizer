@@ -1,10 +1,32 @@
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QWidget
+from PySide6.QtCore import Qt
 import logging
 from pathlib import Path
 import sys
 
 from app_engine import AppEngine
 from views import PlantView
+
+
+def print_tab_order(parent_widget: QWidget) -> None:
+    """
+    Print all focusable child widgets of a parent widget in their tab order.
+
+    Args:
+        parent_widget: The QWidget containing focusable children.
+    """
+    # Collect all children that accept focus
+    focusable_widgets = [
+        w for w in parent_widget.findChildren(QWidget)
+        if w.focusPolicy() != Qt.NoFocus
+    ]
+
+    # Sort by focus order: in Qt, findChildren returns layout order by default,
+    # but tab order may be custom via setTabOrder.
+    print("Focusable widgets in tab order:")
+    for i, w in enumerate(focusable_widgets):
+        obj_name = w.objectName() or w.__class__.__name__
+        print(f"  Tab index {i}: {obj_name}")
 
 if __name__ == '__main__':
 
@@ -35,6 +57,7 @@ if __name__ == '__main__':
     engine = AppEngine()
 
     plant_view = PlantView(engine.vm_lang, engine.vm_plant, engine.vm_plot_plant)
+    print_tab_order(plant_view)
     plant_view.show()
 
     sys.exit(app.exec())
