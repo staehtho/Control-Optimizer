@@ -145,3 +145,10 @@ class PlotView(BaseView, QWidget):
             return
         self._vm.end_time = value
         self._txt_end.setText(f"{value:.2f}")  # format input
+
+    def resizeEvent(self, event):
+        self._figure.tight_layout()
+        self._canvas.draw()
+
+        # Call the base class implementation (important!)
+        super().resizeEvent(event)
