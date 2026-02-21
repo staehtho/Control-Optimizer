@@ -111,7 +111,13 @@ class PlantModel(QObject):
         Returns:
             bool: True if both numerator and denominator are defined and neither is zero.
         """
-        return len(self._den) >= len(self._num) > 0
+        if len(self._num) == 0 or len(self._den) == 0:
+            return False
+        if self._num[0] == 0 or self._den[0] == 0:
+            return False
+        if len(self._den) < len(self._num):
+            return False
+        return True
 
     def _update_state(self) -> None:
         """Updates the plant and validity status based on current coefficients."""
