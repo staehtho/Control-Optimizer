@@ -130,7 +130,7 @@ class PlantModel(QObject):
         Returns:
             bool: True if both numerator and denominator are set.
         """
-        return len(self._num) != 0 and len(self._den) != 0
+        return len(self._den) >= len(self._num) > 0
 
     def _update_state(self) -> None:
         """Updates the plant and validity status based on current coefficients."""
