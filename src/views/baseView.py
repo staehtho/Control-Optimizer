@@ -25,7 +25,7 @@ class BaseView:
         # -----------------------------
         # Logging setup
         # -----------------------------
-        self._logger = logging.getLogger(f"View.{self.__class__.__name__}")
+        self._logger = logging.getLogger(f"View.{self.__class__.__name__}.{id(self)}")
         self._logger.debug(f"{self.__class__.__name__} initialized")
 
         # -----------------------------

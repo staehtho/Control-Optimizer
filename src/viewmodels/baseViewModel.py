@@ -13,7 +13,7 @@ class BaseViewModel(QObject):
         super().__init__(parent)
         self._updating_fields: set[str] = set()
 
-        self._logger = logging.getLogger(f"ViewModel.{self.__class__.__name__}")
+        self._logger = logging.getLogger(f"ViewModel.{self.__class__.__name__}.{id(self)}")
 
     @contextmanager
     def updating(self, field: str) -> Iterator[None]:
