@@ -27,7 +27,7 @@ class StepResponseThread(QThread):
         t0: float,
         t1: float,
         dt: float,
-        solver,
+        solver: MySolver,
     ):
         """
         Initialize the step response computation thread.
@@ -45,7 +45,7 @@ class StepResponseThread(QThread):
                 End time of the simulation interval.
             dt (float):
                 Simulation time step.
-            solver:
+            solver (MySolver):
                 Numerical solver used for integration.
         """
         super().__init__()
@@ -61,7 +61,7 @@ class StepResponseThread(QThread):
 
         # Set up a logger for this worker
         self.logger = logging.getLogger(f"Thread.{self.__class__.__name__}")
-        self.logger.debug("StepResponseWorker initialized.")
+        self.logger.debug("StepResponseThread initialized.")
 
     def run(self):
         """Executes the step response computation in a separate thread.
