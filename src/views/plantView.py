@@ -1,30 +1,32 @@
 from PySide6.QtCore import QObject
 from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QScrollArea
 from PySide6.QtGui import QRegularExpressionValidator
-from PySide6.QtCore import QRegularExpression, Qt
+from PySide6.QtCore import QRegularExpression, Qt, QT_TRANSLATE_NOOP
 
-
-from viewmodels import LanguageViewModel, PlantViewModel
+from viewmodels import LanguageViewModel, PlantViewModel, PlotViewModel
 from .baseView import BaseView
+from .plotView import PlotView, PlotConfiguration
 from utils import LatexRenderer
 
 class PlantView(BaseView, QWidget):
 
     def __init__(
         self,
-        lang_vm: LanguageViewModel,
-        plant_vm: PlantViewModel,
+        vm_lang: LanguageViewModel,
+        vm_plant: PlantViewModel,
+        vm_plot: PlotViewModel,
         parent: QObject = None,
     ):
         QWidget.__init__(self, parent)
 
         # Reference to the ViewModel
-        self._vm = plant_vm
+        self._vm_plant = vm_plant
+        self._vm_plot = vm_plot
 
         # Scale factor for rendering the LaTeX formula
         self._formula_font_size_scale = 1.5
 
-        BaseView.__init__(self, lang_vm)
+        BaseView.__init__(self, vm_lang)
 
     # -------------------------------------------------
     # UI initialization
@@ -77,7 +79,7 @@ class PlantView(BaseView, QWidget):
         self._lbl_formula = QLabel()
         self._lbl_formula.setPixmap(
             LatexRenderer.latex_to_pixmap(
-                self._vm.get_formula(),
+                self._vm_plant.get_formula(),
                 font_size_scale=self._formula_font_size_scale,
             )
         )
@@ -93,6 +95,21 @@ class PlantView(BaseView, QWidget):
 
         main_layout.addWidget(scroll_formula, 0, 2, 2, 2)
 
+        # -------------------
+        # Step response
+        # -------------------
+        plot_cfg  = PlotConfiguration(
+            context="plant.view",
+            title=str(QT_TRANSLATE_NOOP("plant.view", "Step Response")),
+            x_label=str(QT_TRANSLATE_NOOP("plant.view", "Time [s]")),
+            y_label=str(QT_TRANSLATE_NOOP("plant.view", "Output")),
+            figsize=(5, 3)
+        )
+
+        self._plot_view = PlotView(self._vm_plot, plot_cfg, self._vm_lang)
+
+        main_layout.addWidget(self._plot_view, 2, 0, 3, 0)
+
         self.setLayout(main_layout)
 
     # -------------------------------------------------
@@ -106,9 +123,12 @@ class PlantView(BaseView, QWidget):
     # ViewModel bindings (ViewModel → UI)
     # -------------------------------------------------
     def _bind_vm(self) -> None:
-        self._vm.numChanged.connect(self._on_vm_num_changed)
-        self._vm.denChanged.connect(self._on_vm_den_changed)
-        self._vm.formulaChanged.connect(self._on_vm_formula_changed)
+        self._vm_plant.numChanged.connect(self._on_vm_num_changed)
+        self._vm_plant.denChanged.connect(self._on_vm_den_changed)
+        self._vm_plant.formulaChanged.connect(self._on_vm_formula_changed)
+        self._vm_plant.stepResponseChanged.connect(
+            lambda: self._vm_plot.update_data("Step Response", self._vm_plant.get_step_response_result())
+        )
 
     # -------------------------------------------------
     # Retranslation (for language changes)
@@ -124,13 +144,13 @@ class PlantView(BaseView, QWidget):
         """
         Update numerator input field when ViewModel changes.
         """
-        self._txt_num.setText(self._vm.num)
+        self._txt_num.setText(self._vm_plant.num)
 
     def _on_vm_den_changed(self) -> None:
         """
         Update denominator input field when ViewModel changes.
         """
-        self._txt_den.setText(self._vm.den)
+        self._txt_den.setText(self._vm_plant.den)
 
     def _on_vm_formula_changed(self) -> None:
         """
@@ -138,7 +158,7 @@ class PlantView(BaseView, QWidget):
         """
         self._lbl_formula.setPixmap(
             LatexRenderer.latex_to_pixmap(
-                self._vm.get_formula(),
+                self._vm_plant.get_formula(),
                 font_size_scale=self._formula_font_size_scale,
             )
         )
@@ -152,7 +172,7 @@ class PlantView(BaseView, QWidget):
         """
         text = self._txt_num.text()
         self._logger.debug("UI event: txt_num changed (value=%s)", text)
-        self._vm.update_num(text)
+        self._vm_plant.update_num(text)
 
     def _on_txt_den_changed(self) -> None:
         """
@@ -160,4 +180,4 @@ class PlantView(BaseView, QWidget):
         """
         text = self._txt_den.text()
         self._logger.debug("UI event: txt_den changed (value=%s)", text)
-        self._vm.update_den(text)
+        self._vm_plant.update_den(text)

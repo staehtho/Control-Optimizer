@@ -1,7 +1,7 @@
 import logging
 
 from models import PlantModel, SettingsModel
-from viewmodels import PlantViewModel, LanguageViewModel
+from viewmodels import PlantViewModel, LanguageViewModel, PlotViewModel
 
 class AppEngine:
     def __init__(self):
@@ -9,9 +9,10 @@ class AppEngine:
         self.logger = logging.getLogger(f"AppEngine.{self.__class__.__name__}")
         self.logger.info("Start new Application")
 
-        self.settings_model = SettingsModel()
-        self.lang_vm = LanguageViewModel(self.settings_model)
+        self.model_settings = SettingsModel()
+        self.vm_lang = LanguageViewModel(self.model_settings)
 
-        self.plant_model = PlantModel()
+        self.model_plant = PlantModel()
 
-        self.plant_vm = PlantViewModel(self.plant_model, self.settings_model)
+        self.vm_plant = PlantViewModel(self.model_plant, self.model_settings)
+        self.vm_plot_plant = PlotViewModel()

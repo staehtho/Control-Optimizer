@@ -18,11 +18,13 @@ class PlotConfiguration:
     figsize: tuple[float, float]
 
 class PlotView(BaseView, QWidget):
-    def __init__(self, vm: PlotViewModel, plot_configuration: PlotConfiguration, lang_vm: LanguageViewModel, parent: QObject = None):
+    def __init__(self, vm: PlotViewModel, plot_configuration: PlotConfiguration, vm_lang: LanguageViewModel, parent: QObject = None):
         QWidget.__init__(self, parent)
+
         self._vm = vm
         self._cfg = plot_configuration
-        BaseView.__init__(self, lang_vm)
+
+        BaseView.__init__(self, vm_lang)
 
     def _init_ui(self) -> None:
         main_layout = QVBoxLayout()

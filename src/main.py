@@ -1,12 +1,10 @@
 from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import QT_TRANSLATE_NOOP
 import logging
 from pathlib import Path
 import sys
 
 from app_engine import AppEngine
-from viewmodels import PlotViewModel
-from views import PlantView, PlotView, PlotConfiguration
+from views import PlantView
 
 if __name__ == '__main__':
 
@@ -36,21 +34,7 @@ if __name__ == '__main__':
 
     engine = AppEngine()
 
-    plant_view = PlantView(engine.lang_vm, engine.plant_vm)
+    plant_view = PlantView(engine.vm_lang, engine.vm_plant, engine.vm_plot_plant)
     plant_view.show()
-
-    plt_cfg = PlotConfiguration(
-        context="plot.view",
-        title=str(QT_TRANSLATE_NOOP("plot.view", "TestPlot")),
-        x_label=str(QT_TRANSLATE_NOOP("plot.view", "X-Label")),
-        y_label=str(QT_TRANSLATE_NOOP("plot.view", "Y-Label")),
-        figsize=(5, 4)
-    )
-    vm = PlotViewModel()
-    plot_view = PlotView(vm, plt_cfg, engine.lang_vm)
-
-    vm.update_data("test", ([0, 1, 2, 3], [0, 1, 2, 3]))
-
-    plot_view.show()
 
     sys.exit(app.exec())

@@ -12,15 +12,15 @@ class BaseView:
     - Abstract methods enforce that concrete Views implement required functionality
     """
 
-    def __init__(self, lang_vm: LanguageViewModel):
+    def __init__(self, vm_lang: LanguageViewModel):
 
         # -----------------------------
         # Language support
         # -----------------------------
         # Store reference to the LanguageViewModel
-        self._lang_vm = lang_vm
+        self._vm_lang = vm_lang
         # Connect signal: whenever language changes, call _retranslate
-        self._lang_vm.languageChanged.connect(self._retranslate)
+        self._vm_lang.languageChanged.connect(self._retranslate)
 
         # -----------------------------
         # Logging setup
