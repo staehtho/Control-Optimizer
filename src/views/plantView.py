@@ -122,12 +122,16 @@ class PlantView(BaseView, QWidget):
     # ViewModel bindings (ViewModel → UI)
     # -------------------------------------------------
     def _bind_vm(self) -> None:
+        # vm plant
         self._vm_plant.numChanged.connect(self._on_vm_num_changed)
         self._vm_plant.denChanged.connect(self._on_vm_den_changed)
         self._vm_plant.formulaChanged.connect(self._on_vm_formula_changed)
         self._vm_plant.stepResponseChanged.connect(
             lambda: self._vm_plot.update_data("Step Response", self._vm_plant.get_step_response_result())
         )
+        # vm plot
+        self._vm_plot.startTimeChanged.connect(self._on_plot_time_changed)
+        self._vm_plot.endTimeChanged.connect(self._on_plot_time_changed)
 
     # -------------------------------------------------
     # Retranslation (for language changes)
@@ -167,6 +171,12 @@ class PlantView(BaseView, QWidget):
                 font_size_scale=self._formula_font_size_scale,
             )
         )
+
+    def _on_plot_time_changed(self) -> None:
+        """
+        Update plot when start or end time changes.
+        """
+        self._vm_plant.compute_step_response(self._vm_plot.start_time, self._vm_plot.end_time)
 
     # -------------------------------------------------
     # UI event handlers

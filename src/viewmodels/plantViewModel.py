@@ -9,21 +9,44 @@ from models import PlantModel, SettingsModel
 from services.controlsys import Plant, MySolver
 
 class StepResponseThread(QThread):
-    """Thread to compute the step response of a Plant.
+    """
+    Background thread for computing the step response of a transfer function.
 
-    This QThread runs the step response calculation in the background to
-    prevent blocking the GUI. It emits signals when started and finished.
+    This QThread performs the numerical simulation of a linear time-invariant
+    (LTI) system defined by numerator and denominator coefficients. The
+    computation is executed in a separate thread to prevent blocking the GUI.
+
+    The thread stores the resulting time vector and output response internally
+    and can emit signals when the computation starts and finishes.
     """
 
-    def __init__(self, num: list[float], den: list[float], t0: float, t1: float, dt: float, solver):
-        """Initializes the StepResponseWorker.
+    def __init__(
+        self,
+        num: list[float],
+        den: list[float],
+        t0: float,
+        t1: float,
+        dt: float,
+        solver,
+    ):
+        """
+        Initialize the step response computation thread.
 
         Args:
-            plant (Plant): The plant model to compute the step response for.
-            t0 (float): Start time of the simulation.
-            t1 (float): End time of the simulation.
-            dt (float): Time step for the simulation.
-            solver (MySolver): The solver to use for numerical integration.
+            num (list[float]):
+                Numerator coefficients of the transfer function
+                (highest degree first).
+            den (list[float]):
+                Denominator coefficients of the transfer function
+                (highest degree first).
+            t0 (float):
+                Start time of the simulation interval.
+            t1 (float):
+                End time of the simulation interval.
+            dt (float):
+                Simulation time step.
+            solver:
+                Numerical solver used for integration.
         """
         super().__init__()
         self._num = num
@@ -82,8 +105,8 @@ class PlantViewModel(BaseViewModel):
 
         self._t: np.ndarray = np.array([])
         self._y: np.ndarray = np.array([])
+        self._step_time: tuple[float, float] = (0, 10)
         self._thread = None
-
 
         self._recalc_timer = QTimer()
         self._recalc_timer.setSingleShot(True)
@@ -249,7 +272,7 @@ class PlantViewModel(BaseViewModel):
     # step_response
     # -------------------
     def _compute_step_response_delayed(self) -> None:
-        self.compute_step_response(0, 10)
+        self.compute_step_response(*self._step_time)
 
     def _on_model_changed(self) -> None:
         if not self.check_update_allowed("plant_plant"):
@@ -263,6 +286,10 @@ class PlantViewModel(BaseViewModel):
         if self._thread is not None and self._thread.isRunning():
             return
 
+        # save step time
+        self._step_time = (t0, t1)
+
+        self._logger.debug(f"Computing step response for {t0} to {t1}")
         dt = self._settings.get_time_step()
         solver = self._settings.get_solver()
         self._thread = StepResponseThread(self._model.num, self._model.den, t0, t1, dt, solver)
