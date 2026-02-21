@@ -41,13 +41,11 @@ class Plant:
     def __init__(
             self,
             num: list[float] | np.ndarray,
-            den: list[float] | np.ndarray,
-            solver: MySolver = MySolver.RK4
+            den: list[float] | np.ndarray
     ) -> None:
+
         self._num = np.array(num, dtype=float)
         self._den = np.array(den, dtype=float)
-
-        self._solver = solver
 
         # Dominante Zeitkonstante T1 bestimmen
         roots = np.roots(self._den)
@@ -121,10 +119,6 @@ class Plant:
         """Dominant time constant (used for derivative filter)."""
         return self._t1
 
-    @property
-    def solver(self) -> MySolver:
-        return self._solver
-
     def get_ABCD(self) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         Returns the state-space matrices (A, B, C, D) of the system.
@@ -176,7 +170,8 @@ class Plant:
             self,
             t0: float = 0,
             t1: float = 10,
-            dt: float = 0.01
+            dt: float = 0.01,
+            solver: MySolver = MySolver.RK4
     ) -> tuple[np.ndarray, np.ndarray]:
         """
         Computes the open-loop step response of the plant.
@@ -185,6 +180,8 @@ class Plant:
             t0 (float): Start time of simulation. Default is 0.
             t1 (float): End time of simulation. Default is 10.
             dt (float): Time step for simulation. Default is 0.01.
+            solver (MySolver, optional): Optional solver object. If None,
+                it is RK4
 
         Returns:
             tuple[np.ndarray, np.ndarray]:
@@ -193,14 +190,15 @@ class Plant:
         """
         u = lambda t: np.ones_like(t)
 
-        return self.system_response(u, t0, t1, dt)
+        return self.system_response(u, t0, t1, dt, solver=solver)
 
     def system_response(self,
                         u: Callable[[np.ndarray], np.ndarray],
                         t0: float = 0,
                         t1: float = 10,
                         dt: float = 0.01,
-                        x0: np.ndarray | None = None
+                        x0: np.ndarray | None = None,
+                        solver: MySolver = MySolver.RK4
                         ) -> tuple[np.ndarray, np.ndarray]:
         """
         Simulates the system's open-loop time response for a given input signal.
@@ -213,6 +211,8 @@ class Plant:
             dt (float): Time step for simulation. Default is 0.01.
             x0 (np.ndarray | None): Optional initial state vector. If None,
                 it is initialized to zeros.
+            solver (MySolver, optional): Optional solver object. If None,
+                it is RK4
 
         Returns:
             tuple[np.ndarray, np.ndarray]:
@@ -240,7 +240,7 @@ class Plant:
             B=B,
             C=C,
             D=D,
-            solver=map_enum_to_int(self._solver)
+            solver=map_enum_to_int(solver)
         )
 
         return t_eval, np.array(y)
