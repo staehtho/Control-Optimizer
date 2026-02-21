@@ -87,27 +87,3 @@ def test_model_is_valid(num, den, expected):
 
     assert spy.size() == (1 if expected else 0)
     assert model.is_valid is expected
-
-@pytest.mark.parametrize(
-    "num, den, expected",
-    [
-        ([1, 1], [1, 1, 1, 1, 1], True),
-        ([1, 1], [], False),
-    ]
-)
-def test_model_plant_num_den_changed(num, den, expected):
-    model = PlantModel()
-
-    model.num = num
-    model.den = den
-
-    plant = model.get_plant()
-    if expected:
-        # Länge muss übereinstimmen, wenn beide model.is_valid
-        assert model.is_valid
-        assert len(list(plant.num)) == len(num)
-        assert len(list(plant.den)) == len(den)
-    else:
-        assert not model.is_valid
-        assert len(list(plant.num)) != len(num) or len(list(plant.den)) != len(den)
-

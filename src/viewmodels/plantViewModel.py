@@ -1,10 +1,62 @@
-from PySide6.QtCore import QObject, Signal, Property, Slot
+from PySide6.QtCore import QObject, Signal, QThread, Property, Slot, QTimer
 import re
+import numpy as np
+import logging
 
 from utils import LatexRenderer
 from .baseViewModel import BaseViewModel
-from models import PlantModel
-from services.controlsys import Plant
+from models import PlantModel, SettingsModel
+from services.controlsys import Plant, MySolver
+
+class StepResponseThread(QThread):
+    """Thread to compute the step response of a Plant.
+
+    This QThread runs the step response calculation in the background to
+    prevent blocking the GUI. It emits signals when started and finished.
+    """
+
+    def __init__(self, num: list[float], den: list[float], t0: float, t1: float, dt: float, solver):
+        """Initializes the StepResponseWorker.
+
+        Args:
+            plant (Plant): The plant model to compute the step response for.
+            t0 (float): Start time of the simulation.
+            t1 (float): End time of the simulation.
+            dt (float): Time step for the simulation.
+            solver (MySolver): The solver to use for numerical integration.
+        """
+        super().__init__()
+        self._num = num
+        self._den = den
+        self._t0 = t0
+        self._t1 = t1
+        self._dt = dt
+        self._solver = solver
+
+        self._t: np.ndarray = np.array([])
+        self._y: np.ndarray = np.array([])
+
+        # Set up a logger for this worker
+        self.logger = logging.getLogger(f"Thread.{self.__class__.__name__}")
+        self.logger.debug("StepResponseWorker initialized.")
+
+    def run(self):
+        """Executes the step response computation in a separate thread.
+
+        Emits:
+            started: When the computation starts.
+            finished: When the computation ends.
+        """
+        self.logger.info("Step response computation started.")
+
+        # Perform the step response calculation
+        plant = Plant(self._num, self._den)
+        self._t, self._y = plant.step_response(self._t0, self._t1, self._dt, self._solver)
+
+        self.logger.info("Step response computation finished.")
+
+    def get_result(self) -> tuple[np.ndarray, np.ndarray]:
+        return self._t, self._y
 
 class PlantViewModel(BaseViewModel):
 
@@ -12,12 +64,14 @@ class PlantViewModel(BaseViewModel):
     denChanged = Signal()
     isValidChanged = Signal()
     formulaChanged = Signal()
+    stepResponseChanged = Signal()
 
-    def __init__(self, plant_modle: PlantModel, parent: QObject = None):
+    def __init__(self, plant_modle: PlantModel, settings: SettingsModel, parent: QObject = None):
 
         super().__init__(parent)
 
         self._model = plant_modle
+        self._settings = settings
 
         self._default_formula = r"G(s) = \frac{b_q s^q + b_{q-1}s^{q-1} + \ldots + b_1 s + b_0}{a_n s^n + a_{n-1}s^{n-1} + \ldots + a_1 s + a_0}"
         self._last_formula = self._default_formula
@@ -25,6 +79,15 @@ class PlantViewModel(BaseViewModel):
 
         self._num_input: str = ""
         self._den_input: str = ""
+
+        self._t: np.ndarray = np.array([])
+        self._y: np.ndarray = np.array([])
+        self._thread = None
+
+
+        self._recalc_timer = QTimer()
+        self._recalc_timer.setSingleShot(True)
+        self._recalc_timer.timeout.connect(self._compute_step_response_delayed)
 
         self._connect_signals()
 
@@ -34,6 +97,7 @@ class PlantViewModel(BaseViewModel):
         self._model.numChanged.connect(self._on_model_num_changed)
         self._model.denChanged.connect(self._on_model_den_changed)
         self._model.isValidChanged.connect(self._on_model_is_valid_changed)
+        self._model.modelChanged.connect(self._on_model_changed)
 
     # -------------------
     # num
@@ -180,6 +244,40 @@ class PlantViewModel(BaseViewModel):
             self._formula = self._last_formula
 
         self.formulaChanged.emit()
+
+    # -------------------
+    # step_response
+    # -------------------
+    def _compute_step_response_delayed(self) -> None:
+        self.compute_step_response(0, 10)
+
+    def _on_model_changed(self) -> None:
+        if not self.check_update_allowed("plant_plant"):
+            return
+
+        # starte Timer neu bei jeder Eingabe
+        self._recalc_timer.start(100)  # 100 ms warten
+
+    @Slot(float, float)
+    def compute_step_response(self, t0: float, t1: float) -> None:
+        if self._thread is not None and self._thread.isRunning():
+            return
+
+        dt = self._settings.get_time_step()
+        solver = self._settings.get_solver()
+        self._thread = StepResponseThread(self._model.num, self._model.den, t0, t1, dt, solver)
+
+        self._thread.finished.connect(self._on_finished)
+
+        self._thread.start()
+
+    def _on_finished(self):
+        self._t, self._y = self._thread.get_result()
+        self._thread = None
+        self.stepResponseChanged.emit()
+
+    def get_step_response_result(self) -> tuple[np.ndarray, np.ndarray]:
+        return self._t, self._y
 
     # -------------------
     # Helper methods

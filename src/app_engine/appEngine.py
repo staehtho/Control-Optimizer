@@ -12,6 +12,6 @@ class AppEngine:
         self.settings_model = SettingsModel()
         self.lang_vm = LanguageViewModel(self.settings_model)
 
-        self.plant_model = PlantModel(solver=self.settings_model.get_solver())
+        self.plant_model = PlantModel()
 
-        self.plant_vm = PlantViewModel(self.plant_model)
+        self.plant_vm = PlantViewModel(self.plant_model, self.settings_model)
