@@ -28,5 +28,6 @@ if __name__ == '__main__':
 
     engine = AppEngine()
 
-    plant_view = PlantView(engine.lang_vm)
+    plant_view = PlantView(engine.lang_vm, engine.plant_vm)
     plant_view.show()
+    sys.exit(app.exec())
