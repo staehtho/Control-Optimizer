@@ -7,7 +7,7 @@ class BaseView:
 
     Responsibilities:
     - Bind to LanguageViewModel for UI translations
-    - Provide a logger for debugging
+    - Provide a _logger for debugging
     - Structured lifecycle: UI creation, signals, ViewModel bindings
     - Abstract methods enforce that concrete Views implement required functionality
     """
@@ -25,29 +25,29 @@ class BaseView:
         # -----------------------------
         # Logging setup
         # -----------------------------
-        self.logger = logging.getLogger(f"View.{self.__class__.__name__}")
-        self.logger.debug(f"{self.__class__.__name__} initialized")
+        self._logger = logging.getLogger(f"View.{self.__class__.__name__}")
+        self._logger.debug(f"{self.__class__.__name__} initialized")
 
         # -----------------------------
         # View lifecycle
         # -----------------------------
         # Step 1: Initialize UI components (widgets, layouts, etc.)
         self._init_ui()
-        self.logger.debug("UI initialized")
+        self._logger.debug("UI initialized")
 
         # Step 2: Connect UI signals (buttons, inputs, etc.)
         self._connect_signals()
-        self.logger.debug("UI signals connected")
+        self._logger.debug("UI signals connected")
 
         # Step 3: Bind ViewModel signals to the View
         self._bind_vm()
-        self.logger.debug("ViewModel bindings set up")
+        self._logger.debug("ViewModel bindings set up")
 
         # Step 4: Initial translation
         # Call _retranslate explicitly because the signal only fires on changes,
         # ensuring UI shows the correct initial language
         self._retranslate()
-        self.logger.debug("initial translation applied")
+        self._logger.debug("initial translation applied")
 
     # ---------- Lifecycle abstract methods ----------
 
