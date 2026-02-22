@@ -1,7 +1,7 @@
 import logging
 
-from models import PlantModel, SettingsModel
-from viewmodels import PlantViewModel, LanguageViewModel, PlotViewModel
+from models import PlantModel, SettingsModel, FunctionModel
+from viewmodels import PlantViewModel, LanguageViewModel, PlotViewModel, FunctionViewModel
 
 class AppEngine:
     def __init__(self):
@@ -13,6 +13,9 @@ class AppEngine:
         self.vm_lang = LanguageViewModel(self.model_settings)
 
         self.model_plant = PlantModel()
+        self.model_function = FunctionModel(dt=self.model_settings.get_time_step())
 
         self.vm_plant = PlantViewModel(self.model_plant, self.model_settings)
         self.vm_plot_plant = PlotViewModel()
+        self.vm_function = FunctionViewModel(self.model_function)
+        self.vm_plot_function = PlotViewModel()
