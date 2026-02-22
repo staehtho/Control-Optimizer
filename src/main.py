@@ -5,7 +5,8 @@ from pathlib import Path
 import sys
 
 from app_engine import AppEngine
-from views import PlantView
+from views import PlantView, FunctionView
+from models import Functions
 
 
 def print_tab_order(parent_widget: QWidget) -> None:
@@ -56,8 +57,12 @@ if __name__ == '__main__':
 
     engine = AppEngine()
 
-    plant_view = PlantView(engine.vm_lang, engine.vm_plant, engine.vm_plot_plant)
-    print_tab_order(plant_view)
-    plant_view.show()
+    view_plant = PlantView(engine.vm_lang, engine.vm_plant, engine.vm_plot_plant)
+    #print_tab_order(view_plant)
+    view_plant.show()
+
+    view_function = FunctionView(engine.vm_lang, engine.vm_function, engine.vm_plot_function)
+    #print_tab_order(view_function)
+    view_function.show()
 
     sys.exit(app.exec())
