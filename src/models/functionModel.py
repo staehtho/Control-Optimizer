@@ -160,36 +160,31 @@ class SineFunction(BaseFunction):
             r"A": 1.0,
             r"\omega": 1.0,
             r"\varphi": 0.0,
-            r"y_0": 0.0
+            r"u_0": 0.0
         }
         self._label = QT_TRANSLATE_NOOP("FunctionModel", "Sine function")
         self._logger.info("SineFunction initialized with params: %s", self._param)
 
     def get_formula(self) -> str:
         """Return a string representation of the function (for display)."""
-        return r"u = A \sin(\omega t + \varphi) + y_0"
+        return r"u(t) = A \cdot \sin(\omega t + \varphi) + u_0"
 
     def compute_function(self) -> Callable[[np.ndarray], np.ndarray]:
         """Return a vectorized sine function using current parameters."""
         a = self._param[r"A"]
         omega = self._param[r"\omega"]
         varphi = self._param[r"\varphi"]
-        y0 = self._param[r"y_0"]
+        u0 = self._param[r"u_0"]
 
         def u(t: np.ndarray) -> np.ndarray:
-            return a * np.sin(omega * t + varphi) + y0
+            return a * np.sin(omega * t + varphi) + u0
 
         return u
 
 
 class Functions(Enum):
-    UNIT_STEP = "unit_step"
-    SINE = "sine"
-
-FUNCTIONS = {
-    Functions.UNIT_STEP: UnitStepFunction,
-    Functions.SINE: SineFunction
-}
+    UNIT_STEP = UnitStepFunction
+    SINE = SineFunction
 
 
 class FunctionModel(QObject):
@@ -279,7 +274,7 @@ class FunctionModel(QObject):
             function: Name of the function as string (matches Functions enum).
         """
         try:
-            func_class = FUNCTIONS[function]
+            func_class = function.value
             if type(self._function).__name__ != func_class.__name__:
                 self._function = func_class()
                 self._logger.info("Function changed to: %s", type(self._function).__name__)

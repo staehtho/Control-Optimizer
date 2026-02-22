@@ -2,7 +2,7 @@ import pytest
 from PySide6.QtTest import QSignalSpy
 
 from models import FunctionModel, Functions
-from models.functionModel import UnitStepFunction, SineFunction, FUNCTIONS
+from models.functionModel import UnitStepFunction, SineFunction
 from viewmodels import FunctionViewModel
 
 @pytest.fixture
@@ -68,7 +68,7 @@ def test_function_change(model, vm, qtbot):
     with qtbot.waitSignal(vm.functionChanged, timeout=100):
         vm.set_function(Functions.UNIT_STEP)
 
-    assert vm.function.get_formula() == FUNCTIONS[Functions.UNIT_STEP]().get_formula()
+    assert vm.function.get_formula() == Functions.UNIT_STEP.value().get_formula()
 
 def test_compute_finished(model, vm, qtbot):
     model._function = UnitStepFunction()

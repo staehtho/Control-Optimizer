@@ -1,7 +1,7 @@
 import pytest
 from PySide6.QtTest import QSignalSpy
 
-from models.functionModel import FunctionModel, Functions, FUNCTIONS, SineFunction, UnitStepFunction
+from models.functionModel import FunctionModel, Functions, SineFunction, UnitStepFunction
 
 
 def test_set_function(qtbot):
@@ -11,7 +11,7 @@ def test_set_function(qtbot):
     with qtbot.waitSignal(function.functionChanged, timeout=100):
         function.set_function(Functions.UNIT_STEP)
 
-    assert function.function.get_formula() == FUNCTIONS[Functions.UNIT_STEP]().get_formula()
+    assert function.function.get_formula() == Functions.UNIT_STEP.value().get_formula()
 
 @pytest.mark.parametrize(
     "t0, expected_spy",
