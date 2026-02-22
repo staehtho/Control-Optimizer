@@ -1,6 +1,6 @@
 from PySide6.QtCore import QObject
 from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QScrollArea, QFrame, QVBoxLayout
-from PySide6.QtGui import QRegularExpressionValidator
+from PySide6.QtGui import QRegularExpressionValidator, QFont
 from PySide6.QtCore import QRegularExpression, Qt, QT_TRANSLATE_NOOP
 
 from viewmodels import LanguageViewModel, PlantViewModel, PlotViewModel
@@ -41,6 +41,18 @@ class PlantView(BaseView, QWidget):
         validator = QRegularExpressionValidator(regex)
 
         main_layout = QVBoxLayout()
+
+        # -------------------------------
+        # Title
+        # -------------------------------
+        self._lbl_title = QLabel()
+        font = QFont()
+        font.setPointSize(16)  # size in pt
+        font.setBold(True)
+        self._lbl_title.setFont(font)
+        self._lbl_title.setAlignment(Qt.AlignCenter)  # type: ignore[attr-defined]
+
+        main_layout.addWidget(self._lbl_title)
 
         frame = QFrame()
         frame.setFrameShape(QFrame.StyledPanel) # type: ignore[attr-defined]
@@ -150,6 +162,7 @@ class PlantView(BaseView, QWidget):
     # Retranslation (for language changes)
     # -------------------------------------------------
     def _retranslate(self) -> None:
+        self._lbl_title.setText(self.tr("Plant"))
         self._lbl_num.setText(self.tr("plant.num"))
         self._lbl_den.setText(self.tr("plant.den"))
         self._txt_num.setPlaceholderText(self.tr("e.g. 1  → 1"))

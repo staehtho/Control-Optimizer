@@ -37,7 +37,7 @@ class FunctionView(BaseView, QWidget):
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
 
-        self._main_layout = QVBoxLayout()
+        main_layout = QVBoxLayout()
 
         # -------------------------------
         # Title
@@ -49,7 +49,7 @@ class FunctionView(BaseView, QWidget):
         self._lbl_title.setFont(font)
         self._lbl_title.setAlignment(Qt.AlignCenter)  # type: ignore[attr-defined]
 
-        self._main_layout.addWidget(self._lbl_title)
+        main_layout.addWidget(self._lbl_title)
 
         frame = QFrame()
         frame.setFrameShape(QFrame.StyledPanel)  # type: ignore[attr-defined]
@@ -64,7 +64,7 @@ class FunctionView(BaseView, QWidget):
         self._frame_layout.addLayout(self._param_grid)
 
         frame.setLayout(self._frame_layout)
-        self._main_layout.addWidget(frame)
+        main_layout.addWidget(frame)
 
         self._plot_cfg = PlotConfiguration(
             context="FunctionModel",
@@ -79,8 +79,8 @@ class FunctionView(BaseView, QWidget):
             self._vm_lang,
         )
 
-        self._main_layout.addWidget(self._plot_view)
-        self.setLayout(self._main_layout)
+        main_layout.addWidget(self._plot_view)
+        self.setLayout(main_layout)
 
     def _init_param_grid(self) -> QGridLayout:
         """Create and populate the parameter grid."""
