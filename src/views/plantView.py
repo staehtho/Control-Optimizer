@@ -97,13 +97,13 @@ class PlantView(BaseView, QWidget):
         scroll_formula.setWidget(self._lbl_formula)
         scroll_formula.setWidgetResizable(True)
         scroll_formula.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)   # type: ignore[attr-defined]
-        scroll_formula.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded) # type: ignore[attr-defined]
+        scroll_formula.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff) # type: ignore[attr-defined]
         scroll_formula.setFrameShape(QScrollArea.NoFrame)   # type: ignore[attr-defined]
         scroll_formula.setFocusPolicy(Qt.NoFocus)   # type: ignore[attr-defined]  # cannot be focused at all
         scroll_formula.setStyleSheet("background: transparent;")
         scroll_formula.viewport().setStyleSheet("background: transparent;")
 
-        frame_layout.addWidget(scroll_formula, 0, 2, 2, 2)
+        frame_layout.addWidget(scroll_formula, 0, 2, 4, 1)
 
         frame.setLayout(frame_layout)
         main_layout.addWidget(frame)

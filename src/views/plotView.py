@@ -41,11 +41,13 @@ class PlotView(BaseView, QWidget):
         frame_layout.addLayout(self._create_header())
 
         # figure
-        self._figure = Figure()
+        self._figure = Figure(constrained_layout=True)
         self._canvas = FigureCanvas(self._figure)
         self._toolbar = NavigationToolbar(self._canvas, self)
         self._canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)    # type: ignore[attr-defined]
+        self._canvas.setMinimumSize(400, 250)
         self._update_plot()
+
         frame_layout.addWidget(self._toolbar)
         frame_layout.addWidget(self._canvas)
 
@@ -152,7 +154,6 @@ class PlotView(BaseView, QWidget):
         ax.grid(self._vm.grid)
         ax.set_xlim(self._vm.start_time, self._vm.end_time)
 
-        self._figure.tight_layout()
         self._canvas.draw()
 
     # -------------------------------------------------
@@ -188,8 +189,5 @@ class PlotView(BaseView, QWidget):
         self._txt_end.setText(f"{value:.{self._dec}f}")
 
     def resizeEvent(self, event):
-        self._figure.tight_layout()
-        self._canvas.draw()
-
-        # Call the base class implementation (important!)
+        self._canvas.draw_idle()
         super().resizeEvent(event)
