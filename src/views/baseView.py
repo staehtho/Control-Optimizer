@@ -1,4 +1,6 @@
 import logging
+from PySide6.QtWidgets import QLayout
+
 from viewmodels import LanguageViewModel
 
 class BaseView:
@@ -66,3 +68,13 @@ class BaseView:
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         raise NotImplementedError
+
+    def _clear_layout(self, layout: QLayout) -> None:
+        if layout is not None:
+            while layout.count():
+                item = layout.takeAt(0)
+                widget = item.widget()
+                if widget is not None:
+                    widget.setParent(None)
+                elif item.layout() is not None:
+                    self._clear_layout(item.layout())
