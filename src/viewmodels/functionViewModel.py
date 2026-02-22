@@ -5,10 +5,9 @@ from .baseViewModel import BaseViewModel
 
 class FunctionViewModel(BaseViewModel):
 
-    t0Changed = Signal()
-    t1Changed = Signal()
     functionChanged = Signal()
     computeFinished = Signal()
+    parameterChanged = Signal(str)
 
     def __init__(self, model_function: FunctionModel, parent: QObject = None) -> None:
         super().__init__(parent)
@@ -19,64 +18,9 @@ class FunctionViewModel(BaseViewModel):
 
     def _connect_signals(self) -> None:
         # FunctionModel
-        self._model_function.t0Changed.connect(self._on_model_t0_changed)
-        self._model_function.t1Changed.connect(self._on_model_t1_changed)
         self._model_function.functionChanged.connect(self._on_model_function_changed)
         self._model_function.computeFinished.connect(lambda: self.computeFinished.emit())
-
-    # -------------------
-    # t0
-    # -------------------
-    def _on_model_t0_changed(self) -> None:
-        if not self.check_update_allowed("function_t0"):
-            self._logger.debug("Blocked 't0' update (guard active)")
-            return
-
-        new_value = self._model_function.t0
-        self._logger.debug(f"Forwarding 't0' change from model (new_value={new_value})")
-
-        self.t0Changed.emit()
-
-    def _get_t0(self) -> float:
-        self._logger.debug(f"Getter 't0' called (value={self._model_function.t0})")
-        return self._model_function.t0
-
-    def _set_t0(self, value: float) -> None:
-        self._logger.debug(f"Setter 't0' called (value={value})")
-        if value != self._model_function.t0:
-            with self.updating("function_t0"):
-                self._model_function.t0 = value
-                self._logger.debug("Emitting t0Changed after model update")
-                self.t0Changed.emit()
-
-    t0 = Property(float, _get_t0, _set_t0, notify=t0Changed)    # type: ignore[assignment]
-
-    # -------------------
-    # t1
-    # -------------------
-    def _on_model_t1_changed(self) -> None:
-        if not self.check_update_allowed("function_t1"):
-            self._logger.debug("Blocked 't1' update (guard active)")
-            return
-
-        new_value = self._model_function.t1
-        self._logger.debug(f"Forwarding 't1' change from model (new_value={new_value})")
-
-        self.t1Changed.emit()
-
-    def _get_t1(self) -> float:
-        self._logger.debug(f"Getter 't1' called (value={self._model_function.t1})")
-        return self._model_function.t1
-
-    def _set_t1(self, value: float) -> None:
-        self._logger.debug(f"Setter 't1' called (value={value})")
-        if value != self._model_function.t1:
-            with self.updating("function_t1"):
-                self._model_function.t1 = value
-                self._logger.debug("Emitting t1Changed after model update")
-                self.t1Changed.emit()
-
-    t1 = Property(float, _get_t1, _set_t1, notify=t1Changed)  # type: ignore[assignment]
+        self._model_function.parameterChanged.connect(self._on_model_parameter_changed)
 
     # -------------------
     # function
@@ -107,8 +51,31 @@ class FunctionViewModel(BaseViewModel):
 
     selected_function = Property(BaseFunction, _get_selected_function, notify=functionChanged)  # type: ignore[assignment]
 
-    @Slot()
-    def compute_function(self) -> None:
+    @Slot(float, float)
+    def compute_function(self, t0:float, t1: float) -> None:
         self._logger.debug(f"Computing function (type={type(self._model_function.selected_function).__name__})")
-        self._model_function.compute()
+        self._model_function.compute(t0, t1)
 
+    # -------------------
+    # param
+    # -------------------
+    def _on_model_parameter_changed(self, key: str):
+        if not self.check_update_allowed("function_param"):
+            self._logger.debug("Blocked 'parameter' update (guard active)")
+            return
+
+        new_value = self._model_function.selected_function.get_param_value(key)
+        self._logger.debug(f"Forwarding 'parameter' change from model ({key=}={new_value=})")
+
+        self.parameterChanged.emit(key)
+
+    @Slot(str, float)
+    def update_param_value(self, key: str, value: float) -> None:
+        self._logger.debug(f"update_param_value called ({key=}, {value=})")
+
+        old_value = self._model_function.selected_function.get_param_value(key)
+        if value != old_value:
+            with self.updating("function_param"):
+                self._model_function.update_param_value(key, value)
+                self._logger.info("Parameter '%s' updated from %f to %f", key, old_value, value)
+                self.parameterChanged.emit(key)

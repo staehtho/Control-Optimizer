@@ -13,55 +13,6 @@ def test_set_function(qtbot):
 
     assert function.selected_function.get_formula() == Functions.UNIT_STEP.value().get_formula()
 
-@pytest.mark.parametrize(
-    "t0, expected_spy",
-    [
-        (0.0, 0),
-        (0.5, 1),
-        (1.0, 0)
-    ],
-    ids=[
-        "t0 == t0",
-        "t0 < t1",
-        "t0 == t1",
-    ]
-)
-def test_t0_change(t0, expected_spy):
-    function = FunctionModel()
-    function._t0 = 0
-    function._t1 = 1.0
-
-    spy = QSignalSpy(function.t0Changed)
-
-    function.t0 = t0
-
-    assert spy.size() == expected_spy
-
-
-@pytest.mark.parametrize(
-    "t1, expected_spy",
-    [
-        (1.0, 0),
-        (0.5, 1),
-        (0.0, 0)
-    ],
-    ids=[
-        "t1 == t1",
-        "t1 > t0",
-        "t0 == t1",
-    ]
-)
-def test_t1_change(t1, expected_spy):
-    function = FunctionModel()
-    function._t0 = 0
-    function._t1 = 1.0
-
-    spy = QSignalSpy(function.t1Changed)
-
-    function.t1 = t1
-
-    assert spy.size() == expected_spy
-
 
 def test_compute_function(qtbot):
     function = FunctionModel()
@@ -72,6 +23,35 @@ def test_compute_function(qtbot):
     spy = QSignalSpy(function.computeFinished)
 
     with qtbot.waitSignal(function.computeFinished, timeout=500):
-        function.compute()
+        function.compute(0, 1)
 
     assert spy.size() == 1
+
+@pytest.mark.parametrize(
+    "value, key, expected_value, expected_spy_size",
+    [
+        (0, "A", 0, 0),
+        (1, r"\varphi", 1, 1),
+        (0.5, r"\omega", 0.5, 1)
+    ],
+    ids=[
+        "same value",
+        "different value",
+        "different (float) value"
+    ]
+)
+
+def test_param_value_changed(value, key, expected_value, expected_spy_size):
+    function = FunctionModel()
+
+    function._selected_function = SineFunction()
+    function.selected_function._param[key] = 0
+
+    spy = QSignalSpy(function.parameterChanged)
+
+    function.update_param_value(key, value)
+    print(function.selected_function._param)
+
+    assert spy.size() == expected_spy_size
+    assert function.selected_function.get_param_value(key) == expected_value
+
