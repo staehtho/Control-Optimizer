@@ -1,4 +1,4 @@
-from PySide6.QtCore import QObject, QThread, Signal, Slot, Property
+from PySide6.QtCore import QObject, QThread, Signal, Slot, Property, QT_TRANSLATE_NOOP
 import numpy as np
 from abc import ABC, abstractmethod
 from enum import Enum
@@ -56,6 +56,7 @@ class BaseFunction(ABC):
     def __init__(self) -> None:
         """Initialize function parameters and logger."""
         self._param: dict[str, float] = {}
+        self._label: object = None
         self._t: np.ndarray = np.array([])
         self._y: np.ndarray = np.array([])
         self._logger = logging.getLogger(f"Function.{self.__class__.__name__}")
@@ -64,13 +65,6 @@ class BaseFunction(ABC):
     def __repr__(self) -> str:
         """Return a string representation of the function and its parameters."""
         return f"{self.__class__.__name__}(" + ", ".join([f"{key}={val}" for key, val in self._param.items()]) + ")"
-
-    def __format__(self, format_spec: str) -> str:
-        """Return a string representation of the function (for display)."""
-        format_spec = format_spec.strip().lower()
-        if format_spec == "display":
-            raise NotImplementedError
-        return super().__format__(format_spec)
 
     def update_param_value(self, key: str, value: float) -> None:
         """Update or add a parameter value.
@@ -101,6 +95,10 @@ class BaseFunction(ABC):
         self._logger.debug("Returning all params: %s", self._param)
         return self._param
 
+    def get_label(self) -> object:
+        """Return the label of the function."""
+        return self._label
+
     @property
     def t(self) -> np.ndarray:
         """Return input vector t."""
@@ -122,6 +120,11 @@ class BaseFunction(ABC):
         self._y = value
 
     @abstractmethod
+    def get_formula(self) -> str:
+        """Return a string representation of the function (for display)."""
+        ...
+
+    @abstractmethod
     def compute_function(self) -> Callable[[np.ndarray], np.ndarray]:
         """Return a callable that computes y(t)."""
         ...
@@ -133,14 +136,12 @@ class UnitStepFunction(BaseFunction):
     def __init__(self) -> None:
         """Initialize unit step function."""
         super().__init__()
+        self._label = QT_TRANSLATE_NOOP("FunctionModel", "Unit step function")
         self._logger.info("UnitStepFunction initialized")
 
-    def __format__(self, format_spec: str) -> str:
+    def get_formula(self) -> str:
         """Return a string representation of the function (for display)."""
-        format_spec = format_spec.strip().lower()
-        if format_spec == "display":
-            return r"u = \sigma(t)"
-        return super().__format__(format_spec)
+        return r"u = \sigma(t)"
 
     def compute_function(self) -> Callable[[np.ndarray], np.ndarray]:
         """Return a vectorized function computing the unit step."""
@@ -161,14 +162,12 @@ class SineFunction(BaseFunction):
             r"\varphi": 0.0,
             r"y_0": 0.0
         }
+        self._label = QT_TRANSLATE_NOOP("FunctionModel", "Sine function")
         self._logger.info("SineFunction initialized with params: %s", self._param)
 
-    def __format__(self, format_spec: str) -> str:
+    def get_formula(self) -> str:
         """Return a string representation of the function (for display)."""
-        format_spec = format_spec.strip().lower()
-        if format_spec == "display":
-            return r"u = A \sin(\omega t + \varphi) + y_0"
-        return super().__format__(format_spec)
+        return r"u = A \sin(\omega t + \varphi) + y_0"
 
     def compute_function(self) -> Callable[[np.ndarray], np.ndarray]:
         """Return a vectorized sine function using current parameters."""
@@ -184,9 +183,13 @@ class SineFunction(BaseFunction):
 
 
 class Functions(Enum):
-    """Enum mapping function names to their classes."""
-    UNIT_STEP_FUNCTION = UnitStepFunction
-    SINE_FUNCTION = SineFunction
+    UNIT_STEP = "unit_step"
+    SINE = "sine"
+
+FUNCTIONS = {
+    Functions.UNIT_STEP: UnitStepFunction,
+    Functions.SINE: SineFunction
+}
 
 
 class FunctionModel(QObject):
@@ -199,6 +202,8 @@ class FunctionModel(QObject):
         _func_thread: Thread computing function outputs.
     """
 
+    t0Changed = Signal()
+    t1Changed = Signal()
     functionChanged = Signal()
     computeFinished = Signal()
 
@@ -213,21 +218,69 @@ class FunctionModel(QObject):
         self._logger = logging.getLogger(f"Model.{self.__class__.__name__}.{id(self)}")
         self._logger.debug("FunctionModel initialized")
 
+        self._t0: float = 0.0
+        self._t1: float = 1.0
         self._dt = dt
         self._function: BaseFunction = UnitStepFunction()
         self._func_thread = None
         self._logger.info("Default function set: %s", type(self._function).__name__)
 
-    @Slot(str)
-    def set_function(self, function: str) -> None:
+    # -------------------
+    # t0
+    # -------------------
+    def _get_t0(self) -> float:
+        self._logger.debug(f"Getter 'num' called (value={self._t0})")
+        return self._t0
+
+    def _set_t0(self, value: float) -> None:
+        self._logger.debug(f"Setter 't0' called (value={value})")
+        if value == self._t0:
+            self._logger.debug("Skipped 't0' update (same value)")
+            return
+
+        if value >= self._t1:
+            self._logger.debug(f"Skipped 't0' update ({self._t0=} >= {self._t1=})")
+            return
+
+        self._t0 = value
+        self._logger.debug("Emitting t0Changed after model update")
+        self.t0Changed.emit()
+
+    t0 = Property(float, _get_t0, _set_t0, notify=t0Changed)    # type: ignore[assignment]
+
+    # -------------------
+    # t1
+    # -------------------
+    def _get_t1(self) -> float:
+        self._logger.debug(f"Getter 'num' called (value={self._t1})")
+        return self._t1
+
+    def _set_t1(self, value: float) -> None:
+        self._logger.debug(f"Setter 't1' called (value={value})")
+        if value == self._t1:
+            self._logger.debug("Skipped 't1' update (same value)")
+            return
+
+        if value <= self._t0:
+            self._logger.debug(f"Skipped 't1' update ({self._t1=} <= {self._t0=})")
+            return
+
+        self._t1 = value
+        self._logger.debug("Emitting t1Changed after model update")
+        self.t1Changed.emit()
+
+    t1 = Property(float, _get_t1, _set_t1, notify=t1Changed)  # type: ignore[assignment]
+
+    @Slot(Functions)
+    def set_function(self, function: Functions) -> None:
         """Change the current function by name.
 
         Args:
             function: Name of the function as string (matches Functions enum).
         """
         try:
-            func_class = Functions[function.upper()].value
-            if type(self._function) != func_class:
+            func_class = FUNCTIONS[function]
+            if type(self._function).__name__ != func_class.__name__:
                 self._function = func_class()
                 self._logger.info("Function changed to: %s", type(self._function).__name__)
                 self.functionChanged.emit()
@@ -240,22 +293,19 @@ class FunctionModel(QObject):
 
     function = Property(BaseFunction, _get_function, notify=functionChanged)  # type: ignore[assignment]
 
-    def compute(self, t0: float, t1: float) -> None:
-        """Start computing the function output vector y(t) asynchronously.
+    @Slot()
+    def compute(self) -> None:
+        """Start computing the function output vector y(t) asynchronously."""
 
-        Args:
-            t0: Start time.
-            t1: End time.
-        """
         # Avoid starting a new thread if computation is already running
         if self._func_thread is not None and self._func_thread.isRunning():
             self._logger.warning("Computation already running, ignoring request")
             return
 
         # Avoid t0 being exactly zero for numerical reasons
-        if t0 == 0:
-            t0 = -sys.float_info.min
-        t = np.arange(t0, t1 + self._dt, self._dt)
+        if self._t0 == 0:
+            self._t0 = -sys.float_info.min
+        t = np.arange(self._t0, self._t1 + self._dt, self._dt)
 
         self._logger.debug("Starting computation for t.size=%d", t.size)
         self._func_thread = FunctionComputeThread(t, self._function.compute_function())
