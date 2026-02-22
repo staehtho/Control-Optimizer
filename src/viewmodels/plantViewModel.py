@@ -286,6 +286,10 @@ class PlantViewModel(BaseViewModel):
         if self._thread is not None and self._thread.isRunning():
             return
 
+        if not self._model_plant.is_valid:
+            self._logger.debug("Model is invalid -> no (new) calculation")
+            return
+
         # save step time
         self._step_time = (t0, t1)
 
