@@ -29,6 +29,10 @@ class LanguageViewModel(BaseViewModel):
         # Initialize language from settings
         self.set_language(self._settings.get_language())
 
+    def _connect_signals(self) -> None:
+        # No signals to connect.
+        ...
+
     @Slot(str)
     def set_language(self, lang_code: str) -> None:
         """

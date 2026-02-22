@@ -1,7 +1,6 @@
 from PySide6.QtCore import QObject, Signal, Property, Slot
 import numpy as np
-import logging
-from typing import Sequence, Dict, Tuple, Union
+from typing import Sequence, Union
 
 NumberSeq = Union[Sequence[float], np.ndarray]
 
@@ -35,14 +34,11 @@ class PlotViewModel(BaseViewModel):
         self._grid: bool = True
         self._start_time: float = 0.0
         self._end_time: float = 10.0
-        self._data: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
+        self._data: dict[str, tuple[np.ndarray, np.ndarray]] = {}
 
-        self._logger.setLevel(logging.DEBUG)  # You can adjust the level
-        if not self._logger.hasHandlers():
-            # Add default console handler if none exists
-            ch = logging.StreamHandler()
-            ch.setFormatter(logging.Formatter('[%(levelname)s] %(name)s: %(message)s'))
-            self._logger.addHandler(ch)
+    def _connect_signals(self) -> None:
+        # No signals to connect.
+        ...
 
     # ----------------------
     # Grid Property
@@ -95,11 +91,11 @@ class PlotViewModel(BaseViewModel):
     # ----------------------
     # Data Management
     # ----------------------
-    def get_data(self) -> Dict[str, Tuple[np.ndarray, np.ndarray]]:
+    def get_data(self) -> dict[str, tuple[np.ndarray, np.ndarray]]:
         return {k: (np.array(v[0]), np.array(v[1])) for k, v in self._data.items()}
 
     @Slot(str, tuple)
-    def update_data(self, key: str, data: Tuple[NumberSeq, NumberSeq]) -> None:
+    def update_data(self, key: str, data: tuple[NumberSeq, NumberSeq]) -> None:
         x_arr = np.array(data[0])
         y_arr = np.array(data[1])
 

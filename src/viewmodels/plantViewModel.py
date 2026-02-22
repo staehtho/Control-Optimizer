@@ -89,11 +89,11 @@ class PlantViewModel(BaseViewModel):
     formulaChanged = Signal()
     stepResponseChanged = Signal()
 
-    def __init__(self, plant_modle: PlantModel, settings: SettingsModel, parent: QObject = None):
+    def __init__(self, modle_plant: PlantModel, settings: SettingsModel, parent: QObject = None):
 
         super().__init__(parent)
 
-        self._model = plant_modle
+        self._model_plant = modle_plant
         self._settings = settings
 
         self._default_formula = r"G(s) = \frac{b_q s^q + b_{q-1}s^{q-1} + \ldots + b_1 s + b_0}{a_n s^n + a_{n-1}s^{n-1} + \ldots + a_1 s + a_0}"
@@ -117,10 +117,10 @@ class PlantViewModel(BaseViewModel):
 
     def _connect_signals(self):
         # PlantModel
-        self._model.numChanged.connect(self._on_model_num_changed)
-        self._model.denChanged.connect(self._on_model_den_changed)
-        self._model.isValidChanged.connect(self._on_model_is_valid_changed)
-        self._model.modelChanged.connect(self._on_model_changed)
+        self._model_plant.numChanged.connect(self._on_model_num_changed)
+        self._model_plant.denChanged.connect(self._on_model_den_changed)
+        self._model_plant.isValidChanged.connect(self._on_model_is_valid_changed)
+        self._model_plant.modelChanged.connect(self._on_model_changed)
 
     # -------------------
     # num
@@ -130,7 +130,7 @@ class PlantViewModel(BaseViewModel):
             self._logger.debug("Blocked 'num' update (guard active)")
             return
 
-        new_value = self._model.num
+        new_value = self._model_plant.num
         self._logger.debug(f"Forwarding 'num' change from model (new_value={new_value})")
 
         self.numChanged.emit()
@@ -156,14 +156,14 @@ class PlantViewModel(BaseViewModel):
             self._logger.debug("Skipped 'num' update (string -> array conversion failed)")
             return
 
-        if self._model.num == arr:
+        if self._model_plant.num == arr:
             self._logger.debug("Skipped 'num' update (model already has same array value)")
             return
 
         self._logger.debug(f"Updating model.num with {arr}")
 
         with self.updating("plant_num"):
-            self._model.num = arr
+            self._model_plant.num = arr
             self._logger.debug("Emitting numChanged after model update")
             self._update_formula()
             self.numChanged.emit()
@@ -178,7 +178,7 @@ class PlantViewModel(BaseViewModel):
             self._logger.debug("Blocked 'den' update (guard active)")
             return
 
-        new_value = self._model.den
+        new_value = self._model_plant.den
         self._logger.debug(f"Forwarding 'den' change from model (new_value={new_value})")
 
         self.denChanged.emit()
@@ -204,14 +204,14 @@ class PlantViewModel(BaseViewModel):
             self._logger.debug("Skipped 'den' update (string -> array conversion failed)")
             return
 
-        if self._model.den == arr:
+        if self._model_plant.den == arr:
             self._logger.debug("Skipped 'den' update (model already has same array value)")
             return
 
         self._logger.debug(f"Updating model.den with {arr}")
 
         with self.updating("plant_den"):
-            self._model.den = arr
+            self._model_plant.den = arr
             self._logger.debug("Emitting denChanged after model update")
             self._update_formula()
             self.denChanged.emit()
@@ -226,12 +226,12 @@ class PlantViewModel(BaseViewModel):
             self._logger.debug("Blocked 'is_valid' update (guard active)")
             return
 
-        new_value = self._model.is_valid
+        new_value = self._model_plant.is_valid
         self._logger.debug(f"Forwarding 'is_valid' change from model (new_value={new_value})")
         self.isValidChanged.emit()
 
     def _get_is_valid(self) -> bool:
-        return self._model.is_valid
+        return self._model_plant.is_valid
 
     is_valid = Property(bool, _get_is_valid, notify=isValidChanged)  # type: ignore[assignment]
 
@@ -244,18 +244,18 @@ class PlantViewModel(BaseViewModel):
     def _update_formula(self) -> None:
         self._logger.debug("Updating formula...")
 
-        if not self._model.is_valid:
+        if not self._model_plant.is_valid:
             self._logger.debug("Model is not valid -> using last valid formula")
             self._formula = self._last_formula
             self.formulaChanged.emit()
             return
 
         try:
-            self._logger.debug("Numerator raw: %s", self._model.num)
-            self._logger.debug("Denominator raw: %s", self._model.den)
+            self._logger.debug("Numerator raw: %s", self._model_plant.num)
+            self._logger.debug("Denominator raw: %s", self._model_plant.den)
 
-            num = LatexRenderer.array2polynom(self._model.num)
-            den = LatexRenderer.array2polynom(self._model.den)
+            num = LatexRenderer.array2polynom(self._model_plant.num)
+            den = LatexRenderer.array2polynom(self._model_plant.den)
 
             self._formula = rf"G(s) = \frac{{{num}}}{{{den}}}"
             self._last_formula = self._formula
@@ -292,7 +292,7 @@ class PlantViewModel(BaseViewModel):
         self._logger.debug(f"Computing step response for {t0} to {t1}")
         dt = self._settings.get_time_step()
         solver = self._settings.get_solver()
-        self._thread = StepResponseThread(self._model.num, self._model.den, t0, t1, dt, solver)
+        self._thread = StepResponseThread(self._model_plant.num, self._model_plant.den, t0, t1, dt, solver)
 
         self._thread.finished.connect(self._on_finished)
 

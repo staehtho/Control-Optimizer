@@ -15,6 +15,9 @@ class BaseViewModel(QObject):
 
         self._logger = logging.getLogger(f"ViewModel.{self.__class__.__name__}.{id(self)}")
 
+    def _connect_signals(self) -> None:
+        raise NotImplementedError
+
     @contextmanager
     def updating(self, field: str) -> Iterator[None]:
         """Context Manager für Update-Guard"""
