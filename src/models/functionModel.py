@@ -193,7 +193,7 @@ class FunctionModel(QObject):
     Attributes:
         functionChanged: Signal emitted when the function changes.
         computeFinished: Signal emitted when computation is complete.
-        _function: Current BaseFunction instance.
+        _selected_function: Current BaseFunction instance.
         _func_thread: Thread computing function outputs.
     """
 
@@ -216,9 +216,9 @@ class FunctionModel(QObject):
         self._t0: float = 0.0
         self._t1: float = 1.0
         self._dt = dt
-        self._function: BaseFunction = UnitStepFunction()
+        self._selected_function: BaseFunction = UnitStepFunction()
         self._func_thread = None
-        self._logger.info("Default function set: %s", type(self._function).__name__)
+        self._logger.info("Default function set: %s", type(self._selected_function).__name__)
 
     # -------------------
     # t0
@@ -267,7 +267,7 @@ class FunctionModel(QObject):
     t1 = Property(float, _get_t1, _set_t1, notify=t1Changed)  # type: ignore[assignment]
 
     @Slot(Functions)
-    def set_function(self, function: Functions) -> None:
+    def set_selected_function(self, function: Functions) -> None:
         """Change the current function by name.
 
         Args:
@@ -275,18 +275,18 @@ class FunctionModel(QObject):
         """
         try:
             func_class = function.value
-            if type(self._function).__name__ != func_class.__name__:
-                self._function = func_class()
-                self._logger.info("Function changed to: %s", type(self._function).__name__)
+            if type(self._selected_function).__name__ != func_class.__name__:
+                self._selected_function = func_class()
+                self._logger.info("Function changed to: %s", type(self._selected_function).__name__)
                 self.functionChanged.emit()
         except KeyError:
             self._logger.error("Function %s not found", function)
 
-    def _get_function(self) -> BaseFunction:
+    def _get_selected_function(self) -> BaseFunction:
         """Getter for the function property."""
-        return self._function
+        return self._selected_function
 
-    function = Property(BaseFunction, _get_function, notify=functionChanged)  # type: ignore[assignment]
+    selected_function = Property(BaseFunction, _get_selected_function, notify=functionChanged)  # type: ignore[assignment]
 
     @Slot()
     def compute(self) -> None:
@@ -303,14 +303,14 @@ class FunctionModel(QObject):
         t = np.arange(self._t0, self._t1 + self._dt, self._dt)
 
         self._logger.debug("Starting computation for t.size=%d", t.size)
-        self._func_thread = FunctionComputeThread(t, self._function.compute_function())
+        self._func_thread = FunctionComputeThread(t, self._selected_function.compute_function())
         self._func_thread.finished.connect(self._on_finished)
         self._func_thread.start()
 
     def _on_finished(self):
         """Slot called when computation thread finishes. Updates function t and y."""
-        self._function.t, self._function.y = self._func_thread.get_result()
-        self._logger.info("Computation finished. y.size=%d", self._function.y.size)
+        self._selected_function.t, self._selected_function.y = self._func_thread.get_result()
+        self._logger.info("Computation finished. y.size=%d", self._selected_function.y.size)
 
         self._func_thread = None
         self.computeFinished.emit()

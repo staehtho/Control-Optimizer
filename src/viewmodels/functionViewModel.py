@@ -86,29 +86,29 @@ class FunctionViewModel(BaseViewModel):
             self._logger.debug("Blocked 'function' update (guard active)")
             return
 
-        new_value = self._model_function.function
+        new_value = self._model_function.selected_function
         self._logger.debug(f"Forwarding 'function' change from model (new_type={type(new_value).__name__})")
 
         self.functionChanged.emit()
 
     @Slot(Functions)
-    def set_function(self, function: Functions) -> None:
+    def set_selected_function(self, function: Functions) -> None:
         self._logger.debug(f"set_function called (function={function})")
 
         with self.updating("function_function"):
-            self._model_function.set_function(function)
+            self._model_function.set_selected_function(function)
             self._logger.debug("Emitting functionChanged after model update")
             self.functionChanged.emit()
 
-    def _get_function(self) -> BaseFunction:
-        self._logger.debug(f"Getter 'function' called (type={type(self._model_function.function).__name__})")
-        return self._model_function.function
+    def _get_selected_function(self) -> BaseFunction:
+        self._logger.debug(f"Getter 'function' called (type={type(self._model_function.selected_function).__name__})")
+        return self._model_function.selected_function
 
 
-    function = Property(BaseFunction, _get_function, notify=functionChanged)  # type: ignore[assignment]
+    selected_function = Property(BaseFunction, _get_selected_function, notify=functionChanged)  # type: ignore[assignment]
 
     @Slot()
     def compute_function(self) -> None:
-        self._logger.debug(f"Computing function (type={type(self._model_function.function).__name__})")
+        self._logger.debug(f"Computing function (type={type(self._model_function.selected_function).__name__})")
         self._model_function.compute()
 

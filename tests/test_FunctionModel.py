@@ -6,12 +6,12 @@ from models.functionModel import FunctionModel, Functions, SineFunction, UnitSte
 
 def test_set_function(qtbot):
     function = FunctionModel()
-    function._function = SineFunction()
+    function._selected_function = SineFunction()
 
     with qtbot.waitSignal(function.functionChanged, timeout=100):
-        function.set_function(Functions.UNIT_STEP)
+        function.set_selected_function(Functions.UNIT_STEP)
 
-    assert function.function.get_formula() == Functions.UNIT_STEP.value().get_formula()
+    assert function.selected_function.get_formula() == Functions.UNIT_STEP.value().get_formula()
 
 @pytest.mark.parametrize(
     "t0, expected_spy",
@@ -65,7 +65,7 @@ def test_t1_change(t1, expected_spy):
 
 def test_compute_function(qtbot):
     function = FunctionModel()
-    function._function = UnitStepFunction()
+    function._selected_function = UnitStepFunction()
     function._t0 = 0.0
     function._t1 = 1.0
 

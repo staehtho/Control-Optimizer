@@ -63,15 +63,15 @@ def test_t1_change(model, vm, t1, expected_t1, expected_spy):
 
 def test_function_change(model, vm, qtbot):
 
-    model._function = SineFunction()
+    model._selected_function = SineFunction()
 
     with qtbot.waitSignal(vm.functionChanged, timeout=100):
-        vm.set_function(Functions.UNIT_STEP)
+        vm.set_selected_function(Functions.UNIT_STEP)
 
-    assert vm.function.get_formula() == Functions.UNIT_STEP.value().get_formula()
+    assert vm.selected_function.get_formula() == Functions.UNIT_STEP.value().get_formula()
 
 def test_compute_finished(model, vm, qtbot):
-    model._function = UnitStepFunction()
+    model._selected_function = UnitStepFunction()
     model._t0 = 0.0
     model._t1 = 1.0
 
