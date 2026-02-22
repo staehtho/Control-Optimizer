@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QCheckBox, QLineEdit, QSizePolicy
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QCheckBox, QLineEdit, QSizePolicy, QFrame
 from PySide6.QtCore import QCoreApplication, QObject
 from PySide6.QtGui import QDoubleValidator
 from matplotlib.figure import Figure
@@ -15,7 +15,6 @@ class PlotConfiguration:
     title: str
     x_label: str
     y_label: str
-    figsize: tuple[float, float]
 
 class PlotView(BaseView, QWidget):
     def __init__(self, vm: PlotViewModel, plot_configuration: PlotConfiguration, vm_lang: LanguageViewModel, parent: QObject = None):
@@ -31,16 +30,27 @@ class PlotView(BaseView, QWidget):
 
     def _init_ui(self) -> None:
         main_layout = QVBoxLayout()
-        main_layout.addLayout(self._create_header())
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+
+        frame = QFrame()
+        frame.setFrameShape(QFrame.StyledPanel) # type: ignore[attr-defined]
+        frame.setFrameShadow(QFrame.Raised) # type: ignore[attr-defined]
+
+        frame_layout = QVBoxLayout()
+        frame_layout.addLayout(self._create_header())
 
         # figure
-        self._figure = Figure(self._cfg.figsize)
+        self._figure = Figure()
         self._canvas = FigureCanvas(self._figure)
         self._toolbar = NavigationToolbar(self._canvas, self)
         self._canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)    # type: ignore[attr-defined]
-        main_layout.addWidget(self._toolbar)
-        main_layout.addWidget(self._canvas)
+        self._update_plot()
+        frame_layout.addWidget(self._toolbar)
+        frame_layout.addWidget(self._canvas)
 
+        frame.setLayout(frame_layout)
+        main_layout.addWidget(frame)
         self.setLayout(main_layout)
 
     def _create_header(self) -> QHBoxLayout:

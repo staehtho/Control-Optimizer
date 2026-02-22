@@ -1,5 +1,5 @@
 from PySide6.QtCore import QObject
-from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QScrollArea
+from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QScrollArea, QFrame, QVBoxLayout
 from PySide6.QtGui import QRegularExpressionValidator
 from PySide6.QtCore import QRegularExpression, Qt, QT_TRANSLATE_NOOP
 
@@ -40,8 +40,14 @@ class PlantView(BaseView, QWidget):
         regex = QRegularExpression(r"[0-9.,\s]*")
         validator = QRegularExpressionValidator(regex)
 
-        main_layout = QGridLayout()
-        main_layout.setColumnStretch(2, 1)
+        main_layout = QVBoxLayout()
+
+        frame = QFrame()
+        frame.setFrameShape(QFrame.StyledPanel) # type: ignore[attr-defined]
+        frame.setFrameShadow(QFrame.Raised) # type: ignore[attr-defined]
+
+        frame_layout = QGridLayout()
+        frame_layout.setColumnStretch(2, 1)
 
         # -------------------
         # Numerator input
@@ -54,8 +60,8 @@ class PlantView(BaseView, QWidget):
         # Set fixed width (height follows style automatically)
         self._txt_num.setFixedWidth(220)
 
-        main_layout.addWidget(self._lbl_num, 0, 0)
-        main_layout.addWidget(self._txt_num, 0, 1)
+        frame_layout.addWidget(self._lbl_num, 0, 0)
+        frame_layout.addWidget(self._txt_num, 0, 1)
 
         # -------------------
         # Denominator input
@@ -68,17 +74,20 @@ class PlantView(BaseView, QWidget):
         # Same fixed width for visual consistency
         self._txt_den.setFixedWidth(220)
 
-        main_layout.addWidget(self._lbl_den, 1, 0)
-        main_layout.addWidget(self._txt_den, 1, 1)
+        frame_layout.addWidget(self._lbl_den, 1, 0)
+        frame_layout.addWidget(self._txt_den, 1, 1)
 
         # -------------------
         # Transfer function formula display
         # -------------------
         self._lbl_formula = QLabel()
+        self._lbl_formula.setAttribute(Qt.WA_TranslucentBackground) # type: ignore[attr-defined]
+        self._lbl_formula.setStyleSheet("background: transparent;")
+
         self._lbl_formula.setPixmap(
-            LatexRenderer.latex_to_pixmap(
+            LatexRenderer.latex2pixmap(
                 self._vm_plant.get_formula(),
-                font_size_scale=self._formula_font_size_scale,
+                font_size_scale=self._formula_font_size_scale
             )
         )
         self._lbl_formula.setAlignment(Qt.AlignVCenter)  # type: ignore[attr-defined]
@@ -91,8 +100,13 @@ class PlantView(BaseView, QWidget):
         scroll_formula.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded) # type: ignore[attr-defined]
         scroll_formula.setFrameShape(QScrollArea.NoFrame)   # type: ignore[attr-defined]
         scroll_formula.setFocusPolicy(Qt.NoFocus)   # type: ignore[attr-defined]  # cannot be focused at all
+        scroll_formula.setStyleSheet("background: transparent;")
+        scroll_formula.viewport().setStyleSheet("background: transparent;")
 
-        main_layout.addWidget(scroll_formula, 0, 2, 2, 2)
+        frame_layout.addWidget(scroll_formula, 0, 2, 2, 2)
+
+        frame.setLayout(frame_layout)
+        main_layout.addWidget(frame)
 
         # -------------------
         # Step response
@@ -102,12 +116,11 @@ class PlantView(BaseView, QWidget):
             title=str(QT_TRANSLATE_NOOP("plant.view", "Step Response")),
             x_label=str(QT_TRANSLATE_NOOP("plant.view", "Time [s]")),
             y_label=str(QT_TRANSLATE_NOOP("plant.view", "Output")),
-            figsize=(5, 3)
         )
 
         self._plot_view = PlotView(self._vm_plot, plot_cfg, self._vm_lang)
 
-        main_layout.addWidget(self._plot_view, 2, 0, 3, 0)
+        main_layout.addWidget(self._plot_view)
 
         self.setLayout(main_layout)
 
@@ -166,9 +179,9 @@ class PlantView(BaseView, QWidget):
         Update LaTeX formula label when ViewModel formula changes.
         """
         self._lbl_formula.setPixmap(
-            LatexRenderer.latex_to_pixmap(
+            LatexRenderer.latex2pixmap(
                 self._vm_plant.get_formula(),
-                font_size_scale=self._formula_font_size_scale,
+                font_size_scale=self._formula_font_size_scale
             )
         )
 
