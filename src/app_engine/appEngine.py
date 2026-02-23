@@ -13,7 +13,8 @@ class AppEngine:
         self.vm_lang = LanguageViewModel(self.model_settings)
 
         self.model_plant = PlantModel()
-        self.model_function = FunctionModel(dt=self.model_settings.get_time_step())
+
+        self.model_function = FunctionModel()
 
         self.vm_plant = PlantViewModel(self.model_plant, self.model_settings)
         self.vm_plot_plant = PlotViewModel()

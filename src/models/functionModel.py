@@ -232,7 +232,7 @@ class FunctionModel(QObject):
     computeFinished = Signal()
     parameterChanged = Signal(str)
 
-    def __init__(self, dt: float = 1e-4, parent: QObject = None):
+    def __init__(self, parent: QObject = None):
         """Initialize the FunctionModel.
 
         Args:
@@ -243,7 +243,6 @@ class FunctionModel(QObject):
         self._logger = logging.getLogger(f"Model.{self.__class__.__name__}.{id(self)}")
         self._logger.debug("FunctionModel initialized")
 
-        self._dt = dt
         self._selected_function: BaseFunction = UnitStepFunction()
         self._func_thread = None
         self._logger.info("Default function set: %s", type(self._selected_function).__name__)
@@ -286,7 +285,7 @@ class FunctionModel(QObject):
         # Avoid t0 being exactly zero for numerical reasons
         if t0 == 0:
             t0 = -sys.float_info.min
-        t = np.arange(t0, t1 + self._dt, self._dt)
+        t = np.linspace(t0, t1, 5000)
 
         self._logger.debug("Starting computation for t.size=%d", t.size)
         self._func_thread = FunctionComputeThread(t, self._selected_function.compute_function())
