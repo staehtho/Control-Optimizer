@@ -5,7 +5,7 @@ import logging
 
 from utils import LatexRenderer
 from .baseViewModel import BaseViewModel
-from models import PlantModel, SettingsModel
+from models import PlantModel, SettingsModel, PsoConfigurationModel
 from services.controlsys import Plant, MySolver
 
 class StepResponseThread(QThread):
@@ -26,7 +26,6 @@ class StepResponseThread(QThread):
         den: list[float],
         t0: float,
         t1: float,
-        dt: float,
         solver: MySolver,
     ):
         """
@@ -43,8 +42,6 @@ class StepResponseThread(QThread):
                 Start time of the simulation interval.
             t1 (float):
                 End time of the simulation interval.
-            dt (float):
-                Simulation time step.
             solver (MySolver):
                 Numerical solver used for integration.
         """
@@ -53,7 +50,6 @@ class StepResponseThread(QThread):
         self._den = den
         self._t0 = t0
         self._t1 = t1
-        self._dt = dt
         self._solver = solver
 
         self._t: np.ndarray = np.array([])
@@ -73,8 +69,9 @@ class StepResponseThread(QThread):
         self.logger.info("Step response computation started.")
 
         # Perform the step response calculation
+        dt = (self._t1 - self._t0) / 5000
         plant = Plant(self._num, self._den)
-        self._t, self._y = plant.step_response(self._t0, self._t1, self._dt, self._solver)
+        self._t, self._y = plant.step_response(self._t0, self._t1, dt, self._solver)
 
         self.logger.info("Step response computation finished.")
 
@@ -89,11 +86,18 @@ class PlantViewModel(BaseViewModel):
     formulaChanged = Signal()
     stepResponseChanged = Signal()
 
-    def __init__(self, modle_plant: PlantModel, settings: SettingsModel, parent: QObject = None):
+    def __init__(
+            self,
+            model_plant: PlantModel,
+            model_pso: PsoConfigurationModel,
+            settings: SettingsModel,
+            parent: QObject = None
+    ):
 
         super().__init__(parent)
 
-        self._model_plant = modle_plant
+        self._model_plant = model_plant
+        self._model_pso = model_pso
         self._settings = settings
 
         self._default_formula = r"G(s) = \frac{b_q s^q + b_{q-1}s^{q-1} + \ldots + b_1 s + b_0}{a_n s^n + a_{n-1}s^{n-1} + \ldots + a_1 s + a_0}"
@@ -165,6 +169,8 @@ class PlantViewModel(BaseViewModel):
         with self.updating("plant_num"):
             self._model_plant.num = arr
             self._logger.debug("Emitting numChanged after model update")
+            self._model_pso.num = arr
+            self._logger.debug(f"PsoFunctionModel 'num' updated (num={arr})")
             self._update_formula()
             self.numChanged.emit()
 
@@ -213,6 +219,8 @@ class PlantViewModel(BaseViewModel):
         with self.updating("plant_den"):
             self._model_plant.den = arr
             self._logger.debug("Emitting denChanged after model update")
+            self._model_pso.den = arr
+            self._logger.debug(f"PsoFunctionModel 'den' updated (num={arr})")
             self._update_formula()
             self.denChanged.emit()
 
@@ -294,9 +302,8 @@ class PlantViewModel(BaseViewModel):
         self._step_time = (t0, t1)
 
         self._logger.debug(f"Computing step response for {t0} to {t1}")
-        dt = self._settings.get_time_step()
         solver = self._settings.get_solver()
-        self._thread = StepResponseThread(self._model_plant.num, self._model_plant.den, t0, t1, dt, solver)
+        self._thread = StepResponseThread(self._model_plant.num, self._model_plant.den, t0, t1, solver)
 
         self._thread.finished.connect(self._on_finished)
 
