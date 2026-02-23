@@ -179,13 +179,15 @@ class PlantView(BaseView, QWidget):
         """
         Update numerator input field when ViewModel changes.
         """
-        self._txt_num.setText(self._vm_plant.num)
+        if self._txt_num.text() != self._vm_plant.num:
+            self._txt_num.setText(self._vm_plant.num)
 
     def _on_vm_den_changed(self) -> None:
         """
         Update denominator input field when ViewModel changes.
         """
-        self._txt_den.setText(self._vm_plant.den)
+        if self._txt_den.text() != self._vm_plant.den:
+            self._txt_den.setText(self._vm_plant.den)
 
     def _on_vm_formula_changed(self) -> None:
         """
