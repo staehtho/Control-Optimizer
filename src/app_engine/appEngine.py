@@ -15,12 +15,7 @@ class AppEngine:
         self.model_pso = PsoConfigurationModel()
 
         self.vm_lang = LanguageViewModel(self.model_settings)
-
-        self.model_plant = PlantModel()
-
-        self.model_function = FunctionModel()
-
-        self.vm_plant = PlantViewModel(self.model_plant, self.model_settings)
         self.vm_plot_plant = PlotViewModel()
-        self.vm_function = FunctionViewModel(self.model_function)
+        self.vm_plant = PlantViewModel(self.model_plant, self.model_pso, self.model_settings)
         self.vm_plot_function = PlotViewModel()
+        self.vm_function = FunctionViewModel(self.model_function)
