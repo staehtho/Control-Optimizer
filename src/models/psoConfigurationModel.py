@@ -1,13 +1,11 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+import sys
 
 from services.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex
 
 
 @dataclass
 class PsoConfigurationModel:
-    num: list[float] = field(default_factory=list)
-    den: list[float] = field(default_factory=list)
-
     start_time: float = 0.0
     end_time: float = 1.0
     time_step: float = 1e-4
@@ -22,5 +20,5 @@ class PsoConfigurationModel:
     iterations: int = 14
 
     kp: tuple[float, float] = (0, 10)
-    ti: tuple[float, float] = (0, 10)
+    ti: tuple[float, float] = (sys.float_info.min, 10)
     td: tuple[float, float] = (0, 10)
