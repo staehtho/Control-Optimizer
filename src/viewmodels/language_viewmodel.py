@@ -45,10 +45,10 @@ class LanguageViewModel(BaseViewModel):
         """
 
         if lang_code == self._current_lang:
-            self._logger.debug(f"Language '{lang_code}' already active — no change")
+            self.logger.debug(f"Language '{lang_code}' already active — no change")
             return
 
-        self._logger.debug(f"Changing language from '{self._current_lang}' to '{lang_code}'")
+        self.logger.debug(f"Changing language from '{self._current_lang}' to '{lang_code}'")
 
         # Remove old translator
         QCoreApplication.removeTranslator(self._translator)
@@ -58,9 +58,9 @@ class LanguageViewModel(BaseViewModel):
 
         if self._translator.load(str(qm_path)):
             QCoreApplication.installTranslator(self._translator)
-            self._logger.debug(f"Loaded translator file '{qm_path}'")
+            self.logger.debug(f"Loaded translator file '{qm_path}'")
         else:
-            self._logger.warning(F"Failed to load translator file '{qm_path}'")
+            self.logger.warning(F"Failed to load translator file '{qm_path}'")
 
         # Update internal state
         self._current_lang = lang_code

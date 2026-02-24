@@ -9,7 +9,7 @@ class BaseView:
 
     Responsibilities:
     - Bind to LanguageViewModel for UI translations
-    - Provide a _logger for debugging
+    - Provide a logger for debugging
     - Structured lifecycle: UI creation, signals, ViewModel bindings
     - Abstract methods enforce that concrete Views implement required functionality
     """

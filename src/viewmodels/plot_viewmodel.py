@@ -49,7 +49,7 @@ class PlotViewModel(BaseViewModel):
     def _set_grid(self, value: bool) -> None:
         if value != self._grid:
             self._grid = value
-            self._logger.debug(f"Grid visibility set to {value}")
+            self.logger.debug(f"Grid visibility set to {value}")
             self.gridChanged.emit()
 
     grid = Property(bool, _get_grid, _set_grid, notify=gridChanged) # type: ignore[assignment]
@@ -62,11 +62,11 @@ class PlotViewModel(BaseViewModel):
 
     def _set_start_time(self, value: float) -> None:
         if value >= self._end_time:
-            self._logger.warning(f"Attempted to set start_time >= end_time ({value} >= {self._end_time})")
+            self.logger.warning(f"Attempted to set start_time >= end_time ({value} >= {self._end_time})")
             return
         if value != self._start_time:
             self._start_time = value
-            self._logger.debug(f"start_time set to {value}")
+            self.logger.debug(f"start_time set to {value}")
             self.startTimeChanged.emit()
 
     start_time = Property(float, _get_start_time, _set_start_time, notify=startTimeChanged) # type: ignore[assignment]
@@ -79,11 +79,11 @@ class PlotViewModel(BaseViewModel):
 
     def _set_end_time(self, value: float) -> None:
         if value <= self._start_time:
-            self._logger.warning(f"Attempted to set end_time <= start_time ({value} <= {self._start_time})")
+            self.logger.warning(f"Attempted to set end_time <= start_time ({value} <= {self._start_time})")
             return
         if value != self._end_time:
             self._end_time = value
-            self._logger.debug(f"end_time set to {value}")
+            self.logger.debug(f"end_time set to {value}")
             self.endTimeChanged.emit()
 
     end_time = Property(float, _get_end_time, _set_end_time, notify=endTimeChanged) # type: ignore[assignment]
@@ -102,19 +102,19 @@ class PlotViewModel(BaseViewModel):
         current = self._data.get(key)
         if current is None or not (np.array_equal(current[0], x_arr) and np.array_equal(current[1], y_arr)):
             self._data[key] = (x_arr, y_arr)
-            self._logger.debug(f"Data updated for key '{key}' (length {len(x_arr)})")
+            self.logger.debug(f"Data updated for key '{key}' (length {len(x_arr)})")
             self.dataChanged.emit()
 
     @Slot(str)
     def remove_data(self, key: str) -> None:
         if key in self._data:
             self._data.pop(key)
-            self._logger.debug(f"Data removed for key '{key}'")
+            self.logger.debug(f"Data removed for key '{key}'")
             self.dataChanged.emit()
 
     @Slot()
     def clear_data(self) -> None:
         if self._data:
             self._data.clear()
-            self._logger.debug("All plot data cleared")
+            self.logger.debug("All plot data cleared")
             self.dataChanged.emit()

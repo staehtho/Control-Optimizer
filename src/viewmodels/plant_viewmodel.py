@@ -54,46 +54,46 @@ class PlantViewModel(BaseViewModel):
     # -------------------
     def _on_model_num_changed(self):
         if not self.check_update_allowed("plant_num"):
-            self._logger.debug("Blocked 'num' update (guard active)")
+            self.logger.debug("Blocked 'num' update (guard active)")
             return
 
         new_value = self._model_plant.num
-        self._logger.debug(f"Forwarding 'num' change from model (new_value={new_value})")
+        self.logger.debug(f"Forwarding 'num' change from model (new_value={new_value})")
 
         self.numChanged.emit()
 
     def _get_num(self) -> str:
-        self._logger.debug(f"Getter 'num' called (value={self._num_input})")
+        self.logger.debug(f"Getter 'num' called (value={self._num_input})")
         return self._num_input
 
     @Slot(str)
     def update_num(self, value: str) -> None:
-        self._logger.debug(f"update_num called (value={value})")
+        self.logger.debug(f"update_num called (value={value})")
 
         if self._num_input == value:
-            self._logger.debug("Skipped 'num' update (same string value)")
+            self.logger.debug("Skipped 'num' update (same string value)")
             return
 
         self._num_input = value
-        self._logger.debug(f"Internal _num_input updated (value={self._num_input})")
+        self.logger.debug(f"Internal _num_input updated (value={self._num_input})")
 
         arr = self._str2array(value)
 
         if len(arr) == 0:
-            self._logger.debug("Skipped 'num' update (string -> array conversion failed)")
+            self.logger.debug("Skipped 'num' update (string -> array conversion failed)")
             return
 
         if self._model_plant.num == arr:
-            self._logger.debug("Skipped 'num' update (model already has same array value)")
+            self.logger.debug("Skipped 'num' update (model already has same array value)")
             return
 
-        self._logger.debug(f"Updating model.num with {arr}")
+        self.logger.debug(f"Updating model.num with {arr}")
 
         with self.updating("plant_num"):
             self._model_plant.num = arr
-            self._logger.debug("Emitting numChanged after model update")
+            self.logger.debug("Emitting numChanged after model update")
             self._model_pso.num = arr
-            self._logger.debug(f"PsoFunctionModel 'num' updated (num={arr})")
+            self.logger.debug(f"PsoFunctionModel 'num' updated (num={arr})")
             self._update_formula()
             self.numChanged.emit()
 
@@ -104,46 +104,46 @@ class PlantViewModel(BaseViewModel):
     # -------------------
     def _on_model_den_changed(self):
         if not self.check_update_allowed("plant_den"):
-            self._logger.debug("Blocked 'den' update (guard active)")
+            self.logger.debug("Blocked 'den' update (guard active)")
             return
 
         new_value = self._model_plant.den
-        self._logger.debug(f"Forwarding 'den' change from model (new_value={new_value})")
+        self.logger.debug(f"Forwarding 'den' change from model (new_value={new_value})")
 
         self.denChanged.emit()
 
     def _get_den(self) -> str:
-        self._logger.debug(f"Getter 'den' called (value={self._den_input})")
+        self.logger.debug(f"Getter 'den' called (value={self._den_input})")
         return self._den_input
 
     @Slot(str)
     def update_den(self, value: str) -> None:
-        self._logger.debug(f"update_den called (value={value})")
+        self.logger.debug(f"update_den called (value={value})")
 
         if self._den_input == value:
-            self._logger.debug("Skipped 'den' update (same string value)")
+            self.logger.debug("Skipped 'den' update (same string value)")
             return
 
         self._den_input = value
-        self._logger.debug(f"Internal _den_input updated (value={self._den_input})")
+        self.logger.debug(f"Internal _den_input updated (value={self._den_input})")
 
         arr = self._str2array(value)
 
         if len(arr) == 0:
-            self._logger.debug("Skipped 'den' update (string -> array conversion failed)")
+            self.logger.debug("Skipped 'den' update (string -> array conversion failed)")
             return
 
         if self._model_plant.den == arr:
-            self._logger.debug("Skipped 'den' update (model already has same array value)")
+            self.logger.debug("Skipped 'den' update (model already has same array value)")
             return
 
-        self._logger.debug(f"Updating model.den with {arr}")
+        self.logger.debug(f"Updating model.den with {arr}")
 
         with self.updating("plant_den"):
             self._model_plant.den = arr
-            self._logger.debug("Emitting denChanged after model update")
+            self.logger.debug("Emitting denChanged after model update")
             self._model_pso.den = arr
-            self._logger.debug(f"PsoFunctionModel 'den' updated (num={arr})")
+            self.logger.debug(f"PsoFunctionModel 'den' updated (num={arr})")
             self._update_formula()
             self.denChanged.emit()
 
@@ -154,11 +154,11 @@ class PlantViewModel(BaseViewModel):
     # -------------------
     def _on_model_is_valid_changed(self):
         if not self.check_update_allowed("plant_is_valid"):
-            self._logger.debug("Blocked 'is_valid' update (guard active)")
+            self.logger.debug("Blocked 'is_valid' update (guard active)")
             return
 
         new_value = self._model_plant.is_valid
-        self._logger.debug(f"Forwarding 'is_valid' change from model (new_value={new_value})")
+        self.logger.debug(f"Forwarding 'is_valid' change from model (new_value={new_value})")
         self.isValidChanged.emit()
 
     def _get_is_valid(self) -> bool:
@@ -173,17 +173,17 @@ class PlantViewModel(BaseViewModel):
         return self._formula
 
     def _update_formula(self) -> None:
-        self._logger.debug("Updating formula...")
+        self.logger.debug("Updating formula...")
 
         if not self._model_plant.is_valid:
-            self._logger.debug("Model is not valid -> using last valid formula")
+            self.logger.debug("Model is not valid -> using last valid formula")
             self._formula = self._last_formula
             self.formulaChanged.emit()
             return
 
         try:
-            self._logger.debug("Numerator raw: %s", self._model_plant.num)
-            self._logger.debug("Denominator raw: %s", self._model_plant.den)
+            self.logger.debug("Numerator raw: %s", self._model_plant.num)
+            self.logger.debug("Denominator raw: %s", self._model_plant.den)
 
             num = LatexRenderer.array2polynom(self._model_plant.num)
             den = LatexRenderer.array2polynom(self._model_plant.den)
@@ -191,10 +191,10 @@ class PlantViewModel(BaseViewModel):
             self._formula = rf"G(s) = \frac{{{num}}}{{{den}}}"
             self._last_formula = self._formula
 
-            self._logger.debug("Generated formula: %s", self._formula)
+            self.logger.debug("Generated formula: %s", self._formula)
 
         except ValueError:
-            self._logger.exception("Error while building formula")
+            self.logger.exception("Error while building formula")
             self._formula = self._last_formula
 
         self.formulaChanged.emit()
@@ -216,13 +216,13 @@ class PlantViewModel(BaseViewModel):
     def compute_step_response(self, t0: float, t1: float) -> None:
 
         if not self._model_plant.is_valid:
-            self._logger.debug("Model is invalid -> no (new) calculation")
+            self.logger.debug("Model is invalid -> no (new) calculation")
             return
 
         # save step time
         self._step_time = (t0, t1)
 
-        self._logger.debug(f"Computing step response for {t0} to {t1}")
+        self.logger.debug(f"Computing step response for {t0} to {t1}")
         solver = self._settings.get_solver()
         self._simulation_service.compute_step_response(
             self._model_plant.num,
@@ -249,9 +249,9 @@ class PlantViewModel(BaseViewModel):
 
             result = [float(p.replace(",", ".")) for p in parts if p]
 
-            self._logger.debug("Parsed '%s' -> %s", text, result)
+            self.logger.debug("Parsed '%s' -> %s", text, result)
             return result
 
         except ValueError:
-            self._logger.debug("Cannot parse '%s'", text)
+            self.logger.debug("Cannot parse '%s'", text)
             return []

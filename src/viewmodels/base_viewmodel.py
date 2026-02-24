@@ -1,5 +1,5 @@
-from PySide6.QtCore import QObject
-from typing import Iterator
+from PySide6.QtCore import QObject, Property
+from typing import Iterator, Any, Optional, Callable
 from contextlib import contextmanager
 import logging
 
@@ -13,7 +13,7 @@ class BaseViewModel(QObject):
         super().__init__(parent)
         self._updating_fields: set[str] = set()
 
-        self._logger = logging.getLogger(f"ViewModel.{self.__class__.__name__}.{id(self)}")
+        self.logger = logging.getLogger(f"ViewModel.{self.__class__.__name__}.{id(self)}")
 
     def _connect_signals(self) -> None:
         raise NotImplementedError
@@ -29,3 +29,46 @@ class BaseViewModel(QObject):
 
     def check_update_allowed(self, field: str) -> bool:
         return field not in self._updating_fields
+
+    @staticmethod
+    def _logged_property(
+            attribute: str,
+            notify_signal: str,
+            property_type: Any,
+            custom_setter: Optional[Callable[[Any, Any], bool]] = None,
+    ) -> Property:
+
+        def getter(instance) -> Any:
+            attr = instance
+            for attr_name in attribute.split("."):
+                attr = getattr(attr, attr_name)
+            value = attr
+            instance.logger.debug(f"Getter '{attribute}' called (value={value})")
+            return value
+
+        def setter(instance, value: Any) -> None:
+            attr = instance
+            for attr_name in attribute.split("."):
+                attr = getattr(attr, attr_name)
+            old_value = attr
+            instance.logger.debug(f"Setter '{attribute}' called (value={value})")
+
+            if old_value == value:
+                instance.logger.debug(f"Skipped '{attribute}' update (same value)")
+                return
+
+            if custom_setter:
+                if custom_setter(instance, value):
+                    return
+
+            with instance.updating(attribute):
+                attrs = attribute.split(".")
+                attr = instance
+                for attr_name in attrs[:-1]:
+                    attr = getattr(attr, attr_name)
+                setattr(attr, attrs[-1], value)
+                instance.logger.debug(f"Emitting {notify_signal} after model update")
+                getattr(instance, notify_signal).emit()
+
+        return Property(property_type, getter, setter,
+                        notify=lambda instance: getattr(instance, notify_signal))  # type: ignore[assignment]
