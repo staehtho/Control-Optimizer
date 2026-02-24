@@ -6,8 +6,8 @@ from numpy import ndarray
 
 from utils import LatexRenderer
 from viewmodels import LanguageViewModel, PlantViewModel, PlotViewModel
-from .baseView import BaseView
-from .plotView import PlotView, PlotConfiguration
+from .base_view import BaseView
+from .plot_view import PlotView, PlotConfiguration
 
 
 class PlantView(BaseView, QWidget):
