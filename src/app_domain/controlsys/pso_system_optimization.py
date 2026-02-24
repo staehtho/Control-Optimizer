@@ -155,7 +155,7 @@ class PsoFunc:
 # =============================================================================
 # Helper Functions
 # =============================================================================
-@njit(float64[:](float64[:, :], float64[:]), cache=True, inline="always")
+@njit(float64[:](float64[:, :], float64[:]), inline="always")
 def _matvec_auto(A: np.ndarray, x: np.ndarray) -> np.ndarray:
     """
     Perform matrix-vector multiplication manually for Numba.
@@ -179,7 +179,7 @@ def _matvec_auto(A: np.ndarray, x: np.ndarray) -> np.ndarray:
     return y
 
 
-@njit(float64(float64[:], float64[:]), cache=True, inline="always")
+@njit(float64(float64[:], float64[:]), inline="always")
 def dot1D(x: np.ndarray, y: np.ndarray) -> float:
     """
     Compute dot product of two 1-D vectors manually for Numba.
@@ -204,7 +204,7 @@ def dot1D(x: np.ndarray, y: np.ndarray) -> float:
     types.UniTuple(float64, 3)(
         float64, float64, float64, float64, float64, float64, float64, float64, float64, float64, float64, int64
     ),
-    cache=True, inline="always"
+    inline="always"
 )
 def pid_update(e: float, e_prev: float, d_filtered_prev: float, integral_prev: float,
                Kp: float, Ti: float, Td: float, Tf: float, dt: float, u_min: float, u_max: float,
@@ -322,7 +322,7 @@ def pid_update(e: float, e_prev: float, d_filtered_prev: float, integral_prev: f
 # =============================================================================
 # ODE Solver
 # =============================================================================
-@njit(float64[:](float64[:, :], float64[:], float64[:], float64, float64), cache=True, inline="always")
+@njit(float64[:](float64[:, :], float64[:], float64[:], float64, float64), inline="always")
 def rk4(A: np.ndarray, B: np.ndarray, x: np.ndarray, u: float, dt: float) -> np.ndarray:
     """
     Perform a single Runge–Kutta 4th order (RK4) integration step.
@@ -350,7 +350,7 @@ def rk4(A: np.ndarray, B: np.ndarray, x: np.ndarray, u: float, dt: float) -> np.
 # =============================================================================
 # Performance index
 # =============================================================================
-@njit(float64(float64[:], float64[:], float64[:]), cache=True, inline="always")
+@njit(float64(float64[:], float64[:], float64[:]), inline="always")
 def iae(t: np.ndarray, y: np.ndarray, r: np.ndarray) -> float:
     """
     Compute the Integral of Absolute Error (IAE).
@@ -372,7 +372,7 @@ def iae(t: np.ndarray, y: np.ndarray, r: np.ndarray) -> float:
     return val
 
 
-@njit(float64(float64[:], float64[:], float64[:]), cache=True, inline="always")
+@njit(float64(float64[:], float64[:], float64[:]), inline="always")
 def ise(t: np.ndarray, y: np.ndarray, r: np.ndarray) -> float:
     """
     Compute the Integral of Squared Error (ISE).
@@ -394,7 +394,7 @@ def ise(t: np.ndarray, y: np.ndarray, r: np.ndarray) -> float:
     return val
 
 
-@njit(float64(float64[:], float64[:], float64[:]), cache=True, inline="always")
+@njit(float64(float64[:], float64[:], float64[:]), inline="always")
 def itae(t: np.ndarray, y: np.ndarray, r: np.ndarray) -> float:
     """
     Compute the Integral of Time-weighted Absolute Error (ITAE).
@@ -418,7 +418,7 @@ def itae(t: np.ndarray, y: np.ndarray, r: np.ndarray) -> float:
     return val
 
 
-@njit(float64(float64[:], float64[:], float64[:]), cache=True, inline="always")
+@njit(float64(float64[:], float64[:], float64[:]), inline="always")
 def itse(t: np.ndarray, y: np.ndarray, r: np.ndarray) -> float:
     """
     Compute the Integral of Time-weighted Squared Error (ITSE).
@@ -447,7 +447,7 @@ def itse(t: np.ndarray, y: np.ndarray, r: np.ndarray) -> float:
     float64[:], float64, float64[:], float64[:],
     float64[:, :], float64[:], float64[:], float64, int64
 ),
-    cache=True, inline="always"
+    inline="always"
 )
 def system_response(t_eval: np.ndarray, dt: float, u_eval: np.ndarray,
                     x: np.ndarray, A: np.ndarray, B: np.ndarray,
@@ -497,7 +497,7 @@ def system_response(t_eval: np.ndarray, dt: float, u_eval: np.ndarray,
     float64[:], float64,
     float64[:], float64[:], float64[:], float64[:], float64[:],
     int64, float64[:, :], float64[:], float64[:], float64, int64
-), cache=True, inline="always")
+), inline="always")
 def pid_system_response(Kp: float, Ti: float, Td: float, Tf: float,
                         t_eval: np.ndarray, dt: float,
                         r_eval: np.ndarray, l_eval: np.ndarray, n_eval: np.ndarray,
@@ -575,7 +575,7 @@ def pid_system_response(Kp: float, Ti: float, Td: float, Tf: float,
 # =============================================================================
 # PSO Function
 # =============================================================================
-@njit(parallel=True, cache=True)
+@njit(parallel=True)
 def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarray, l_eval: np.ndarray,
                   n_eval: np.ndarray, A: np.ndarray, B: np.ndarray, C: np.ndarray, D: float,
                   system_order: int, Tf: float, control_constraint: np.ndarray, anti_windup_method: int,
