@@ -9,7 +9,7 @@ from .base_function import BaseFunction
 class CosineFunction(BaseFunction):
     """Cosine function u(t) = A*cos(ωt + φ) + y0."""
 
-    LABEL = QT_TRANSLATE_NOOP("FunctionModel", "Cosine function")
+    LABEL = QT_TRANSLATE_NOOP("Function", "Cosine function")
 
     def __init__(self) -> None:
         """Initialize sine function with default parameters."""

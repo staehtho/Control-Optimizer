@@ -69,10 +69,10 @@ class FunctionView(BaseView, QWidget):
         main_layout.addWidget(frame)
 
         self._plot_cfg = PlotConfiguration(
-            context="FunctionModel",
+            context="Function",
             title=self._vm_function.selected_function.LABEL,
-            x_label=str(QT_TRANSLATE_NOOP("FunctionModel", "Time [s]")),
-            y_label=str(QT_TRANSLATE_NOOP("FunctionModel", "Output")),
+            x_label=str(QT_TRANSLATE_NOOP("Function", "Time [s]")),
+            y_label=str(QT_TRANSLATE_NOOP("Function", "Output")),
         )
 
         self._plot_view = PlotView(

@@ -2,6 +2,34 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US">
 <context>
+    <name>Function</name>
+    <message>
+        <location filename="../app_domain/functions/cosine_function.py" line="12"/>
+        <source>Cosine function</source>
+        <translation>Cosine function</translation>
+    </message>
+    <message>
+        <location filename="../app_domain/functions/sine_function.py" line="12"/>
+        <source>Sine function</source>
+        <translation>Sine function</translation>
+    </message>
+    <message>
+        <location filename="../app_domain/functions/step_function.py" line="11"/>
+        <source>Step function</source>
+        <translation>Step function</translation>
+    </message>
+    <message>
+        <location filename="../views/functionView.py" line="74"/>
+        <source>Time [s]</source>
+        <translation>Time [s]</translation>
+    </message>
+    <message>
+        <location filename="../views/functionView.py" line="75"/>
+        <source>Output</source>
+        <translation>Output</translation>
+    </message>
+</context>
+<context>
     <name>FunctionModel</name>
     <message>
         <source>Unit step function</source>
@@ -16,20 +44,18 @@
         <translation type="vanished">Cosine function</translation>
     </message>
     <message>
-        <location filename="../views/functionView.py" line="73"/>
         <source>Time [s]</source>
-        <translation>Time [s]</translation>
+        <translation type="vanished">Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/functionView.py" line="74"/>
         <source>Output</source>
-        <translation>Output</translation>
+        <translation type="vanished">Output</translation>
     </message>
 </context>
 <context>
     <name>FunctionView</name>
     <message>
-        <location filename="../views/functionView.py" line="173"/>
+        <location filename="../views/functionView.py" line="174"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
     </message>
@@ -37,34 +63,34 @@
 <context>
     <name>PlantView</name>
     <message>
-        <location filename="../views/plantView.py" line="67"/>
-        <location filename="../views/plantView.py" line="164"/>
+        <location filename="../views/plantView.py" line="68"/>
+        <location filename="../views/plantView.py" line="165"/>
         <source>plant.num</source>
         <translation>Numerator</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="81"/>
-        <location filename="../views/plantView.py" line="165"/>
+        <location filename="../views/plantView.py" line="82"/>
+        <location filename="../views/plantView.py" line="166"/>
         <source>plant.den</source>
         <translation>Denumerator</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="163"/>
+        <location filename="../views/plantView.py" line="164"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="166"/>
+        <location filename="../views/plantView.py" line="167"/>
         <source>e.g. 1  → 1</source>
         <translation>e.g. 1  → 1</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="167"/>
+        <location filename="../views/plantView.py" line="168"/>
         <source>e.g. 1, 0, 0  → 1*s^2 + 0*s + 0</source>
         <translation>e.g. 1, 0, 0  → 1*s² + 0*s + 0</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="169"/>
+        <location filename="../views/plantView.py" line="170"/>
         <source>tooltip_num_den</source>
         <translation>Enter coefficients separated by commas, spaces, or semicolons.
 Use &apos;.&apos; as the decimal point.
@@ -116,34 +142,19 @@ Must be greater than the start time.</translation>
     </message>
 </context>
 <context>
-    <name>function.view</name>
-    <message>
-        <source>Excitation Function</source>
-        <translation type="vanished">Excitation Function</translation>
-    </message>
-    <message>
-        <source>Time [s]</source>
-        <translation type="vanished">Time [s]</translation>
-    </message>
-    <message>
-        <source>Output</source>
-        <translation type="vanished">Output</translation>
-    </message>
-</context>
-<context>
     <name>plant.view</name>
     <message>
-        <location filename="../views/plantView.py" line="128"/>
+        <location filename="../views/plantView.py" line="129"/>
         <source>Step Response</source>
         <translation>Step Response</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="129"/>
+        <location filename="../views/plantView.py" line="130"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="130"/>
+        <location filename="../views/plantView.py" line="131"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
