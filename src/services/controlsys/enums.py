@@ -21,12 +21,14 @@ from enum import Enum, IntEnum, auto
 class AntiWindup(Enum):
     CLAMPING = auto()
     CONDITIONAL = auto()
+    BACKCALCULATION = auto()
 
 
 # IntEnum for Numba (only integer)
 class AntiWindupInt(IntEnum):
     CLAMPING = AntiWindup.CLAMPING.value
     CONDITIONAL = AntiWindup.CONDITIONAL.value
+    BACKCALCULATION = AntiWindup.BACKCALCULATION.value
 
 
 class PerformanceIndex(Enum):

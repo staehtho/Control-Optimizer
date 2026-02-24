@@ -228,7 +228,8 @@ def pid_update(e: float, e_prev: float, d_filtered_prev: float, integral_prev: f
         dt: Simulation time step.
         u_min: Lower control limit.
         u_max: Upper control limit.
-        anti_windup_method: Anti-windup strategy (0=Conditional, 1=Clamping).
+        anti_windup_method: Anti-windup strategy
+            (CONDITIONAL, CLAMPING, BACKCALCULATION).
 
     Returns:
         A tuple with three floats: (u, integral, d_filtered)
@@ -303,6 +304,20 @@ def pid_update(e: float, e_prev: float, d_filtered_prev: float, integral_prev: f
         else:
             integral_updated = integral_prev
             u_unsat_updated = u_unsat_previous
+
+    elif anti_windup_method == AntiWindupInt.BACKCALCULATION:
+        # Back-calculation without an extra tuning parameter:
+        # use Taw_eff = Ti, so the correction term becomes
+        # (u_sat - u_unsat) / Kp on the raw integrator state.
+        u_sat_candidate = min(max(u_unsat_candidate, u_min), u_max)
+
+        if Ti > 0.0 and Kp != 0.0:
+            integral_updated = integral_candidate + (dt / Kp) * (u_sat_candidate - u_unsat_candidate)
+        else:
+            integral_updated = integral_candidate
+
+        I_term_updated = Kp * (1.0 / Ti) * integral_updated if Ti > 0.0 else 0.0
+        u_unsat_updated = P_term + I_term_updated + D_term
 
     else:
         u_unsat_updated = 0.0         # safety fallback
@@ -522,7 +537,8 @@ def pid_system_response(Kp: float, Ti: float, Td: float, Tf: float,
         n_eval: Disturbance at measurement/output (Z2).
         x: Initial state vector.
         control_constraint: Control limits [u_min, u_max].
-        anti_windup_method: Anti-windup strategy (0=Conditional, 1=Clamping).
+        anti_windup_method: Anti-windup strategy
+            (CONDITIONAL, CLAMPING, BACKCALCULATION).
         A: Plant matrix.
         B: Input matrix.
         C: Output matrix.
@@ -600,7 +616,8 @@ def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarr
         system_order: Order of the system.
         Tf: Derivative filter time constant.
         control_constraint: Control limits [u_min, u_max].
-        anti_windup_method: Anti-windup strategy (0=Conditional, 1=Clamping).
+        anti_windup_method: Anti-windup strategy
+            (CONDITIONAL, CLAMPING, BACKCALCULATION).
         solver: Solver enum value.
         performance_index: Performance index enum value.
         swarm_size: Number of particles.

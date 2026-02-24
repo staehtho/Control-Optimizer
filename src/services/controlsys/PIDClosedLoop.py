@@ -312,6 +312,7 @@ class PIDClosedLoop(ClosedLoop):
             - Supported anti-windup methods are:
                 - `"conditional"`: Update the integrator only when output is within limits or reduces saturation.
                 - `"clamping"`: Clamp the integrator term when the actuator saturates.
+                - `"backcalculation"`: Unwind the integrator using actuator saturation feedback.
             - Internally calls the compiled function `pid_system_response()` for performance.
         """
         from .pso_system_optimization import pid_system_response

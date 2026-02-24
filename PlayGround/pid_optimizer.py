@@ -22,8 +22,10 @@ from tqdm import tqdm
 
 from services.PSO import Swarm
 #from services.config_loader import load_config, ConfigError
-from services.controlsys import Plant, PIDClosedLoop, PsoFunc, smallest_root_realpart, settling_time, AntiWindup, PerformanceIndex
+from services.controlsys import Plant, PIDClosedLoop, PsoFunc, smallest_root_realpart, settling_time, AntiWindup, PerformanceIndex, bode_plot, crossover_frequency
 #from services.report_generator import report_generator
+
+import matplotlib.pyplot as plt
 
 print("Starting the PID Optimizer. Loading modules, please wait...")
 
@@ -69,19 +71,19 @@ def main():
     td_max = config["pso"]["bounds"]["td_max"]'''
 
     plant_num = [1]
-    plant_den = [1, 1]
+    plant_den = [1, 1,  0]
 
-    sim_mode = "auto"
+    sim_mode = "fixed"
     start_time = 0
-    end_time = 10
+    end_time = 4
     time_step = 1e-4
 
-    anti_windup = AntiWindup.CLAMPING
+    anti_windup = AntiWindup.BACKCALCULATION
 
     excitation_target = "reference"
 
-    constraint_min = -5
-    constraint_max = 5
+    constraint_min = -1
+    constraint_max = 1
 
     performance_index = PerformanceIndex.ITAE
 
@@ -90,7 +92,7 @@ def main():
 
     kp_min = 0
     kp_max = 10
-    ti_min = 0.001
+    ti_min = 0.0001
     ti_max = 10
     td_min = 0
     td_max = 10
@@ -185,8 +187,68 @@ def main():
     }
 
     print(data)
+    # Set parameters
+    pid.set_pid_param(Kp=best_Kp, Ti=best_Ti, Td=best_Td)
 
-    #report_generator(data)
+        #report_generator(data)
+    # --- derivative filter sinnvoll setzen ---
+    L = lambda s: pid.controller(s) * plant.system(s)
+    wc = crossover_frequency(L)
+    Tf_max = 1 / (10 * wc)
+    pid.set_filter(Tf=Tf_max)
+
+    # --- Open-loop step ---
+    t_ol, y_ol = plant.step_response(
+        t0=start_time,
+        t1=end_time,
+        dt=time_step,
+    )
+
+    systems_for_bode = {}
+
+    plt.figure()
+
+    match excitation_target:
+        case "reference":
+            t_cl, y_cl = pid.step_response(
+                t0=start_time,
+                t1=end_time,
+                dt=time_step,
+            )
+            systems_for_bode["Plant"] = plant.system
+            systems_for_bode["Closed Loop"] = pid.closed_loop
+
+            plt.plot(t_ol, y_ol, label="Plant")
+            plt.plot(t_cl, y_cl, label="Closed Loop")
+
+        case "input_disturbance":
+            t_cl, y_cl = pid.step_response_l(
+                t0=start_time,
+                t1=end_time,
+                dt=time_step,
+            )
+            systems_for_bode["Closed Loop input disturbance"] = pid.closed_loop_l
+            plt.plot(t_cl, y_cl, label="Closed Loop input disturbance")
+
+        case "measurement_disturbance":
+            t_cl, y_cl = pid.step_response_n(
+                t0=start_time,
+                t1=end_time,
+                dt=time_step,
+            )
+            systems_for_bode["Closed Loop measurement disturbance"] = pid.closed_loop_n
+            plt.plot(t_cl, y_cl, label="Closed Loop measurement disturbance")
+
+    plt.xlabel("time / s")
+    plt.ylabel("output")
+    plt.title("Step Response")
+    plt.grid(True)
+    plt.legend()
+
+    # --- Bode ---
+    bode_fig = bode_plot(systems_for_bode, high_exp=5)
+
+    plt.show()  # ← für temporären Test
 
 
 if __name__ == "__main__":
