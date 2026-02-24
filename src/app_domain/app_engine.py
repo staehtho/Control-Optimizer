@@ -2,7 +2,7 @@ import logging
 
 from models import ModelContainer
 from service import SimulationService
-from viewmodels import PlantViewModel, LanguageViewModel, PlotViewModel, FunctionViewModel
+from viewmodels import PlantViewModel, LanguageViewModel, PlotViewModel, FunctionViewModel, PsoConfigurationViewModel
 
 
 class AppEngine:
@@ -20,3 +20,4 @@ class AppEngine:
         self.vm_plant = PlantViewModel(self.model_container, self.simulation_service)
         self.vm_plot_function = PlotViewModel()
         self.vm_function = FunctionViewModel(self.model_container.model_function, self.simulation_service)
+        self.vm_pso = PsoConfigurationViewModel(self.model_container)
