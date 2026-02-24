@@ -1,10 +1,11 @@
-from PySide6.QtCore import QSettings, QByteArray
-
-from pathlib import Path
 import json
 import logging
+from pathlib import Path
 
-from services.controlsys import MySolver
+from PySide6.QtCore import QSettings, QByteArray
+
+from app_domain.controlsys import MySolver
+
 
 class SettingsModel:
     """Model handling application settings with persistent storage and logging.

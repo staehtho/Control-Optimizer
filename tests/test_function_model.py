@@ -1,31 +1,17 @@
 import pytest
 from PySide6.QtTest import QSignalSpy
 
-from models.function_model import FunctionModel, Functions, SineFunction, UnitStepFunction
+from app_domain.functions import FunctionTypes, SineFunction
+from models.function_model import FunctionModel
 
 
 def test_set_function(qtbot):
-    function = FunctionModel()
-    function._selected_function = SineFunction()
+    function = FunctionModel(SineFunction())
 
     with qtbot.waitSignal(function.functionChanged, timeout=100):
-        function.set_selected_function(Functions.UNIT_STEP)
+        function.set_selected_function(FunctionTypes.STEP)
 
-    assert function.selected_function.get_formula() == Functions.UNIT_STEP.value().get_formula()
-
-
-def test_compute_function(qtbot):
-    function = FunctionModel()
-    function._selected_function = UnitStepFunction()
-    function._t0 = 0.0
-    function._t1 = 1.0
-
-    spy = QSignalSpy(function.computeFinished)
-
-    with qtbot.waitSignal(function.computeFinished, timeout=500):
-        function.compute(0, 1)
-
-    assert spy.size() == 1
+    assert function.selected_function.get_formula() == FunctionTypes.STEP.value().get_formula()
 
 @pytest.mark.parametrize(
     "value, key, expected_value, expected_spy_size",
@@ -42,9 +28,8 @@ def test_compute_function(qtbot):
 )
 
 def test_param_value_changed(value, key, expected_value, expected_spy_size):
-    function = FunctionModel()
+    function = FunctionModel(SineFunction())
 
-    function._selected_function = SineFunction()
     function.selected_function._param[key] = 0
 
     spy = QSignalSpy(function.parameterChanged)

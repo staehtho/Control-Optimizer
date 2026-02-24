@@ -1,16 +1,27 @@
+from unittest.mock import MagicMock
+
 import pytest
 from PySide6.QtTest import QSignalSpy
 
 from models import ModelContainer
+from service import SimulationService
 from viewmodels import PlantViewModel
+
+
+@pytest.fixture
+def mock_simulation_service():
+    service = MagicMock(spec=SimulationService)
+    # Optional: definiere, was compute oder andere Methoden zurückgeben sollen
+    service.compute_function.return_value = None
+    return service
 
 @pytest.fixture
 def model_container() -> ModelContainer:
     return ModelContainer()
 
 @pytest.fixture
-def plant_vm(model_container: ModelContainer) -> PlantViewModel:
-    return PlantViewModel(model_container)
+def plant_vm(model_container: ModelContainer, mock_simulation_service) -> PlantViewModel:
+    return PlantViewModel(model_container, mock_simulation_service)
 
 @pytest.mark.parametrize(
     "text, array",

@@ -1,82 +1,12 @@
-from PySide6.QtCore import QObject, Signal, QThread, Property, Slot, QTimer
 import re
-import numpy as np
-import logging
 
+from PySide6.QtCore import QObject, Signal, Property, Slot, QTimer
+from numpy import ndarray
+
+from models import ModelContainer, PlantModel, SettingsModel, PsoConfigurationModel
+from service import SimulationService
 from utils import LatexRenderer
 from .base_viewmodel import BaseViewModel
-from models import ModelContainer, PlantModel, SettingsModel, PsoConfigurationModel
-from services.controlsys import Plant, MySolver
-
-class StepResponseThread(QThread):
-    """
-    Background thread for computing the step response of a transfer function.
-
-    This QThread performs the numerical simulation of a linear time-invariant
-    (LTI) system defined by numerator and denominator coefficients. The
-    computation is executed in a separate thread to prevent blocking the GUI.
-
-    The thread stores the resulting time vector and output response internally
-    and can emit signals when the computation starts and finishes.
-    """
-
-    def __init__(
-        self,
-        num: list[float],
-        den: list[float],
-        t0: float,
-        t1: float,
-        solver: MySolver,
-    ):
-        """
-        Initialize the step response computation thread.
-
-        Args:
-            num (list[float]):
-                Numerator coefficients of the transfer function
-                (highest degree first).
-            den (list[float]):
-                Denominator coefficients of the transfer function
-                (highest degree first).
-            t0 (float):
-                Start time of the simulation interval.
-            t1 (float):
-                End time of the simulation interval.
-            solver (MySolver):
-                Numerical solver used for integration.
-        """
-        super().__init__()
-        self._num = num
-        self._den = den
-        self._t0 = t0
-        self._t1 = t1
-        self._solver = solver
-
-        self._t: np.ndarray = np.array([])
-        self._y: np.ndarray = np.array([])
-
-        # Set up a logger for this worker
-        self.logger = logging.getLogger(f"Thread.{self.__class__.__name__}")
-        self.logger.debug("StepResponseThread initialized.")
-
-    def run(self):
-        """Executes the step response computation in a separate thread.
-
-        Emits:
-            started: When the computation starts.
-            finished: When the computation ends.
-        """
-        self.logger.info("Step response computation started.")
-
-        # Perform the step response calculation
-        dt = (self._t1 - self._t0) / 5000
-        plant = Plant(self._num, self._den)
-        self._t, self._y = plant.step_response(self._t0, self._t1, dt, self._solver)
-
-        self.logger.info("Step response computation finished.")
-
-    def get_result(self) -> tuple[np.ndarray, np.ndarray]:
-        return self._t, self._y
 
 class PlantViewModel(BaseViewModel):
 
@@ -93,6 +23,7 @@ class PlantViewModel(BaseViewModel):
         self._model_plant: PlantModel = model_container.model_plant
         self._model_pso: PsoConfigurationModel = model_container.model_pso
         self._settings: SettingsModel = model_container.model_settings
+        self._simulation_service = simulation_service
 
         self._default_formula = r"G(s) = \frac{b_q s^q + b_{q-1}s^{q-1} + \ldots + b_1 s + b_0}{a_n s^n + a_{n-1}s^{n-1} + \ldots + a_1 s + a_0}"
         self._last_formula = self._default_formula
@@ -104,7 +35,6 @@ class PlantViewModel(BaseViewModel):
         self._t: np.ndarray = np.array([])
         self._y: np.ndarray = np.array([])
         self._step_time: tuple[float, float] = (0, 10)
-        self._thread = None
 
         self._recalc_timer = QTimer()
         self._recalc_timer.setSingleShot(True)
@@ -273,9 +203,6 @@ class PlantViewModel(BaseViewModel):
     # -------------------
     # step_response
     # -------------------
-    def _compute_step_response_delayed(self) -> None:
-        self.compute_step_response(*self._step_time)
-
     def _on_model_changed(self) -> None:
         if not self.check_update_allowed("plant_plant"):
             return
@@ -283,10 +210,11 @@ class PlantViewModel(BaseViewModel):
         # starte Timer neu bei jeder Eingabe
         self._recalc_timer.start(100)  # 100 ms warten
 
+    def _compute_step_response_delayed(self) -> None:
+        self.compute_step_response(*self._step_time)
+
     @Slot(float, float)
     def compute_step_response(self, t0: float, t1: float) -> None:
-        if self._thread is not None and self._thread.isRunning():
-            return
 
         if not self._model_plant.is_valid:
             self._logger.debug("Model is invalid -> no (new) calculation")
@@ -297,19 +225,17 @@ class PlantViewModel(BaseViewModel):
 
         self._logger.debug(f"Computing step response for {t0} to {t1}")
         solver = self._settings.get_solver()
-        self._thread = StepResponseThread(self._model_plant.num, self._model_plant.den, t0, t1, solver)
+        self._simulation_service.compute_step_response(
+            self._model_plant.num,
+            self._model_plant.den,
+            t0,
+            t1,
+            solver,
+            self._on_result
+        )
 
-        self._thread.finished.connect(self._on_finished)
-
-        self._thread.start()
-
-    def _on_finished(self):
-        self._t, self._y = self._thread.get_result()
-        self._thread = None
-        self.stepResponseChanged.emit()
-
-    def get_step_response_result(self) -> tuple[np.ndarray, np.ndarray]:
-        return self._t, self._y
+    def _on_result(self, t: ndarray, y: ndarray) -> None:
+        self.stepResponseChanged.emit(t, y)
 
     # -------------------
     # Helper methods

@@ -1,12 +1,14 @@
 from PySide6.QtCore import QObject
-from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QScrollArea, QFrame, QVBoxLayout
-from PySide6.QtGui import QRegularExpressionValidator, QFont
 from PySide6.QtCore import QRegularExpression, Qt, QT_TRANSLATE_NOOP
+from PySide6.QtGui import QRegularExpressionValidator, QFont
+from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QScrollArea, QFrame, QVBoxLayout
+from numpy import ndarray
 
+from utils import LatexRenderer
 from viewmodels import LanguageViewModel, PlantViewModel, PlotViewModel
 from .baseView import BaseView
 from .plotView import PlotView, PlotConfiguration
-from utils import LatexRenderer
+
 
 class PlantView(BaseView, QWidget):
 
@@ -150,9 +152,7 @@ class PlantView(BaseView, QWidget):
         self._vm_plant.numChanged.connect(self._on_vm_num_changed)
         self._vm_plant.denChanged.connect(self._on_vm_den_changed)
         self._vm_plant.formulaChanged.connect(self._on_vm_formula_changed)
-        self._vm_plant.stepResponseChanged.connect(
-            lambda: self._vm_plot.update_data("Step Response", self._vm_plant.get_step_response_result())
-        )
+        self._vm_plant.stepResponseChanged.connect(self._on_step_response_changed)
         # vm plot
         self._vm_plot.startTimeChanged.connect(self._on_plot_time_changed)
         self._vm_plot.endTimeChanged.connect(self._on_plot_time_changed)
@@ -204,6 +204,9 @@ class PlantView(BaseView, QWidget):
         Update plot when start or end time changes.
         """
         self._vm_plant.compute_step_response(self._vm_plot.start_time, self._vm_plot.end_time)
+
+    def _on_step_response_changed(self, t: ndarray, y: ndarray) -> None:
+        self._vm_plot.update_data("Step Response", (t, y))
 
     # -------------------------------------------------
     # UI event handlers

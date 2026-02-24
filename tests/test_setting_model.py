@@ -1,5 +1,6 @@
+from app_domain.controlsys import MySolver
 from models import SettingsModel
-from services.controlsys import MySolver
+
 
 def test_langauge():
     settings = SettingsModel()

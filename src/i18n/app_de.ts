@@ -4,27 +4,24 @@
 <context>
     <name>FunctionModel</name>
     <message>
-        <location filename="../models/function_model.py" line="132"/>
         <source>Unit step function</source>
-        <translation>Einheitssprung</translation>
+        <translation type="vanished">Einheitssprung</translation>
     </message>
     <message>
-        <location filename="../models/function_model.py" line="153"/>
         <source>Sine function</source>
-        <translation>Sinusfunktion</translation>
+        <translation type="vanished">Sinusfunktion</translation>
     </message>
     <message>
-        <location filename="../models/function_model.py" line="185"/>
         <source>Cosine function</source>
-        <translation>Kosinusfunktion</translation>
+        <translation type="vanished">Kosinusfunktion</translation>
     </message>
     <message>
-        <location filename="../views/functionView.py" line="72"/>
+        <location filename="../views/functionView.py" line="73"/>
         <source>Time [s]</source>
         <translation>Zeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/functionView.py" line="73"/>
+        <location filename="../views/functionView.py" line="74"/>
         <source>Output</source>
         <translation>Ausgang</translation>
     </message>
@@ -32,7 +29,7 @@
 <context>
     <name>FunctionView</name>
     <message>
-        <location filename="../views/functionView.py" line="172"/>
+        <location filename="../views/functionView.py" line="173"/>
         <source>Excitation Function</source>
         <translation>Anregungsfunktion</translation>
     </message>
@@ -40,34 +37,34 @@
 <context>
     <name>PlantView</name>
     <message>
-        <location filename="../views/plantView.py" line="66"/>
-        <location filename="../views/plantView.py" line="165"/>
+        <location filename="../views/plantView.py" line="67"/>
+        <location filename="../views/plantView.py" line="164"/>
         <source>plant.num</source>
         <translation>Nenner</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="80"/>
-        <location filename="../views/plantView.py" line="166"/>
+        <location filename="../views/plantView.py" line="81"/>
+        <location filename="../views/plantView.py" line="165"/>
         <source>plant.den</source>
         <translation>Zähler</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="164"/>
+        <location filename="../views/plantView.py" line="163"/>
         <source>Plant</source>
         <translation>Regelstrecke</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="167"/>
+        <location filename="../views/plantView.py" line="166"/>
         <source>e.g. 1  → 1</source>
         <translation>z.B. 1  → 1</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="168"/>
+        <location filename="../views/plantView.py" line="167"/>
         <source>e.g. 1, 0, 0  → 1*s^2 + 0*s + 0</source>
         <translation>z.B. 1, 0, 0  → 1*s² + 0*s + 0</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="170"/>
+        <location filename="../views/plantView.py" line="169"/>
         <source>tooltip_num_den</source>
         <translation>Verwenden Sie „.“ als Dezimaltrennzeichen.
 Die erste Zahl entspricht der höchsten Potenz von s.
@@ -134,17 +131,17 @@ Muss grösser als die Startzeit sein.</translation>
 <context>
     <name>plant.view</name>
     <message>
-        <location filename="../views/plantView.py" line="127"/>
+        <location filename="../views/plantView.py" line="128"/>
         <source>Step Response</source>
         <translation>Sprungantwort</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="128"/>
+        <location filename="../views/plantView.py" line="129"/>
         <source>Time [s]</source>
         <translation>Zeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="129"/>
+        <location filename="../views/plantView.py" line="130"/>
         <source>Output</source>
         <translation>Ausgang</translation>
     </message>

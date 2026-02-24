@@ -1,25 +1,37 @@
-from PySide6.QtCore import QObject, Signal, Property, Slot
+import sys
 
-from models import FunctionModel, Functions, BaseFunction
+import numpy as np
+from PySide6.QtCore import QObject, Signal, Property, Slot, QTimer
+
+from app_domain.functions import BaseFunction, FunctionTypes
+from models import FunctionModel
+from service import SimulationService
 from .base_viewmodel import BaseViewModel
+
 
 class FunctionViewModel(BaseViewModel):
 
     functionChanged = Signal()
-    computeFinished = Signal()
+    computeFinished = Signal(np.ndarray, np.ndarray)
     parameterChanged = Signal(str)
 
-    def __init__(self, model_function: FunctionModel, parent: QObject = None) -> None:
+    def __init__(self, model_function: FunctionModel, simulation_service: SimulationService, parent: QObject = None) -> None:
         super().__init__(parent)
 
         self._model_function = model_function
+        self._simulation_service = simulation_service
+
+        self._function_time: tuple[float, float] = (0, 10)
+
+        self._recalc_timer = QTimer()
+        self._recalc_timer.setSingleShot(True)
+        self._recalc_timer.timeout.connect(self._compute_function_delayed)
 
         self._connect_signals()
 
     def _connect_signals(self) -> None:
         # FunctionModel
         self._model_function.functionChanged.connect(self._on_model_function_changed)
-        self._model_function.computeFinished.connect(lambda: self.computeFinished.emit())
         self._model_function.parameterChanged.connect(self._on_model_parameter_changed)
 
     # -------------------
@@ -35,8 +47,8 @@ class FunctionViewModel(BaseViewModel):
 
         self.functionChanged.emit()
 
-    @Slot(Functions)
-    def set_selected_function(self, function: Functions) -> None:
+    @Slot(FunctionTypes)
+    def set_selected_function(self, function: FunctionTypes) -> None:
         self._logger.debug(f"set_function called (function={function})")
 
         with self.updating("function_function"):
@@ -51,10 +63,31 @@ class FunctionViewModel(BaseViewModel):
 
     selected_function = Property(BaseFunction, _get_selected_function, notify=functionChanged)  # type: ignore[assignment]
 
+    def _compute_function_delayed(self) -> None:
+        self.compute_function(*self._function_time)
+
     @Slot(float, float)
     def compute_function(self, t0:float, t1: float) -> None:
-        self._logger.debug(f"Computing function (type={type(self._model_function.selected_function).__name__})")
-        self._model_function.compute(t0, t1)
+        """Start computing the function output vector y(t) asynchronously."""
+
+        if self._model_function.selected_function is None:
+            self._logger.warning("Computation not started, ignoring request")
+            return
+
+        # Avoid t0 being exactly zero for numerical reasons
+        if t0 == 0:
+            t0 = -sys.float_info.min
+        t = np.linspace(t0, t1, 5000)
+
+        # save step time
+        self._function_time = (t0, t1)
+
+        self._logger.debug(f"Computing function (type={type(self._model_function.selected_function).__name__}) for {t0} to {t1}")
+        func = self._model_function.selected_function.get_function()
+        self._simulation_service.compute_function(t, func, self._on_result)
+
+    def _on_result(self, t: np.ndarray, y: np.ndarray) -> None:
+        self.computeFinished.emit(t, y)
 
     # -------------------
     # param
@@ -66,6 +99,9 @@ class FunctionViewModel(BaseViewModel):
 
         new_value = self._model_function.selected_function.get_param_value(key)
         self._logger.debug(f"Forwarding 'parameter' change from model ({key=}={new_value=})")
+
+        # starte Timer neu bei jeder Eingabe
+        self._recalc_timer.start(100)  # 100 ms warten
 
         self.parameterChanged.emit(key)
 

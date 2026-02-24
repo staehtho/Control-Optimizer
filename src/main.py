@@ -1,10 +1,11 @@
-from PySide6.QtWidgets import QApplication, QWidget
-from PySide6.QtCore import Qt
 import logging
-from pathlib import Path
 import sys
+from pathlib import Path
 
-from engine import AppEngine
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QWidget
+
+from app_domain import AppEngine
 from views import PlantView, FunctionView
 
 

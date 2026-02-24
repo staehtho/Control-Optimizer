@@ -223,13 +223,12 @@ class FunctionModel(QObject):
 
     Attributes:
         functionChanged: Signal emitted when the function changes.
-        computeFinished: Signal emitted when computation is complete.
+        parameterChanged: Signal emitted when the parameter changes.
         _selected_function: Current BaseFunction instance.
         _func_thread: Thread computing function outputs.
     """
 
     functionChanged = Signal()
-    computeFinished = Signal()
     parameterChanged = Signal(str)
 
     def __init__(self, parent: QObject = None):
@@ -268,41 +267,6 @@ class FunctionModel(QObject):
         return self._selected_function
 
     selected_function = Property(BaseFunction, _get_selected_function, notify=functionChanged)  # type: ignore[assignment]
-
-    @Slot(float, float)
-    def compute(self, t0: float, t1: float) -> None:
-        """Start computing the function output vector y(t) asynchronously."""
-
-        # Avoid starting a new thread if computation is already running
-        if self._func_thread is not None and self._func_thread.isRunning():
-            self._logger.warning("Computation already running, ignoring request")
-            return
-
-        if self._selected_function is None:
-            self._logger.warning("Computation not started, ignoring request")
-            return
-
-        # Avoid t0 being exactly zero for numerical reasons
-        if t0 == 0:
-            t0 = -sys.float_info.min
-        t = np.linspace(t0, t1, 5000)
-
-        self._logger.debug("Starting computation for t.size=%d", t.size)
-        self._func_thread = FunctionComputeThread(t, self._selected_function.compute_function())
-        self._func_thread.finished.connect(self._on_finished)
-        self._func_thread.start()
-
-    def _on_finished(self):
-        """Slot called when computation thread finishes. Updates function t and y."""
-        if self._func_thread is None:
-            self._logger.warning("Computation finished, but self._func_thread is None")
-            return
-
-        self._selected_function.t, self._selected_function.y = self._func_thread.get_result()
-        self._logger.info("Computation finished. y.size=%d", self._selected_function.y.size)
-
-        self._func_thread = None
-        self.computeFinished.emit()
 
     @Slot(str, float)
     def update_param_value(self, key: str, value: float) -> None:

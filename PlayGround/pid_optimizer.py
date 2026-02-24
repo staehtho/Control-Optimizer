@@ -20,10 +20,9 @@ import sys
 import numpy as np
 from tqdm import tqdm
 
-from services.PSO import Swarm
-#from services.config_loader import load_config, ConfigError
-from services.controlsys import Plant, PIDClosedLoop, PsoFunc, smallest_root_realpart, settling_time, AntiWindup, PerformanceIndex
-#from services.report_generator import report_generator
+from app_domain.PSO import Swarm
+from app_domain.controlsys import Plant, PIDClosedLoop, PsoFunc, smallest_root_realpart, settling_time, AntiWindup, \
+    PerformanceIndex
 
 print("Starting the PID Optimizer. Loading modules, please wait...")
 
