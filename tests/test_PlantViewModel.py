@@ -1,24 +1,16 @@
 import pytest
 from PySide6.QtTest import QSignalSpy
 
-from models import PlantModel, SettingsModel, PsoConfigurationModel
+from models import ModelContainer
 from viewmodels import PlantViewModel
 
 @pytest.fixture
-def plant_model() -> PlantModel:
-    return PlantModel()
+def model_container() -> ModelContainer:
+    return ModelContainer()
 
 @pytest.fixture
-def pso_model() -> PsoConfigurationModel:
-    return PsoConfigurationModel()
-
-@pytest.fixture
-def settings() -> SettingsModel:
-    return SettingsModel()
-
-@pytest.fixture
-def plant_vm(plant_model: PlantModel, pso_model: PsoConfigurationModel, settings: SettingsModel) -> PlantViewModel:
-    return PlantViewModel(plant_model, pso_model, settings)
+def plant_vm(model_container: ModelContainer) -> PlantViewModel:
+    return PlantViewModel(model_container)
 
 @pytest.mark.parametrize(
     "text, array",
@@ -50,7 +42,7 @@ def test_plant_vm_str2array(plant_vm: PlantViewModel, text, array):
         "different value"
     ]
 )
-def test_plant_vm_update_num(plant_model: PlantModel, pso_model: PsoConfigurationModel , plant_vm: PlantViewModel, num1, num2, expected_size):
+def test_plant_vm_update_num(model_container: ModelContainer, plant_vm: PlantViewModel, num1, num2, expected_size):
 
     spy = QSignalSpy(plant_vm.numChanged)
 
@@ -59,7 +51,7 @@ def test_plant_vm_update_num(plant_model: PlantModel, pso_model: PsoConfiguratio
 
     assert spy.size() == expected_size
     assert plant_vm._num_input == num2
-    assert len(pso_model.num) == len(num2.split(","))
+    assert len(model_container.model_pso.num) == len(num2.split(","))
 
 @pytest.mark.parametrize(
     "den1, den2, expected_size",
@@ -72,7 +64,7 @@ def test_plant_vm_update_num(plant_model: PlantModel, pso_model: PsoConfiguratio
         "different value"
     ]
 )
-def test_plant_vm_update_den(plant_model: PlantModel, pso_model: PsoConfigurationModel, plant_vm: PlantViewModel, den1, den2, expected_size):
+def test_plant_vm_update_den(model_container: ModelContainer, plant_vm: PlantViewModel, den1, den2, expected_size):
 
     spy = QSignalSpy(plant_vm.denChanged)
 
@@ -81,4 +73,4 @@ def test_plant_vm_update_den(plant_model: PlantModel, pso_model: PsoConfiguratio
 
     assert spy.size() == expected_size
     assert plant_vm._den_input == den2
-    assert len(pso_model.den) == len(den2.split(","))
+    assert len(model_container.model_pso.den) == len(den2.split(","))

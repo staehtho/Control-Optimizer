@@ -5,7 +5,7 @@ import logging
 
 from utils import LatexRenderer
 from .baseViewModel import BaseViewModel
-from models import PlantModel, SettingsModel, PsoConfigurationModel
+from models import ModelContainer, PlantModel, SettingsModel, PsoConfigurationModel
 from services.controlsys import Plant, MySolver
 
 class StepResponseThread(QThread):
@@ -86,19 +86,13 @@ class PlantViewModel(BaseViewModel):
     formulaChanged = Signal()
     stepResponseChanged = Signal()
 
-    def __init__(
-            self,
-            model_plant: PlantModel,
-            model_pso: PsoConfigurationModel,
-            settings: SettingsModel,
-            parent: QObject = None
-    ):
+    def __init__(self, model_container: ModelContainer, parent: QObject = None):
 
         super().__init__(parent)
 
-        self._model_plant = model_plant
-        self._model_pso = model_pso
-        self._settings = settings
+        self._model_plant: PlantModel = model_container.model_plant
+        self._model_pso: PsoConfigurationModel = model_container.model_pso
+        self._settings: SettingsModel = model_container.model_settings
 
         self._default_formula = r"G(s) = \frac{b_q s^q + b_{q-1}s^{q-1} + \ldots + b_1 s + b_0}{a_n s^n + a_{n-1}s^{n-1} + \ldots + a_1 s + a_0}"
         self._last_formula = self._default_formula

@@ -1,0 +1,9 @@
+from models import PlantModel, SettingsModel, FunctionModel, PsoConfigurationModel
+
+class ModelContainer:
+    def __init__(self):
+
+        self.model_settings = SettingsModel()
+        self.model_plant = PlantModel()
+        self.model_function = FunctionModel()
+        self.model_pso = PsoConfigurationModel()
