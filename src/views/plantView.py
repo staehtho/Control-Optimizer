@@ -35,9 +35,8 @@ class PlantView(BaseView, QWidget):
         """
         Initialize all UI components and layout.
         """
-
-        # Validator: allow only digits, dot, comma and whitespace
-        regex = QRegularExpression(r"[0-9.,\s]*")
+        # Validator: allow only digits, dot, comma, minus and whitespace
+        regex = QRegularExpression(r"[0-9.,\-\s]*")
         validator = QRegularExpressionValidator(regex)
 
         main_layout = QVBoxLayout()
