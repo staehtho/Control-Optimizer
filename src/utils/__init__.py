@@ -1,1 +1,1 @@
-from .latexRenderer import LatexRenderer
+from .latex_renderer import LatexRenderer

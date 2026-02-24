@@ -2,7 +2,7 @@ import pytest
 from PySide6.QtTest import QSignalSpy
 
 from models import FunctionModel, Functions
-from models.functionModel import UnitStepFunction, SineFunction
+from models.function_model import UnitStepFunction, SineFunction
 from viewmodels import FunctionViewModel
 
 @pytest.fixture

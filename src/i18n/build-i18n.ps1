@@ -77,7 +77,7 @@ ForEach-Object {
 # -----------------------------
 # Gather all relevant Python files
 # -----------------------------
-$includeDirs = @("app_engine", "models", "resources", "services", "utils", "viewmodels", "views")
+$includeDirs = @("engine", "models", "resources", "services", "utils", "viewmodels", "views")
 $sourceFiles = Get-ChildItem -Path (Join-Path $projectRoot "Control_Optimizer\src") -Recurse -Include *.py |
     Where-Object { $includeDirs -contains $_.Directory.Name } |
     ForEach-Object { $_.FullName }

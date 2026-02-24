@@ -1,6 +1,6 @@
-from .plantModel import PlantModel
-from .settingsModel import SettingsModel
-from .functionModel import FunctionModel, Functions, BaseFunction
-from .psoConfigurationModel import PsoConfigurationModel
+from .plant_model import PlantModel
+from .settings_model import SettingsModel
+from .function_model import FunctionModel, Functions, BaseFunction
+from .pso_configuration_model import PsoConfigurationModel
 
-from .modelContainer import ModelContainer
+from .model_container import ModelContainer

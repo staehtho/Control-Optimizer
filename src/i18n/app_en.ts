@@ -4,17 +4,17 @@
 <context>
     <name>FunctionModel</name>
     <message>
-        <location filename="../models/functionModel.py" line="132"/>
+        <location filename="../models/function_model.py" line="132"/>
         <source>Unit step function</source>
         <translation>Unit step function</translation>
     </message>
     <message>
-        <location filename="../models/functionModel.py" line="153"/>
+        <location filename="../models/function_model.py" line="153"/>
         <source>Sine function</source>
         <translation>Sine function</translation>
     </message>
     <message>
-        <location filename="../models/functionModel.py" line="185"/>
+        <location filename="../models/function_model.py" line="185"/>
         <source>Cosine function</source>
         <translation>Cosine function</translation>
     </message>
@@ -40,34 +40,34 @@
 <context>
     <name>PlantView</name>
     <message>
-        <location filename="../views/plantView.py" line="67"/>
-        <location filename="../views/plantView.py" line="166"/>
+        <location filename="../views/plantView.py" line="66"/>
+        <location filename="../views/plantView.py" line="165"/>
         <source>plant.num</source>
         <translation>Numerator</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="81"/>
-        <location filename="../views/plantView.py" line="167"/>
+        <location filename="../views/plantView.py" line="80"/>
+        <location filename="../views/plantView.py" line="166"/>
         <source>plant.den</source>
         <translation>Denumerator</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="165"/>
+        <location filename="../views/plantView.py" line="164"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="168"/>
+        <location filename="../views/plantView.py" line="167"/>
         <source>e.g. 1  → 1</source>
         <translation>e.g. 1  → 1</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="169"/>
+        <location filename="../views/plantView.py" line="168"/>
         <source>e.g. 1, 0, 0  → 1*s^2 + 0*s + 0</source>
         <translation>e.g. 1, 0, 0  → 1*s² + 0*s + 0</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="171"/>
+        <location filename="../views/plantView.py" line="170"/>
         <source>tooltip_num_den</source>
         <translation>Enter coefficients separated by commas, spaces, or semicolons.
 Use &apos;.&apos; as the decimal point.
@@ -136,17 +136,17 @@ Must be greater than the start time.</translation>
 <context>
     <name>plant.view</name>
     <message>
-        <location filename="../views/plantView.py" line="128"/>
+        <location filename="../views/plantView.py" line="127"/>
         <source>Step Response</source>
         <translation>Step Response</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="129"/>
+        <location filename="../views/plantView.py" line="128"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="130"/>
+        <location filename="../views/plantView.py" line="129"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>

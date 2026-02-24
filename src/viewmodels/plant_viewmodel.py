@@ -4,7 +4,7 @@ import numpy as np
 import logging
 
 from utils import LatexRenderer
-from .baseViewModel import BaseViewModel
+from .base_viewmodel import BaseViewModel
 from models import ModelContainer, PlantModel, SettingsModel, PsoConfigurationModel
 from services.controlsys import Plant, MySolver
 

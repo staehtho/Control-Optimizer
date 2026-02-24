@@ -4,7 +4,7 @@ from typing import Sequence, Union
 
 NumberSeq = Union[Sequence[float], np.ndarray]
 
-from .baseViewModel import BaseViewModel
+from .base_viewmodel import BaseViewModel
 
 class PlotViewModel(BaseViewModel):
     """

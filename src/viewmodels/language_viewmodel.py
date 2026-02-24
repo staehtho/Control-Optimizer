@@ -1,7 +1,7 @@
 from PySide6.QtCore import QObject, QTranslator, QCoreApplication, Slot, Signal, Property
 
 from models import SettingsModel
-from .baseViewModel import BaseViewModel
+from .base_viewmodel import BaseViewModel
 
 
 class LanguageViewModel(BaseViewModel):

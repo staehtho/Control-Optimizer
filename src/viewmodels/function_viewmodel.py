@@ -1,7 +1,7 @@
 from PySide6.QtCore import QObject, Signal, Property, Slot
 
 from models import FunctionModel, Functions, BaseFunction
-from .baseViewModel import BaseViewModel
+from .base_viewmodel import BaseViewModel
 
 class FunctionViewModel(BaseViewModel):
 

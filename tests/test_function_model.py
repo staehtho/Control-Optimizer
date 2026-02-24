@@ -1,7 +1,7 @@
 import pytest
 from PySide6.QtTest import QSignalSpy
 
-from models.functionModel import FunctionModel, Functions, SineFunction, UnitStepFunction
+from models.function_model import FunctionModel, Functions, SineFunction, UnitStepFunction
 
 
 def test_set_function(qtbot):

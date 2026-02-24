@@ -4,9 +4,8 @@ import logging
 from pathlib import Path
 import sys
 
-from app_engine import AppEngine
+from engine import AppEngine
 from views import PlantView, FunctionView
-from models import Functions
 
 
 def print_tab_order(parent_widget: QWidget) -> None:
