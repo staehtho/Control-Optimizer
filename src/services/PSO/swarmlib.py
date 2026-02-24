@@ -308,6 +308,7 @@ class Swarm:
                 self._initial_range[0],
                 self._initial_range[1]
             )
+            Particle.coefficients = self._coefficients  #TODO Flo: Robustheits-Vorschlag von GPT, beobachten
         else:
             self._no_improvement_counter += 1
             self._N = min(self._N + self._min_neighborhood_size, self.size - 1)
