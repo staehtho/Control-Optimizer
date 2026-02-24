@@ -1,12 +1,14 @@
 from functools import partial
-from PySide6.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QLabel, QLineEdit, QFrame, QComboBox
+
 from PySide6.QtCore import QObject, Qt, QT_TRANSLATE_NOOP, QCoreApplication
 from PySide6.QtGui import QDoubleValidator, QFont
+from PySide6.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QLabel, QLineEdit, QFrame, QComboBox
+from numpy import ndarray
 
-from models import Functions
+from app_domain.functions import FunctionTypes
+from utils import LatexRenderer
 from viewmodels import LanguageViewModel, FunctionViewModel, PlotViewModel
 from views import BaseView, PlotView, PlotConfiguration
-from utils import LatexRenderer
 
 
 class FunctionView(BaseView, QWidget):
@@ -180,7 +182,7 @@ class FunctionView(BaseView, QWidget):
                 function.value.LABEL,
             )
 
-        sorted_functions = sorted(Functions, key=translated_label)
+        sorted_functions = sorted(FunctionTypes, key=translated_label)
 
         for func in sorted_functions:
             self._cmb_function.addItem(
@@ -212,13 +214,9 @@ class FunctionView(BaseView, QWidget):
 
         self._plot_cfg.title = self._vm_function.selected_function.LABEL
 
-    def _on_vm_compute_finished(self) -> None:
+    def _on_vm_compute_finished(self, t: ndarray, y: ndarray) -> None:
         """Update plot data after function computation completes."""
         self._logger.debug("Function computation finished, updating plot")
-
-        t = self._vm_function.selected_function.t
-        y = self._vm_function.selected_function.y
-
         self._vm_plot.update_data("function", (t, y))
 
     def _on_vm_time_changed(self) -> None:

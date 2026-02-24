@@ -8,15 +8,16 @@ from service import SimulationService
 from utils import LatexRenderer
 from .base_viewmodel import BaseViewModel
 
+
 class PlantViewModel(BaseViewModel):
 
     numChanged = Signal()
     denChanged = Signal()
     isValidChanged = Signal()
     formulaChanged = Signal()
-    stepResponseChanged = Signal()
+    stepResponseChanged = Signal(ndarray, ndarray)
 
-    def __init__(self, model_container: ModelContainer, parent: QObject = None):
+    def __init__(self, model_container: ModelContainer, simulation_service: SimulationService, parent: QObject = None):
 
         super().__init__(parent)
 
@@ -32,8 +33,6 @@ class PlantViewModel(BaseViewModel):
         self._num_input: str = ""
         self._den_input: str = ""
 
-        self._t: np.ndarray = np.array([])
-        self._y: np.ndarray = np.array([])
         self._step_time: tuple[float, float] = (0, 10)
 
         self._recalc_timer = QTimer()

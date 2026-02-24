@@ -2,7 +2,7 @@ import pytest
 from PySide6.QtTest import QSignalSpy
 
 from app_domain.functions import FunctionTypes, SineFunction
-from models.function_model import FunctionModel
+from models import FunctionModel
 
 
 def test_set_function(qtbot):

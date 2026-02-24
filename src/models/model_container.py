@@ -1,3 +1,4 @@
+from app_domain.functions import StepFunction
 from models import PlantModel, SettingsModel, FunctionModel, PsoConfigurationModel
 
 class ModelContainer:
@@ -5,5 +6,5 @@ class ModelContainer:
 
         self.model_settings = SettingsModel()
         self.model_plant = PlantModel()
-        self.model_function = FunctionModel()
+        self.model_function = FunctionModel(StepFunction())
         self.model_pso = PsoConfigurationModel()

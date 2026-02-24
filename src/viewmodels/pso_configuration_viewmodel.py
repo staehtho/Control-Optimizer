@@ -1,8 +1,8 @@
 from PySide6.QtCore import QObject, Signal, Property, Slot
 
-from services.controlsys import AntiWindup, PerformanceIndex, ExcitationTarget
-from models import ModelContainer, PlantModel, FunctionModel, PsoConfigurationModel, SettingsModel
+from models import ModelContainer, PlantModel, PsoConfigurationModel, SettingsModel
 from .base_viewmodel import BaseViewModel
+
 
 class PsoConfigurationViewModel(BaseViewModel):
 
