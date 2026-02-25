@@ -192,39 +192,55 @@ def crossover_frequency(L, omega=None, tol_db=1e-3):
     return wc
 
 
-def smallest_root_realpart(denominator):
-    """
-    Compute the smallest real part among the poles of a linear time-invariant (LTI) system.
+import numpy as np
 
-    The poles are obtained by computing the roots of the denominator polynomial:
-        denominator[0] * s^(n) + denominator[1] * s^(n-1) + ... + denominator[n]
 
-    The returned value corresponds to the pole lying farthest to the left
-    in the complex plane, i.e., the most negative real part.
+def dominant_pole_realpart(denominator):
+    """Return the real part of the dominant (slowest stable) pole.
+
+    The dominant pole is defined as the stable pole whose real part is
+    closest to the imaginary axis from the left (i.e., the largest negative
+    real part). This pole determines the slowest exponential decay of the
+    system.
+
+    The poles are computed from the denominator polynomial:
+
+        denominator[0] * s^n + denominator[1] * s^(n-1) + ... + denominator[n]
 
     Args:
         denominator (array_like):
-            Polynomial coefficients in descending powers of `s`.
-            Example: [1, 4, 6, 4, 1] represents:
-                s^4 + 4*s^3 + 6*s^2 + 4*s + 1
+            Polynomial coefficients in descending powers of ``s``.
+            Example: ``[1, 4, 6, 4, 1]`` represents
+            :math:`s^4 + 4s^3 + 6s^2 + 4s + 1`.
 
     Returns:
-        float:
-            The most negative real part among all poles.
+        float | None:
+            Real part of the dominant stable pole (negative value).
+            Returns ``None`` if no stable poles are present.
 
     Notes:
-        - Uses numpy.roots to compute poles.
-        - If multiple poles share the same real part, this function still returns
-          that real value (no further disambiguation needed since only the scalar
-          real part is desired).
+        - Uses ``numpy.roots`` to compute poles.
+        - Only poles with negative real part are considered stable.
+        - For complex conjugate poles, only the real part determines dominance.
+        - If the system is unstable (no poles with negative real part),
+          ``None`` is returned.
 
     Example:
         >>> den = [1, 4, 6, 4, 1]
-        >>> r = smallest_root_realpart(den)
-        >>> print(r)
+        >>> p_dom = dominant_pole_realpart(den)
+        >>> print(p_dom)
     """
     roots = np.roots(denominator)
-    return np.min(roots.real)
+    real_parts = roots.real
+
+    # keep only stable poles (left half-plane)
+    stable_real_parts = real_parts[real_parts < 0]
+
+    if stable_real_parts.size == 0:
+        return None
+
+    # dominant = closest to imaginary axis from the left
+    return np.max(stable_real_parts)
 
 
 def settling_time(
