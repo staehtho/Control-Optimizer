@@ -14,7 +14,7 @@ class PlantViewModel(BaseViewModel):
     numChanged = Signal()
     denChanged = Signal()
     isValidChanged = Signal()
-    formulaChanged = Signal()
+    tfChanged = Signal()
     stepResponseChanged = Signal(ndarray, ndarray)
 
     def __init__(self, model_container: ModelContainer, simulation_service: SimulationService, parent: QObject = None):
@@ -26,9 +26,9 @@ class PlantViewModel(BaseViewModel):
         self._settings: SettingsModel = model_container.model_settings
         self._simulation_service = simulation_service
 
-        self._default_formula = r"G(s) = \frac{b_q s^q + b_{q-1}s^{q-1} + \ldots + b_1 s + b_0}{a_n s^n + a_{n-1}s^{n-1} + \ldots + a_1 s + a_0}"
-        self._last_formula = self._default_formula
-        self._formula = self._default_formula
+        self._default_tf = r"G(s) = \frac{b_q s^q + b_{q-1}s^{q-1} + \ldots + b_1 s + b_0}{a_n s^n + a_{n-1}s^{n-1} + \ldots + a_1 s + a_0}"
+        self._last_tf = self._default_tf
+        self._tf = self._default_tf
 
         self._num_input: str = ""
         self._den_input: str = ""
@@ -170,15 +170,15 @@ class PlantViewModel(BaseViewModel):
     # formula
     # -------------------
     def get_formula(self) -> str:
-        return self._formula
+        return self._tf
 
     def _update_formula(self) -> None:
         self.logger.debug("Updating formula...")
 
         if not self._model_plant.is_valid:
             self.logger.debug("Model is not valid -> using last valid formula")
-            self._formula = self._last_formula
-            self.formulaChanged.emit()
+            self._tf = self._last_tf
+            self.tfChanged.emit()
             return
 
         try:
@@ -188,16 +188,16 @@ class PlantViewModel(BaseViewModel):
             num = LatexRenderer.array2polynom(self._model_plant.num)
             den = LatexRenderer.array2polynom(self._model_plant.den)
 
-            self._formula = rf"G(s) = \frac{{{num}}}{{{den}}}"
-            self._last_formula = self._formula
+            self._tf = rf"G(s) = \frac{{{num}}}{{{den}}}"
+            self._last_tf = self._tf
 
-            self.logger.debug("Generated formula: %s", self._formula)
+            self.logger.debug("Generated formula: %s", self._tf)
 
         except ValueError:
             self.logger.exception("Error while building formula")
-            self._formula = self._last_formula
+            self._tf = self._last_tf
 
-        self.formulaChanged.emit()
+        self.tfChanged.emit()
 
     # -------------------
     # step_response

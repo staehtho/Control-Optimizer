@@ -25,9 +25,6 @@ class PlantView(BaseView, QWidget):
         self._vm_plant = vm_plant
         self._vm_plot = vm_plot
 
-        # Scale factor for rendering the LaTeX formula
-        self._formula_font_size_scale = 1.5
-
         BaseView.__init__(self, vm_lang)
 
     # -------------------------------------------------
@@ -48,7 +45,7 @@ class PlantView(BaseView, QWidget):
         # -------------------------------
         self._lbl_title = QLabel()
         font = QFont()
-        font.setPointSize(16)  # size in pt
+        font.setPointSize(self._title_size)  # size in pt
         font.setBold(True)
         self._lbl_title.setFont(font)
         self._lbl_title.setAlignment(Qt.AlignCenter)  # type: ignore[attr-defined]
@@ -151,7 +148,7 @@ class PlantView(BaseView, QWidget):
         # vm plant
         self._vm_plant.numChanged.connect(self._on_vm_num_changed)
         self._vm_plant.denChanged.connect(self._on_vm_den_changed)
-        self._vm_plant.formulaChanged.connect(self._on_vm_formula_changed)
+        self._vm_plant.tfChanged.connect(self._on_vm_formula_changed)
         self._vm_plant.stepResponseChanged.connect(self._on_step_response_changed)
         # vm plot
         self._vm_plot.startTimeChanged.connect(self._on_plot_time_changed)

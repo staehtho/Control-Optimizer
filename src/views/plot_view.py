@@ -23,8 +23,6 @@ class PlotView(BaseView, QWidget):
         self._vm = vm
         self._cfg = plot_configuration
 
-        self._dec = 3
-
         BaseView.__init__(self, vm_lang)
         self._logger.debug("PlotView initialized (context=%s)", self._cfg.context)
 

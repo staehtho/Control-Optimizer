@@ -6,7 +6,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QWidget
 
 from app_domain import AppEngine
-from views import PlantView, FunctionView
+from views import PlantView, FunctionView, PsoConfigurationView
 
 
 def print_tab_order(parent_widget: QWidget) -> None:
@@ -64,5 +64,9 @@ if __name__ == '__main__':
     view_function = FunctionView(engine.vm_lang, engine.vm_function, engine.vm_plot_function)
     #print_tab_order(view_function)
     view_function.show()
+
+    view_pso = PsoConfigurationView(engine.vm_lang, engine.vm_plant, engine.vm_pso)
+    # print_tab_order(view_pso)
+    view_pso.show()
 
     sys.exit(app.exec())

@@ -13,16 +13,6 @@ def model_container() -> ModelContainer:
 def vm_pso(model_container: ModelContainer) -> PsoConfigurationViewModel:
     return PsoConfigurationViewModel(model_container)
 
-def test_plant_changed(model_container: ModelContainer, vm_pso: PsoConfigurationViewModel, qtbot) -> None:
-    model_container.model_plant.num= [1]
-    model_container.model_plant.den = [1, 1]
-
-    with qtbot.waitSignal(vm_pso.plantChanged, timeout=500):
-        model_container.model_plant.num = [2]
-        model_container.model_plant.den = [1, 1, 1]
-
-    assert vm_pso.get_plant_num_den() == ([2], [1, 1, 1])
-
 @pytest.mark.parametrize(
     "attribute_min, attribute_max, signal, init_min, init_max, value, expected_spy_size",
     [

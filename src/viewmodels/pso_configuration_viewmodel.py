@@ -1,13 +1,12 @@
-from PySide6.QtCore import QObject, Signal, Slot
+from PySide6.QtCore import QObject, Signal
 
 from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex
-from models import ModelContainer, PlantModel, PsoConfigurationModel, SettingsModel
+from models import ModelContainer, PsoConfigurationModel, SettingsModel
 from .base_viewmodel import BaseViewModel
 
 
 class PsoConfigurationViewModel(BaseViewModel):
 
-    plantChanged = Signal()
     startTimeChanged = Signal()
     endTimeChanged = Signal()
     antiWindupChanged = Signal()
@@ -25,7 +24,6 @@ class PsoConfigurationViewModel(BaseViewModel):
     def __init__(self, model_container: ModelContainer, parent: QObject = None) -> None:
         super().__init__(parent)
 
-        self._model_plant: PlantModel = model_container.model_plant
         self._model_function = model_container.model_function
         self._model_pso: PsoConfigurationModel = model_container.model_pso
         self._settings: SettingsModel = model_container.model_settings
@@ -33,16 +31,8 @@ class PsoConfigurationViewModel(BaseViewModel):
         self._connect_signals()
 
     def _connect_signals(self) -> None:
-        # PlantModel
-        self._model_plant.modelChanged.connect(self.plantChanged.emit)
-
-    # -------------------
-    # plant
-    # -------------------
-    @Slot()
-    def get_plant_num_den(self) -> tuple[list[float], list[float]]:
-        self.logger.debug(f"'get_plant_num_den' called (value=({self._model_plant.num}, {self._model_plant.den}))")
-        return self._model_plant.num, self._model_plant.den
+        # No signals to connect
+        ...
 
     # -------------------
     # start time

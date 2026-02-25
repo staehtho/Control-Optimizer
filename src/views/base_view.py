@@ -1,5 +1,7 @@
 import logging
-from PySide6.QtWidgets import QLayout
+from PySide6.QtWidgets import QLayout, QLabel
+from PySide6.QtGui import QFont
+from PySide6.QtCore import Qt
 
 from viewmodels import LanguageViewModel
 
@@ -23,6 +25,11 @@ class BaseView:
         self._vm_lang = vm_lang
         # Connect signal: whenever language changes, call _retranslate
         self._vm_lang.languageChanged.connect(self._retranslate)
+
+        # Scale factor for rendering the LaTeX formula
+        self._formula_font_size_scale = 1.5
+        self._dec = 3
+        self._title_size = 16
 
         # -----------------------------
         # Logging setup
@@ -78,3 +85,10 @@ class BaseView:
                     widget.setParent(None)
                 elif item.layout() is not None:
                     self._clear_layout(item.layout())
+
+    def _apply_title_property(self, lbl: QLabel, font_size: int = 0) -> None:
+        font = QFont()
+        font.setPointSize(self._title_size if font_size == 0 else font_size)  # size in pt
+        font.setBold(True)
+        lbl.setFont(font)
+        lbl.setAlignment(Qt.AlignHCenter)  # type: ignore[attr-defined]

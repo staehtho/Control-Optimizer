@@ -46,7 +46,7 @@ class FunctionView(BaseView, QWidget):
         # -------------------------------
         self._lbl_title = QLabel()
         font = QFont()
-        font.setPointSize(16)  # size in pt
+        font.setPointSize(self._title_size)  # size in pt
         font.setBold(True)
         self._lbl_title.setFont(font)
         self._lbl_title.setAlignment(Qt.AlignCenter)  # type: ignore[attr-defined]
@@ -233,7 +233,7 @@ class FunctionView(BaseView, QWidget):
         """
         txt = self._txt_function_params.get(key)
         value = self._vm_function.selected_function.get_param_value(key)
-        txt.setText(f"{value:.3f}")
+        txt.setText(f"{value:.{self._dec}f}")
 
         t0 = self._vm_plot.start_time
         t1 = self._vm_plot.end_time
@@ -263,7 +263,7 @@ class FunctionView(BaseView, QWidget):
         except ValueError:
             # Invalid input → restore ViewModel value
             value = self._vm_function.selected_function.get_param_value(key)
-            txt.setText(f"{value:.3f}")
+            txt.setText(f"{value:.{self._dec}f}")
             return
 
         self._vm_function.update_param_value(key, value)
