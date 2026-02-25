@@ -5,15 +5,41 @@ import numpy as np
 
 
 def pid_controller_freq_response(Kp, Ti, Td, Tf, s):
-    """Vectorized PID with derivative filter.
+    """Compute the frequency response of a PID controller with derivative filter.
 
-    C(s) = Kp * (1 + 1/(Ti*s) + (Td*s)/(Tf*s + 1))
+    The controller has the transfer function:
+
+        C(s) = Kp * (1 + 1/(Ti*s) + (Td*s)/(Tf*s + 1))
+
+    Args:
+        Kp (float or ndarray): Proportional gain.
+        Ti (float or ndarray): Integral time constant.
+        Td (float or ndarray): Derivative time constant.
+        Tf (float): Derivative filter time constant.
+        s (complex ndarray): Complex frequency values (typically 1j * w).
+
+    Returns:
+        complex ndarray: Frequency response C(s) evaluated at each s.
     """
     return Kp * (1.0 + 1.0 / (Ti * s) + (Td * s) / (Tf * s + 1.0))
 
 
 def _interp_x_at_y(x0, y0, x1, y1, y_target):
-    """Linear interpolation: find x where y crosses y_target between (x0,y0)-(x1,y1)."""
+    """Linearly interpolate the x-value where y reaches a target value.
+
+    Assumes a linear variation between the two points (x0, y0) and (x1, y1).
+
+    Args:
+        x0 (float): First x-coordinate.
+        y0 (float): First y-coordinate.
+        x1 (float): Second x-coordinate.
+        y1 (float): Second y-coordinate.
+        y_target (float): Target y-value to interpolate at.
+
+    Returns:
+        float: Interpolated x-value where y equals y_target.
+            If y0 == y1, returns the midpoint of x0 and x1.
+    """
     if y1 == y0:
         return 0.5 * (x0 + x1)
     return x0 + (y_target - y0) * (x1 - x0) / (y1 - y0)
