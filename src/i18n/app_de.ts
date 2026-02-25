@@ -19,12 +19,12 @@
         <translation>Sprungfunktion</translation>
     </message>
     <message>
-        <location filename="../views/functionView.py" line="74"/>
+        <location filename="../views/function_view.py" line="74"/>
         <source>Time [s]</source>
         <translation>Zeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/functionView.py" line="75"/>
+        <location filename="../views/function_view.py" line="75"/>
         <source>Output</source>
         <translation>Ausgang</translation>
     </message>
@@ -55,7 +55,7 @@
 <context>
     <name>FunctionView</name>
     <message>
-        <location filename="../views/functionView.py" line="174"/>
+        <location filename="../views/function_view.py" line="174"/>
         <source>Excitation Function</source>
         <translation>Anregungsfunktion</translation>
     </message>
@@ -63,34 +63,34 @@
 <context>
     <name>PlantView</name>
     <message>
-        <location filename="../views/plantView.py" line="68"/>
-        <location filename="../views/plantView.py" line="165"/>
+        <location filename="../views/plant_view.py" line="65"/>
+        <location filename="../views/plant_view.py" line="162"/>
         <source>plant.num</source>
         <translation>Nenner</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="82"/>
-        <location filename="../views/plantView.py" line="166"/>
+        <location filename="../views/plant_view.py" line="79"/>
+        <location filename="../views/plant_view.py" line="163"/>
         <source>plant.den</source>
         <translation>Zähler</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="164"/>
+        <location filename="../views/plant_view.py" line="161"/>
         <source>Plant</source>
         <translation>Regelstrecke</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="167"/>
+        <location filename="../views/plant_view.py" line="164"/>
         <source>e.g. 1  → 1</source>
         <translation>z.B. 1  → 1</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="168"/>
+        <location filename="../views/plant_view.py" line="165"/>
         <source>e.g. 1, 0, 0  → 1*s^2 + 0*s + 0</source>
         <translation>z.B. 1, 0, 0  → 1*s² + 0*s + 0</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="170"/>
+        <location filename="../views/plant_view.py" line="167"/>
         <source>tooltip_num_den</source>
         <translation>Verwenden Sie „.“ als Dezimaltrennzeichen.
 Die erste Zahl entspricht der höchsten Potenz von s.
@@ -109,29 +109,29 @@ Beispiel: 1, 0.5, 2 → 1·s² + 0,5·s + 2</translation>
 <context>
     <name>PlotView</name>
     <message>
-        <location filename="../views/plotView.py" line="116"/>
+        <location filename="../views/plot_view.py" line="114"/>
         <source>plot.grid</source>
         <translation>Grid</translation>
     </message>
     <message>
-        <location filename="../views/plotView.py" line="117"/>
+        <location filename="../views/plot_view.py" line="115"/>
         <source>plot.start</source>
         <translation>Startzeit</translation>
     </message>
     <message>
-        <location filename="../views/plotView.py" line="118"/>
+        <location filename="../views/plot_view.py" line="116"/>
         <source>plot.end</source>
         <translation>Endzeit</translation>
     </message>
     <message>
-        <location filename="../views/plotView.py" line="119"/>
+        <location filename="../views/plot_view.py" line="117"/>
         <source>plot.start.tooltip</source>
         <translation>Untere Grenze der x-Achse (x_min).
 Legt fest, wo die Zeitachse beginnt.
 Einheit: Sekunden (s).</translation>
     </message>
     <message>
-        <location filename="../views/plotView.py" line="120"/>
+        <location filename="../views/plot_view.py" line="118"/>
         <source>plot.end.tooltip</source>
         <translation>Obere Grenze der x-Achse (x_max).
 Legt fest, wo die Zeitachse endet.
@@ -140,19 +140,179 @@ Muss grösser als die Startzeit sein.</translation>
     </message>
 </context>
 <context>
+    <name>PsoConfigurationView</name>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="241"/>
+        <source>PSO Bounds</source>
+        <translation>PSO Grenzen</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="244"/>
+        <source>Start Time</source>
+        <translation>Startzeit</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="245"/>
+        <source>End Time</source>
+        <translation>Endzeit</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="246"/>
+        <source>Excitation Target</source>
+        <translation>Anregungsfunktion</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="247"/>
+        <source>Anti-Windup Strategy</source>
+        <translation>Anti-Windup</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="248"/>
+        <source>Performance Index</source>
+        <translation>Gütekriterium</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="249"/>
+        <source>Constraint</source>
+        <translation>Begrenzung</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="250"/>
+        <location filename="../views/pso_configuration_view.py" line="253"/>
+        <location filename="../views/pso_configuration_view.py" line="256"/>
+        <location filename="../views/pso_configuration_view.py" line="259"/>
+        <source>Minimum</source>
+        <translation>Minimum</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="251"/>
+        <location filename="../views/pso_configuration_view.py" line="254"/>
+        <location filename="../views/pso_configuration_view.py" line="257"/>
+        <location filename="../views/pso_configuration_view.py" line="260"/>
+        <source>Maximum</source>
+        <translation>Maximum</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="252"/>
+        <source>Kp</source>
+        <translation>Kp</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="255"/>
+        <source>Ti</source>
+        <translation>Ti</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="258"/>
+        <source>Td</source>
+        <translation>Td</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="268"/>
+        <source>Reference</source>
+        <translation>Führung</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="269"/>
+        <source>Input Disturbance</source>
+        <translation>Eingangsstörung</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="270"/>
+        <source>Measurement Disturbance</source>
+        <translation>Messstörung</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="273"/>
+        <source>Clamping</source>
+        <translation>Clamping</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="274"/>
+        <source>Conditional</source>
+        <translation>Conditional</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="277"/>
+        <source>ITAE</source>
+        <translation>ITAE</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="278"/>
+        <source>IAE</source>
+        <translation>IAE</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="279"/>
+        <source>ITSE</source>
+        <translation>ITSE</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="280"/>
+        <source>ISE</source>
+        <translation>ISE</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="239"/>
+        <source>Plant</source>
+        <translation>Regelstrecke</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="240"/>
+        <source>Controller Optimization Parameters</source>
+        <translation>Parameter zur Optimierung des Reglers</translation>
+    </message>
+    <message>
+        <source>title.plant</source>
+        <translation type="vanished">Regelstrecke</translation>
+    </message>
+    <message>
+        <source>title.control</source>
+        <translation type="vanished">Parameter zur Optimierung des Reglers</translation>
+    </message>
+    <message>
+        <source>control.start_time</source>
+        <translation type="vanished">Startzeit</translation>
+    </message>
+    <message>
+        <source>control.end_time</source>
+        <translation type="vanished">Endzeit</translation>
+    </message>
+    <message>
+        <source>control.anti_windup</source>
+        <translation type="vanished">Anti Windup</translation>
+    </message>
+    <message>
+        <source>control.excitation_target</source>
+        <translation type="vanished">Anregungsfunktion</translation>
+    </message>
+    <message>
+        <source>control.performance_index</source>
+        <translation type="vanished">Gütekriterium</translation>
+    </message>
+    <message>
+        <source>control.constraint_min</source>
+        <translation type="vanished">untere Begrenzung</translation>
+    </message>
+    <message>
+        <source>control.constraint_max</source>
+        <translation type="vanished">obere Begrenzung</translation>
+    </message>
+</context>
+<context>
     <name>plant.view</name>
     <message>
-        <location filename="../views/plantView.py" line="129"/>
+        <location filename="../views/plant_view.py" line="126"/>
         <source>Step Response</source>
         <translation>Sprungantwort</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="130"/>
+        <location filename="../views/plant_view.py" line="127"/>
         <source>Time [s]</source>
         <translation>Zeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/plantView.py" line="131"/>
+        <location filename="../views/plant_view.py" line="128"/>
         <source>Output</source>
         <translation>Ausgang</translation>
     </message>
