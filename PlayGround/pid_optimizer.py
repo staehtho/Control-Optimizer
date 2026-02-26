@@ -22,7 +22,7 @@ from tqdm import tqdm
 
 from services.PSO import Swarm
 #from services.config_loader import load_config, ConfigError
-from services.controlsys import Plant, PIDClosedLoop, PsoFunc, smallest_root_realpart, settling_time, AntiWindup, PerformanceIndex, bode_plot, crossover_frequency
+from services.controlsys import Plant, PIDClosedLoop, PsoFunc, dominant_pole_realpart, settling_time, AntiWindup, PerformanceIndex, bode_plot, crossover_frequency
 #from services.report_generator import report_generator
 
 import matplotlib.pyplot as plt
@@ -106,11 +106,9 @@ def main():
                                        control_constraint=[constraint_min, constraint_max],
                                        anti_windup_method=anti_windup)
 
-    # dominant pole (least negative real part)
-    p_dom = smallest_root_realpart(plant.den)
+    p_dom = dominant_pole_realpart(plant.den)
 
-    # find corresponding time constant to dominant pole and set filter time constant
-    if p_dom >= 0:
+    if p_dom is None:
         pid.set_filter(Tf=0.01)
     else:
         t_dom = 1 / abs(p_dom)
