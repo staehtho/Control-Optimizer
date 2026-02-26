@@ -144,123 +144,133 @@ Must be greater than the start time.</translation>
 <context>
     <name>PsoConfigurationView</name>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="241"/>
+        <location filename="../views/pso_configuration_view.py" line="269"/>
         <source>PSO Bounds</source>
         <translation>PSO Bounds</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="244"/>
+        <location filename="../views/pso_configuration_view.py" line="270"/>
+        <source>Excitation Function</source>
+        <translation>Excitation Function</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="273"/>
+        <source>Simulation Time</source>
+        <translation>Simulation Time</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="274"/>
         <source>Start Time</source>
         <translation>Start Time</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="245"/>
+        <location filename="../views/pso_configuration_view.py" line="275"/>
         <source>End Time</source>
         <translation>End Time</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="246"/>
+        <location filename="../views/pso_configuration_view.py" line="276"/>
         <source>Excitation Target</source>
         <translation>Excitation Target</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="247"/>
+        <location filename="../views/pso_configuration_view.py" line="277"/>
         <source>Anti-Windup Strategy</source>
         <translation>Anti-Windup Strategy</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="248"/>
+        <location filename="../views/pso_configuration_view.py" line="278"/>
         <source>Performance Index</source>
         <translation>Performance Index</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="249"/>
+        <location filename="../views/pso_configuration_view.py" line="279"/>
         <source>Constraint</source>
         <translation>Constraint</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="250"/>
-        <location filename="../views/pso_configuration_view.py" line="253"/>
-        <location filename="../views/pso_configuration_view.py" line="256"/>
-        <location filename="../views/pso_configuration_view.py" line="259"/>
+        <location filename="../views/pso_configuration_view.py" line="280"/>
+        <location filename="../views/pso_configuration_view.py" line="283"/>
+        <location filename="../views/pso_configuration_view.py" line="286"/>
+        <location filename="../views/pso_configuration_view.py" line="289"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="251"/>
-        <location filename="../views/pso_configuration_view.py" line="254"/>
-        <location filename="../views/pso_configuration_view.py" line="257"/>
-        <location filename="../views/pso_configuration_view.py" line="260"/>
+        <location filename="../views/pso_configuration_view.py" line="281"/>
+        <location filename="../views/pso_configuration_view.py" line="284"/>
+        <location filename="../views/pso_configuration_view.py" line="287"/>
+        <location filename="../views/pso_configuration_view.py" line="290"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="252"/>
+        <location filename="../views/pso_configuration_view.py" line="282"/>
         <source>Kp</source>
         <translation>Kp</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="255"/>
+        <location filename="../views/pso_configuration_view.py" line="285"/>
         <source>Ti</source>
         <translation>Ti</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="258"/>
+        <location filename="../views/pso_configuration_view.py" line="288"/>
         <source>Td</source>
         <translation>Td</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="268"/>
+        <location filename="../views/pso_configuration_view.py" line="298"/>
         <source>Reference</source>
         <translation>Reference</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="269"/>
+        <location filename="../views/pso_configuration_view.py" line="299"/>
         <source>Input Disturbance</source>
         <translation>Input Disturbance</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="270"/>
+        <location filename="../views/pso_configuration_view.py" line="300"/>
         <source>Measurement Disturbance</source>
         <translation>Measurement Disturbance</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="273"/>
+        <location filename="../views/pso_configuration_view.py" line="303"/>
         <source>Clamping</source>
         <translation>Clamping</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="274"/>
+        <location filename="../views/pso_configuration_view.py" line="304"/>
         <source>Conditional</source>
         <translation>Conditional</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="277"/>
+        <location filename="../views/pso_configuration_view.py" line="307"/>
         <source>ITAE</source>
         <translation>ITAE</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="278"/>
+        <location filename="../views/pso_configuration_view.py" line="308"/>
         <source>IAE</source>
         <translation>IAE</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="279"/>
+        <location filename="../views/pso_configuration_view.py" line="309"/>
         <source>ITSE</source>
         <translation>ITSE</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="280"/>
+        <location filename="../views/pso_configuration_view.py" line="310"/>
         <source>ISE</source>
         <translation>ISE</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="239"/>
+        <location filename="../views/pso_configuration_view.py" line="267"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="240"/>
+        <location filename="../views/pso_configuration_view.py" line="268"/>
         <source>Controller Optimization Parameters</source>
         <translation>Controller Optimization Parameters</translation>
     </message>
