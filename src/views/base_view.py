@@ -1,7 +1,8 @@
 import logging
-from PySide6.QtWidgets import QWidget, QLayout, QLabel, QComboBox
+from PySide6.QtWidgets import QWidget, QLayout, QLabel, QComboBox, QGridLayout, QFrame, QVBoxLayout, QLineEdit
 from PySide6.QtGui import QFont
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QDoubleValidator
 from dataclasses import dataclass
 from typing import Type
 
@@ -45,6 +46,8 @@ class BaseView:
         self._dec = 3
         self._title_size = 16
 
+        self._widgets = {}
+        self._labels = {}
         # -----------------------------
         # Logging setup
         # -----------------------------
@@ -130,3 +133,63 @@ class BaseView:
             index = cmb.findData(current_data)
             if index >= 0:
                 cmb.setCurrentIndex(index)
+
+    def _create_grid(self, fields: list[FieldConfig | SectionConfig], columns: int = 4) -> QGridLayout:
+        layout = QGridLayout()
+
+        for field in fields:
+            if isinstance(field, SectionConfig):
+                frame = QFrame()
+                frame.setFrameShape(QFrame.StyledPanel)
+                frame.setFrameShadow(QFrame.Sunken)
+
+                frame_layout = QVBoxLayout(frame)
+                label = QLabel()
+                self._apply_title_property(label, int(self._title_size * 0.75))
+                frame_layout.addWidget(label)
+                self._labels[field.key] = label
+
+                inner_layout = self._create_grid(field.fields, 2)
+                frame_layout.addLayout(inner_layout)
+
+                # Calculate inner rows
+                inner_rows = len(field.fields) + 1
+
+                # Find first empty position for section
+                row = 0
+                col = 0
+                while self.cell_has_widget(layout, row, col):
+                    col += 2
+                    if col >= columns:
+                        col = 0
+                        row += 1
+
+                layout.addWidget(frame, row, col, inner_rows, 2)
+
+            else:
+                # Normal field
+                row = 0
+                col = 0
+                while self.cell_has_widget(layout, row, col):
+                    col += 2
+                    if col >= columns:
+                        col = 0
+                        row += 1
+
+                label = QLabel()
+                widget: QWidget = field.widget_type()
+                if isinstance(widget, QLineEdit):
+                    widget.setValidator(QDoubleValidator())
+
+                layout.addWidget(label, row, col)
+                layout.addWidget(widget, row, col + 1)
+
+                self._widgets[field.key] = widget
+                self._labels[field.key] = label
+
+        return layout
+
+    @staticmethod
+    def cell_has_widget(grid_layout: QGridLayout, row: int, col: int) -> bool:
+        item = grid_layout.itemAtPosition(row, col)
+        return item is not None and item.widget() is not None

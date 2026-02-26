@@ -7,8 +7,7 @@ from .base_viewmodel import BaseViewModel
 
 
 class ControllerViewModel(BaseViewModel):
-
-    controllerChanged = Signal()
+    controllerTypeChanged = Signal()
     antiWindupChanged = Signal()
     constraintMinChanged = Signal()
     constraintMaxChanged = Signal()
@@ -27,8 +26,8 @@ class ControllerViewModel(BaseViewModel):
     # -------------------
     # controller
     # -------------------
-    controller = BaseViewModel._logged_property(
-        attribute="_model_controller.controller",
+    controller_type = BaseViewModel._logged_property(
+        attribute="_model_controller.controller_type",
         notify_signal="controllerChanged",
         property_type=str
     )
