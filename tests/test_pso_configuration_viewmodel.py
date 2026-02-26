@@ -19,9 +19,6 @@ def vm_pso(model_container: ModelContainer) -> PsoConfigurationViewModel:
         ("start_time", "end_time", "startTimeChanged", 0, 1, 0.0, 0),
         ("start_time", "end_time", "startTimeChanged", 0, 1, 0.5, 1),
         ("start_time", "end_time", "startTimeChanged", 0, 1, 1.0, 0),
-        ("constraint_min", "constraint_max", "constraintMinChanged", 0, 1, 0.0, 0),
-        ("constraint_min", "constraint_max", "constraintMinChanged", 0, 1, 0.5, 1),
-        ("constraint_min", "constraint_max", "constraintMinChanged", 0, 1, 1.0, 0),
         ("kp_min", "kp_max", "kpMinChanged", 0, 1, 0.0, 0),
         ("kp_min", "kp_max", "kpMinChanged", 0, 1, 0.5, 1),
         ("kp_min", "kp_max", "kpMinChanged", 0, 1, 1.0, 0),
@@ -36,9 +33,6 @@ def vm_pso(model_container: ModelContainer) -> PsoConfigurationViewModel:
         "start_time: min == val",
         "start_time: min < val < max",
         "start_time: val == max",
-        "constraint_min: min == val",
-        "constraint_min: min < val < max",
-        "constraint_min: val == max",
         "kp_min: min == val",
         "kp_min: min < val < max",
         "kp_min: val == max",
@@ -72,9 +66,6 @@ def test_min_value_with_verification_changed(
         ("start_time", "end_time", "endTimeChanged", 0, 1, 0.0, 0),
         ("start_time", "end_time", "endTimeChanged", 0, 1, 0.5, 1),
         ("start_time", "end_time", "endTimeChanged", 0, 1, 1.0, 0),
-        ("constraint_min", "constraint_max", "constraintMaxChanged", 0, 1, 0.0, 0),
-        ("constraint_min", "constraint_max", "constraintMaxChanged", 0, 1, 0.5, 1),
-        ("constraint_min", "constraint_max", "constraintMaxChanged", 0, 1, 1.0, 0),
         ("kp_min", "kp_max", "kpMaxChanged", 0, 1, 0.0, 0),
         ("kp_min", "kp_max", "kpMaxChanged", 0, 1, 0.5, 1),
         ("kp_min", "kp_max", "kpMaxChanged", 0, 1, 1.0, 0),
@@ -89,9 +80,6 @@ def test_min_value_with_verification_changed(
         "end_time: min == val",
         "end_time: min < val < max",
         "end_time: val == max",
-        "constraint_max: min == val",
-        "constraint_max: min < val < max",
-        "constraint_max: val == max",
         "kp_max: min == val",
         "kp_max: min < val < max",
         "kp_max: val == max",
@@ -123,13 +111,11 @@ def test_max_value_with_verification_changed(
 @pytest.mark.parametrize(
     "attribute, signal, init_value, value",
     [
-        ("anti_windup", "antiWindupChanged", AntiWindup.CLAMPING, AntiWindup.CONDITIONAL),
         ("excitation_target", "excitationTargetChanged", ExcitationTarget.REFERENCE,
          ExcitationTarget.INPUT_DISTURBANCE),
         ("performance_index", "performanceIndexChanged", PerformanceIndex.ITAE, PerformanceIndex.IAE)
     ],
     ids=[
-        "anti_windup",
         "excitation_target",
         "performance_index",
     ]

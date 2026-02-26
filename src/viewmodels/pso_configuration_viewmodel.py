@@ -1,6 +1,6 @@
 from PySide6.QtCore import QObject, Signal
 
-from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex
+from app_domain.controlsys import ExcitationTarget, PerformanceIndex
 from models import ModelContainer, PsoConfigurationModel, SettingsModel
 from .base_viewmodel import BaseViewModel
 
@@ -9,11 +9,8 @@ class PsoConfigurationViewModel(BaseViewModel):
 
     startTimeChanged = Signal()
     endTimeChanged = Signal()
-    antiWindupChanged = Signal()
     excitationTargetChanged = Signal()
     performanceIndexChanged = Signal()
-    constraintMinChanged = Signal()
-    constraintMaxChanged = Signal()
     kpMinChanged = Signal()
     kpMaxChanged = Signal()
     tiMinChanged = Signal()
@@ -67,15 +64,6 @@ class PsoConfigurationViewModel(BaseViewModel):
     )
 
     # -------------------
-    # anti windup
-    # -------------------
-    anti_windup = BaseViewModel._logged_property(
-        attribute="_model_pso.anti_windup",
-        notify_signal="antiWindupChanged",
-        property_type=AntiWindup
-    )
-
-    # -------------------
     # excitation_target
     # -------------------
     excitation_target = BaseViewModel._logged_property(
@@ -91,37 +79,6 @@ class PsoConfigurationViewModel(BaseViewModel):
         attribute="_model_pso.performance_index",
         notify_signal="performanceIndexChanged",
         property_type=PerformanceIndex
-    )
-
-    # -------------------
-    # constraint
-    # -------------------
-    def _verify_constraint_min(self, value: float) -> bool:
-        if self._model_pso.constraint_max <= value:
-            self.logger.debug(
-                f"Skipped 'constraint_min' update (value={value} >= constraint_min={self._model_pso.constraint_min})")
-            return False
-        return True
-
-    constraint_min = BaseViewModel._logged_property(
-        attribute="_model_pso.constraint_min",
-        notify_signal="constraintMinChanged",
-        property_type=float,
-        custom_setter=_verify_constraint_min
-    )
-
-    def _verify_constraint_max(self, value: float) -> bool:
-        if self._model_pso.constraint_min >= value:
-            self.logger.debug(
-                f"Skipped 'constraint_max' update (value={value} <= constraint_max={self._model_pso.constraint_max})")
-            return False
-        return True
-
-    constraint_max = BaseViewModel._logged_property(
-        attribute="_model_pso.constraint_max",
-        notify_signal="constraintMaxChanged",
-        property_type=float,
-        custom_setter=_verify_constraint_max
     )
 
     # -------------------
