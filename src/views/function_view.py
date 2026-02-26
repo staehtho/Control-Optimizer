@@ -185,10 +185,7 @@ class FunctionView(BaseView, QWidget):
     # -------------------------------------------------
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
-        index = self._cmb_function.findData(
-            self._vm_function.selected_function
-        )
-
+        index = self._cmb_function.findData(self._vm_function.selected_function)
         if index >= 0:
             self._cmb_function.setCurrentIndex(index)
 
