@@ -43,7 +43,7 @@ class BaseViewModel(QObject):
             for attr_name in attribute.split("."):
                 attr = getattr(attr, attr_name)
             value = attr
-            instance.logger.debug(f"Getter '{attribute}' called (value={value})")
+            instance.logger.debug(f"Getter '{attribute.split(".")[-1]}' called (value={value})")
             return value
 
         def setter(instance, value: Any) -> None:
@@ -51,10 +51,10 @@ class BaseViewModel(QObject):
             for attr_name in attribute.split("."):
                 attr = getattr(attr, attr_name)
             old_value = attr
-            instance.logger.debug(f"Setter '{attribute}' called (value={value})")
+            instance.logger.debug(f"Setter '{attribute.split(".")[-1]}' called (value={value})")
 
             if old_value == value:
-                instance.logger.debug(f"Skipped '{attribute}' update (same value)")
+                instance.logger.debug(f"Skipped '{attribute.split(".")[-1]}' update (same value)")
                 return
 
             if custom_setter:
