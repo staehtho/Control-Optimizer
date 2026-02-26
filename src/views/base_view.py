@@ -36,6 +36,7 @@ class BaseView:
 
     def __init__(self, vm_lang: LanguageViewModel):
 
+        self._initializing = True
         # -----------------------------
         # Language support
         # -----------------------------
@@ -80,6 +81,9 @@ class BaseView:
 
         # Step 5: Apply initial value
         self._apply_init_value()
+
+        self._initializing = False
+        self._logger.debug("Initialization complete")
 
     # ---------- Lifecycle abstract methods ----------
 
@@ -162,7 +166,7 @@ class BaseView:
                 inner_rows = len(field.fields) + 1
 
                 # Find first empty position for section
-                row = 0
+                row = 1
                 col = 0
                 while self.cell_has_widget(layout, row, col):
                     col += 2
@@ -174,7 +178,7 @@ class BaseView:
 
             else:
                 # Normal field
-                row = 0
+                row = 1
                 col = 0
                 while self.cell_has_widget(layout, row, col):
                     col += 2
@@ -213,6 +217,9 @@ class BaseView:
                              (e.g., "_vm_controller.anti_windup").
             *args: Additional arguments passed by the Qt signal (e.g., index for QComboBox).
         """
+        if self._initializing:
+            return
+
         widget = self._widgets[key]
 
         # Determine new value based on widget type
@@ -292,6 +299,8 @@ class BaseView:
 
         elif isinstance(widget, QLineEdit):
             if widget.text() != str(value):
+                if isinstance(value, float):
+                    value = round(value, self._dec)
                 widget.setText(str(value))
 
         elif isinstance(widget, (QSpinBox, QDoubleSpinBox)):

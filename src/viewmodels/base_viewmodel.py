@@ -35,7 +35,7 @@ class BaseViewModel(QObject):
             attribute: str,
             notify_signal: str,
             property_type: Any,
-            custom_setter: Optional[Callable[..., bool]] = None,
+            custom_setter: Optional[Callable[..., Any]] = None,
     ) -> Property:
 
         def getter(instance) -> Any:
@@ -58,8 +58,18 @@ class BaseViewModel(QObject):
                 return
 
             if custom_setter:
-                if not custom_setter(instance, value):
+                result = custom_setter(instance, value)
+
+                # Old style: returns bool
+                if isinstance(result, bool):
+                    if not result:
+                        return
+
+                # New style: returns transformed value or None
+                elif result is None:
                     return
+                else:
+                    value = result
 
             with instance.updating(attribute):
                 attrs = attribute.split(".")

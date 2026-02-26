@@ -113,11 +113,17 @@ class PsoConfigurationViewModel(BaseViewModel):
     # -------------------
     # ti
     # -------------------
-    def _verify_ti_min(self, value: float) -> bool:
+    def _verify_ti_min(self, value: float) -> float | None:
+        if value == 0:
+            value = 1e-9
+
         if self._model_pso.ti_max <= value:
-            self.logger.debug(f"Skipped 'ti_min' update (value={value} >= ti_min={self._model_pso.ti_min})")
-            return False
-        return True
+            self.logger.debug(
+                f"Skipped 'ti_min' update (value={value} >= ti_max={self._model_pso.ti_max})"
+            )
+            return None
+
+        return value
 
     ti_min = BaseViewModel._logged_property(
         attribute="_model_pso.ti_min",
