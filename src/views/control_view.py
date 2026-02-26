@@ -12,18 +12,37 @@ class ControllerModel(BaseView, QWidget):
 
         BaseView.__init__(self, vm_lang)
 
+    # -------------------------------------------------
+    # UI Initialization
+    # -------------------------------------------------
     def _init_ui(self) -> None:
-        """Create and configure UI elements (widgets, layouts, etc.)."""
+        """Create and configure all UI components."""
         ...
 
+    # -------------------------------------------------
+    # Signal / ViewModel Binding
+    # -------------------------------------------------
     def _connect_signals(self) -> None:
-        """Connect UI signals (buttons, input fields, etc.) to handlers."""
+        """Connect UI signals to event handlers."""
         ...
 
+    # -------------------------------------------------
+    # ViewModel bindings (ViewModel → UI)
+    # -------------------------------------------------
     def _bind_vm(self) -> None:
-        """Bind ViewModel signals to View updates (model → view)."""
+        """Bind ViewModel signals to View update handlers."""
         ...
 
+    # -------------------------------------------------
+    # Translation
+    # -------------------------------------------------
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
+        ...
+
+    # -------------------------------------------------
+    # Apply initial values
+    # -------------------------------------------------
+    def _apply_init_value(self) -> None:
+        """Apply initial values to all UI elements."""
         ...

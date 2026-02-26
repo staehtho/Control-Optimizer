@@ -71,10 +71,10 @@ class PsoConfigurationView(BaseView, QWidget):
         BaseView.__init__(self, vm_lang)
 
     # -------------------------------------------------
-    # UI initialization
+    # UI Initialization
     # -------------------------------------------------
     def _init_ui(self) -> None:
-        """Create and configure UI elements (widgets, layouts, etc.)."""
+        """Create and configure all UI components."""
         main_layout = QVBoxLayout()
 
         main_layout.addWidget(self._create_plant_frame())
@@ -246,22 +246,22 @@ class PsoConfigurationView(BaseView, QWidget):
         return layout
 
     # -------------------------------------------------
-    # Signal connections (UI → ViewModel)
+    # Signal / ViewModel Binding
     # -------------------------------------------------
     def _connect_signals(self) -> None:
-        """Connect UI signals (buttons, input fields, etc.) to handlers."""
+        """Connect UI signals to event handlers."""
         ...
 
     # -------------------------------------------------
     # ViewModel bindings (ViewModel → UI)
     # -------------------------------------------------
     def _bind_vm(self) -> None:
-        """Bind ViewModel signals to View updates (model → view)."""
+        """Bind ViewModel signals to View update handlers."""
         self._vm_plant.tfChanged.connect(self._on_vm_plant_tf_changed)
         self._vm_function.functionChanged.connect(self._on_vm_function_function_changed)
 
     # -------------------------------------------------
-    # Retranslation (for language changes)
+    # Translation
     # -------------------------------------------------
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
@@ -304,6 +304,13 @@ class PsoConfigurationView(BaseView, QWidget):
 
         for key in item_enums:
             self._cmb_add_item(self._widgets[key], item_enums[key])
+
+    # -------------------------------------------------
+    # Apply initial values
+    # -------------------------------------------------
+    def _apply_init_value(self) -> None:
+        """Apply initial values to all UI elements."""
+        ...
 
     # -------------------------------------------------
     # ViewModel change handlers

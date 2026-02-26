@@ -28,12 +28,11 @@ class PlantView(BaseView, QWidget):
         BaseView.__init__(self, vm_lang)
 
     # -------------------------------------------------
-    # UI initialization
+    # UI Initialization
     # -------------------------------------------------
     def _init_ui(self) -> None:
-        """
-        Initialize all UI components and layout.
-        """
+        """Create and configure all UI components."""
+
         # Validator: allow only digits, dot, comma, minus and whitespace
         regex = QRegularExpression(r"[0-9.,\-\s]*")
         validator = QRegularExpressionValidator(regex)
@@ -135,9 +134,10 @@ class PlantView(BaseView, QWidget):
         self.setLayout(main_layout)
 
     # -------------------------------------------------
-    # Signal connections (UI → ViewModel)
+    # Signal / ViewModel Binding
     # -------------------------------------------------
     def _connect_signals(self) -> None:
+        """Connect UI signals to event handlers."""
         self._txt_num.textChanged.connect(self._on_txt_num_changed)
         self._txt_den.textChanged.connect(self._on_txt_den_changed)
 
@@ -145,6 +145,7 @@ class PlantView(BaseView, QWidget):
     # ViewModel bindings (ViewModel → UI)
     # -------------------------------------------------
     def _bind_vm(self) -> None:
+        """Bind ViewModel signals to View update handlers."""
         # vm plant
         self._vm_plant.numChanged.connect(self._on_vm_num_changed)
         self._vm_plant.denChanged.connect(self._on_vm_den_changed)
@@ -155,9 +156,10 @@ class PlantView(BaseView, QWidget):
         self._vm_plot.endTimeChanged.connect(self._on_plot_time_changed)
 
     # -------------------------------------------------
-    # Retranslation (for language changes)
+    # Translation
     # -------------------------------------------------
     def _retranslate(self) -> None:
+        """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("Plant"))
         self._lbl_num.setText(self.tr("plant.num"))
         self._lbl_den.setText(self.tr("plant.den"))
@@ -167,6 +169,14 @@ class PlantView(BaseView, QWidget):
         tooltip_text = self.tr("tooltip_num_den")
         self._txt_num.setToolTip(tooltip_text)
         self._txt_den.setToolTip(tooltip_text)
+
+    # -------------------------------------------------
+    # Apply initial values
+    # -------------------------------------------------
+    def _apply_init_value(self) -> None:
+        """Apply initial values to all UI elements."""
+        # No initial value to apply
+        ...
 
     # -------------------------------------------------
     # ViewModel change handlers

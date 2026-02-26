@@ -69,9 +69,11 @@ class FunctionView(BaseView, QWidget):
         frame.setLayout(self._frame_layout)
         main_layout.addWidget(frame)
 
+        translation = Translation()
+
         self._plot_cfg = PlotConfiguration(
             context="Function",
-            title=self._vm_function.selected_function.LABEL,
+            title=translation(FunctionTypes).get(self._vm_function.selected_function),
             x_label=str(QT_TRANSLATE_NOOP("Function", "Time [s]")),
             y_label=str(QT_TRANSLATE_NOOP("Function", "Output")),
         )
@@ -89,7 +91,7 @@ class FunctionView(BaseView, QWidget):
         """Create and populate the parameter grid."""
         self._logger.debug(
             "Building parameter grid for function: %s",
-            self._vm_function.selected_function.LABEL,
+            self._vm_function.selected_function.__class__.__name__,
         )
 
         grid = QGridLayout()
@@ -152,6 +154,9 @@ class FunctionView(BaseView, QWidget):
             # Update ViewModel on editing finished
             txt.editingFinished.connect(partial(self._on_txt_param_edited, key))
 
+    # -------------------------------------------------
+    # ViewModel bindings (ViewModel → UI)
+    # -------------------------------------------------
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
 
@@ -168,10 +173,7 @@ class FunctionView(BaseView, QWidget):
     # Translation
     # -------------------------------------------------
     def _retranslate(self) -> None:
-        """
-        Rebuild the function combobox after a language change
-        and restore the previously selected function.
-        """
+        """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("Excitation Function"))
 
         translation = Translation()
@@ -197,7 +199,7 @@ class FunctionView(BaseView, QWidget):
         """Rebuild parameter grid when selected function changes."""
         self._logger.info(
             "Function changed to: %s",
-            self._vm_function.selected_function.LABEL,
+            self._vm_function.selected_function.__class__.__name__,
         )
 
         if self._param_grid is not None:
@@ -206,7 +208,8 @@ class FunctionView(BaseView, QWidget):
         self._param_grid = self._init_param_grid()
         self._frame_layout.addLayout(self._param_grid)
 
-        self._plot_cfg.title = self._vm_function.selected_function.LABEL
+        translation = Translation()
+        self._plot_cfg.title = translation(FunctionTypes).get(self._vm_function.selected_function)
 
     def _on_vm_compute_finished(self, t: ndarray, y: ndarray) -> None:
         """Update plot data after function computation completes."""

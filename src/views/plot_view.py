@@ -26,7 +26,11 @@ class PlotView(BaseView, QWidget):
         BaseView.__init__(self, vm_lang)
         self._logger.debug("PlotView initialized (context=%s)", self._cfg.context)
 
+    # -------------------------------------------------
+    # UI Initialization
+    # -------------------------------------------------
     def _init_ui(self) -> None:
+        """Create and configure all UI components."""
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
@@ -64,7 +68,6 @@ class PlotView(BaseView, QWidget):
         self._txt_start = QLineEdit()
         self._txt_start.setFixedWidth(90)
         self._txt_start.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed) # type: ignore[attr-defined]
-        self._txt_start.setText(f"{self._vm.start_time:.{self._dec}f}")
         self._txt_start.setValidator(QDoubleValidator())
         layout.addWidget(self._txt_start)
 
@@ -76,13 +79,11 @@ class PlotView(BaseView, QWidget):
         self._txt_end = QLineEdit()
         self._txt_end.setFixedWidth(90)
         self._txt_end.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)   # type: ignore[attr-defined]
-        self._txt_end.setText(f"{self._vm.end_time:.{self._dec}f}")
         self._txt_end.setValidator(QDoubleValidator())
         layout.addWidget(self._txt_end)
 
         # Grid checkbox
         self._chk_grid = QCheckBox("")
-        self._chk_grid.setChecked(self._vm.grid)
         self._chk_grid.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)  # type: ignore[attr-defined]
         layout.addWidget(self._chk_grid)
 
@@ -91,9 +92,10 @@ class PlotView(BaseView, QWidget):
         return layout
 
     # -------------------------------------------------
-    # Signal connections (UI → ViewModel)
+    # Signal / ViewModel Binding
     # -------------------------------------------------
     def _connect_signals(self) -> None:
+        """Connect UI signals to event handlers."""
         self._chk_grid.stateChanged.connect(self._on_chk_grid_changed)
         self._txt_start.editingFinished.connect(self._on_txt_start_changed)
         self._txt_start.returnPressed.connect(self._on_txt_start_changed)
@@ -104,19 +106,33 @@ class PlotView(BaseView, QWidget):
     # ViewModel bindings (ViewModel → UI)
     # -------------------------------------------------
     def _bind_vm(self) -> None:
+        """Bind ViewModel signals to View update handlers."""
         # Thread-safe call to update plot
         self._vm.gridChanged.connect(self._update_plot)
         self._vm.startTimeChanged.connect(self._update_plot)
         self._vm.endTimeChanged.connect(self._update_plot)
         self._vm.dataChanged.connect(self._update_plot)
 
+    # -------------------------------------------------
+    # Translation
+    # -------------------------------------------------
     def _retranslate(self) -> None:
+        """Update all UI texts after a language change."""
         self._chk_grid.setText(self.tr("plot.grid"))
         self._lbl_start.setText(self.tr("plot.start"))
         self._lbl_end.setText(self.tr("plot.end"))
         self._txt_start.setToolTip(self.tr("plot.start.tooltip"))
         self._txt_end.setToolTip(self.tr("plot.end.tooltip"))
         self._update_plot()
+
+    # -------------------------------------------------
+    # Apply initial values
+    # -------------------------------------------------
+    def _apply_init_value(self) -> None:
+        """Apply initial values to all UI elements."""
+        self._txt_start.setText(f"{self._vm.start_time:.{self._dec}f}")
+        self._txt_end.setText(f"{self._vm.end_time:.{self._dec}f}")
+        self._chk_grid.setChecked(self._vm.grid)
 
     # -------------------------------------------------
     # Plot update

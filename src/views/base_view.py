@@ -58,7 +58,8 @@ class BaseView:
         self._retranslate()
         self._logger.debug("initial translation applied")
 
-        # TODO self._apply_init_value()
+        # Step 5: Apply initial value
+        self._apply_init_value()
 
     # ---------- Lifecycle abstract methods ----------
 
@@ -78,8 +79,9 @@ class BaseView:
         """Update all UI texts after a language change."""
         raise NotImplementedError
 
-    # TODO def _apply_init_value(self) -> None:
-    # TODO      raise NotImplementError
+    def _apply_init_value(self) -> None:
+        """Apply initial values to all UI elements."""
+        raise NotImplementedError
 
     def _clear_layout(self, layout: QLayout) -> None:
         if layout is not None:
