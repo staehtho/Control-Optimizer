@@ -6,7 +6,7 @@ from typing import Type
 
 from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex
 from utils import LatexRenderer
-from viewmodels import LanguageViewModel, PlantViewModel, PsoConfigurationViewModel
+from viewmodels import LanguageViewModel, PlantViewModel, FunctionViewModel, PsoConfigurationViewModel
 from .base_view import BaseView
 
 
@@ -24,17 +24,19 @@ class SectionConfig:
 
 FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
     "control": [
-        FieldConfig("start_time", QLineEdit),
-        FieldConfig("end_time", QLineEdit),
-
-        FieldConfig("excitation_target", QComboBox),
-        FieldConfig("anti_windup", QComboBox),
-        FieldConfig("performance_index", QComboBox),
+        SectionConfig("simulation_time", [
+            FieldConfig("start_time", QLineEdit),
+            FieldConfig("end_time", QLineEdit),
+        ]),
 
         SectionConfig("constraint", [
             FieldConfig("constraint_min", QLineEdit),
             FieldConfig("constraint_max", QLineEdit),
         ]),
+
+        FieldConfig("excitation_target", QComboBox),
+        FieldConfig("anti_windup", QComboBox),
+        FieldConfig("performance_index", QComboBox),
     ],
     "pso": [
         SectionConfig("kp", [
@@ -54,11 +56,12 @@ FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
 
 
 class PsoConfigurationView(BaseView, QWidget):
-    def __init__(self, vm_lang: LanguageViewModel, vm_plant: PlantViewModel, vm_pso: PsoConfigurationViewModel,
+    def __init__(self, vm_lang: LanguageViewModel, vm_plant: PlantViewModel, vm_function: FunctionViewModel, vm_pso: PsoConfigurationViewModel,
                  parent: QObject = None):
         QWidget.__init__(self, parent)
 
         self._vm_plant = vm_plant
+        self._vm_function = vm_function
         self._vm_pso = vm_pso
 
         self._widgets = {}
@@ -74,6 +77,7 @@ class PsoConfigurationView(BaseView, QWidget):
         main_layout = QVBoxLayout()
 
         main_layout.addWidget(self._create_plant_frame())
+        main_layout.addWidget(self._create_function_frame())
         main_layout.addWidget(self._create_control_frame())
         main_layout.addWidget(self._create_pso_frame())
 
@@ -108,6 +112,35 @@ class PsoConfigurationView(BaseView, QWidget):
         plant_frame_layout.addWidget(self._lbl_tf)
 
         return plant_frame
+
+    def _create_function_frame(self) -> QFrame:
+
+        function_frame = QFrame()
+        function_frame.setFrameShape(QFrame.StyledPanel)  # type: ignore[attr-defined]
+        function_frame.setFrameShadow(QFrame.Raised)  # type: ignore[attr-defined]
+
+        function_frame_layout = QVBoxLayout(function_frame)
+
+        # Title
+        self._lbl_title_function = QLabel()
+        self._apply_title_property(self._lbl_title_function)
+        function_frame_layout.addWidget(self._lbl_title_function)
+
+        self._lbl_function = QLabel()
+        self._lbl_function.setAttribute(Qt.WA_TranslucentBackground)  # type: ignore[attr-defined]
+        self._lbl_function.setStyleSheet("background: transparent;")
+
+        self._lbl_function.setPixmap(
+            LatexRenderer.latex2pixmap(
+                self._vm_function.selected_function.get_formula(),
+                font_size_scale=self._formula_font_size_scale
+            )
+        )
+        self._lbl_function.setAlignment(Qt.AlignHCenter)  # type: ignore[attr-defined]
+
+        function_frame_layout.addWidget(self._lbl_function)
+
+        return function_frame
 
     def _create_control_frame(self) -> QFrame:
 
@@ -152,11 +185,11 @@ class PsoConfigurationView(BaseView, QWidget):
         # Iteriere über alle Felder / Sections
         for field in fields:
 
+            col = col_pair_index * 2  # Label in col, Widget in col+1
             # -------------------------
             # SectionConfig → Unterframe
             # -------------------------
             if isinstance(field, SectionConfig):
-                row += 1
 
                 # QFrame für die Section erzeugen
                 frame = QFrame()
@@ -174,43 +207,37 @@ class PsoConfigurationView(BaseView, QWidget):
 
                 # Rekursiver Aufruf: alle Felder der Section
                 # → erzeugt ein Grid innerhalb des Frames
-                frame_layout.addLayout(self._create_grid(field.fields, columns))
+                frame_layout.addLayout(self._create_grid(field.fields, 2))
 
                 # Frame in das übergeordnete Layout einfügen (spannt alle Spalten)
-                layout.addWidget(frame, row, 0, 1, columns)
+                layout.addWidget(frame, row, col, 1, 2)
 
-                # Zeilenindex für Main-Grid erhöhen
-                row += 1
-                col_pair_index = 0  # Reset für neue Section
-                continue
+            else:
+                # -------------------------
+                # Normales Field (Label + Widget)
+                # -------------------------
+                # QLabel erstellen und speichern
+                label = QLabel()
 
-            # -------------------------
-            # Normales Field (Label + Widget)
-            # -------------------------
-            col = col_pair_index * 2  # Label in col, Widget in col+1
+                # Widget erzeugen
+                widget: QWidget = field.widget_type()
 
-            # QLabel erstellen und speichern
-            label = QLabel()
+                if isinstance(widget, QLineEdit):
+                    widget.setValidator(QDoubleValidator())
 
-            # Widget erzeugen
-            widget: QWidget = field.widget_type()
+                # Label und Widget in Grid einfügen
+                layout.addWidget(label, row, col)
+                layout.addWidget(widget, row, col + 1)
 
-            if isinstance(widget, QLineEdit):
-                widget.setValidator(QDoubleValidator())
-
-            # Label und Widget in Grid einfügen
-            layout.addWidget(label, row, col)
-            layout.addWidget(widget, row, col + 1)
-
-            # Speichern für späteren Zugriff / Updates
-            self._widgets[field.key] = widget
-            self._labels[field.key] = label
+                # Speichern für späteren Zugriff / Updates
+                self._widgets[field.key] = widget
+                self._labels[field.key] = label
 
             # Spalte wechseln (linkes / rechtes Paar)
             col_pair_index += 1
 
             # Wenn beide Spalten befüllt, Zeile erhöhen
-            if col_pair_index >= 2:
+            if col_pair_index >= columns // 2:
                 row += 1
                 col_pair_index = 0
 
@@ -229,7 +256,8 @@ class PsoConfigurationView(BaseView, QWidget):
     # -------------------------------------------------
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View updates (model → view)."""
-        self._vm_plant.tfChanged.connect(self._on_plant_tf_changed)
+        self._vm_plant.tfChanged.connect(self._on_vm_plant_tf_changed)
+        self._vm_function.functionChanged.connect(self._on_vm_function_function_changed)
 
     # -------------------------------------------------
     # Retranslation (for language changes)
@@ -239,8 +267,10 @@ class PsoConfigurationView(BaseView, QWidget):
         self._lbl_title_plant.setText(self.tr("Plant"))
         self._lbl_title_control.setText(self.tr("Controller Optimization Parameters"))
         self._lbl_title_pso.setText(self.tr("PSO Bounds"))
+        self._lbl_title_function.setText(self.tr("Excitation Function"))
 
         labels = {
+            "simulation_time": self.tr("Simulation Time"),
             "start_time": self.tr("Start Time"),
             "end_time": self.tr("End Time"),
             "excitation_target": self.tr("Excitation Target"),
@@ -284,30 +314,21 @@ class PsoConfigurationView(BaseView, QWidget):
         for key in items:
             self._cmb_add_item(self._widgets[key], items[key])
 
-    @staticmethod
-    def _cmb_add_item(cmb: QComboBox, data: dict) -> None:
-        current_data = cmb.currentData()
-        cmb.clear()
-
-        # alphabetisch nach Wert sortieren (case-insensitive)
-        sorted_items = sorted(data.items(), key=lambda kv: kv[1].lower())
-
-        for enum_key, text in sorted_items:
-            cmb.addItem(text, enum_key)
-
-        # alten Wert wieder auswählen, falls noch gültig
-        if current_data in data:
-            index = cmb.findData(current_data)
-            if index >= 0:
-                cmb.setCurrentIndex(index)
-
     # -------------------------------------------------
     # ViewModel change handlers
     # -------------------------------------------------
-    def _on_plant_tf_changed(self) -> None:
+    def _on_vm_plant_tf_changed(self) -> None:
         self._lbl_tf.setPixmap(
             LatexRenderer.latex2pixmap(
                 self._vm_plant.get_formula(),
+                font_size_scale=self._formula_font_size_scale
+            )
+        )
+
+    def _on_vm_function_function_changed(self) -> None:
+        self._lbl_function.setPixmap(
+            LatexRenderer.latex2pixmap(
+                self._vm_function.selected_function.get_formula(),
                 font_size_scale=self._formula_font_size_scale
             )
         )

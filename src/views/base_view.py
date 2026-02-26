@@ -1,5 +1,5 @@
 import logging
-from PySide6.QtWidgets import QLayout, QLabel
+from PySide6.QtWidgets import QLayout, QLabel, QComboBox
 from PySide6.QtGui import QFont
 from PySide6.QtCore import Qt
 
@@ -58,6 +58,8 @@ class BaseView:
         self._retranslate()
         self._logger.debug("initial translation applied")
 
+        # TODO self._apply_init_value()
+
     # ---------- Lifecycle abstract methods ----------
 
     def _init_ui(self) -> None:
@@ -76,6 +78,9 @@ class BaseView:
         """Update all UI texts after a language change."""
         raise NotImplementedError
 
+    # TODO def _apply_init_value(self) -> None:
+    # TODO      raise NotImplementError
+
     def _clear_layout(self, layout: QLayout) -> None:
         if layout is not None:
             while layout.count():
@@ -92,3 +97,20 @@ class BaseView:
         font.setBold(True)
         lbl.setFont(font)
         lbl.setAlignment(Qt.AlignHCenter)  # type: ignore[attr-defined]
+
+    @staticmethod
+    def _cmb_add_item(cmb: QComboBox, data: dict) -> None:
+        current_data = cmb.currentData()
+        cmb.clear()
+
+        # alphabetisch nach Wert sortieren (case-insensitive)
+        sorted_items = sorted(data.items(), key=lambda kv: kv[1].lower())
+
+        for enum_key, text in sorted_items:
+            cmb.addItem(text, enum_key)
+
+        # alten Wert wieder auswählen, falls noch gültig
+        if current_data in data:
+            index = cmb.findData(current_data)
+            if index >= 0:
+                cmb.setCurrentIndex(index)

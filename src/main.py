@@ -65,7 +65,7 @@ if __name__ == '__main__':
     #print_tab_order(view_function)
     view_function.show()
 
-    view_pso = PsoConfigurationView(engine.vm_lang, engine.vm_plant, engine.vm_pso)
+    view_pso = PsoConfigurationView(engine.vm_lang, engine.vm_plant, engine.vm_function, engine.vm_pso)
     # print_tab_order(view_pso)
     view_pso.show()
 
