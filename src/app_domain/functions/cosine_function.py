@@ -1,7 +1,6 @@
 from typing import Callable
 
 import numpy as np
-from PySide6.QtCore import QT_TRANSLATE_NOOP
 
 from .base_function import BaseFunction
 
