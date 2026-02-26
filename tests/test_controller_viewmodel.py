@@ -18,7 +18,7 @@ def vm_controller(model_controller: ControllerModel) -> ControllerViewModel:
     [
         ("constraint_min", "constraint_max", "constraintMinChanged", 0, 1, 0.0, 0),
         ("constraint_min", "constraint_max", "constraintMinChanged", 0, 1, 0.5, 1),
-        ("constraint_min", "constraint_max", "constraintMinChanged", 0, 1, 1.0, 0),
+        ("constraint_min", "constraint_max", "constraintMinChanged", 0, 1, 1.0, 1),
     ],
     ids=[
         "constraint_min: min == val",
@@ -45,9 +45,9 @@ def test_min_value_with_verification_changed(
 @pytest.mark.parametrize(
     "attribute_min, attribute_max, signal, init_min, init_max, value, expected_spy_size",
     [
-        ("constraint_min", "constraint_max", "constraintMaxChanged", 0, 1, 0.0, 0),
-        ("constraint_min", "constraint_max", "constraintMaxChanged", 0, 1, 0.5, 1),
-        ("constraint_min", "constraint_max", "constraintMaxChanged", 0, 1, 1.0, 0),
+        ("constraint_min", "constraint_max", "constraintMaxChanged", 0.0, 1.0, 0.0, 1),
+        ("constraint_min", "constraint_max", "constraintMaxChanged", 0.0, 1.0, 0.5, 1),
+        ("constraint_min", "constraint_max", "constraintMaxChanged", 0.0, 1.0, 1.0, 0),
     ],
     ids=[
         "constraint_max: min == val",

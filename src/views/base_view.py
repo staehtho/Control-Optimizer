@@ -1,5 +1,8 @@
 import logging
-from PySide6.QtWidgets import QWidget, QLayout, QLabel, QComboBox, QGridLayout, QFrame, QVBoxLayout, QLineEdit
+from PySide6.QtWidgets import (
+    QWidget, QLayout, QLabel, QComboBox, QGridLayout, QFrame, QVBoxLayout, QLineEdit, QCheckBox, QSpinBox,
+    QDoubleSpinBox
+)
 from PySide6.QtGui import QFont
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QDoubleValidator
@@ -137,6 +140,9 @@ class BaseView:
     def _create_grid(self, fields: list[FieldConfig | SectionConfig], columns: int = 4) -> QGridLayout:
         layout = QGridLayout()
 
+        for col in range(columns):
+            layout.setColumnStretch(col, 1)  # all columns get equal stretch
+
         for field in fields:
             if isinstance(field, SectionConfig):
                 frame = QFrame()
@@ -193,3 +199,108 @@ class BaseView:
     def cell_has_widget(grid_layout: QGridLayout, row: int, col: int) -> bool:
         item = grid_layout.itemAtPosition(row, col)
         return item is not None and item.widget() is not None
+
+    def _on_widget_changed(self, key: str, attribute: str, *args, **kwargs) -> None:
+        """Handle changes from various input widgets and update the corresponding attribute.
+
+        This method supports QComboBox, QLineEdit, QSpinBox, and similar widgets.
+        It automatically retrieves the new value and sets the target attribute
+        indicated by the dotted path `attribute`.
+
+        Args:
+            key (str): The key identifying the widget in self._widgets.
+            attribute (str): The dotted path to the attribute to update
+                             (e.g., "_vm_controller.anti_windup").
+            *args: Additional arguments passed by the Qt signal (e.g., index for QComboBox).
+        """
+        widget = self._widgets[key]
+
+        # Determine new value based on widget type
+        if isinstance(widget, QComboBox):
+            # For QComboBox, Qt signals pass the index
+            index = args[0] if args else widget.currentIndex()
+            value = widget.itemData(index)
+
+        elif isinstance(widget, QLineEdit):
+            text = widget.text()
+            value_type = kwargs.get("value_type", str)  # default to str if not provided
+            try:
+                # Cast text to the specified type
+                value = value_type(text)
+            except (ValueError, TypeError):
+                # Handle invalid input gracefully
+                self._logger.warning(f"Cannot convert '{text}' to {value_type} for widget '{key}'")
+                widget.setText(f"{text:.{self._dec}}")
+                value = text
+
+        elif isinstance(widget, QSpinBox) or isinstance(widget, QDoubleSpinBox):
+            value = widget.value()
+
+        elif isinstance(widget, QCheckBox):
+            value = widget.isChecked()
+
+        else:
+            # Default fallback
+            value = None
+            self._logger.warning(f"Widget type {type(widget)} not handled for key '{key}'")
+
+        # Log the change
+        self._logger.info(f"User changed {key}: {value}")
+
+        # Traverse the dotted attribute path to get the target object
+        attrs = attribute.split(".")
+        attr = self
+        for attr_name in attrs[:-1]:
+            attr = getattr(attr, attr_name)
+
+        # Set the final attribute to the new value
+        setattr(attr, attrs[-1], value)
+
+    def _on_vm_changed(self, key: str, attribute: str) -> None:
+        """Update a widget to reflect the current value of its corresponding attribute.
+
+        This universal method automatically updates widgets of different types
+        (QComboBox, QLineEdit, QSpinBox, QDoubleSpinBox, QCheckBox) based on
+        the current value of the attribute in the model or view-model.
+
+        Args:
+            key (str): The key identifying the widget in self._widgets.
+            attribute (str): The dotted path to the attribute to read
+                             (e.g., "_vm_controller.anti_windup").
+        """
+        # Traverse the dotted attribute path to get the current value
+        attr = self
+        for attr_name in attribute.split("."):
+            attr = getattr(attr, attr_name)
+        value = attr
+
+        # Log the update
+        self._logger.debug(f"Updating widget '{key}' to value: {value}")
+
+        widget = self._widgets.get(key)
+        if widget is None:
+            self._logger.warning(f"No widget found for key '{key}'")
+            return
+
+        # Update based on widget type
+        if isinstance(widget, QComboBox):
+            current_value = widget.currentData()
+            if current_value != value:
+                index = widget.findData(value)
+                if index >= 0:
+                    widget.setCurrentIndex(index)
+
+        elif isinstance(widget, QLineEdit):
+            if widget.text() != str(value):
+                widget.setText(str(value))
+
+        elif isinstance(widget, (QSpinBox, QDoubleSpinBox)):
+            if widget.value() != value:
+                widget.setValue(value)
+
+        elif isinstance(widget, QCheckBox):
+            if widget.isChecked() != bool(value):
+                widget.setChecked(bool(value))
+
+        else:
+            self._logger.warning(f"Widget type '{type(widget)}' not handled for key '{key}'")
