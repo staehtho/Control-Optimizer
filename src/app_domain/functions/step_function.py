@@ -8,7 +8,6 @@ from .base_function import BaseFunction
 
 class StepFunction(BaseFunction):
     """General step function u(t) = λ * σ(t - t0)."""
-    LABEL = QT_TRANSLATE_NOOP("Function", "Step function")
 
     def __init__(self) -> None:
         """Initialize a general step function."""

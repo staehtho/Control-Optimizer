@@ -9,8 +9,6 @@ from .base_function import BaseFunction
 class SineFunction(BaseFunction):
     """Sine function u(t) = A*sin(ωt + φ) + y0."""
 
-    LABEL = QT_TRANSLATE_NOOP("Function", "Sine function")
-
     def __init__(self) -> None:
         """Initialize sine function with default parameters."""
         super().__init__()

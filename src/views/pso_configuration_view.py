@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QFrame, QLabel, QGridLayout, QLineEdit, QComboBox
-from PySide6.QtCore import QObject, Qt
+from PySide6.QtCore import QObject, Qt, QTranslator
 from PySide6.QtGui import QDoubleValidator
 from dataclasses import dataclass
 from typing import Type
@@ -8,6 +8,7 @@ from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex
 from utils import LatexRenderer
 from viewmodels import LanguageViewModel, PlantViewModel, FunctionViewModel, PsoConfigurationViewModel
 from .base_view import BaseView
+from .translations import Translation
 
 
 @dataclass
@@ -293,26 +294,16 @@ class PsoConfigurationView(BaseView, QWidget):
         for key, lbl in self._labels.items():
             lbl.setText(labels[key])
 
-        items: dict[str, dict] = {
-            "excitation_target": {
-                ExcitationTarget.REFERENCE: self.tr("Reference"),
-                ExcitationTarget.INPUT_DISTURBANCE: self.tr("Input Disturbance"),
-                ExcitationTarget.MEASUREMENT_DISTURBANCE: self.tr("Measurement Disturbance"),
-            },
-            "anti_windup": {
-                AntiWindup.CLAMPING: self.tr("Clamping"),
-                AntiWindup.CONDITIONAL: self.tr("Conditional"),
-            },
-            "performance_index": {
-                PerformanceIndex.ITAE: self.tr("ITAE"),
-                PerformanceIndex.IAE: self.tr("IAE"),
-                PerformanceIndex.ITSE: self.tr("ITSE"),
-                PerformanceIndex.ISE: self.tr("ISE"),
-            }
+        translation = Translation()
+
+        item_enums = {
+            "anti_windup": translation(AntiWindup),
+            "excitation_target": translation(ExcitationTarget),
+            "performance_index": translation(PerformanceIndex),
         }
 
-        for key in items:
-            self._cmb_add_item(self._widgets[key], items[key])
+        for key in item_enums:
+            self._cmb_add_item(self._widgets[key], item_enums[key])
 
     # -------------------------------------------------
     # ViewModel change handlers

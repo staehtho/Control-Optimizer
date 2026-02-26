@@ -1,6 +1,6 @@
 from functools import partial
 
-from PySide6.QtCore import QObject, Qt, QT_TRANSLATE_NOOP, QCoreApplication
+from PySide6.QtCore import QObject, Qt, QT_TRANSLATE_NOOP
 from PySide6.QtGui import QDoubleValidator, QFont
 from PySide6.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QLabel, QLineEdit, QFrame, QComboBox
 from numpy import ndarray
@@ -9,6 +9,7 @@ from app_domain.functions import FunctionTypes
 from utils import LatexRenderer
 from viewmodels import LanguageViewModel, FunctionViewModel, PlotViewModel
 from views import BaseView, PlotView, PlotConfiguration
+from views.translations import Translation
 
 
 class FunctionView(BaseView, QWidget):
@@ -173,28 +174,21 @@ class FunctionView(BaseView, QWidget):
         """
         self._lbl_title.setText(self.tr("Excitation Function"))
 
-        current_function = self._vm_function.selected_function
-        self._cmb_function.clear()
+        translation = Translation()
 
-        def translated_label(function):
-            return QCoreApplication.translate(
-                function.value.TRANSLATION_CONTEXT,
-                function.value.LABEL,
-            )
+        self._cmb_add_item(self._cmb_function, translation(FunctionTypes))
 
-        sorted_functions = sorted(FunctionTypes, key=translated_label)
+    # -------------------------------------------------
+    # Apply initial values
+    # -------------------------------------------------
+    def _apply_init_value(self) -> None:
+        """Apply initial values to all UI elements."""
+        index = self._cmb_function.findData(
+            self._vm_function.selected_function
+        )
 
-        for func in sorted_functions:
-            self._cmb_function.addItem(
-                translated_label(func),
-                userData=func,
-            )
-
-        # Restore selection by enum
-        for i in range(self._cmb_function.count()):
-            if isinstance(self._cmb_function.itemData(i).value(), type(current_function)):
-                self._cmb_function.setCurrentIndex(i)
-                break
+        if index >= 0:
+            self._cmb_function.setCurrentIndex(index)
 
     # -------------------------------------------------
     # ViewModel Event Handlers

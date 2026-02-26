@@ -11,8 +11,6 @@ class BaseFunction(ABC):
     Stores parameters and computed vectors t and y, provides
     logging for parameter changes.
     """
-    TRANSLATION_CONTEXT = "Function" #TODO nicht in der Funktion sondern wie bei PSOView die übersetzung
-    LABEL: object = None
 
     def __init__(self) -> None:
         """Initialize function parameters and logger."""
