@@ -3,5 +3,5 @@ from .plot_viewmodel import PlotViewModel
 from .plant_viewmodel import PlantViewModel
 from .language_viewmodel import LanguageViewModel
 from .function_viewmodel import FunctionViewModel
-from .controller_viewmodel import ControllerViewModel
+from .control_viewmodel import ControllerViewModel
 from .pso_configuration_viewmodel import PsoConfigurationViewModel
