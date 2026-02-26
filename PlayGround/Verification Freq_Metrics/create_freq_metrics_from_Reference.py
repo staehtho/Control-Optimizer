@@ -125,14 +125,15 @@ def evaluate_cases(df_cases: pd.DataFrame, adaptive_range: bool = True) -> pd.Da
         Tf = tf_from_plant(plant)
 
         # Batch-Call (P=1)
-        metrics = compute_loop_metrics_batch(
-            plant=plant,
-            Kp=np.array([c["Kp"]], dtype=float),
-            Ti=np.array([c["Ti"]], dtype=float),
-            Td=np.array([c["Td"]], dtype=float),
-            Tf=np.array([Tf], dtype=float),
-            adaptive_range=adaptive_range,
-        )
+        with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
+            metrics = compute_loop_metrics_batch(
+                plant=plant,
+                Kp=np.array([c["Kp"]], dtype=float),
+                Ti=np.array([c["Ti"]], dtype=float),
+                Td=np.array([c["Td"]], dtype=float),
+                Tf=np.array([Tf], dtype=float),
+                adaptive_range=adaptive_range,
+            )
 
         out.append({
             "plant_type": plant_type,
@@ -145,13 +146,14 @@ def evaluate_cases(df_cases: pd.DataFrame, adaptive_range: bool = True) -> pd.Da
             "Tf": Tf,
             "ITAE_ref": c["ITAE_ref"],
 
+            "ok": bool(metrics.get("ok_particles", np.array([True]))[0]),
             "pm_deg": float(metrics["pm_deg"][0]),
             "gm_db": float(metrics["gm_db"][0]),
             "ms": float(metrics["ms"][0]),
             "has_wc": bool(metrics["has_wc"][0]),
             "has_w180": bool(metrics["has_w180"][0]),
-            "wc": float(metrics["wc"][0]) if "wc" in metrics else np.nan,
-            "w180": float(metrics["w180"][0]) if "w180" in metrics else np.nan,
+            "wc": float(metrics["wc"][0]),
+            "w180": float(metrics["w180"][0]),
         })
 
     return pd.DataFrame(out)

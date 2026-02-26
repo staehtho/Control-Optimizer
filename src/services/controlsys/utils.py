@@ -101,13 +101,20 @@ def bode_plot(
 
     all_mag = np.hstack(all_mag)
 
-    # Autoscale magnitude axis
-    mag_min = np.floor(all_mag.min() / 20) * 20
-    mag_max = np.ceil(all_mag.max() / 20) * 20 + 20
+    # Autoscale magnitude axis (robust to NaN/Inf)
+    finite = np.isfinite(all_mag)
+    if not np.any(finite):
+        # If everything is non-finite (e.g., poles on jw-axis), fall back to a sane default
+        mag_min, mag_max = -60.0, 60.0
+    else:
+        mag_min = np.floor(np.min(all_mag[finite]) / 20) * 20
+        mag_max = np.ceil(np.max(all_mag[finite]) / 20) * 20 + 20
+        # Guard against degenerate range
+        if not np.isfinite(mag_min) or not np.isfinite(mag_max) or mag_min == mag_max:
+            mag_min, mag_max = -60.0, 60.0
+
     ax_mag.set_ylim(mag_min, mag_max)
     ax_mag.set_yticks(np.arange(mag_min, mag_max + 1, 20))
-    ax_mag.set_ylabel("Magnitude / dB")
-
     # Phase
     ax_phase.set_ylim(-180, 180)
     ax_phase.set_yticks(np.arange(-180, 180 + 1, 45))

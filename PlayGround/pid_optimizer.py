@@ -71,7 +71,7 @@ def main():
     td_max = config["pso"]["bounds"]["td_max"]'''
 
     plant_num = [1]
-    plant_den = [1, 1,  0]
+    plant_den = [1, 0, 1]
 
     sim_mode = "fixed"
     start_time = 0
@@ -82,8 +82,8 @@ def main():
 
     excitation_target = "reference"
 
-    constraint_min = -1
-    constraint_max = 1
+    constraint_min = -10
+    constraint_max = 10
 
     performance_index = PerformanceIndex.ITAE
 
