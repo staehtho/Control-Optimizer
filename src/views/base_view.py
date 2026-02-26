@@ -1,9 +1,23 @@
 import logging
-from PySide6.QtWidgets import QLayout, QLabel, QComboBox
+from PySide6.QtWidgets import QWidget, QLayout, QLabel, QComboBox
 from PySide6.QtGui import QFont
 from PySide6.QtCore import Qt
+from dataclasses import dataclass
+from typing import Type
 
 from viewmodels import LanguageViewModel
+
+
+@dataclass
+class FieldConfig:
+    key: str
+    widget_type: Type[QWidget] = QLabel
+
+
+@dataclass
+class SectionConfig:
+    key: str
+    fields: list[FieldConfig]
 
 class BaseView:
     """

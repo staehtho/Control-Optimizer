@@ -1,26 +1,13 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QFrame, QLabel, QGridLayout, QLineEdit, QComboBox
-from PySide6.QtCore import QObject, Qt, QTranslator
+from PySide6.QtCore import QObject, Qt
 from PySide6.QtGui import QDoubleValidator
-from dataclasses import dataclass
-from typing import Type
+
 
 from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex
 from utils import LatexRenderer
 from viewmodels import LanguageViewModel, PlantViewModel, FunctionViewModel, PsoConfigurationViewModel
-from .base_view import BaseView
+from views import BaseView, FieldConfig, SectionConfig
 from .translations import Translation
-
-
-@dataclass
-class FieldConfig:
-    key: str
-    widget_type: Type[QWidget] = QLabel
-
-
-@dataclass
-class SectionConfig:
-    key: str
-    fields: list[FieldConfig]
 
 
 FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
