@@ -47,7 +47,9 @@ class ControllerViewModel(BaseViewModel):
     def _verify_constraint_min(self, value: float) -> bool:
         if self._model_controller.constraint_max <= value:
             self.logger.debug(
-                f"Skipped 'constraint_min' update (value={value} >= constraint_min={self._model_controller.constraint_min})")
+                f"Skipped 'constraint_min' update (value={value} >= constraint_min={self._model_controller.constraint_min})"
+            )
+            self.constraintMinChanged.emit()
             return False
         return True
 
@@ -61,7 +63,9 @@ class ControllerViewModel(BaseViewModel):
     def _verify_constraint_max(self, value: float) -> bool:
         if self._model_controller.constraint_min >= value:
             self.logger.debug(
-                f"Skipped 'constraint_max' update (value={value} <= constraint_max={self._model_controller.constraint_max})")
+                f"Skipped 'constraint_max' update (value={value} <= constraint_max={self._model_controller.constraint_max})"
+            )
+            self.constraintMaxChanged.emit()
             return False
         return True
 

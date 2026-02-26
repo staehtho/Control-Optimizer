@@ -1,11 +1,18 @@
-from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QVBoxLayout, QFrame
+from functools import partial
+
+from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QVBoxLayout, QFrame, QLineEdit, QCheckBox
 
 from app_domain.controlsys import AntiWindup
 from viewmodels import LanguageViewModel, ControllerViewModel
-from views import BaseView, FieldConfig
+from views import BaseView, FieldConfig, SectionConfig
 from .translations import Translation
 
 FIELDS: list[FieldConfig] = [
+    SectionConfig("constraint", [
+        FieldConfig("constraint_min", QLineEdit),
+        FieldConfig("constraint_max", QLineEdit),
+    ]),
+
     FieldConfig("controller_type", QLabel),
     FieldConfig("anti_windup", QComboBox),
 ]
@@ -51,14 +58,30 @@ class ControllerView(BaseView, QWidget):
     # -------------------------------------------------
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
-        ...
+        attributes: dict[str, tuple[str, str, object]] = {
+            "constraint_min": ("editingFinished", "_vm_controller.constraint_min", float),
+            "constraint_max": ("editingFinished", "_vm_controller.constraint_max", float),
+            "anti_windup": ("currentIndexChanged", "_vm_controller.anti_windup", AntiWindup),
+        }
+        for key, value in attributes.items():
+            attr, vm_attr, value_type = value
+            getattr(self._widgets[key], attr).connect(
+                partial(self._on_widget_changed, key, vm_attr, value_type=value_type))
 
     # -------------------------------------------------
     # ViewModel bindings (ViewModel → UI)
     # -------------------------------------------------
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
-        ...
+        self._vm_controller.constraintMinChanged.connect(
+            partial(self._on_vm_changed, "constraint_min", "_vm_controller.constraint_min")
+        )
+        self._vm_controller.constraintMaxChanged.connect(
+            partial(self._on_vm_changed, "constraint_max", "_vm_controller.constraint_max")
+        )
+        self._vm_controller.antiWindupChanged.connect(
+            partial(self._on_vm_changed, "anti_windup", "_vm_controller.anti_windup")
+        )
 
     # -------------------------------------------------
     # Translation
@@ -70,6 +93,9 @@ class ControllerView(BaseView, QWidget):
         labels = {
             "controller_type": self.tr("Controller Type"),
             "anti_windup": self.tr("Anti Windup"),
+            "constraint": self.tr("Constraint"),
+            "constraint_min": self.tr("Minimum"),
+            "constraint_max": self.tr("Maximum"),
         }
 
         for key in labels.keys():
@@ -88,3 +114,6 @@ class ControllerView(BaseView, QWidget):
         index = self._widgets["anti_windup"].findData(self._vm_controller.anti_windup)
         if index >= 0:
             self._widgets["anti_windup"].setCurrentIndex(index)
+
+        self._widgets["constraint_min"].setText(f"{self._vm_controller.constraint_min:.{self._dec}}")
+        self._widgets["constraint_max"].setText(f"{self._vm_controller.constraint_max:.{self._dec}}")
