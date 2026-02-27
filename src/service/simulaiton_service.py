@@ -67,32 +67,33 @@ class SimulationService:
             self,
             pso_simulation_param: PsoSimulationParam,
             callback: Callable[[PsoResult], None],
-            callback_iteration_progress: Callable[[], None]
+            progress_callback: Callable[[int], None]
     ) -> None:
         """Run a PSO-based PID optimization asynchronously.
 
         Starts a PsoSimulationWorker that executes the PSO optimization
-        in a background thread and invokes the provided callback when
-        the computation finishes.
+        in a background thread. Progress updates are emitted after each
+        completed PSO iteration, and the final optimized result is
+        returned via the provided callback when the computation finishes.
 
         If a PSO simulation is already running, the request is ignored.
 
         Args:
-            pso_simulation_param: Container with all simulation and
+            pso_simulation_param: Container holding all simulation and
                 optimization parameters.
-            callback: Callable to invoke with the PsoResult when
-                optimization completes.
-            callback_iteration_progress: Callable that is executed after each
-                PSO iteration. It is called once per completed iteration and
-                can be used to update progress indicators or trigger UI updates.
+            callback: Callable invoked with the PsoResult once the
+                optimization has completed successfully.
+            progress_callback: Callable invoked after each completed
+                PSO iteration. Receives the current iteration index
+                (int) and can be used to update a progress indicator
+                such as a QProgressBar.
         """
         if self._pso_simulation_worker and self._pso_simulation_worker.isRunning():
             self._logger.warning("PsoSimulationWorker is busy. Ignoring request.")
             return
 
         self._logger.info("Starting PsoSimulationWorker for asynchronous computation")
-        self._pso_simulation_worker = PsoSimulationWorker(
-            self._pso_simulation_engine, pso_simulation_param, callback_iteration_progress
-        )
+        self._pso_simulation_worker = PsoSimulationWorker(self._pso_simulation_engine, pso_simulation_param)
         self._pso_simulation_worker.resultReady.connect(callback)
+        self._pso_simulation_worker.progressChanged.connect(progress_callback)
         self._pso_simulation_worker.start()

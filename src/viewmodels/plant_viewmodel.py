@@ -3,7 +3,7 @@ import re
 from PySide6.QtCore import QObject, Signal, Property, Slot, QTimer
 from numpy import ndarray
 
-from models import ModelContainer, PlantModel, SettingsModel, PsoConfigurationModel
+from models import ModelContainer, PlantModel, SettingsModel
 from service import SimulationService
 from utils import LatexRenderer
 from .base_viewmodel import BaseViewModel
@@ -22,7 +22,6 @@ class PlantViewModel(BaseViewModel):
         super().__init__(parent)
 
         self._model_plant: PlantModel = model_container.model_plant
-        self._model_pso: PsoConfigurationModel = model_container.model_pso
         self._settings: SettingsModel = model_container.model_settings
         self._simulation_service = simulation_service
 
@@ -92,8 +91,6 @@ class PlantViewModel(BaseViewModel):
         with self.updating("plant_num"):
             self._model_plant.num = arr
             self.logger.debug("Emitting numChanged after model update")
-            self._model_pso.num = arr
-            self.logger.debug(f"PsoFunctionModel 'num' updated (num={arr})")
             self._update_formula()
             self.numChanged.emit()
 
@@ -142,8 +139,6 @@ class PlantViewModel(BaseViewModel):
         with self.updating("plant_den"):
             self._model_plant.den = arr
             self.logger.debug("Emitting denChanged after model update")
-            self._model_pso.den = arr
-            self.logger.debug(f"PsoFunctionModel 'den' updated (num={arr})")
             self._update_formula()
             self.denChanged.emit()
 

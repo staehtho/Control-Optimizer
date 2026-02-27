@@ -1,7 +1,7 @@
 from PySide6.QtCore import QObject, Signal, Slot
 
 from service import SimulationService
-from app_domain import PsoSimulationParam
+from app_domain import PsoSimulationParam, PsoResult
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
 from models import ModelContainer, PsoConfigurationModel, SettingsModel, PlantModel, FunctionModel, ControllerModel
 from .base_viewmodel import BaseViewModel
@@ -19,8 +19,11 @@ class PsoConfigurationViewModel(BaseViewModel):
     tiMaxChanged = Signal()
     tdMinChanged = Signal()
     tdMaxChanged = Signal()
+    psoProgressChanged = Signal(int)
+    psoSimulationFinished = Signal()
 
-    def __init__(self, model_container: ModelContainer, parent: QObject = None) -> None:
+    def __init__(self, model_container: ModelContainer, simulation_service: SimulationService,
+                 parent: QObject = None) -> None:
         super().__init__(parent)
 
         self._model_plant: PlantModel = model_container.model_plant
@@ -28,6 +31,9 @@ class PsoConfigurationViewModel(BaseViewModel):
         self._model_controller: ControllerModel= model_container.model_controller
         self._model_pso: PsoConfigurationModel = model_container.model_pso
         self._settings: SettingsModel = model_container.model_settings
+        self._simulation_service = simulation_service
+
+        self._pos_iteration: int = 0
 
         self._connect_signals()
         self.run_pso_simulation()
@@ -186,7 +192,15 @@ class PsoConfigurationViewModel(BaseViewModel):
     def run_pso_simulation(self):
         self.logger.debug(f"Running PSO simulation")
 
-        print(self._get_pos_param())
+        if not self._model_plant.is_valid:
+            self.logger.debug("Model is invalid -> no (new) calculation")
+            return
+
+        self._pos_iteration = self._settings.get_pso_iterations()
+
+        self._simulation_service.run_pso_simulation(
+            self._get_pos_param(), self._on_pso_simulation_finished, self._on_pso_progress
+        )
 
     def _get_pos_param(self) -> PsoSimulationParam:
         return PsoSimulationParam(
@@ -208,5 +222,16 @@ class PsoConfigurationViewModel(BaseViewModel):
             ti=(self.ti_min, self.ti_max),
             td=(self.td_min, self.td_max),
             swarm_size=self._settings.get_pso_particle(),
-            pso_iteration=self._settings.get_pso_particle()
+            pso_iteration=self._pos_iteration
         )
+
+    def _on_pso_simulation_finished(self, result: PsoResult):
+        print("PSO simulation finished", result)
+        self.psoSimulationFinished.emit()
+
+    @Slot()
+    def get_pos_iteration(self) -> int:
+        return self._pos_iteration
+
+    def _on_pso_progress(self, iteration: int) -> None:
+        self.psoProgressChanged.emit(iteration)

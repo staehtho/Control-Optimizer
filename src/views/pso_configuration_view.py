@@ -1,6 +1,6 @@
 from functools import partial
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QFrame, QLabel, QLineEdit, QComboBox
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QFrame, QLabel, QLineEdit, QComboBox, QPushButton, QProgressBar
 from PySide6.QtCore import QObject, Qt
 
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
@@ -60,7 +60,7 @@ class PsoConfigurationView(BaseView, QWidget):
         main_layout.addWidget(self._create_plant_frame())
         main_layout.addWidget(self._create_function_frame())
         main_layout.addWidget(self._create_control_frame())
-        # main_layout.addWidget(self._create_pso_frame())
+        main_layout.addWidget(self._create_run_pso_frame())
 
         self.setLayout(main_layout)
 
@@ -143,7 +143,7 @@ class PsoConfigurationView(BaseView, QWidget):
 
         return frame
 
-    def _create_pso_frame(self) -> QFrame:
+    def _create_run_pso_frame(self) -> QFrame:
         frame = QFrame()
         frame.setFrameShape(QFrame.StyledPanel)  # type: ignore[attr-defined]
         frame.setFrameShadow(QFrame.Raised)  # type: ignore[attr-defined]
@@ -151,11 +151,18 @@ class PsoConfigurationView(BaseView, QWidget):
         frame_layout = QVBoxLayout(frame)
 
         # Title
-        self._lbl_title_pso = QLabel()
-        self._apply_title_property(self._lbl_title_pso)
-        frame_layout.addWidget(self._lbl_title_pso)
+        self._lbl_title_run_pso = QLabel()
+        self._apply_title_property(self._lbl_title_run_pso)
+        frame_layout.addWidget(self._lbl_title_run_pso)
 
-        frame_layout.addLayout(self._create_grid(FIELDS["pso"], 4))
+        self._progress_bar = QProgressBar()
+        self._progress_bar.setMinimum(0)
+        self._progress_bar.setValue(0)
+        frame_layout.addWidget(self._progress_bar)
+
+        btn_run_pso = QPushButton()
+        frame_layout.addWidget(btn_run_pso)
+        self._labels["run_pso"] = btn_run_pso
 
         return frame
 
@@ -180,6 +187,8 @@ class PsoConfigurationView(BaseView, QWidget):
             attr, vm_attr, value_type = value
             getattr(self._widgets[key], attr).connect(
                 partial(self._on_widget_changed, key, vm_attr, value_type=value_type))
+
+        self._labels["run_pso"].clicked.connect(self._on_btn_run_pso)
 
     # -------------------------------------------------
     # ViewModel bindings (ViewModel → UI)
@@ -209,6 +218,9 @@ class PsoConfigurationView(BaseView, QWidget):
                 partial(self._on_vm_changed, key, attr)
             )
 
+        self._vm_pso.psoProgressChanged.connect(self._on_vm_pso_progress_changed)
+        self._vm_pso.psoSimulationFinished.connect(self._on_vm_pso_simulation_finished)
+
     # -------------------------------------------------
     # Translation
     # -------------------------------------------------
@@ -217,7 +229,7 @@ class PsoConfigurationView(BaseView, QWidget):
         self._lbl_title_plant.setText(self.tr("Plant"))
         self._lbl_title_function.setText(self.tr("Excitation Function"))
         self._lbl_title_control.setText(self.tr("Controller Optimization Parameters"))
-        #self._lbl_title_pso.setText(self.tr("PSO Bounds"))
+        self._lbl_title_run_pso.setText(self.tr("PSO Simulation"))
 
         labels = {
             "simulation_time": self.tr("Simulation Time"),
@@ -235,6 +247,7 @@ class PsoConfigurationView(BaseView, QWidget):
             "pso_bounds_td": self.tr("PSO Bounds: Td"),
             "td_min": self.tr("Minimum"),
             "td_max": self.tr("Maximum"),
+            "run_pso": self.tr("Start PSO Simulation"),
         }
 
         for key in labels.keys():
@@ -300,3 +313,14 @@ class PsoConfigurationView(BaseView, QWidget):
     # -------------------------------------------------
     # UI event handlers
     # -------------------------------------------------
+    def _on_vm_pso_progress_changed(self, iteration: int) -> None:
+        percent = int((iteration / self._vm_pso.get_pos_iteration()) * 100)
+        self._progress_bar.setValue(percent)
+
+    def _on_btn_run_pso(self) -> None:
+        self._labels["run_pso"].setEnabled(False)
+        self._progress_bar.setValue(0)
+        self._vm_pso.run_pso_simulation()
+
+    def _on_vm_pso_simulation_finished(self) -> None:
+        self._labels["run_pso"].setEnabled(True)

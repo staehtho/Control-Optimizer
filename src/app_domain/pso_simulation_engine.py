@@ -61,7 +61,7 @@ class PsoSimulationEngine:
     # Public API
     # ==========================================================
 
-    def run_simulation(self, param: PsoSimulationParam, callback: Callable[[], None]) -> PsoResult:
+    def run_simulation(self, param: PsoSimulationParam, callback: Callable[[int], None]) -> PsoResult:
         """Run full PSO optimization workflow."""
 
         self._logger.info("Starting PSO simulation.")
@@ -176,7 +176,7 @@ class PsoSimulationEngine:
     # PSO Execution
     # ==========================================================
 
-    def _run_pso(self, param: PsoSimulationParam, objective: PsoFunc, bounds, callback: Callable[[], None]) -> tuple[
+    def _run_pso(self, param: PsoSimulationParam, objective: PsoFunc, bounds, callback: Callable[[int], None]) -> tuple[
         float, float, float]:
         """Execute PSO optimization loop."""
 
@@ -208,16 +208,11 @@ class PsoSimulationEngine:
             duration = time.perf_counter() - iter_start
 
             self._logger.info(
-                "pso_iteration",
-                extra={
-                    "iteration": iteration + 1,
-                    "duration_s": duration,
-                    "cost": cost,
-                    "best_cost": best_cost
-                }
+                "Iteration %d | duration=%.4fs | J=%.6f | best_J=%.6f",
+                iteration + 1, duration, cost, best_cost
             )
 
-            callback()
+            callback(iteration + 1)
 
         total_duration = time.perf_counter() - total_start
 
