@@ -62,7 +62,7 @@ def test_plant_vm_update_num(model_container: ModelContainer, plant_vm: PlantVie
 
     assert spy.size() == expected_size
     assert plant_vm._num_input == num2
-    assert len(model_container.model_pso.num) == len(num2.split(","))
+    assert len(model_container.model_plant.num) == len(num2.split(","))
 
 @pytest.mark.parametrize(
     "den1, den2, expected_size",
@@ -84,4 +84,4 @@ def test_plant_vm_update_den(model_container: ModelContainer, plant_vm: PlantVie
 
     assert spy.size() == expected_size
     assert plant_vm._den_input == den2
-    assert len(model_container.model_pso.den) == len(den2.split(","))
+    assert len(model_container.model_plant.den) == len(den2.split(","))

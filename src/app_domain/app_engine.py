@@ -24,4 +24,4 @@ class AppEngine:
         self.vm_plot_function = PlotViewModel()
         self.vm_function = FunctionViewModel(self.model_container.model_function, self.simulation_service)
         self.vm_controller = ControllerViewModel(self.model_container.model_controller)
-        self.vm_pso = PsoConfigurationViewModel(self.model_container)
+        self.vm_pso = PsoConfigurationViewModel(self.model_container, self.simulation_service)

@@ -2,9 +2,9 @@ from typing import Callable
 import logging
 from numpy import ndarray
 
-from app_domain import PlantStepResponseEngine, FunctionEngine, PsoSimulationEngine, PsoSimulationParam
+from app_domain import PlantStepResponseEngine, FunctionEngine, PsoSimulationEngine, PsoSimulationParam, PsoResult
 from app_domain.controlsys import MySolver
-from infrastructure import PlantStepResponseWorker, FunctionWorker
+from infrastructure import PlantStepResponseWorker, FunctionWorker, PsoSimulationWorker
 
 
 class SimulationService:
@@ -63,10 +63,36 @@ class SimulationService:
         self._function_worker.resultReady.connect(callback)
         self._function_worker.start()
 
-    def run_pso_simulation(self, pso_simulation_param: PsoSimulationParam, callback: Callable[[ndarray], None]) -> None:
+    def run_pso_simulation(
+            self,
+            pso_simulation_param: PsoSimulationParam,
+            callback: Callable[[PsoResult], None],
+            callback_iteration_progress: Callable[[], None]
+    ) -> None:
+        """Run a PSO-based PID optimization asynchronously.
 
+        Starts a PsoSimulationWorker that executes the PSO optimization
+        in a background thread and invokes the provided callback when
+        the computation finishes.
+
+        If a PSO simulation is already running, the request is ignored.
+
+        Args:
+            pso_simulation_param: Container with all simulation and
+                optimization parameters.
+            callback: Callable to invoke with the PsoResult when
+                optimization completes.
+            callback_iteration_progress: Callable that is executed after each
+                PSO iteration. It is called once per completed iteration and
+                can be used to update progress indicators or trigger UI updates.
+        """
         if self._pso_simulation_worker and self._pso_simulation_worker.isRunning():
             self._logger.warning("PsoSimulationWorker is busy. Ignoring request.")
             return
 
         self._logger.info("Starting PsoSimulationWorker for asynchronous computation")
+        self._pso_simulation_worker = PsoSimulationWorker(
+            self._pso_simulation_engine, pso_simulation_param, callback_iteration_progress
+        )
+        self._pso_simulation_worker.resultReady.connect(callback)
+        self._pso_simulation_worker.start()

@@ -48,10 +48,10 @@ if __name__ == '__main__':
         datefmt="%Y-%m-%d %H:%M:%S"
     )
 
-    logger = logging.getLogger("matplotlib.font_manager")
-
-    old_level = logger.level
-    logger.setLevel(logging.CRITICAL + 1)  # nichts wird mehr geloggt
+    for log in ("matplotlib.font_manager", "numba.core.ssa", "numba.core.byteflow", "numba.core.interpreter"):
+        logger = logging.getLogger(log)
+        old_level = logger.level
+        logger.setLevel(logging.CRITICAL + 1)  # nichts wird mehr geloggt
 
     app = QApplication(sys.argv)
 

@@ -1,17 +1,27 @@
 import pytest
 from PySide6.QtTest import QSignalSpy
+from unittest.mock import MagicMock
 
-from app_domain.controlsys import PerformanceIndex, AntiWindup, ExcitationTarget
+from app_domain.controlsys import PerformanceIndex, ExcitationTarget
+from service import SimulationService
 from models import ModelContainer
 from viewmodels import PsoConfigurationViewModel
+
+
+@pytest.fixture
+def mock_simulation_service():
+    service = MagicMock(spec=SimulationService)
+    # Optional: definiere, was compute oder andere Methoden zurückgeben sollen
+    service.compute_function.return_value = None
+    return service
 
 @pytest.fixture
 def model_container() -> ModelContainer:
     return ModelContainer()
 
 @pytest.fixture
-def vm_pso(model_container: ModelContainer) -> PsoConfigurationViewModel:
-    return PsoConfigurationViewModel(model_container)
+def vm_pso(model_container: ModelContainer, mock_simulation_service) -> PsoConfigurationViewModel:
+    return PsoConfigurationViewModel(model_container, mock_simulation_service)
 
 @pytest.mark.parametrize(
     "attribute_min, attribute_max, signal, init_min, init_max, value, expected_spy_size",
