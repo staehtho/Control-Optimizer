@@ -2,7 +2,7 @@ from typing import Callable
 import logging
 from numpy import ndarray
 
-from app_domain import PlantStepResponseEngine, FunctionEngine
+from app_domain import PlantStepResponseEngine, FunctionEngine, PsoSimulationEngine, PsoSimulationParam
 from app_domain.controlsys import MySolver
 from infrastructure import PlantStepResponseWorker, FunctionWorker
 
@@ -18,8 +18,11 @@ class SimulationService:
         self._logger.debug("SimulationService initialized.")
         self._step_engine = PlantStepResponseEngine()
         self._function_engine = FunctionEngine()
+        self._pso_simulation_engine = PsoSimulationEngine()
+
         self._step_worker = None
         self._function_worker = None
+        self._pso_simulation_worker = None
 
     # Plant Step Response
     def compute_step_response(self, num: list[float], den: list[float], t0: float, t1: float, solver: MySolver, callback: Callable[[ndarray, ndarray], None]) -> None:
@@ -59,3 +62,11 @@ class SimulationService:
         self._function_worker = FunctionWorker(self._function_engine, t, func)
         self._function_worker.resultReady.connect(callback)
         self._function_worker.start()
+
+    def run_pso_simulation(self, pso_simulation_param: PsoSimulationParam, callback: Callable[[ndarray], None]) -> None:
+
+        if self._pso_simulation_worker and self._pso_simulation_worker.isRunning():
+            self._logger.warning("PsoSimulationWorker is busy. Ignoring request.")
+            return
+
+        self._logger.info("Starting PsoSimulationWorker for asynchronous computation")

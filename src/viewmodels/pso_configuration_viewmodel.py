@@ -1,7 +1,9 @@
-from PySide6.QtCore import QObject, Signal
+from PySide6.QtCore import QObject, Signal, Slot
 
+from service import SimulationService
+from app_domain import PsoSimulationParam
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
-from models import ModelContainer, PsoConfigurationModel, SettingsModel
+from models import ModelContainer, PsoConfigurationModel, SettingsModel, PlantModel, FunctionModel, ControllerModel
 from .base_viewmodel import BaseViewModel
 
 
@@ -21,11 +23,14 @@ class PsoConfigurationViewModel(BaseViewModel):
     def __init__(self, model_container: ModelContainer, parent: QObject = None) -> None:
         super().__init__(parent)
 
-        self._model_function = model_container.model_function
+        self._model_plant: PlantModel = model_container.model_plant
+        self._model_function: FunctionModel = model_container.model_function
+        self._model_controller: ControllerModel= model_container.model_controller
         self._model_pso: PsoConfigurationModel = model_container.model_pso
         self._settings: SettingsModel = model_container.model_settings
 
         self._connect_signals()
+        self.run_pso_simulation()
 
     def _connect_signals(self) -> None:
         # No signals to connect
@@ -40,7 +45,7 @@ class PsoConfigurationViewModel(BaseViewModel):
             return False
         return True
 
-    start_time = BaseViewModel._logged_property(
+    start_time: float = BaseViewModel._logged_property(
         attribute="_model_pso.start_time",
         notify_signal="startTimeChanged",
         property_type=float,
@@ -56,7 +61,7 @@ class PsoConfigurationViewModel(BaseViewModel):
             return False
         return True
 
-    end_time = BaseViewModel._logged_property(
+    end_time: float = BaseViewModel._logged_property(
         attribute="_model_pso.end_time",
         notify_signal="endTimeChanged",
         property_type=float,
@@ -66,7 +71,7 @@ class PsoConfigurationViewModel(BaseViewModel):
     # -------------------
     # excitation_target
     # -------------------
-    excitation_target = BaseViewModel._logged_property(
+    excitation_target: ExcitationTarget = BaseViewModel._logged_property(
         attribute="_model_pso.excitation_target",
         notify_signal="excitationTargetChanged",
         property_type=ExcitationTarget
@@ -75,7 +80,7 @@ class PsoConfigurationViewModel(BaseViewModel):
     # -------------------
     # performance_index
     # -------------------
-    performance_index = BaseViewModel._logged_property(
+    performance_index: PerformanceIndex = BaseViewModel._logged_property(
         attribute="_model_pso.performance_index",
         notify_signal="performanceIndexChanged",
         property_type=PerformanceIndex
@@ -90,7 +95,7 @@ class PsoConfigurationViewModel(BaseViewModel):
             return False
         return True
 
-    kp_min = BaseViewModel._logged_property(
+    kp_min: float = BaseViewModel._logged_property(
         attribute="_model_pso.kp_min",
         notify_signal="kpMinChanged",
         property_type=float,
@@ -103,7 +108,7 @@ class PsoConfigurationViewModel(BaseViewModel):
             return False
         return True
 
-    kp_max = BaseViewModel._logged_property(
+    kp_max: float = BaseViewModel._logged_property(
         attribute="_model_pso.kp_max",
         notify_signal="kpMaxChanged",
         property_type=float,
@@ -125,7 +130,7 @@ class PsoConfigurationViewModel(BaseViewModel):
 
         return value
 
-    ti_min = BaseViewModel._logged_property(
+    ti_min: float = BaseViewModel._logged_property(
         attribute="_model_pso.ti_min",
         notify_signal="tiMinChanged",
         property_type=float,
@@ -138,7 +143,7 @@ class PsoConfigurationViewModel(BaseViewModel):
             return False
         return True
 
-    ti_max = BaseViewModel._logged_property(
+    ti_max: float = BaseViewModel._logged_property(
         attribute="_model_pso.ti_max",
         notify_signal="tiMaxChanged",
         property_type=float,
@@ -154,7 +159,7 @@ class PsoConfigurationViewModel(BaseViewModel):
             return False
         return True
 
-    td_min = BaseViewModel._logged_property(
+    td_min: float = BaseViewModel._logged_property(
         attribute="_model_pso.td_min",
         notify_signal="tdMinChanged",
         property_type=float,
@@ -167,9 +172,41 @@ class PsoConfigurationViewModel(BaseViewModel):
             return False
         return True
 
-    td_max = BaseViewModel._logged_property(
+    td_max: float = BaseViewModel._logged_property(
         attribute="_model_pso.td_max",
         notify_signal="tdMaxChanged",
         property_type=float,
         custom_setter=_verify_td_max
     )
+
+    # -------------------
+    # run PSO
+    # -------------------
+    @Slot()
+    def run_pso_simulation(self):
+        self.logger.debug(f"Running PSO simulation")
+
+        print(self._get_pos_param())
+
+    def _get_pos_param(self) -> PsoSimulationParam:
+        return PsoSimulationParam(
+            num=self._model_plant.num,
+            den=self._model_plant.den,
+            t0=self.start_time,
+            t1=self.end_time,
+            dt=self._settings.get_time_step(),
+            solver=self._settings.get_solver(),
+            anti_windup=self._model_controller.anti_windup,
+            constraint=(
+                self._model_controller.constraint_min,
+                self._model_controller.constraint_max,
+            ),
+            excitation_target=self.excitation_target,
+            function=self._model_function.selected_function.get_function(),
+            performance_index=self.performance_index,
+            kp=(self.kp_min, self.kp_max),
+            ti=(self.ti_min, self.ti_max),
+            td=(self.td_min, self.td_max),
+            swarm_size=self._settings.get_pso_particle(),
+            pso_iteration=self._settings.get_pso_particle()
+        )
