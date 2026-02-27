@@ -29,7 +29,7 @@ class PsoSimulationParam:
     constraint: tuple[float, float]
 
     excitation_target: ExcitationTarget
-    function: Callable[[float], float]
+    function: Callable[[np.ndarray], np.ndarray]
     performance_index: PerformanceIndex
 
     kp: tuple[float, float]
