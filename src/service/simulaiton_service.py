@@ -2,10 +2,12 @@ from typing import Callable
 import logging
 from numpy import ndarray
 
-from app_domain.engine import PlantStepResponseEngine, FunctionEngine, PsoSimulationEngine, PsoSimulationParam, \
-    PsoResult
+from app_domain.engine import (
+    PlantStepResponseEngine, FunctionEngine, PsoSimulationEngine, PsoSimulationParam,
+    PsoResult, ClosedLoopResponseEngine, ClosedLoopResponseContext
+)
 from app_domain.controlsys import MySolver
-from infrastructure import PlantStepResponseWorker, FunctionWorker, PsoSimulationWorker
+from infrastructure import PlantStepResponseWorker, FunctionWorker, PsoSimulationWorker, ClosedLoopResponseWorker
 
 
 class SimulationService:
@@ -20,10 +22,12 @@ class SimulationService:
         self._step_engine = PlantStepResponseEngine()
         self._function_engine = FunctionEngine()
         self._pso_simulation_engine = PsoSimulationEngine()
+        self._closed_loop_engine = ClosedLoopResponseEngine()
 
         self._step_worker = None
         self._function_worker = None
         self._pso_simulation_worker = None
+        self._closed_loop_worker = None
 
     # Plant Step Response
     def compute_step_response(self, num: list[float], den: list[float], t0: float, t1: float, solver: MySolver, callback: Callable[[ndarray, ndarray], None]) -> None:
@@ -98,3 +102,14 @@ class SimulationService:
         self._pso_simulation_worker.resultReady.connect(callback)
         self._pso_simulation_worker.progressChanged.connect(progress_callback)
         self._pso_simulation_worker.start()
+
+    def compute_closed_loop_response(self, context: ClosedLoopResponseContext,
+                                     callback: Callable[[ndarray, ndarray], None]) -> None:
+        if self._closed_loop_worker and self._closed_loop_worker.isRunning():
+            self._logger.warning("ClosedLoopResponseWorker is busy. Ignoring request.")
+            return
+
+        self._logger.info("Starting ClosedLoopResponseWorker for asynchronous computation")
+        self._closed_loop_worker = ClosedLoopResponseWorker(self._closed_loop_engine, context)
+        self._closed_loop_worker.resultReady.connect(callback)
+        self._closed_loop_worker.start()
