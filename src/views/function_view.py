@@ -9,7 +9,7 @@ from app_domain.functions import FunctionTypes, resolve_function_type
 from utils import LatexRenderer
 from viewmodels import LanguageViewModel, FunctionViewModel, PlotViewModel
 from views import BaseView, PlotView, PlotConfiguration
-from views.translations import Translation
+from views.translations import Translation, ViewTitle
 
 
 class FunctionView(BaseView, QWidget):
@@ -23,12 +23,15 @@ class FunctionView(BaseView, QWidget):
         vm_lang: LanguageViewModel,
         vm_function: FunctionViewModel,
         vm_plot: PlotViewModel,
+            title: ViewTitle,
         parent: QObject | None = None,
     ) -> None:
         QWidget.__init__(self, parent)
 
         self._vm_function = vm_function
         self._vm_plot = vm_plot
+
+        self._title = title
 
         self._txt_function_params: dict[str, QLineEdit] = {}
 
@@ -176,20 +179,38 @@ class FunctionView(BaseView, QWidget):
     # -------------------------------------------------
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
-        self._lbl_title.setText(self.tr("Excitation Function"))
-
         translation = Translation()
+        self._lbl_title.setText(translation(ViewTitle).get(self._title))
 
-        self._cmb_add_item(self._cmb_function, translation(FunctionTypes))
+        function_labels = Translation()(FunctionTypes)
+        selected_type = resolve_function_type(self._vm_function.selected_function)
+
+        was_blocked = self._cmb_function.blockSignals(True)
+        try:
+            self._cmb_add_item(self._cmb_function, function_labels)
+            index = self._cmb_function.findData(selected_type)
+            if index >= 0:
+                self._cmb_function.setCurrentIndex(index)
+        finally:
+            self._cmb_function.blockSignals(was_blocked)
 
     # -------------------------------------------------
     # Apply initial values
     # -------------------------------------------------
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
-        index = self._cmb_function.findData(self._vm_function.selected_function)
+        selected_type = resolve_function_type(self._vm_function.selected_function)
+        index = self._cmb_function.findData(selected_type)
         if index >= 0:
-            self._cmb_function.setCurrentIndex(index)
+            was_blocked = self._cmb_function.blockSignals(True)
+            try:
+                self._cmb_function.setCurrentIndex(index)
+            finally:
+                self._cmb_function.blockSignals(was_blocked)
+
+        t0 = self._vm_plot.start_time
+        t1 = self._vm_plot.end_time
+        self._vm_function.compute_function(t0, t1)
 
     # -------------------------------------------------
     # ViewModel Event Handlers
@@ -241,7 +262,16 @@ class FunctionView(BaseView, QWidget):
     # -------------------------------------------------
     def _on_cmb_func_index_changed(self) -> None:
         """Handle user selection of a different function."""
+        if self._initializing:
+            return
+
         selected = self._cmb_function.currentData()
+        if selected is None:
+            return
+
+        current_type = resolve_function_type(self._vm_function.selected_function)
+        if selected == current_type:
+            return
 
         self._logger.info("User selected function: %s", selected.name)
 
