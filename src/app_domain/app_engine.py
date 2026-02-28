@@ -1,7 +1,7 @@
 import logging
 import numpy as np
 
-from app_domain import PsoSimulationParam
+from app_domain.engine import PsoSimulationParam
 from app_domain.controlsys import MySolver, AntiWindup, ExcitationTarget, PerformanceIndex
 from models import ModelContainer
 from service import SimulationService

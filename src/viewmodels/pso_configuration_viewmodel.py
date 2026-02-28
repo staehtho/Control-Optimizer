@@ -1,7 +1,7 @@
 from PySide6.QtCore import QObject, Signal, Slot
 
 from service import SimulationService
-from app_domain import PsoSimulationParam, PsoResult
+from app_domain.engine import PsoSimulationParam, PsoResult
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
 from models import ModelContainer, PsoConfigurationModel, SettingsModel, PlantModel, FunctionModel, ControllerModel
 from .base_viewmodel import BaseViewModel

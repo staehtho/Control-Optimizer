@@ -2,7 +2,7 @@ import pytest
 from PySide6.QtTest import QSignalSpy
 from PySide6.QtCore import Signal, QObject
 
-from app_domain import PsoResult
+from app_domain.engine import PsoResult
 from models import EvaluationModel
 from viewmodels import EvaluationViewModel
 

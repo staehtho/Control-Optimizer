@@ -2,7 +2,8 @@ from typing import Callable
 import logging
 from numpy import ndarray
 
-from app_domain import PlantStepResponseEngine, FunctionEngine, PsoSimulationEngine, PsoSimulationParam, PsoResult
+from app_domain.engine import PlantStepResponseEngine, FunctionEngine, PsoSimulationEngine, PsoSimulationParam, \
+    PsoResult
 from app_domain.controlsys import MySolver
 from infrastructure import PlantStepResponseWorker, FunctionWorker, PsoSimulationWorker
 

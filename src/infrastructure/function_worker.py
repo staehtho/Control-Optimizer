@@ -1,31 +1,31 @@
-from typing import Callable
 import logging
-from PySide6.QtCore import QThread, Signal
-from numpy import ndarray
+from typing import Callable
 
-from app_domain import FunctionEngine
+from numpy import ndarray
+from PySide6.QtCore import QThread, Signal
+
+from app_domain.engine import FunctionEngine
 
 
 class FunctionWorker(QThread):
-    """Worker thread to compute a function asynchronously (Infrastructure Layer).
+    """Background worker that computes a function over a time vector."""
 
-    Attributes:
-        resultReady: Signal emitting (t, y) when computation is finished.
-    """
-
-    resultReady = Signal(ndarray, ndarray)  # t, y
+    resultReady = Signal(ndarray, ndarray)
 
     def __init__(self, engine: FunctionEngine, t: ndarray, func: Callable[[ndarray], ndarray]) -> None:
+        """Initialize worker dependencies and function inputs."""
         super().__init__()
         self._engine = engine
         self._t = t
         self._func = func
         self._logger = logging.getLogger(f"Worker.{self.__class__.__name__}.{id(self)}")
-        self._logger.debug("Worker initialized for t.size=%d", t.size)
+        self._logger.debug("Initialized with t.size=%d.", t.size)
 
-    def run(self):
-        """Run the function computation in a separate thread."""
-        self._logger.info("Worker started function computation")
+    def run(self) -> None:
+        """Compute the function values and emit ``resultReady``."""
+        self._logger.info("Function worker started.")
+
         y = self._engine.compute(self._t, self._func)
-        self._logger.info("Worker finished function computation")
+
+        self._logger.info("Function worker finished (t.size=%d, y.size=%d).", self._t.size, y.size)
         self.resultReady.emit(self._t, y)
