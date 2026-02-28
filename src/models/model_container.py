@@ -1,5 +1,5 @@
 from app_domain.functions import StepFunction
-from models import PlantModel, SettingsModel, FunctionModel, PsoConfigurationModel, ControllerModel
+from models import PlantModel, SettingsModel, FunctionModel, PsoConfigurationModel, ControllerModel, EvaluationModel
 
 class ModelContainer:
     def __init__(self):
@@ -9,3 +9,4 @@ class ModelContainer:
         self.model_function = FunctionModel(StepFunction())
         self.model_pso = PsoConfigurationModel()
         self.model_controller = ControllerModel()
+        self.model_evaluator = EvaluationModel()

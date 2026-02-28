@@ -5,3 +5,4 @@ from .language_viewmodel import LanguageViewModel
 from .function_viewmodel import FunctionViewModel
 from .controller_viewmodel import ControllerViewModel
 from .pso_configuration_viewmodel import PsoConfigurationViewModel
+from .evaluation_viewmodel import EvaluationViewModel

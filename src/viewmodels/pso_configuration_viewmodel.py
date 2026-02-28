@@ -20,7 +20,7 @@ class PsoConfigurationViewModel(BaseViewModel):
     tdMinChanged = Signal()
     tdMaxChanged = Signal()
     psoProgressChanged = Signal(int)
-    psoSimulationFinished = Signal()
+    psoSimulationFinished = Signal(PsoResult)
 
     def __init__(self, model_container: ModelContainer, simulation_service: SimulationService,
                  parent: QObject = None) -> None:
@@ -199,7 +199,7 @@ class PsoConfigurationViewModel(BaseViewModel):
         self._pos_iteration = self._settings.get_pso_iterations()
 
         self._simulation_service.run_pso_simulation(
-            self._get_pos_param(), self._on_pso_simulation_finished, self._on_pso_progress
+            self._get_pos_param(), self.psoSimulationFinished.emit, self._on_pso_progress
         )
 
     def _get_pos_param(self) -> PsoSimulationParam:
@@ -226,8 +226,7 @@ class PsoConfigurationViewModel(BaseViewModel):
         )
 
     def _on_pso_simulation_finished(self, result: PsoResult):
-        print("PSO simulation finished", result)
-        self.psoSimulationFinished.emit()
+        self.psoSimulationFinished.emit(result)
 
     @Slot()
     def get_pos_iteration(self) -> int:

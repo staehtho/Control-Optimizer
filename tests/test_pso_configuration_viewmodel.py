@@ -119,26 +119,29 @@ def test_max_value_with_verification_changed(
 
 
 @pytest.mark.parametrize(
-    "attribute, signal, init_value, value",
+    "attribute, signal, init_value, value, spy_size",
     [
-        ("excitation_target", "excitationTargetChanged", ExcitationTarget.REFERENCE,
-         ExcitationTarget.INPUT_DISTURBANCE),
-        ("performance_index", "performanceIndexChanged", PerformanceIndex.ITAE, PerformanceIndex.IAE)
+        ("excitation_target", "excitationTargetChanged", ExcitationTarget.REFERENCE, ExcitationTarget.INPUT_DISTURBANCE,
+         1),
+        ("excitation_target", "excitationTargetChanged", ExcitationTarget.REFERENCE, ExcitationTarget.REFERENCE, 0),
+        ("performance_index", "performanceIndexChanged", PerformanceIndex.ITAE, PerformanceIndex.IAE, 1),
+        ("performance_index", "performanceIndexChanged", PerformanceIndex.ITAE, PerformanceIndex.ITAE, 0),
     ],
     ids=[
-        "excitation_target",
-        "performance_index",
+        "excitation_target value changed",
+        "excitation_target no value changed",
+        "performance_index value changed",
+        "performance_index no value changed",
     ]
 )
-def test_value_changed(
-        model_container: ModelContainer,
-        vm_pso: PsoConfigurationViewModel,
-        attribute, signal, init_value, value,
-        qtbot
-) -> None:
+def test_value_changed(model_container: ModelContainer, vm_pso: PsoConfigurationViewModel,
+                       attribute, signal, init_value, value, spy_size) -> None:
+
     setattr(model_container.model_pso, attribute, init_value)
 
-    with qtbot.waitSignal(getattr(vm_pso, signal), timeout=500):
-        setattr(vm_pso, attribute, value)
+    spy = QSignalSpy(getattr(vm_pso, signal))
+
+    setattr(vm_pso, attribute, value)
 
     assert getattr(model_container.model_pso, attribute) == getattr(vm_pso, attribute)
+    assert spy.size() == spy_size

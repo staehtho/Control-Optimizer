@@ -7,7 +7,7 @@ from models import ModelContainer
 from service import SimulationService
 from viewmodels import (
     PlantViewModel, LanguageViewModel, PlotViewModel, FunctionViewModel, ControllerViewModel,
-    PsoConfigurationViewModel
+    PsoConfigurationViewModel, EvaluationViewModel
 )
 
 
@@ -65,6 +65,9 @@ class AppEngine:
 
         # PSO configuration ViewModel
         self.vm_pso = PsoConfigurationViewModel(self.model_container, self.simulation_service)
+
+        # Evaluation ViewModel
+        self.vm_evaluator = EvaluationViewModel(self.model_container.model_evaluator, self.vm_pso)
 
         self.logger.info("Application Engine initialization completed.")
 
