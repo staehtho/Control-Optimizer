@@ -20,7 +20,6 @@ class EvaluationView(BaseView, QWidget):
     ):
         QWidget.__init__(self, parent)
 
-        self._vm_lang = vm_lang
         self._vm_plant = vm_plant
         self._vm_evaluator = vm_evaluator
         self._vm_functions = vm_functions
@@ -158,7 +157,6 @@ class EvaluationView(BaseView, QWidget):
     # -------------------------------------------------
     # ViewModel change handlers
     # -------------------------------------------------
-
     # -------------------------------------------------
     # UI event handlers
     # -------------------------------------------------

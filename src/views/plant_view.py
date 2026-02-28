@@ -1,6 +1,6 @@
 from PySide6.QtCore import QObject
 from PySide6.QtCore import QRegularExpression, Qt, QT_TRANSLATE_NOOP
-from PySide6.QtGui import QRegularExpressionValidator, QFont
+from PySide6.QtGui import QRegularExpressionValidator
 from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QScrollArea, QFrame, QVBoxLayout
 from numpy import ndarray
 
@@ -39,15 +39,9 @@ class PlantView(BaseView, QWidget):
 
         main_layout = QVBoxLayout()
 
-        # -------------------------------
         # Title
-        # -------------------------------
         self._lbl_title = QLabel()
-        font = QFont()
-        font.setPointSize(self._title_size)  # size in pt
-        font.setBold(True)
-        self._lbl_title.setFont(font)
-        self._lbl_title.setAlignment(Qt.AlignCenter)  # type: ignore[attr-defined]
+        self._apply_title_property(self._lbl_title)
 
         main_layout.addWidget(self._lbl_title)
 
@@ -182,23 +176,17 @@ class PlantView(BaseView, QWidget):
     # ViewModel change handlers
     # -------------------------------------------------
     def _on_vm_num_changed(self) -> None:
-        """
-        Update numerator input field when ViewModel changes.
-        """
+        """Update numerator input field when ViewModel changes."""
         if self._txt_num.text() != self._vm_plant.num:
             self._txt_num.setText(self._vm_plant.num)
 
     def _on_vm_den_changed(self) -> None:
-        """
-        Update denominator input field when ViewModel changes.
-        """
+        """Update denominator input field when ViewModel changes."""
         if self._txt_den.text() != self._vm_plant.den:
             self._txt_den.setText(self._vm_plant.den)
 
     def _on_vm_formula_changed(self) -> None:
-        """
-        Update LaTeX formula label when ViewModel formula changes.
-        """
+        """Update LaTeX formula label when ViewModel formula changes."""
         self._lbl_formula.setPixmap(
             LatexRenderer.latex2pixmap(
                 r"G(s) = " + self._vm_plant.get_tf(),
@@ -207,9 +195,7 @@ class PlantView(BaseView, QWidget):
         )
 
     def _on_plot_time_changed(self) -> None:
-        """
-        Update plot when start or end time changes.
-        """
+        """Update plot when start or end time changes."""
         self._vm_plant.compute_step_response(self._vm_plot.start_time, self._vm_plot.end_time)
 
     def _on_step_response_changed(self, t: ndarray, y: ndarray) -> None:
@@ -219,17 +205,13 @@ class PlantView(BaseView, QWidget):
     # UI event handlers
     # -------------------------------------------------
     def _on_txt_num_changed(self) -> None:
-        """
-        Handle user changes in numerator input field.
-        """
+        """Handle user changes in numerator input field."""
         text = self._txt_num.text()
-        self._logger.debug("UI event: txt_num changed (value=%s)", text)
+        self._logger.debug(f"UI event: txt_num changed (value={text})")
         self._vm_plant.update_num(text)
 
     def _on_txt_den_changed(self) -> None:
-        """
-        Handle user changes in denominator input field.
-        """
+        """Handle user changes in denominator input field."""
         text = self._txt_den.text()
-        self._logger.debug("UI event: txt_den changed (value=%s)", text)
+        self._logger.debug(f"UI event: txt_den changed (value={text})")
         self._vm_plant.update_den(text)

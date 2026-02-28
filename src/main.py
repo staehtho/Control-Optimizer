@@ -61,24 +61,24 @@ if __name__ == '__main__':
     view_plant = PlantView(engine.vm_lang, engine.vm_plant, engine.ensure_plot_viewmodel("plant"))
     #print_tab_order(view_plant)
     view_plant.setWindowTitle(view_plant.__class__.__name__)
-    # view_plant.show()
+    view_plant.show()
 
     view_function = FunctionView(engine.vm_lang, engine.ensure_function_viewmodel("excitation_target"),
                                  engine.ensure_plot_viewmodel("function"), ViewTitle.EXCITATION_TARGET)
     #print_tab_order(view_function)
     view_function.setWindowTitle(view_function.__class__.__name__)
-    #view_function.show()
+    view_function.show()
 
     view_controller = ControllerView(engine.vm_lang, engine.vm_controller)
     # print_tab_order(view_controller)
     view_controller.setWindowTitle(view_controller.__class__.__name__)
-    #view_controller.show()
+    view_controller.show()
 
     view_pso = PsoConfigurationView(engine.vm_lang, engine.vm_plant,
                                     engine.ensure_function_viewmodel("excitation_target"), engine.vm_pso)
     # print_tab_order(view_pso)
     view_pso.setWindowTitle(view_pso.__class__.__name__)
-    # view_pso.show()
+    view_pso.show()
 
     vm_functions = {title.name: engine.ensure_function_viewmodel(title.name)
                     for title in [ViewTitle.REFERENCE, ViewTitle.INPUT_DISTURBANCE, ViewTitle.MEASUREMENT_DISTURBANCE]

@@ -1,7 +1,7 @@
 from functools import partial
 
 from PySide6.QtCore import QObject, Qt, QT_TRANSLATE_NOOP
-from PySide6.QtGui import QDoubleValidator, QFont
+from PySide6.QtGui import QDoubleValidator
 from PySide6.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QLabel, QLineEdit, QFrame, QComboBox
 from numpy import ndarray
 
@@ -13,10 +13,7 @@ from views.translations import Translation, ViewTitle
 
 
 class FunctionView(BaseView, QWidget):
-    """
-    View for selecting and configuring mathematical functions
-    and displaying their corresponding plot.
-    """
+    """View for selecting and configuring functions and displaying the plot."""
 
     def __init__(
         self,
@@ -45,15 +42,9 @@ class FunctionView(BaseView, QWidget):
 
         main_layout = QVBoxLayout()
 
-        # -------------------------------
         # Title
-        # -------------------------------
         self._lbl_title = QLabel()
-        font = QFont()
-        font.setPointSize(self._title_size)  # size in pt
-        font.setBold(True)
-        self._lbl_title.setFont(font)
-        self._lbl_title.setAlignment(Qt.AlignCenter)  # type: ignore[attr-defined]
+        self._apply_title_property(self._lbl_title)
 
         main_layout.addWidget(self._lbl_title)
 
@@ -95,8 +86,7 @@ class FunctionView(BaseView, QWidget):
     def _init_param_grid(self) -> QGridLayout:
         """Create and populate the parameter grid."""
         self._logger.debug(
-            "Building parameter grid for function: %s",
-            self._vm_function.selected_function.__class__.__name__,
+            f"Building parameter grid for function: {self._vm_function.selected_function.__class__.__name__}"
         )
 
         grid = QGridLayout()
@@ -136,7 +126,7 @@ class FunctionView(BaseView, QWidget):
             self._txt_function_params[label] = txt_param
             grid.addWidget(txt_param, row, col + 1)
 
-        self._logger.debug("Parameter grid created with %d parameters", len(params))
+        self._logger.debug(f"Parameter grid created with {len(params)} parameters")
 
         self._connect_param_signals()
 
@@ -213,14 +203,11 @@ class FunctionView(BaseView, QWidget):
         self._vm_function.compute_function(t0, t1)
 
     # -------------------------------------------------
-    # ViewModel Event Handlers
+    # ViewModel change handlers
     # -------------------------------------------------
     def _on_vm_function_changed(self) -> None:
         """Rebuild parameter grid when selected function changes."""
-        self._logger.info(
-            "Function changed to: %s",
-            self._vm_function.selected_function.__class__.__name__,
-        )
+        self._logger.info(f"Function changed to: {self._vm_function.selected_function.__class__.__name__}")
 
         if self._param_grid is not None:
             self._clear_layout(self._param_grid)
@@ -241,7 +228,7 @@ class FunctionView(BaseView, QWidget):
         """Trigger recomputation when plot time range changes."""
         t0 = self._vm_plot.start_time
         t1 = self._vm_plot.end_time
-        self._logger.debug("Time range changed: t0=%s, t1=%s", t0, t1)
+        self._logger.debug(f"Time range changed: t0={t0}, t1={t1}")
         self._vm_function.compute_function(t0, t1)
 
     def _on_vm_param_changed(self, key: str) -> None:
@@ -258,7 +245,7 @@ class FunctionView(BaseView, QWidget):
         self._vm_function.compute_function(t0, t1)
 
     # -------------------------------------------------
-    # UI Event Handlers
+    # UI event handlers
     # -------------------------------------------------
     def _on_cmb_func_index_changed(self) -> None:
         """Handle user selection of a different function."""
@@ -273,7 +260,7 @@ class FunctionView(BaseView, QWidget):
         if selected == current_type:
             return
 
-        self._logger.info("User selected function: %s", selected.name)
+        self._logger.info(f"User selected function: {selected.name}")
 
         self._vm_function.set_selected_function(selected)
         t0 = self._vm_plot.start_time
