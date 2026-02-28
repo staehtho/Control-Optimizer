@@ -84,7 +84,7 @@ class PsoConfigurationView(BaseView, QWidget):
 
         self._lbl_tf.setPixmap(
             LatexRenderer.latex2pixmap(
-                self._vm_plant.get_formula(),
+                r"G(s) = " + self._vm_plant.get_tf(),
                 font_size_scale=self._formula_font_size_scale
             )
         )
@@ -327,7 +327,7 @@ class PsoConfigurationView(BaseView, QWidget):
     def _on_vm_plant_tf_changed(self) -> None:
         self._lbl_tf.setPixmap(
             LatexRenderer.latex2pixmap(
-                self._vm_plant.get_formula(),
+                r"G(s) = " + self._vm_plant.get_tf(),
                 font_size_scale=self._formula_font_size_scale
             )
         )

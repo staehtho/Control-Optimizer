@@ -95,7 +95,7 @@ class PlantView(BaseView, QWidget):
 
         self._lbl_formula.setPixmap(
             LatexRenderer.latex2pixmap(
-                self._vm_plant.get_formula(),
+                r"G(s) = " + self._vm_plant.get_tf(),
                 font_size_scale=self._formula_font_size_scale
             )
         )
@@ -201,7 +201,7 @@ class PlantView(BaseView, QWidget):
         """
         self._lbl_formula.setPixmap(
             LatexRenderer.latex2pixmap(
-                self._vm_plant.get_formula(),
+                r"G(s) = " + self._vm_plant.get_tf(),
                 font_size_scale=self._formula_font_size_scale
             )
         )
