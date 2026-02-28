@@ -27,7 +27,7 @@ class PsoConfigurationViewModel(BaseViewModel):
         super().__init__(parent)
 
         self._model_plant: PlantModel = model_container.model_plant
-        self._model_function: FunctionModel = model_container.model_function
+        self._model_function: FunctionModel = model_container.ensure_function_model("excitation_target")
         self._model_controller: ControllerModel= model_container.model_controller
         self._model_pso: PsoConfigurationModel = model_container.model_pso
         self._settings: SettingsModel = model_container.model_settings

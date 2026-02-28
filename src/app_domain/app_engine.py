@@ -49,16 +49,16 @@ class AppEngine:
         # ------------------------------
         # ViewModels
         # ------------------------------
+        # Cache for PlotViewModel instances keyed by plot type.
+        self._vm_plots: dict[str, PlotViewModel] = {}
+        # Cache for FunctionViewModel instances keyed by plot type.
+        self._vm_functions: dict[str, FunctionViewModel] = {}
+
         # Language ViewModel (e.g., for translations)
         self.vm_lang = LanguageViewModel(self.model_container.model_settings)
 
-        # Plant plots and controls
-        self.vm_plot_plant = PlotViewModel()
+        # Plant
         self.vm_plant = PlantViewModel(self.model_container, self.simulation_service)
-
-        # Function plots and controls
-        self.vm_plot_function = PlotViewModel()
-        self.vm_function = FunctionViewModel(self.model_container.model_function, self.simulation_service)
 
         # Controller ViewModel
         self.vm_controller = ControllerViewModel(self.model_container.model_controller)
@@ -70,6 +70,40 @@ class AppEngine:
         self.vm_evaluator = EvaluationViewModel(self.model_container.model_evaluator, self.vm_pso)
 
         self.logger.info("Application Engine initialization completed.")
+
+    def ensure_plot_viewmodel(self, key: str) -> PlotViewModel:
+        """
+        Ensure a PlotViewModel exists for the given key, creating and caching it if necessary.
+
+        Implements a lazy-initializing factory with caching:
+        - Returns the existing PlotViewModel if present.
+        - Otherwise, creates, caches, and returns a new PlotViewModel.
+
+        Args:
+            key (str): Identifier for the plot (e.g., "plant", "function").
+
+        Returns:
+            PlotViewModel: The cached or newly created PlotViewModel instance.
+        """
+        return self._vm_plots.setdefault(key, PlotViewModel())
+
+    def ensure_function_viewmodel(self, key: str) -> FunctionViewModel:
+        """
+        Ensure a FunctionViewModel exists for the given key, creating and caching it if necessary.
+
+        Implements a lazy-initializing factory with caching:
+        - Returns the existing FunctionViewModel if present.
+        - Otherwise, creates, caches, and returns a new FunctionViewModel.
+
+        Args:
+            key (str): Identifier for the function (e.g., "plant", "function").
+
+        Returns:
+            FunctionViewModel: The cached or newly created FunctionViewModel instance.
+        """
+        return self._vm_functions.setdefault(
+            key, FunctionViewModel(self.model_container.ensure_function_model(key), self.simulation_service)
+        )
 
     # ------------------------------
     # PSO Warmup Method

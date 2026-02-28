@@ -6,7 +6,8 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QWidget
 
 from app_domain import AppEngine
-from views import PlantView, FunctionView, ControllerView, PsoConfigurationView
+from app_domain.functions import FunctionTypes
+from views import PlantView, FunctionView, ControllerView, PsoConfigurationView, EvaluationView
 
 
 def print_tab_order(parent_widget: QWidget) -> None:
@@ -57,20 +58,26 @@ if __name__ == '__main__':
 
     engine = AppEngine()
 
-    view_plant = PlantView(engine.vm_lang, engine.vm_plant, engine.vm_plot_plant)
+    view_plant = PlantView(engine.vm_lang, engine.vm_plant, engine.ensure_plot_viewmodel("plant"))
     #print_tab_order(view_plant)
+    view_plant.setWindowTitle(view_plant.__class__.__name__)
     view_plant.show()
 
-    view_function = FunctionView(engine.vm_lang, engine.vm_function, engine.vm_plot_function)
+    view_function = FunctionView(engine.vm_lang, engine.ensure_function_viewmodel("excitation_target"),
+                                 engine.ensure_plot_viewmodel("function"))
     #print_tab_order(view_function)
+    view_function.setWindowTitle(view_function.__class__.__name__)
     view_function.show()
 
     view_controller = ControllerView(engine.vm_lang, engine.vm_controller)
     # print_tab_order(view_controller)
+    view_controller.setWindowTitle(view_controller.__class__.__name__)
     view_controller.show()
 
-    view_pso = PsoConfigurationView(engine.vm_lang, engine.vm_plant, engine.vm_function, engine.vm_pso)
+    view_pso = PsoConfigurationView(engine.vm_lang, engine.vm_plant,
+                                    engine.ensure_function_viewmodel("excitation_target"), engine.vm_pso)
     # print_tab_order(view_pso)
+    view_pso.setWindowTitle(view_pso.__class__.__name__)
     view_pso.show()
 
     sys.exit(app.exec())
