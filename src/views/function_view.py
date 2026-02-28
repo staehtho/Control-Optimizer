@@ -5,7 +5,7 @@ from PySide6.QtGui import QDoubleValidator, QFont
 from PySide6.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QLabel, QLineEdit, QFrame, QComboBox
 from numpy import ndarray
 
-from app_domain.functions import FunctionTypes
+from app_domain.functions import FunctionTypes, resolve_function_type
 from utils import LatexRenderer
 from viewmodels import LanguageViewModel, FunctionViewModel, PlotViewModel
 from views import BaseView, PlotView, PlotConfiguration
@@ -70,12 +70,14 @@ class FunctionView(BaseView, QWidget):
         main_layout.addWidget(frame)
 
         translation = Translation()
+        function_type = resolve_function_type(self._vm_function.selected_function)
+        title = translation(FunctionTypes).get(function_type)
 
         self._plot_cfg = PlotConfiguration(
-            context="Function",
-            title=translation(FunctionTypes).get(self._vm_function.selected_function),
-            x_label=str(QT_TRANSLATE_NOOP("Function", "Time [s]")),
-            y_label=str(QT_TRANSLATE_NOOP("Function", "Output")),
+            context="ControlEnums",
+            title=title,
+            x_label=str(QT_TRANSLATE_NOOP("ControlEnums", "Time [s]")),
+            y_label=str(QT_TRANSLATE_NOOP("ControlEnums", "Output")),
         )
 
         self._plot_view = PlotView(
@@ -206,7 +208,8 @@ class FunctionView(BaseView, QWidget):
         self._frame_layout.addLayout(self._param_grid)
 
         translation = Translation()
-        self._plot_cfg.title = translation(FunctionTypes).get(self._vm_function.selected_function)
+        function_type = resolve_function_type(self._vm_function.selected_function)
+        self._plot_cfg.title = translation(FunctionTypes).get(function_type)
 
     def _on_vm_compute_finished(self, t: ndarray, y: ndarray) -> None:
         """Update plot data after function computation completes."""
