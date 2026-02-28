@@ -160,6 +160,11 @@ class PsoConfigurationView(BaseView, QWidget):
         self._progress_bar.setValue(0)
         frame_layout.addWidget(self._progress_bar)
 
+        lbl_pso_result = QLabel()
+        lbl_pso_result.setWordWrap(True)
+        frame_layout.addWidget(lbl_pso_result)
+        self._labels["pso_result"] = lbl_pso_result
+
         btn_run_pso = QPushButton()
         frame_layout.addWidget(btn_run_pso)
         self._labels["run_pso"] = btn_run_pso
@@ -197,6 +202,7 @@ class PsoConfigurationView(BaseView, QWidget):
         """Bind ViewModel signals to View update handlers."""
         # vm plant
         self._vm_plant.tfChanged.connect(self._on_vm_plant_tf_changed)
+        self._vm_plant.isValidChanged.connect(self._on_vm_plant_is_valid_changed)
         # vm function
         self._vm_function.functionChanged.connect(self._on_vm_function_function_changed)
         # vm pso
@@ -263,6 +269,28 @@ class PsoConfigurationView(BaseView, QWidget):
         for key in item_enums:
             self._cmb_add_item(self._widgets[key], item_enums[key])
 
+        self._lbl_pso_result_template = self.tr(
+            "PSO Result:\n"
+            "Time = %(time).2f s\n"
+            "Kp   = %(kp).3f\n"
+            "Ti   = %(ti).3f\n"
+            "Td   = %(td).3f\n"
+            "Tf   = %(tf).3f"
+        )
+
+        result = self._vm_pso.get_pso_result()
+        if result is None:
+            self._labels["pso_result"].setText("")
+
+        else:
+            self._labels["pso_result"].setText(self._lbl_pso_result_template % {
+                "time": result.simulation_time,
+                "kp": result.kp,
+                "ti": result.ti,
+                "td": result.td,
+                "tf": result.tf
+            })
+
     # -------------------------------------------------
     # Apply initial values
     # -------------------------------------------------
@@ -291,6 +319,8 @@ class PsoConfigurationView(BaseView, QWidget):
             if index >= 0:
                 self._widgets[key].setCurrentIndex(index)
 
+        self._labels["run_pso"].setEnabled(self._vm_plant.is_valid)
+
     # -------------------------------------------------
     # ViewModel change handlers
     # -------------------------------------------------
@@ -313,14 +343,34 @@ class PsoConfigurationView(BaseView, QWidget):
     # -------------------------------------------------
     # UI event handlers
     # -------------------------------------------------
+    def _on_vm_plant_is_valid_changed(self) -> None:
+        self._labels["run_pso"].setEnabled(self._vm_plant.is_valid)
+
     def _on_vm_pso_progress_changed(self, iteration: int) -> None:
         percent = int((iteration / self._vm_pso.get_pos_iteration()) * 100)
         self._progress_bar.setValue(percent)
 
     def _on_btn_run_pso(self) -> None:
+        if not self._vm_plant.is_valid:
+            return
+
         self._labels["run_pso"].setEnabled(False)
+        self._labels["pso_result"].setText("")
         self._progress_bar.setValue(0)
         self._vm_pso.run_pso_simulation()
 
     def _on_vm_pso_simulation_finished(self) -> None:
         self._labels["run_pso"].setEnabled(True)
+
+        result = self._vm_pso.get_pso_result()
+        if result is None:
+            self._labels["pso_result"].setText("")
+            return
+
+        self._labels["pso_result"].setText(self._lbl_pso_result_template % {
+            "time": result.simulation_time,
+            "kp": result.kp,
+            "ti": result.ti,
+            "td": result.td,
+            "tf": result.tf
+        })

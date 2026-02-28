@@ -8,7 +8,17 @@ from viewmodels import EvaluationViewModel
 
 
 class DummyVm(QObject):
-    psoSimulationFinished = Signal(PsoResult)
+    psoSimulationFinished = Signal()
+
+    def __init__(self):
+        super().__init__()
+        self._result = None
+
+    def set_pso_result(self, result: PsoResult) -> None:
+        self._result = result
+
+    def get_pso_result(self) -> PsoResult:
+        return self._result
 
 
 @pytest.fixture
@@ -59,9 +69,9 @@ def test_value_changed(model_evaluator: EvaluationModel, vm_evaluator: Evaluatio
 
 
 def test_on_pso_simulation_finished(vm_evaluator: EvaluationViewModel):
-    result = PsoResult(10, 5, 1, 0.1)
+    vm_evaluator._vm_pso.set_pso_result(PsoResult(0, 10, 5, 1, 0.1))
 
-    vm_evaluator._vm_pso.psoSimulationFinished.emit(result)
+    vm_evaluator._vm_pso.psoSimulationFinished.emit()
 
     assert vm_evaluator.kp == 10
     assert vm_evaluator.ti == 5

@@ -44,6 +44,7 @@ class PsoSimulationParam:
 class PsoResult:
     """Result container for optimized PID parameters."""
 
+    simulation_time: float
     kp: float
     ti: float
     td: float
@@ -85,16 +86,13 @@ class PsoSimulationEngine:
 
         bounds = self._extract_bounds(param)
 
-        best_kp, best_ti, best_td = self._run_pso(param, objective, bounds, callback)
+        result = self._run_pso(param, objective, bounds, callback)
 
+        # add tf
+        result.tf = tf
         self._logger.info("PSO simulation finished.")
 
-        return PsoResult(
-            kp=best_kp,
-            ti=best_ti,
-            td=best_td,
-            tf=tf
-        )
+        return result
 
     # ==========================================================
     # Controller Setup
@@ -176,8 +174,8 @@ class PsoSimulationEngine:
     # PSO Execution
     # ==========================================================
 
-    def _run_pso(self, param: PsoSimulationParam, objective: PsoFunc, bounds, callback: Callable[[int], None]) -> tuple[
-        float, float, float]:
+    def _run_pso(self, param: PsoSimulationParam, objective: PsoFunc, bounds,
+                 callback: Callable[[int], None]) -> PsoResult:
         """Execute PSO optimization loop."""
 
         best_kp = 0.0
@@ -221,4 +219,10 @@ class PsoSimulationEngine:
             total_duration, best_cost
         )
 
-        return best_kp, best_ti, best_td
+        return PsoResult(
+            simulation_time=total_duration,
+            kp=best_kp,
+            ti=best_ti,
+            td=best_td,
+            tf=0.0  # default !!!
+        )

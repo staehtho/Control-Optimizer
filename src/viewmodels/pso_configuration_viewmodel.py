@@ -20,7 +20,7 @@ class PsoConfigurationViewModel(BaseViewModel):
     tdMinChanged = Signal()
     tdMaxChanged = Signal()
     psoProgressChanged = Signal(int)
-    psoSimulationFinished = Signal(PsoResult)
+    psoSimulationFinished = Signal()
 
     def __init__(self, model_container: ModelContainer, simulation_service: SimulationService,
                  parent: QObject = None) -> None:
@@ -34,6 +34,7 @@ class PsoConfigurationViewModel(BaseViewModel):
         self._simulation_service = simulation_service
 
         self._pos_iteration: int = 0
+        self._pso_result: PsoResult | None = None
 
         self._connect_signals()
         self.run_pso_simulation()
@@ -196,10 +197,12 @@ class PsoConfigurationViewModel(BaseViewModel):
             self.logger.debug("Model is invalid -> no (new) calculation")
             return
 
+        self._pso_result = None
+
         self._pos_iteration = self._settings.get_pso_iterations()
 
         self._simulation_service.run_pso_simulation(
-            self._get_pos_param(), self.psoSimulationFinished.emit, self._on_pso_progress
+            self._get_pos_param(), self._on_pso_simulation_finished, self._on_pso_progress
         )
 
     def _get_pos_param(self) -> PsoSimulationParam:
@@ -226,7 +229,14 @@ class PsoConfigurationViewModel(BaseViewModel):
         )
 
     def _on_pso_simulation_finished(self, result: PsoResult):
-        self.psoSimulationFinished.emit(result)
+
+        self._pso_result = result
+
+        self.psoSimulationFinished.emit()
+
+    @Slot()
+    def get_pso_result(self) -> PsoResult | None:
+        return self._pso_result
 
     @Slot()
     def get_pos_iteration(self) -> int:
