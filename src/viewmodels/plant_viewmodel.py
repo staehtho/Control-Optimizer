@@ -1,6 +1,6 @@
 import re
 
-from PySide6.QtCore import QObject, Signal, Property, Slot, QTimer
+from PySide6.QtCore import QObject, Signal, Slot, QTimer
 from numpy import ndarray
 
 from models import ModelContainer, PlantModel, SettingsModel
@@ -40,30 +40,9 @@ class PlantViewModel(BaseViewModel):
 
         self._connect_signals()
 
-
-    def _connect_signals(self):
-        # PlantModel
-        self._model_plant.numChanged.connect(self._on_model_num_changed)
-        self._model_plant.denChanged.connect(self._on_model_den_changed)
-        self._model_plant.isValidChanged.connect(self._on_model_is_valid_changed)
-        self._model_plant.modelChanged.connect(self._on_model_changed)
-
-    # -------------------
-    # num
-    # -------------------
-    def _on_model_num_changed(self):
-        if not self.check_update_allowed("plant_num"):
-            self.logger.debug("Blocked 'num' update (guard active)")
-            return
-
-        new_value = self._model_plant.num
-        self.logger.debug(f"Forwarding 'num' change from model (new_value={new_value})")
-
-        self.numChanged.emit()
-
-    def _get_num(self) -> str:
-        self.logger.debug(f"Getter 'num' called (value={self._num_input})")
-        return self._num_input
+    def _connect_signals(self) -> None:
+        # No model signals to connect (passive model)
+        ...
 
     @Slot(str)
     def update_num(self, value: str) -> None:
@@ -87,32 +66,33 @@ class PlantViewModel(BaseViewModel):
             return
 
         self.logger.debug(f"Updating model.num with {arr}")
+        was_valid = self._model_plant.is_valid
 
         with self.updating("plant_num"):
             self._model_plant.num = arr
+            is_valid = self._model_plant.is_valid
+
+            if is_valid != was_valid:
+                self.logger.debug(f"Emitting isValidChanged after num update ({was_valid} -> {is_valid})")
+                self.isValidChanged.emit()
+
+            if is_valid:
+                self._on_model_changed()
+
             self.logger.debug("Emitting numChanged after model update")
             self._update_tf()
             self.numChanged.emit()
 
-    num = Property(str, _get_num, notify=numChanged)  # type: ignore[assignment]
+    num = BaseViewModel._logged_property(
+        attribute="_num_input",
+        notify_signal="numChanged",
+        property_type=str,
+        read_only=True,
+    )
 
     # -------------------
     # den
     # -------------------
-    def _on_model_den_changed(self):
-        if not self.check_update_allowed("plant_den"):
-            self.logger.debug("Blocked 'den' update (guard active)")
-            return
-
-        new_value = self._model_plant.den
-        self.logger.debug(f"Forwarding 'den' change from model (new_value={new_value})")
-
-        self.denChanged.emit()
-
-    def _get_den(self) -> str:
-        self.logger.debug(f"Getter 'den' called (value={self._den_input})")
-        return self._den_input
-
     @Slot(str)
     def update_den(self, value: str) -> None:
         self.logger.debug(f"update_den called (value={value})")
@@ -135,31 +115,39 @@ class PlantViewModel(BaseViewModel):
             return
 
         self.logger.debug(f"Updating model.den with {arr}")
+        was_valid = self._model_plant.is_valid
 
         with self.updating("plant_den"):
             self._model_plant.den = arr
+            is_valid = self._model_plant.is_valid
+
+            if is_valid != was_valid:
+                self.logger.debug(f"Emitting isValidChanged after den update ({was_valid} -> {is_valid})")
+                self.isValidChanged.emit()
+
+            if is_valid:
+                self._on_model_changed()
+
             self.logger.debug("Emitting denChanged after model update")
             self._update_tf()
             self.denChanged.emit()
 
-    den = Property(str, _get_den, notify=denChanged)  # type: ignore[assignment]
+    den = BaseViewModel._logged_property(
+        attribute="_den_input",
+        notify_signal="denChanged",
+        property_type=str,
+        read_only=True,
+    )
 
     # -------------------
     # is_valid
     # -------------------
-    def _on_model_is_valid_changed(self):
-        if not self.check_update_allowed("plant_is_valid"):
-            self.logger.debug("Blocked 'is_valid' update (guard active)")
-            return
-
-        new_value = self._model_plant.is_valid
-        self.logger.debug(f"Forwarding 'is_valid' change from model (new_value={new_value})")
-        self.isValidChanged.emit()
-
-    def _get_is_valid(self) -> bool:
-        return self._model_plant.is_valid
-
-    is_valid = Property(bool, _get_is_valid, notify=isValidChanged)  # type: ignore[assignment]
+    is_valid = BaseViewModel._logged_property(
+        attribute="_model_plant.is_valid",
+        notify_signal="isValidChanged",
+        property_type=bool,
+        read_only=True,
+    )
 
     # -------------------
     # formula
@@ -177,8 +165,8 @@ class PlantViewModel(BaseViewModel):
             return
 
         try:
-            self.logger.debug("Numerator raw: %s", self._model_plant.num)
-            self.logger.debug("Denominator raw: %s", self._model_plant.den)
+            self.logger.debug(f"Numerator raw: {self._model_plant.num}")
+            self.logger.debug(f"Denominator raw: {self._model_plant.den}")
 
             num = LatexRenderer.array2polynom(self._model_plant.num)
             den = LatexRenderer.array2polynom(self._model_plant.den)
@@ -186,7 +174,7 @@ class PlantViewModel(BaseViewModel):
             self._tf = rf"\frac{{{num}}}{{{den}}}"
             self._last_tf = self._tf
 
-            self.logger.debug("Generated transfer function: %s", self._tf)
+            self.logger.debug(f"Generated transfer function: {self._tf}")
 
         except ValueError:
             self.logger.exception("Error while building transfer function")
@@ -201,8 +189,8 @@ class PlantViewModel(BaseViewModel):
         if not self.check_update_allowed("plant_plant"):
             return
 
-        # starte Timer neu bei jeder Eingabe
-        self._recalc_timer.start(100)  # 100 ms warten
+        # Restart debounce timer after each input change.
+        self._recalc_timer.start(100)  # wait 100 ms
 
     def _compute_step_response_delayed(self) -> None:
         self.compute_step_response(*self._step_time)
@@ -239,14 +227,14 @@ class PlantViewModel(BaseViewModel):
             return []
 
         try:
-            # Trenner: Leerzeichen, Komma, Semikolon
+            # Separators: whitespace, comma, semicolon.
             parts = re.split(r"[,\s;]+", text.strip())
 
             result = [float(p.replace(",", ".")) for p in parts if p]
 
-            self.logger.debug("Parsed '%s' -> %s", text, result)
+            self.logger.debug(f"Parsed '{text}' -> {result}")
             return result
 
         except ValueError:
-            self.logger.debug("Cannot parse '%s'", text)
+            self.logger.debug(f"Cannot parse '{text}'")
             return []

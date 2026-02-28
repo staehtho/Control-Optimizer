@@ -1,7 +1,7 @@
 import sys
 
 import numpy as np
-from PySide6.QtCore import QObject, Signal, Property, Slot, QTimer
+from PySide6.QtCore import QObject, Signal, Slot, QTimer
 
 from app_domain.functions import BaseFunction, FunctionTypes
 from models import FunctionModel
@@ -30,38 +30,33 @@ class FunctionViewModel(BaseViewModel):
         self._connect_signals()
 
     def _connect_signals(self) -> None:
-        # FunctionModel
-        self._model_function.functionChanged.connect(self._on_model_function_changed)
-        self._model_function.parameterChanged.connect(self._on_model_parameter_changed)
+        # No model signals to connect (passive model)
+        ...
 
     # -------------------
     # function
     # -------------------
-    def _on_model_function_changed(self) -> None:
-        if not self.check_update_allowed("function_function"):
-            self.logger.debug("Blocked 'function' update (guard active)")
-            return
-
-        new_value = self._model_function.selected_function
-        self.logger.debug(f"Forwarding 'function' change from model (new_type={type(new_value).__name__})")
-
-        self.functionChanged.emit()
-
     @Slot(FunctionTypes)
     def set_selected_function(self, function: FunctionTypes) -> None:
         self.logger.debug(f"set_function called (function={function})")
 
+        func_class = function.value
+        current_type = type(self._model_function.selected_function)
+        if current_type is func_class:
+            self.logger.debug("Skipped 'function' update (same type)")
+            return
+
         with self.updating("function_function"):
-            self._model_function.set_selected_function(function)
+            self._model_function.selected_function = func_class()
             self.logger.debug("Emitting functionChanged after model update")
             self.functionChanged.emit()
 
-    def _get_selected_function(self) -> BaseFunction:
-        self.logger.debug(f"Getter 'function' called (type={type(self._model_function.selected_function).__name__})")
-        return self._model_function.selected_function
-
-
-    selected_function = Property(BaseFunction, _get_selected_function, notify=functionChanged)  # type: ignore[assignment]
+    selected_function = BaseViewModel._logged_property(
+        attribute="_model_function.selected_function",
+        notify_signal="functionChanged",
+        property_type=BaseFunction,
+        read_only=True,
+    )
 
     def _compute_function_delayed(self) -> None:
         self.compute_function(*self._function_time)
@@ -93,19 +88,6 @@ class FunctionViewModel(BaseViewModel):
     # -------------------
     # param
     # -------------------
-    def _on_model_parameter_changed(self, key: str):
-        if not self.check_update_allowed("function_param"):
-            self.logger.debug("Blocked 'parameter' update (guard active)")
-            return
-
-        new_value = self._model_function.selected_function.get_param_value(key)
-        self.logger.debug(f"Forwarding 'parameter' change from model ({key=}={new_value=})")
-
-        # starte Timer neu bei jeder Eingabe
-        self._recalc_timer.start(100)  # 100 ms warten
-
-        self.parameterChanged.emit(key)
-
     @Slot(str, float)
     def update_param_value(self, key: str, value: float) -> None:
         self.logger.debug(f"update_param_value called ({key=}, {value=})")
@@ -113,6 +95,7 @@ class FunctionViewModel(BaseViewModel):
         old_value = self._model_function.selected_function.get_param_value(key)
         if value != old_value:
             with self.updating("function_param"):
-                self._model_function.update_param_value(key, value)
-                self.logger.info("Parameter '%s' updated from %f to %f", key, old_value, value)
+                self._model_function.selected_function.update_param_value(key, value)
+                self.logger.info(f"Parameter '{key}' updated from {old_value:.6f} to {value:.6f}")
+                self._recalc_timer.start(100)  # 100 ms wait before recompute
                 self.parameterChanged.emit(key)

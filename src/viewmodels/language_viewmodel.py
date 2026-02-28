@@ -1,18 +1,11 @@
-from PySide6.QtCore import QObject, QTranslator, QCoreApplication, Slot, Signal, Property
+from PySide6.QtCore import QObject, QCoreApplication, QTranslator, Signal, Slot
 
 from models import SettingsModel
 from .base_viewmodel import BaseViewModel
 
 
 class LanguageViewModel(BaseViewModel):
-    """
-    ViewModel responsible for managing application language changes.
-
-    Handles:
-    - Loading and installing Qt translation files
-    - Persisting selected language via SettingsModel
-    - Exposing current language to the View
-    """
+    """ViewModel that manages app language selection and translation loading."""
 
     languageChanged = Signal()
 
@@ -22,60 +15,43 @@ class LanguageViewModel(BaseViewModel):
         self._settings = settings
         self._translator = QTranslator()
         self._current_lang: str = ""
-
-        # Cached language configuration (e.g. display names, codes)
         self._lang_cfg = settings.get_languages_cfg()
 
-        # Initialize language from settings
+        # Initialize language from persisted settings.
         self.set_language(self._settings.get_language())
 
     def _connect_signals(self) -> None:
-        # No signals to connect.
+        # No signals to connect
         ...
 
     @Slot(str)
     def set_language(self, lang_code: str) -> None:
-        """
-        Change application language.
-
-        Loads the corresponding .qm file,
-        installs translator,
-        updates settings,
-        and notifies the View.
-        """
-
+        """Load and activate the requested language code."""
         if lang_code == self._current_lang:
-            self.logger.debug(f"Language '{lang_code}' already active — no change")
+            self.logger.debug(f"Language '{lang_code}' already active -> no change")
             return
 
         self.logger.debug(f"Changing language from '{self._current_lang}' to '{lang_code}'")
 
-        # Remove old translator
         QCoreApplication.removeTranslator(self._translator)
-
-        # Load new translation file
         qm_path = self._settings.get_qm_file(lang_code)
 
         if self._translator.load(str(qm_path)):
             QCoreApplication.installTranslator(self._translator)
             self.logger.debug(f"Loaded translator file '{qm_path}'")
         else:
-            self.logger.warning(F"Failed to load translator file '{qm_path}'")
+            self.logger.warning(f"Failed to load translator file '{qm_path}'")
 
-        # Update internal state
         self._current_lang = lang_code
-
-        # Persist selection
         self._settings.set_language(lang_code)
-
-        # Notify View
         self.languageChanged.emit()
 
-    def _get_current_language(self) -> str:
-        """Return currently active language code."""
-        return self._current_lang
-
-    current_language = Property(str, _get_current_language, notify=languageChanged)  # type: ignore[assignment]
+    current_language = BaseViewModel._logged_property(
+        attribute="_current_lang",
+        notify_signal="languageChanged",
+        property_type=str,
+        read_only=True,
+    )
 
     def get_lang_cfg(self) -> dict:
         return self._lang_cfg

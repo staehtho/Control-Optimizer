@@ -1,6 +1,4 @@
 from PySide6.QtCore import QObject, Signal
-
-
 from app_domain.controlsys import AntiWindup
 from models import ControllerModel
 from .base_viewmodel import BaseViewModel
@@ -28,7 +26,7 @@ class ControllerViewModel(BaseViewModel):
     # -------------------
     controller_type = BaseViewModel._logged_property(
         attribute="_model_controller.controller_type",
-        notify_signal="controllerChanged",
+        notify_signal="controllerTypeChanged",
         property_type=str
     )
 
@@ -47,7 +45,7 @@ class ControllerViewModel(BaseViewModel):
     def _verify_constraint_min(self, value: float) -> bool:
         if self._model_controller.constraint_max <= value:
             self.logger.debug(
-                f"Skipped 'constraint_min' update (value={value} >= constraint_min={self._model_controller.constraint_min})"
+                f"Skipped 'constraint_min' update (value={value} >= constraint_max={self._model_controller.constraint_max})"
             )
             self.constraintMinChanged.emit()
             return False

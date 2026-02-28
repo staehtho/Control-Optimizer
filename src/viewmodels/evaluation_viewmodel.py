@@ -1,6 +1,5 @@
 from PySide6.QtCore import QObject, Signal
 
-from app_domain import PsoResult
 from models import EvaluationModel
 from .base_viewmodel import BaseViewModel
 from .pso_configuration_viewmodel import PsoConfigurationViewModel

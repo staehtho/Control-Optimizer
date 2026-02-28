@@ -28,7 +28,7 @@ class PsoConfigurationViewModel(BaseViewModel):
 
         self._model_plant: PlantModel = model_container.model_plant
         self._model_function: FunctionModel = model_container.ensure_function_model("excitation_target")
-        self._model_controller: ControllerModel= model_container.model_controller
+        self._model_controller: ControllerModel = model_container.model_controller
         self._model_pso: PsoConfigurationModel = model_container.model_pso
         self._settings: SettingsModel = model_container.model_settings
         self._simulation_service = simulation_service
@@ -190,8 +190,8 @@ class PsoConfigurationViewModel(BaseViewModel):
     # run PSO
     # -------------------
     @Slot()
-    def run_pso_simulation(self):
-        self.logger.debug(f"Running PSO simulation")
+    def run_pso_simulation(self) -> None:
+        self.logger.debug("Running PSO simulation")
 
         if not self._model_plant.is_valid:
             self.logger.debug("Model is invalid -> no (new) calculation")
@@ -229,7 +229,6 @@ class PsoConfigurationViewModel(BaseViewModel):
         )
 
     def _on_pso_simulation_finished(self, result: PsoResult):
-
         self._pso_result = result
 
         self.psoSimulationFinished.emit()
