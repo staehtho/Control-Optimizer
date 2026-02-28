@@ -1,8 +1,18 @@
 from typing import Callable, Type, Any
 from PySide6.QtCore import QCoreApplication
+from enum import Enum
+
 
 from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex
 from app_domain.functions import FunctionTypes
+
+
+class ViewTitle(Enum):
+    EXCITATION_TARGET = "Excitation Target"
+    REFERENCE = "Reference"
+    INPUT_DISTURBANCE = "Input Disturbance"
+    MEASUREMENT_DISTURBANCE = "Measurement Disturbance"
+
 
 class Translation:
     """Provides translated display labels for supported enum types.
@@ -19,6 +29,7 @@ class Translation:
             ExcitationTarget: self._excitation_target_label,
             FunctionTypes: self._function_type_label,
             PerformanceIndex: self._performance_index_label,
+            ViewTitle: self._view_title_label,
         }
 
     def __call__(self, enum_type: Type[Any]) -> dict[Any, str]:
@@ -78,4 +89,14 @@ class Translation:
             FunctionTypes.STEP: QCoreApplication.translate("ControlEnums", "step"),
             FunctionTypes.SINE: QCoreApplication.translate("ControlEnums", "sine"),
             FunctionTypes.COSINE: QCoreApplication.translate("ControlEnums", "cosine"),
+        }
+
+    @staticmethod
+    def _view_title_label() -> dict[ViewTitle, str]:
+        """Return translated labels for Titles enum."""
+        return {
+            ViewTitle.EXCITATION_TARGET: QCoreApplication.translate("ControlEnums", "Excitation Target"),
+            ViewTitle.REFERENCE: QCoreApplication.translate("ControlEnums", "Reference"),
+            ViewTitle.INPUT_DISTURBANCE: QCoreApplication.translate("ControlEnums", "Input Disturbance"),
+            ViewTitle.MEASUREMENT_DISTURBANCE: QCoreApplication.translate("ControlEnums", "Measurement Disturbance"),
         }

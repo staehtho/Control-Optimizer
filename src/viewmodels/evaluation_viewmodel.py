@@ -7,6 +7,7 @@ from .pso_configuration_viewmodel import PsoConfigurationViewModel
 
 
 class EvaluationViewModel(BaseViewModel):
+    """Exposes controller evaluation values and keeps them synced with PSO output."""
     kpChanged = Signal()
     tiChanged = Signal()
     tdChanged = Signal()
@@ -22,6 +23,7 @@ class EvaluationViewModel(BaseViewModel):
         self._connect_signals()
 
     def _connect_signals(self) -> None:
+        # Pull fresh evaluation values whenever a new PSO run completes.
         self._vm_pso.psoSimulationFinished.connect(self._on_pso_simulation_finished)
 
     kp: float = BaseViewModel._logged_property(
@@ -48,7 +50,18 @@ class EvaluationViewModel(BaseViewModel):
         property_type=float
     )
 
-    def _on_pso_simulation_finished(self, result: PsoResult) -> None:
+    def _on_pso_simulation_finished(self) -> None:
+        result = self._vm_pso.get_pso_result()
+
+        if result is None:
+            # Clear previously shown gains if the run did not produce a valid result.
+            self.kp = 0.0
+            self.ti = 0.0
+            self.td = 0.0
+            self.tf = 0.0
+
+            return
+
         self.kp = result.kp
         self.ti = result.ti
         self.td = result.td
