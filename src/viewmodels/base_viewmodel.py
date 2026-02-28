@@ -35,6 +35,7 @@ class BaseViewModel(QObject):
             attribute: str,
             notify_signal: str,
             property_type: Any,
+            read_only: bool = False,
             custom_setter: Optional[Callable[..., Any]] = None,
     ) -> Property:
 
@@ -80,5 +81,9 @@ class BaseViewModel(QObject):
                 instance.logger.debug(f"Emitting {notify_signal} after model update")
                 getattr(instance, notify_signal).emit()
 
-        return Property(property_type, getter, setter,
-                        notify=lambda instance: getattr(instance, notify_signal))  # type: ignore[assignment]
+        return Property(
+            property_type,
+            getter,
+            None if read_only else setter,
+            notify=lambda instance: getattr(instance, notify_signal)  # type: ignore[assignment]
+        )
