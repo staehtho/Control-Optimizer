@@ -5,91 +5,82 @@ from app_domain.controlsys import AntiWindup
 from models import ControllerModel
 from viewmodels import ControllerViewModel
 
+
 @pytest.fixture
 def model_controller() -> ControllerModel:
     return ControllerModel()
+
 
 @pytest.fixture
 def vm_controller(model_controller: ControllerModel) -> ControllerViewModel:
     return ControllerViewModel(model_controller)
 
-@pytest.mark.parametrize(
-    "attribute_min, attribute_max, signal, init_min, init_max, value, expected_spy_size",
-    [
-        ("constraint_min", "constraint_max", "constraintMinChanged", 0, 1, 0.0, 0),
-        ("constraint_min", "constraint_max", "constraintMinChanged", 0, 1, 0.5, 1),
-        ("constraint_min", "constraint_max", "constraintMinChanged", 0, 1, 1.0, 1),
-    ],
-    ids=[
-        "constraint_min: min == val",
-        "constraint_min: min < val < max",
-        "constraint_min: val == max",
-    ]
-)
-def test_min_value_with_verification_changed(
-        model_controller: ControllerModel,
-        vm_controller: ControllerViewModel,
-        attribute_min, attribute_max, signal,
-        init_min, init_max, value, expected_spy_size
-) -> None:
-    setattr(model_controller, attribute_min, init_min)
-    setattr(model_controller, attribute_max, init_max)
 
-    spy = QSignalSpy(getattr(vm_controller, signal))
+def test_controller_type_emits_on_change(vm_controller: ControllerViewModel) -> None:
+    spy = QSignalSpy(vm_controller.controllerTypeChanged)
 
-    setattr(vm_controller, attribute_min, value)
+    vm_controller.controller_type = "PI"
 
-    assert spy.size() == expected_spy_size
-    assert getattr(vm_controller, attribute_min) == getattr(model_controller, attribute_min)
+    assert spy.size() == 1
+    assert vm_controller.controller_type == "PI"
 
-@pytest.mark.parametrize(
-    "attribute_min, attribute_max, signal, init_min, init_max, value, expected_spy_size",
-    [
-        ("constraint_min", "constraint_max", "constraintMaxChanged", 0.0, 1.0, 0.0, 1),
-        ("constraint_min", "constraint_max", "constraintMaxChanged", 0.0, 1.0, 0.5, 1),
-        ("constraint_min", "constraint_max", "constraintMaxChanged", 0.0, 1.0, 1.0, 0),
-    ],
-    ids=[
-        "constraint_max: min == val",
-        "constraint_max: min < val < max",
-        "constraint_max: val == max",
-    ]
-)
-def test_max_value_with_verification_changed(
-        model_controller: ControllerModel,
-        vm_controller: ControllerViewModel,
-        attribute_min, attribute_max, signal,
-        init_min, init_max, value, expected_spy_size
-) -> None:
-    setattr(model_controller, attribute_min, init_min)
-    setattr(model_controller, attribute_max, init_max)
 
-    spy = QSignalSpy(getattr(vm_controller, signal))
+def test_controller_type_does_not_emit_on_same_value(vm_controller: ControllerViewModel) -> None:
+    spy = QSignalSpy(vm_controller.controllerTypeChanged)
 
-    setattr(vm_controller, attribute_max, value)
+    vm_controller.controller_type = vm_controller.controller_type
 
-    assert spy.size() == expected_spy_size
-    assert getattr(vm_controller, attribute_max) == getattr(model_controller, attribute_max)
+    assert spy.size() == 0
 
 
 @pytest.mark.parametrize(
-    "attribute, signal, init_value, value",
+    ("value", "expected", "expected_signal_count"),
     [
-        ("anti_windup", "antiWindupChanged", AntiWindup.CLAMPING, AntiWindup.CONDITIONAL),
+        (0.5, 0.5, 1),  # valid update
+        (1.0, -5.0, 1),  # invalid (equal to max), custom validation still emits once
     ],
-    ids=[
-        "anti_windup",
-    ]
 )
-def test_value_changed(
-        model_controller: ControllerModel,
+def test_constraint_min_validation_and_signal_behavior(
         vm_controller: ControllerViewModel,
-        attribute, signal, init_value, value,
-        qtbot
+        value: float,
+        expected: float,
+        expected_signal_count: int,
 ) -> None:
-    setattr(model_controller, attribute, init_value)
+    vm_controller.constraint_min = -5.0
+    vm_controller.constraint_max = 1.0
 
-    with qtbot.waitSignal(getattr(vm_controller, signal), timeout=500):
-        setattr(vm_controller, attribute, value)
+    spy = QSignalSpy(vm_controller.constraintMinChanged)
+    vm_controller.constraint_min = value
 
-    assert getattr(model_controller, attribute) == getattr(vm_controller, attribute)
+    assert spy.size() == expected_signal_count
+    assert vm_controller.constraint_min == expected
+
+
+@pytest.mark.parametrize(
+    ("value", "expected", "expected_signal_count"),
+    [
+        (0.5, 0.5, 1),  # valid update
+        (0.0, 5.0, 1),  # invalid (equal to min), custom validation still emits once
+    ],
+)
+def test_constraint_max_validation_and_signal_behavior(
+        vm_controller: ControllerViewModel,
+        value: float,
+        expected: float,
+        expected_signal_count: int,
+) -> None:
+    vm_controller.constraint_min = 0.0
+    vm_controller.constraint_max = 5.0
+
+    spy = QSignalSpy(vm_controller.constraintMaxChanged)
+    vm_controller.constraint_max = value
+
+    assert spy.size() == expected_signal_count
+    assert vm_controller.constraint_max == expected
+
+
+def test_anti_windup_emits_and_updates(vm_controller: ControllerViewModel, qtbot) -> None:
+    with qtbot.waitSignal(vm_controller.antiWindupChanged, timeout=500):
+        vm_controller.anti_windup = AntiWindup.CONDITIONAL
+
+    assert vm_controller.anti_windup == AntiWindup.CONDITIONAL
