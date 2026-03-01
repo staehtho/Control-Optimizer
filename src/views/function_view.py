@@ -1,4 +1,5 @@
 from functools import partial
+from dataclasses import dataclass, field
 
 from PySide6.QtCore import QObject, Qt, QT_TRANSLATE_NOOP
 from PySide6.QtGui import QDoubleValidator
@@ -12,6 +13,13 @@ from views import BaseView, PlotView, PlotConfiguration
 from views.translations import ViewTitle
 
 
+@dataclass
+class FunctionConfiguration:
+    title: ViewTitle
+    show_start_end_time: bool = True
+    excluded_functions: list[FunctionTypes] = field(default_factory=list)
+
+
 class FunctionView(BaseView, QWidget):
     """View for selecting and configuring functions and displaying the plot."""
 
@@ -20,8 +28,7 @@ class FunctionView(BaseView, QWidget):
             vm_lang: LanguageViewModel,
             vm_function: FunctionViewModel,
             vm_plot: PlotViewModel,
-            title: ViewTitle,
-            show_start_end_time: bool = True,
+            function_cfg: FunctionConfiguration,
             parent: QObject | None = None,
     ) -> None:
         QWidget.__init__(self, parent)
@@ -29,8 +36,7 @@ class FunctionView(BaseView, QWidget):
         self._vm_function = vm_function
         self._vm_plot = vm_plot
 
-        self._title = title
-        self._show_start_end_time = show_start_end_time
+        self._function_cfg = function_cfg
 
         self._txt_function_params: dict[str, QLineEdit] = {}
 
@@ -73,7 +79,7 @@ class FunctionView(BaseView, QWidget):
             title=title,
             x_label=str(QT_TRANSLATE_NOOP("ControlEnums", "Time [s]")),
             y_label=str(QT_TRANSLATE_NOOP("ControlEnums", "Output")),
-            show_start_end_time=self._show_start_end_time,
+            show_start_end_time=self._function_cfg.show_start_end_time,
         )
 
         plot_view = PlotView(
@@ -172,7 +178,7 @@ class FunctionView(BaseView, QWidget):
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
 
-        self._lbl_title.setText(self._enum_translation(ViewTitle).get(self._title))
+        self._lbl_title.setText(self._enum_translation(ViewTitle).get(self._function_cfg.title))
 
         function_labels = self._enum_translation(FunctionTypes)
         selected_type = resolve_function_type(self._vm_function.selected_function)

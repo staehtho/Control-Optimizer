@@ -4,8 +4,8 @@ from PySide6.QtCore import Qt
 from app_domain.controlsys import ExcitationTarget
 from utils import LatexRenderer
 from viewmodels import LanguageViewModel, PlantViewModel, EvaluationViewModel, FunctionViewModel, PlotViewModel
-from views import BaseView, FunctionView
-from views.translations import Translation, ViewTitle
+from views import BaseView, FunctionView, FunctionConfiguration, PlotView, PlotConfiguration
+from views.translations import ViewTitle
 
 
 class EvaluationView(BaseView, QWidget):
@@ -112,12 +112,17 @@ class EvaluationView(BaseView, QWidget):
         for key in self._vm_functions.keys():
             function_page = QWidget()
             function_page_layout = QVBoxLayout(function_page)
+
+            cfg = FunctionConfiguration(
+                title=ViewTitle[key],
+                show_start_end_time=False
+            )
+            
             function_view = FunctionView(
                 self._vm_lang,
                 self._vm_functions[key],
                 self._vm_plots.get("excitation").get(key),
-                ViewTitle[key],
-                show_start_end_time=False
+                cfg
             )
             function_page_layout.addWidget(function_view)
 
