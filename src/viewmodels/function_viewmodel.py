@@ -85,6 +85,14 @@ class FunctionViewModel(BaseViewModel):
     def _on_result(self, t: np.ndarray, y: np.ndarray) -> None:
         self.computeFinished.emit(t, y)
 
+    @Slot()
+    def refresh_from_model(self) -> None:
+        """
+        Notify bound views that the selected function instance in the model changed
+        externally (e.g. by another ViewModel).
+        """
+        self.functionChanged.emit()
+
     # -------------------
     # param
     # -------------------
