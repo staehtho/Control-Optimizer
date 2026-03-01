@@ -1,6 +1,6 @@
 from functools import partial
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QFrame, QLabel, QTabWidget, QScrollArea
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QFrame, QLabel, QTabWidget, QScrollArea, QSizePolicy
 from PySide6.QtCore import Qt, QT_TRANSLATE_NOOP
 from numpy import ndarray
 
@@ -19,7 +19,7 @@ class EvaluationView(BaseView, QWidget):
             vm_plant: PlantViewModel,
             vm_evaluator: EvaluationViewModel,
             vm_functions: dict[str, FunctionViewModel],
-            vm_plots: dict[str, dict[str, PlotViewModel]],
+            vm_plot: PlotViewModel,
             parent: QWidget = None
     ):
         QWidget.__init__(self, parent)
@@ -27,7 +27,7 @@ class EvaluationView(BaseView, QWidget):
         self._vm_plant = vm_plant
         self._vm_evaluator = vm_evaluator
         self._vm_functions = vm_functions
-        self._vm_plots = vm_plots
+        self._vm_plot = vm_plot
 
         self._function_tab_pages: dict[str, QWidget] = {}
 
@@ -43,9 +43,20 @@ class EvaluationView(BaseView, QWidget):
         content_widget = QWidget()
         main_layout = QVBoxLayout(content_widget)
 
-        main_layout.addWidget(self._create_cl_frame())
-        main_layout.addWidget(self._create_function_frame())
-        main_layout.addWidget(self._create_cl_response_frame())
+        cl_frame = self._create_cl_frame()
+        function_frame = self._create_function_frame()
+        response_frame = self._create_cl_response_frame()
+
+        # Keep the first two frames at their natural height.
+        cl_frame.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)  # type: ignore[attr-defined]
+        function_frame.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)  # type: ignore[attr-defined]
+
+        # Only the response frame should consume extra vertical space.
+        response_frame.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)  # type: ignore[attr-defined]
+
+        main_layout.addWidget(cl_frame, 0)
+        main_layout.addWidget(function_frame, 0)
+        main_layout.addWidget(response_frame, 1)
 
         # Scroll area
         scroll = QScrollArea()
@@ -112,9 +123,10 @@ class EvaluationView(BaseView, QWidget):
             function_page = QWidget()
             function_page_layout = QVBoxLayout(function_page)
 
-            function_widget = FunctionWidget(self._vm_lang, self._vm_functions[key], parent=self)
+            function_widget = FunctionWidget(self._vm_lang, self._vm_functions[key], parent=function_page)
 
             function_page_layout.addWidget(function_widget)
+            self._widgets[key] = function_widget
 
             self._function_tab_pages.setdefault(key, function_page)
             self._function_tab.addTab(function_page, key)
@@ -141,7 +153,7 @@ class EvaluationView(BaseView, QWidget):
         )
 
         plot_view = PlotWidget(
-            self._vm_plots.get("time_domain").get("response"),
+            self._vm_plot,
             self._cl_plot_cfg,
             self._vm_lang,
             parent=frame
@@ -156,7 +168,9 @@ class EvaluationView(BaseView, QWidget):
     # -------------------------------------------------
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
-        ...
+        for key, widget in self._widgets.items():
+            if isinstance(widget, FunctionWidget):
+                widget.functionChanged.connect(partial(self._on_vm_function_changed, key))
 
     # -------------------------------------------------
     # ViewModel bindings (ViewModel → UI)
@@ -202,20 +216,32 @@ class EvaluationView(BaseView, QWidget):
         label.setPixmap(LatexRenderer.latex2pixmap(r"G(s) = " + text, font_size_scale=self._formula_font_size_scale))
 
     def _on_vm_function_compute_finished(self, key: str, t: ndarray, y: ndarray) -> None:
-        self._vm_plots.get("time_domain").get("response").update_data(key, (t, y))
+        self._logger.debug(
+            "Function VM '%s' finished computation → updating plot (samples=%d)",
+            key, len(t),
+        )
+        self._vm_plot.update_data(key, (t, y))
 
     def _on_vm_compute_finished(self, t: ndarray, y: ndarray) -> None:
-        self._logger.debug("Closed loop response computation finished, updating plot")
-        self._vm_plots.get("time_domain").get("response").update_data("response", (t, y))
+        self._logger.debug(
+            "Closed-loop response computation finished → updating response plot (samples=%d)",
+            len(t),
+        )
+        self._vm_plot.update_data("response", (t, y))
 
     def _on_vm_pso_simulation_finished(self, target: ExcitationTarget) -> None:
-        self._logger.debug("Pso simulation finished, updating plot")
+        self._logger.debug(
+            "PSO simulation finished for target '%s' → refreshing all excitation functions",
+            target.name,
+        )
+
+        t0 = self._vm_plot.start_time
+        t1 = self._vm_plot.end_time
 
         # update all function plots
-        for key, vm in self._vm_functions.items():
+        for vm in self._vm_functions.values():
             vm.refresh_from_model()
-            vm_plot = self._vm_plots.get("excitation").get(key)
-            vm.compute_function(vm_plot.start_time, vm_plot.end_time)
+            vm.compute_function(t0, t1)
 
         # update tab index
         index = self._function_tab.indexOf(self._function_tab_pages.get(target.name))
@@ -225,3 +251,14 @@ class EvaluationView(BaseView, QWidget):
     # -------------------------------------------------
     # UI event handlers
     # -------------------------------------------------
+    def _on_vm_function_changed(self, key: str) -> None:
+        t0 = self._vm_plot.start_time
+        t1 = self._vm_plot.end_time
+
+        self._logger.debug(
+            "Excitation function changed → recomputing closed-loop response (time window=[%.3f, %.3f])",
+            t0, t1,
+        )
+
+        self._vm_functions.get(key).compute_function(t0, t1)
+        self._vm_evaluator.compute_closed_loop_response(t0, t1)

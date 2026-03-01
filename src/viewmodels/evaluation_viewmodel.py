@@ -94,14 +94,14 @@ class EvaluationViewModel(BaseViewModel):
         if function_model is not None:
             function_model.selected_function = result.function.copy()
 
-        self.run_closed_loop_response(result.t0, result.t1)
+        self.compute_closed_loop_response(result.t0, result.t1)
         self.psoSimulationFinished.emit(result.excitation_target)
 
 
     @Slot(float, float)
-    def run_closed_loop_response(self, t0: float, t1: float) -> None:
+    def compute_closed_loop_response(self, t0: float, t1: float) -> None:
         self.logger.debug("Running closed loop response.")
-        import numpy as np
+
         context = ClosedLoopResponseContext(
             num=self._model_plant.num,
             den=self._model_plant.den,

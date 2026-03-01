@@ -27,7 +27,7 @@ class SimulationService:
         self._closed_loop_engine = ClosedLoopResponseEngine()
 
         self._step_worker = None
-        self._function_worker = None
+        self._function_workers: list[FunctionWorker] = []
         self._pso_simulation_worker = None
         self._closed_loop_worker = None
 
@@ -72,14 +72,17 @@ class SimulationService:
             func: Callable mapping ``t -> y``.
             callback: Function invoked with ``(t, y)`` when the worker completes.
         """
-        if self._function_worker and self._function_worker.isRunning():
-            self._logger.warning("FunctionWorker is busy. Ignoring request.")
-            return
-
         self._logger.info("Starting FunctionWorker for asynchronous computation")
-        self._function_worker = FunctionWorker(self._function_engine, t, func)
-        self._function_worker.resultReady.connect(callback)
-        self._function_worker.start()
+        worker = FunctionWorker(self._function_engine, t, func)
+        worker.resultReady.connect(callback)
+        worker.finished.connect(lambda: self._on_function_worker_finished(worker))
+        self._function_workers.append(worker)
+        worker.start()
+
+    def _on_function_worker_finished(self, worker: FunctionWorker) -> None:
+        if worker in self._function_workers:
+            self._function_workers.remove(worker)
+        worker.deleteLater()
 
     def run_pso_simulation(
             self,
