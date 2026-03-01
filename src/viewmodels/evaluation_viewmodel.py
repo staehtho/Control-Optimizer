@@ -4,6 +4,7 @@ from numpy import ndarray
 from service import SimulationService
 from app_domain.engine import ClosedLoopResponseContext
 from app_domain.controlsys import ExcitationTarget
+from app_domain.functions import NullFunction
 from models import ModelContainer, SettingsModel, PlantModel, FunctionModel, ControllerModel, EvaluationModel
 from .base_viewmodel import BaseViewModel
 from .pso_configuration_viewmodel import PsoConfigurationViewModel
@@ -15,6 +16,7 @@ class EvaluationViewModel(BaseViewModel):
     tiChanged = Signal()
     tdChanged = Signal()
     tfChanged = Signal()
+    psoSimulationFinished = Signal(ExcitationTarget)
     closedLoopResponseChanged = Signal(ndarray, ndarray)
 
     def __init__(
@@ -27,8 +29,9 @@ class EvaluationViewModel(BaseViewModel):
         super().__init__(parent)
 
         self._model_plant: PlantModel = model_container.model_plant
-        self._model_functions: dict[ExcitationTarget, FunctionModel] = {
-            i: model_container.ensure_function_model(f"excitation.{i.name}") for i in ExcitationTarget}
+        self._model_functions: dict[str, FunctionModel] = {
+            i.name: model_container.ensure_function_model(i.name) for i in ExcitationTarget
+        }
         self._model_controller: ControllerModel = model_container.model_controller
         self._settings: SettingsModel = model_container.model_settings
         self._model_evaluator: EvaluationModel = model_container.model_evaluator
@@ -83,13 +86,29 @@ class EvaluationViewModel(BaseViewModel):
         self.td = result.td
         self.tf = result.tf
 
+        # reset the functions to NullFunction
+        for model in self._model_functions.values():
+            model.selected_function = NullFunction()
+
+        function_model = self._model_functions.get(result.excitation_target.name)
+        if function_model is not None:
+            function_model.selected_function = result.function.copy()
+
+        self.run_closed_loop_response(result.t0, result.t1)
+        self.psoSimulationFinished.emit(result.excitation_target)
+
+
     @Slot(float, float)
     def run_closed_loop_response(self, t0: float, t1: float) -> None:
         self.logger.debug("Running closed loop response.")
-
+        import numpy as np
         context = ClosedLoopResponseContext(
             num=self._model_plant.num,
             den=self._model_plant.den,
+            kp=self.kp,
+            ti=self.ti,
+            td=self.td,
+            tf=self.tf,
             t0=t0,
             t1=t1,
             dt=self._settings.get_time_step(),
@@ -99,11 +118,12 @@ class EvaluationViewModel(BaseViewModel):
                 self._model_controller.constraint_min,
                 self._model_controller.constraint_max,
             ),
-            reference=self._model_functions.get(ExcitationTarget.REFERENCE).selected_function.get_function(),
+            reference=self._model_functions.get(
+                ExcitationTarget.REFERENCE.name).selected_function.get_function(),
             input_disturbance=self._model_functions.get(
-                ExcitationTarget.INPUT_DISTURBANCE).selected_function.get_function(),
+                ExcitationTarget.INPUT_DISTURBANCE.name).selected_function.get_function(),
             measurement_disturbance=self._model_functions.get(
-                ExcitationTarget.MEASUREMENT_DISTURBANCE).selected_function.get_function(),
+                ExcitationTarget.MEASUREMENT_DISTURBANCE.name).selected_function.get_function()
         )
 
         self._simulation_service.compute_closed_loop_response(context, self._on_compute_finished)

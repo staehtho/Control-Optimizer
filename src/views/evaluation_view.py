@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QFrame, QLabel, QTabWidget, QScrollArea
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QT_TRANSLATE_NOOP
+from numpy import ndarray
 
 from app_domain.controlsys import ExcitationTarget
 from utils import LatexRenderer
@@ -117,12 +118,13 @@ class EvaluationView(BaseView, QWidget):
                 title=ViewTitle[key],
                 show_start_end_time=False
             )
-            
+
             function_view = FunctionView(
                 self._vm_lang,
                 self._vm_functions[key],
                 self._vm_plots.get("excitation").get(key),
-                cfg
+                cfg,
+                parent=frame
             )
             function_page_layout.addWidget(function_view)
 
@@ -143,6 +145,22 @@ class EvaluationView(BaseView, QWidget):
         self._apply_title_property(self._lbl_title_cl_response)
         frame_layout.addWidget(self._lbl_title_cl_response)
 
+        self._cl_plot_cfg = PlotConfiguration(
+            context="ControlEnums",
+            title=self._enum_translation(ViewTitle).get(ViewTitle.CLOSED_LOOP),
+            x_label=str(QT_TRANSLATE_NOOP("ControlEnums", "Time [s]")),
+            y_label=str(QT_TRANSLATE_NOOP("ControlEnums", "Output"))
+        )
+
+        plot_view = PlotView(
+            self._vm_plots.get("time_domain").get("response"),
+            self._cl_plot_cfg,
+            self._vm_lang,
+            parent=frame
+        )
+
+        frame_layout.addWidget(plot_view)
+
         return frame
 
     # -------------------------------------------------
@@ -157,7 +175,8 @@ class EvaluationView(BaseView, QWidget):
     # -------------------------------------------------
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
-        ...
+        self._vm_evaluator.closedLoopResponseChanged.connect(self._on_vm_compute_finished)
+        self._vm_evaluator.psoSimulationFinished.connect(self._on_vm_pso_simulation_finished)
 
     # -------------------------------------------------
     # Translation
@@ -183,6 +202,24 @@ class EvaluationView(BaseView, QWidget):
     # -------------------------------------------------
     # ViewModel change handlers
     # -------------------------------------------------
+    def _on_vm_compute_finished(self, t: ndarray, y: ndarray) -> None:
+        self._logger.debug("Closed loop response computation finished, updating plot")
+        self._vm_plots.get("time_domain").get("response").update_data("function", (t, y))
+
+    def _on_vm_pso_simulation_finished(self, target: ExcitationTarget) -> None:
+        self._logger.debug("Pso simulation finished, updating plot")
+
+        # update all function plots
+        for key, vm in self._vm_functions.items():
+            vm.refresh_from_model()
+            vm_plot = self._vm_plots.get("excitation").get(key)
+            vm.compute_function(vm_plot.start_time, vm_plot.end_time)
+
+        # update tab index
+        index = self._function_tab.indexOf(self._function_tab_pages.get(target.name))
+        if index >= 0:
+            self._function_tab.setCurrentIndex(index)
+
     # -------------------------------------------------
     # UI event handlers
     # -------------------------------------------------
