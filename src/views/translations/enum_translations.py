@@ -46,7 +46,7 @@ class Translation:
             NotImplementedError: If enum type is not registered.
         """
         try:
-            return self._registry[enum_type]()
+            return self._registry[enum_type]().copy()
         except KeyError:
             raise NotImplementedError(
                 f"No translation registered for enum type: {enum_type}"
@@ -87,6 +87,7 @@ class Translation:
     def _function_type_label() -> dict[FunctionTypes, str]:
         """Return translated labels for FunctionTypes enum."""
         return {
+            FunctionTypes.NULL: QCoreApplication.translate("ControlEnums", "Null"),
             FunctionTypes.STEP: QCoreApplication.translate("ControlEnums", "step"),
             FunctionTypes.SINE: QCoreApplication.translate("ControlEnums", "sine"),
             FunctionTypes.COSINE: QCoreApplication.translate("ControlEnums", "cosine"),

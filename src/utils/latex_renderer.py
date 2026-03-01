@@ -1,6 +1,7 @@
 import io
-import matplotlib.pyplot as plt
 import logging
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 from PySide6.QtGui import QPixmap, QPalette
 from PySide6.QtWidgets import QApplication
@@ -41,8 +42,9 @@ class LatexRenderer:
         # --- DPI-korrigierte matplotlib-Schriftgrösse ---
         mpl_fontsize = qt_point_size * logical_dpi / 72.0
 
-        # --- Figure ---
-        fig = plt.figure(figsize=(0.01, 0.01))
+        # --- Figure (off-screen Agg canvas; avoids transient Qt windows) ---
+        fig = Figure(figsize=(0.01, 0.01))
+        canvas = FigureCanvasAgg(fig)
         fig.patch.set_alpha(0)
 
         fig.text(
@@ -65,7 +67,7 @@ class LatexRenderer:
             pad_inches=0,
             transparent=True,
         )
-        plt.close(fig)
+        canvas.draw()
 
         # --- Pixmap ---
         buf.seek(0)
