@@ -219,7 +219,7 @@ class PsoConfigurationViewModel(BaseViewModel):
                 self._model_controller.constraint_max,
             ),
             excitation_target=self.excitation_target,
-            function=self._model_function.selected_function.get_function(),
+            function=self._model_function.selected_function.copy(),
             performance_index=self.performance_index,
             kp=(self.kp_min, self.kp_max),
             ti=(self.ti_min, self.ti_max),
