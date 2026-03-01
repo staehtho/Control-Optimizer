@@ -16,12 +16,13 @@ class FunctionView(BaseView, QWidget):
     """View for selecting and configuring functions and displaying the plot."""
 
     def __init__(
-        self,
-        vm_lang: LanguageViewModel,
-        vm_function: FunctionViewModel,
-        vm_plot: PlotViewModel,
+            self,
+            vm_lang: LanguageViewModel,
+            vm_function: FunctionViewModel,
+            vm_plot: PlotViewModel,
             title: ViewTitle,
-        parent: QObject | None = None,
+            show_start_end_time: bool = True,
+            parent: QObject | None = None,
     ) -> None:
         QWidget.__init__(self, parent)
 
@@ -29,6 +30,7 @@ class FunctionView(BaseView, QWidget):
         self._vm_plot = vm_plot
 
         self._title = title
+        self._show_start_end_time = show_start_end_time
 
         self._txt_function_params: dict[str, QLineEdit] = {}
 
@@ -72,6 +74,7 @@ class FunctionView(BaseView, QWidget):
             title=title,
             x_label=str(QT_TRANSLATE_NOOP("ControlEnums", "Time [s]")),
             y_label=str(QT_TRANSLATE_NOOP("ControlEnums", "Output")),
+            show_start_end_time=self._show_start_end_time,
         )
 
         self._plot_view = PlotView(

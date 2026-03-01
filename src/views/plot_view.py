@@ -16,6 +16,7 @@ class PlotConfiguration:
     title: str
     x_label: str
     y_label: str
+    show_start_end_time: bool = True
 
 
 class PlotView(BaseView, QWidget):
@@ -62,26 +63,32 @@ class PlotView(BaseView, QWidget):
     def _create_header(self) -> QHBoxLayout:
         layout = QHBoxLayout()
 
+        show = self._cfg.show_start_end_time  # True = show, False = hide
+
         # Start time
         self._lbl_start = QLabel("")
         self._lbl_start.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)  # type: ignore[attr-defined]
+        self._lbl_start.setVisible(show)
         layout.addWidget(self._lbl_start)
 
         self._txt_start = QLineEdit()
         self._txt_start.setFixedWidth(90)
         self._txt_start.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)  # type: ignore[attr-defined]
         self._txt_start.setValidator(QDoubleValidator())
+        self._txt_start.setVisible(show)
         layout.addWidget(self._txt_start)
 
         # End time
         self._lbl_end = QLabel("")
         self._lbl_end.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)  # type: ignore[attr-defined]
+        self._lbl_end.setVisible(show)
         layout.addWidget(self._lbl_end)
 
         self._txt_end = QLineEdit()
         self._txt_end.setFixedWidth(90)
         self._txt_end.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)  # type: ignore[attr-defined]
         self._txt_end.setValidator(QDoubleValidator())
+        self._txt_end.setVisible(show)
         layout.addWidget(self._txt_end)
 
         # Grid checkbox
