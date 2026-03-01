@@ -7,8 +7,8 @@ from numpy import ndarray
 from app_domain.controlsys import ExcitationTarget
 from utils import LatexRenderer
 from viewmodels import LanguageViewModel, PlantViewModel, EvaluationViewModel, FunctionViewModel, PlotViewModel
-from views import BaseView, FunctionView, FunctionConfiguration
-from views.widgets import PlotWidget, PlotConfiguration
+from views import BaseView
+from views.widgets import PlotWidget, PlotConfiguration, FunctionWidget
 from views.translations import ViewTitle
 
 
@@ -112,19 +112,9 @@ class EvaluationView(BaseView, QWidget):
             function_page = QWidget()
             function_page_layout = QVBoxLayout(function_page)
 
-            cfg = FunctionConfiguration(
-                title=ViewTitle[key],
-                show_start_end_time=False
-            )
+            function_widget = FunctionWidget(self._vm_lang, self._vm_functions[key], parent=self)
 
-            function_view = FunctionView(
-                self._vm_lang,
-                self._vm_functions[key],
-                self._vm_plots.get("excitation").get(key),
-                cfg,
-                parent=frame
-            )
-            function_page_layout.addWidget(function_view)
+            function_page_layout.addWidget(function_widget)
 
             self._function_tab_pages.setdefault(key, function_page)
             self._function_tab.addTab(function_page, key)
