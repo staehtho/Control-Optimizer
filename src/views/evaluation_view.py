@@ -1,3 +1,5 @@
+from functools import partial
+
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QFrame, QLabel, QTabWidget, QScrollArea
 from PySide6.QtCore import Qt, QT_TRANSLATE_NOOP
 from numpy import ndarray
@@ -172,6 +174,9 @@ class EvaluationView(BaseView, QWidget):
         """Bind ViewModel signals to View update handlers."""
         # vm plant
         self._vm_plant.tfChanged.connect(self._on_vm_tf_changed)
+        # vm function
+        for key, vm in self._vm_functions.items():
+            vm.computeFinished.connect(partial(self._on_vm_function_compute_finished, key))
         # vm evaluator
         self._vm_evaluator.closedLoopResponseChanged.connect(self._on_vm_compute_finished)
         self._vm_evaluator.psoSimulationFinished.connect(self._on_vm_pso_simulation_finished)
@@ -205,9 +210,12 @@ class EvaluationView(BaseView, QWidget):
         text = self._vm_plant.get_tf()
         label.setPixmap(LatexRenderer.latex2pixmap(r"G(s) = " + text, font_size_scale=self._formula_font_size_scale))
 
+    def _on_vm_function_compute_finished(self, key: str, t: ndarray, y: ndarray) -> None:
+        self._vm_plots.get("time_domain").get("response").update_data(key, (t, y))
+
     def _on_vm_compute_finished(self, t: ndarray, y: ndarray) -> None:
         self._logger.debug("Closed loop response computation finished, updating plot")
-        self._vm_plots.get("time_domain").get("response").update_data("function", (t, y))
+        self._vm_plots.get("time_domain").get("response").update_data("response", (t, y))
 
     def _on_vm_pso_simulation_finished(self, target: ExcitationTarget) -> None:
         self._logger.debug("Pso simulation finished, updating plot")
