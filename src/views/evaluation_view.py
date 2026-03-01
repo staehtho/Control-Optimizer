@@ -7,7 +7,8 @@ from numpy import ndarray
 from app_domain.controlsys import ExcitationTarget
 from utils import LatexRenderer
 from viewmodels import LanguageViewModel, PlantViewModel, EvaluationViewModel, FunctionViewModel, PlotViewModel
-from views import BaseView, FunctionView, FunctionConfiguration, PlotView, PlotConfiguration
+from views import BaseView, FunctionView, FunctionConfiguration
+from views.widgets import PlotWidget, PlotConfiguration
 from views.translations import ViewTitle
 
 
@@ -149,7 +150,7 @@ class EvaluationView(BaseView, QWidget):
             y_label=str(QT_TRANSLATE_NOOP("ControlEnums", "Output"))
         )
 
-        plot_view = PlotView(
+        plot_view = PlotWidget(
             self._vm_plots.get("time_domain").get("response"),
             self._cl_plot_cfg,
             self._vm_lang,

@@ -19,7 +19,7 @@ class PlotConfiguration:
     show_start_end_time: bool = True
 
 
-class PlotView(BaseView, QWidget):
+class PlotWidget(BaseView, QWidget):
     def __init__(self, vm: PlotViewModel, plot_configuration: PlotConfiguration, vm_lang: LanguageViewModel, parent: QObject = None):
         QWidget.__init__(self, parent)
 
@@ -27,7 +27,7 @@ class PlotView(BaseView, QWidget):
         self._cfg = plot_configuration
 
         BaseView.__init__(self, vm_lang)
-        self._logger.debug(f"PlotView initialized (context={self._cfg.context})")
+        self._logger.debug(f"PlotWidget initialized (context={self._cfg.context})")
 
     # -------------------------------------------------
     # UI Initialization

@@ -7,7 +7,7 @@ from numpy import ndarray
 from utils import LatexRenderer
 from viewmodels import LanguageViewModel, PlantViewModel, PlotViewModel
 from .base_view import BaseView
-from .plot_view import PlotView, PlotConfiguration
+from views.widgets import PlotWidget, PlotConfiguration
 
 
 class PlantView(BaseView, QWidget):
@@ -121,7 +121,7 @@ class PlantView(BaseView, QWidget):
             y_label=str(QT_TRANSLATE_NOOP("plant.view", "Output")),
         )
 
-        self._plot_view = PlotView(self._vm_plot, plot_cfg, self._vm_lang)
+        self._plot_view = PlotWidget(self._vm_plot, plot_cfg, self._vm_lang)
 
         main_layout.addWidget(self._plot_view)
 

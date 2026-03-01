@@ -15,19 +15,19 @@
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="70"/>
-        <location filename="../views/translations/enum_translations.py" line="100"/>
+        <location filename="../views/translations/enum_translations.py" line="102"/>
         <source>Reference</source>
         <translation>Reference</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="71"/>
-        <location filename="../views/translations/enum_translations.py" line="101"/>
+        <location filename="../views/translations/enum_translations.py" line="103"/>
         <source>Input Disturbance</source>
         <translation>Input Disturbance</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="72"/>
-        <location filename="../views/translations/enum_translations.py" line="102"/>
+        <location filename="../views/translations/enum_translations.py" line="104"/>
         <source>Measurement Disturbance</source>
         <translation>Measurement Disturbance</translation>
     </message>
@@ -53,31 +53,43 @@
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="90"/>
+        <source>Null</source>
+        <translation>No function</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="91"/>
         <source>step</source>
         <translation>Step function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="91"/>
+        <location filename="../views/translations/enum_translations.py" line="92"/>
         <source>sine</source>
         <translation>Sine function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="92"/>
+        <location filename="../views/translations/enum_translations.py" line="93"/>
         <source>cosine</source>
         <translation>Cosine function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="99"/>
+        <location filename="../views/translations/enum_translations.py" line="100"/>
         <source>Excitation Target</source>
-        <translation>Excitation Target</translation>
+        <translation>Excitation Function</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="75"/>
+        <location filename="../views/translations/enum_translations.py" line="101"/>
+        <source>Closed Loop</source>
+        <translation>Closed Loop</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="149"/>
+        <location filename="../views/function_view.py" line="146"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="76"/>
+        <location filename="../views/evaluation_view.py" line="150"/>
+        <location filename="../views/function_view.py" line="147"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
@@ -118,19 +130,18 @@
 <context>
     <name>EvaluationView</name>
     <message>
-        <location filename="../views/evaluation_view.py" line="162"/>
+        <location filename="../views/evaluation_view.py" line="190"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="163"/>
+        <location filename="../views/evaluation_view.py" line="191"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="164"/>
         <source>Closed Loop Response</source>
-        <translation>Closed Loop Response</translation>
+        <translation type="vanished">Closed Loop Response</translation>
     </message>
 </context>
 <context>
@@ -235,31 +246,31 @@ Example: 1, 0.5, 2 → 1*s^2 + 0.5*s + 2</translation>
     </message>
 </context>
 <context>
-    <name>PlotView</name>
+    <name>PlotWidget</name>
     <message>
-        <location filename="../views/plot_view.py" line="130"/>
+        <location filename="../views/widgets/plot_widget.py" line="130"/>
         <source>plot.grid</source>
         <translation>Grid</translation>
     </message>
     <message>
-        <location filename="../views/plot_view.py" line="131"/>
+        <location filename="../views/widgets/plot_widget.py" line="131"/>
         <source>plot.start</source>
         <translation>Start time</translation>
     </message>
     <message>
-        <location filename="../views/plot_view.py" line="132"/>
+        <location filename="../views/widgets/plot_widget.py" line="132"/>
         <source>plot.end</source>
         <translation>End time</translation>
     </message>
     <message>
-        <location filename="../views/plot_view.py" line="133"/>
+        <location filename="../views/widgets/plot_widget.py" line="133"/>
         <source>plot.start.tooltip</source>
         <translation>Lower x-axis limit (x_min).
 Defines where the time axis begins.
 Unit: seconds (s).</translation>
     </message>
     <message>
-        <location filename="../views/plot_view.py" line="134"/>
+        <location filename="../views/widgets/plot_widget.py" line="134"/>
         <source>plot.end.tooltip</source>
         <translation>Upper x-axis limit (x_max).
 Defines where the time axis ends.

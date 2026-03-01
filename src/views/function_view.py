@@ -9,7 +9,8 @@ from numpy import ndarray
 from app_domain.functions import FunctionTypes, resolve_function_type
 from utils import LatexRenderer
 from viewmodels import LanguageViewModel, FunctionViewModel, PlotViewModel
-from views import BaseView, PlotView, PlotConfiguration
+from views import BaseView
+from views.widgets import PlotWidget, PlotConfiguration
 from views.translations import ViewTitle
 
 
@@ -151,7 +152,7 @@ class FunctionView(BaseView, QWidget):
         plot_container = QWidget()
         self._plot_stack = QStackedLayout(plot_container)
 
-        self._plot_view = PlotView(
+        self._plot_view = PlotWidget(
             self._vm_plot,
             self._plot_cfg,
             self._vm_lang,
