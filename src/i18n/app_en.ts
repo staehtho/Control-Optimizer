@@ -82,14 +82,14 @@
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="149"/>
-        <location filename="../views/function_view.py" line="146"/>
+        <location filename="../views/evaluation_view.py" line="139"/>
+        <location filename="../views/function_view.py" line="72"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="150"/>
-        <location filename="../views/function_view.py" line="147"/>
+        <location filename="../views/evaluation_view.py" line="140"/>
+        <location filename="../views/function_view.py" line="73"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
@@ -130,12 +130,12 @@
 <context>
     <name>EvaluationView</name>
     <message>
-        <location filename="../views/evaluation_view.py" line="190"/>
+        <location filename="../views/evaluation_view.py" line="180"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="191"/>
+        <location filename="../views/evaluation_view.py" line="181"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
     </message>
@@ -193,8 +193,9 @@
 <context>
     <name>FunctionView</name>
     <message>
+        <location filename="../views/function_view.py" line="110"/>
         <source>Excitation Function</source>
-        <translation type="vanished">Excitation Function</translation>
+        <translation>Excitation Function</translation>
     </message>
 </context>
 <context>
