@@ -13,6 +13,11 @@ class ClosedLoopResponseContext:
     num: list[float]
     den: list[float]
 
+    kp: float
+    ti: float
+    td: float
+    tf: float
+
     t0: float
     t1: float
     dt: float
@@ -53,9 +58,10 @@ class ClosedLoopResponseEngine:
 
         pid_cl = PIDClosedLoop(
             plant,
-            Kp=10,
-            Ti=1,
-            Td=1,
+            Kp=context.kp,
+            Ti=context.ti,
+            Td=context.td,
+            Tf=context.tf,
             control_constraint=list(context.constraint),
             anti_windup_method=context.anti_windup
         )

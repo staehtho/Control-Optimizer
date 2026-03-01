@@ -45,10 +45,13 @@ class PsoResult:
     """Result container for optimized PID parameters."""
 
     simulation_time: float
-    kp: float
-    ti: float
-    td: float
-    tf: float
+    kp: float = 0
+    ti: float = 0
+    td: float = 0
+    tf: float = 0
+
+    t0: float = 0
+    t1: float = 0
 
 
 class PsoSimulationEngine:
@@ -88,8 +91,10 @@ class PsoSimulationEngine:
 
         result = self._run_pso(param, objective, bounds, callback)
 
-        # add tf
+        # add tf, t0 and t1
         result.tf = tf
+        result.t0 = param.t0
+        result.t1 = param.t1
         self._logger.info("PSO simulation finished.")
 
         return result
@@ -224,5 +229,4 @@ class PsoSimulationEngine:
             kp=best_kp,
             ti=best_ti,
             td=best_td,
-            tf=0.0  # default !!!
         )
