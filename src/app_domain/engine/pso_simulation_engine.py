@@ -10,6 +10,7 @@ from app_domain.controlsys import (
     Plant, PIDClosedLoop, PsoFunc, smallest_root_realpart
 )
 from app_domain.PSO import Swarm
+from app_domain.functions import BaseFunction
 
 
 @dataclass
@@ -29,7 +30,7 @@ class PsoSimulationParam:
     constraint: tuple[float, float]
 
     excitation_target: ExcitationTarget
-    function: Callable[[np.ndarray], np.ndarray]
+    function: BaseFunction
     performance_index: PerformanceIndex
 
     kp: tuple[float, float]
@@ -45,6 +46,9 @@ class PsoResult:
     """Result container for optimized PID parameters."""
 
     simulation_time: float
+    excitation_target: ExcitationTarget
+    function: BaseFunction
+
     kp: float = 0
     ti: float = 0
     td: float = 0
@@ -53,13 +57,18 @@ class PsoResult:
     t0: float = 0
     t1: float = 0
 
-
 class PsoSimulationEngine:
     """Domain-layer engine for PSO-based PID optimization."""
 
     def __init__(self):
         self._logger = logging.getLogger(f"{self.__class__.__name__}.{id(self)}")
         self._logger.debug("PsoSimulationEngine initialized.")
+
+        self._total_duration = 0.0
+
+        self._best_kp = 0.0
+        self._best_ti = 0.0
+        self._best_td = 0.0
 
     # ==========================================================
     # Public API
@@ -89,15 +98,21 @@ class PsoSimulationEngine:
 
         bounds = self._extract_bounds(param)
 
-        result = self._run_pso(param, objective, bounds, callback)
+        self._run_pso(param, objective, bounds, callback)
 
-        # add tf, t0 and t1
-        result.tf = tf
-        result.t0 = param.t0
-        result.t1 = param.t1
         self._logger.info("PSO simulation finished.")
 
-        return result
+        return PsoResult(
+            simulation_time=self._total_duration,
+            excitation_target=param.excitation_target,
+            function=param.function.copy(),
+            kp=self._best_kp,
+            ti=self._best_ti,
+            td=self._best_td,
+            tf=tf,
+            t0=param.t0,
+            t1=param.t1
+        )
 
     # ==========================================================
     # Controller Setup
@@ -145,11 +160,11 @@ class PsoSimulationEngine:
 
         match param.excitation_target:
             case ExcitationTarget.REFERENCE:
-                r = param.function
+                r = param.function.get_function()
             case ExcitationTarget.INPUT_DISTURBANCE:
-                l = param.function
+                l = param.function.get_function()
             case ExcitationTarget.MEASUREMENT_DISTURBANCE:
-                n = param.function
+                n = param.function.get_function()
 
         self._logger.debug("Excitation configured: %s", param.excitation_target)
 
@@ -179,13 +194,14 @@ class PsoSimulationEngine:
     # PSO Execution
     # ==========================================================
 
-    def _run_pso(self, param: PsoSimulationParam, objective: PsoFunc, bounds,
-                 callback: Callable[[int], None]) -> PsoResult:
+    def _run_pso(self, param: PsoSimulationParam, objective: PsoFunc, bounds, callback: Callable[[int], None]) -> None:
         """Execute PSO optimization loop."""
 
-        best_kp = 0.0
-        best_ti = 0.0
-        best_td = 0.0
+        self._total_duration = 0.0
+
+        self._best_kp = 0.0
+        self._best_ti = 0.0
+        self._best_td = 0.0
         best_cost = sys.float_info.max
 
         total_start = time.perf_counter()
@@ -206,7 +222,7 @@ class PsoSimulationEngine:
 
             if cost < best_cost:
                 best_cost = cost
-                best_kp, best_ti, best_td = kp, ti, td
+                self._best_kp, self._best_ti, self._best_td = kp, ti, td
 
             duration = time.perf_counter() - iter_start
 
@@ -217,16 +233,9 @@ class PsoSimulationEngine:
 
             callback(iteration + 1)
 
-        total_duration = time.perf_counter() - total_start
+        self._total_duration = time.perf_counter() - total_start
 
         self._logger.info(
             "PSO finished | total_duration=%.4fs | best_J=%.6f",
-            total_duration, best_cost
-        )
-
-        return PsoResult(
-            simulation_time=total_duration,
-            kp=best_kp,
-            ti=best_ti,
-            td=best_td,
+            self._total_duration, best_cost
         )

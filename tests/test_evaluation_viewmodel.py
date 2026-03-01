@@ -5,6 +5,8 @@ from unittest.mock import MagicMock
 
 from service import SimulationService
 from app_domain.engine import PsoResult
+from app_domain.controlsys import ExcitationTarget
+from app_domain.functions import StepFunction
 from models import ModelContainer
 from viewmodels import EvaluationViewModel
 
@@ -71,7 +73,9 @@ def test_property_update_emits_only_on_change(
 
 
 def test_pso_finished_populates_all_values(vm_evaluator: EvaluationViewModel) -> None:
-    vm_evaluator._vm_pso.set_pso_result(PsoResult(0, 10, 5, 1, 0.1))
+    vm_evaluator._vm_pso.set_pso_result(PsoResult(
+        10, ExcitationTarget.REFERENCE, StepFunction(), 10, 5, 1, 0.1, 0, 10
+    ))
 
     vm_evaluator._vm_pso.psoSimulationFinished.emit()
 

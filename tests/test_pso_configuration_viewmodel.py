@@ -5,6 +5,7 @@ from PySide6.QtTest import QSignalSpy
 
 from app_domain.engine import PsoResult
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
+from app_domain.functions import StepFunction
 from models import ModelContainer
 from service import SimulationService
 from viewmodels import PsoConfigurationViewModel
@@ -136,7 +137,9 @@ def test_progress_and_finished_signals(vm_pso: PsoConfigurationViewModel) -> Non
     spy_finished = QSignalSpy(vm_pso.psoSimulationFinished)
 
     vm_pso._on_pso_progress(3)
-    vm_pso._on_pso_simulation_finished(PsoResult(0.2, 1.0, 2.0, 3.0, 0.1))
+    vm_pso._on_pso_simulation_finished(PsoResult(
+        10, ExcitationTarget.REFERENCE, StepFunction(), 10, 5, 1, 0.1, 0, 10
+    ))
 
     assert spy_progress.size() == 1
     assert spy_finished.size() == 1
