@@ -267,6 +267,7 @@ class PIDClosedLoop(ClosedLoop):
             r: Callable[[np.ndarray], np.ndarray] | None = None,
             l: Callable[[np.ndarray], np.ndarray] | None = None,
             n: Callable[[np.ndarray], np.ndarray] | None = None,
+            solver: MySolver = MySolver.RK4,
             x0: np.ndarray | None = None,
             y0: float = 0
     ) -> tuple[np.ndarray, np.ndarray]:
@@ -292,6 +293,9 @@ class PIDClosedLoop(ClosedLoop):
             n (Callable[[np.ndarray], np.ndarray] | None, optional):
                 Disturbance at the measurement/output (Z2) as a function of time.
                 If None, zero disturbance is assumed. Defaults to None.
+            solver (Solver, optional):
+                Numerical integration solver used by the compiled response routine.
+                This value is taken from ``self._plant.solver``.
             x0 (np.ndarray | None, optional): Initial state vector of the system. If None, a zero vector of appropriate
                 dimension is used. Defaults to None.
             y0 (float, optional): Initial output value. Defaults to 0.
@@ -309,6 +313,8 @@ class PIDClosedLoop(ClosedLoop):
 
         Notes:
             - The system dynamics are obtained from the state-space matrices (A, B, C, D).
+            - The numerical integration solver is taken from ``self._plant.solver`` and
+              forwarded to ``pid_system_response()``.
             - Supported anti-windup methods are:
                 - `"conditional"`: Update the integrator only when output is within limits or reduces saturation.
                 - `"clamping"`: Clamp the integrator term when the actuator saturates.
@@ -351,5 +357,5 @@ class PIDClosedLoop(ClosedLoop):
                                 r_eval=r_eval, l_eval=l_eval, n_eval=n_eval,
                                 x=x0, control_constraint=np.array(self._control_constraint, dtype=np.float64),
                                 anti_windup_method=map_enum_to_int(self._anti_windup_method),
-                                A=A, B=B, C=C, D=D, solver=map_enum_to_int(self._plant.solver))
+                                A=A, B=B, C=C, D=D, solver=map_enum_to_int(solver))
         return t_eval, y
