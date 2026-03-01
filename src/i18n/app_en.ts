@@ -4,80 +4,80 @@
 <context>
     <name>ControlEnums</name>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="61"/>
+        <location filename="../views/translations/enum_translations.py" line="62"/>
         <source>Clamping</source>
         <translation>Clamping</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="62"/>
+        <location filename="../views/translations/enum_translations.py" line="63"/>
         <source>Conditional</source>
         <translation>Conditional</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="69"/>
-        <location filename="../views/translations/enum_translations.py" line="99"/>
+        <location filename="../views/translations/enum_translations.py" line="70"/>
+        <location filename="../views/translations/enum_translations.py" line="100"/>
         <source>Reference</source>
         <translation>Reference</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="70"/>
-        <location filename="../views/translations/enum_translations.py" line="100"/>
+        <location filename="../views/translations/enum_translations.py" line="71"/>
+        <location filename="../views/translations/enum_translations.py" line="101"/>
         <source>Input Disturbance</source>
         <translation>Input Disturbance</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="71"/>
-        <location filename="../views/translations/enum_translations.py" line="101"/>
+        <location filename="../views/translations/enum_translations.py" line="72"/>
+        <location filename="../views/translations/enum_translations.py" line="102"/>
         <source>Measurement Disturbance</source>
         <translation>Measurement Disturbance</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="79"/>
+        <location filename="../views/translations/enum_translations.py" line="80"/>
         <source>ITAE</source>
         <translation>ITAE</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="80"/>
+        <location filename="../views/translations/enum_translations.py" line="81"/>
         <source>IAE</source>
         <translation>IAE</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="81"/>
+        <location filename="../views/translations/enum_translations.py" line="82"/>
         <source>ITSE</source>
         <translation>ITSE</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="82"/>
+        <location filename="../views/translations/enum_translations.py" line="83"/>
         <source>ISE</source>
         <translation>ISE</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="89"/>
+        <location filename="../views/translations/enum_translations.py" line="90"/>
         <source>step</source>
         <translation>Step function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="90"/>
+        <location filename="../views/translations/enum_translations.py" line="91"/>
         <source>sine</source>
         <translation>Sine function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="91"/>
+        <location filename="../views/translations/enum_translations.py" line="92"/>
         <source>cosine</source>
         <translation>Cosine function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="98"/>
+        <location filename="../views/translations/enum_translations.py" line="99"/>
         <source>Excitation Target</source>
         <translation>Excitation Target</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="73"/>
+        <location filename="../views/function_view.py" line="75"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="74"/>
+        <location filename="../views/function_view.py" line="76"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
@@ -118,14 +118,19 @@
 <context>
     <name>EvaluationView</name>
     <message>
-        <location filename="../views/evaluation_view.py" line="141"/>
+        <location filename="../views/evaluation_view.py" line="162"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="142"/>
+        <location filename="../views/evaluation_view.py" line="163"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="164"/>
+        <source>Closed Loop Response</source>
+        <translation>Closed Loop Response</translation>
     </message>
 </context>
 <context>
@@ -232,29 +237,29 @@ Example: 1, 0.5, 2 → 1*s^2 + 0.5*s + 2</translation>
 <context>
     <name>PlotView</name>
     <message>
-        <location filename="../views/plot_view.py" line="123"/>
+        <location filename="../views/plot_view.py" line="130"/>
         <source>plot.grid</source>
         <translation>Grid</translation>
     </message>
     <message>
-        <location filename="../views/plot_view.py" line="124"/>
+        <location filename="../views/plot_view.py" line="131"/>
         <source>plot.start</source>
         <translation>Start time</translation>
     </message>
     <message>
-        <location filename="../views/plot_view.py" line="125"/>
+        <location filename="../views/plot_view.py" line="132"/>
         <source>plot.end</source>
         <translation>End time</translation>
     </message>
     <message>
-        <location filename="../views/plot_view.py" line="126"/>
+        <location filename="../views/plot_view.py" line="133"/>
         <source>plot.start.tooltip</source>
         <translation>Lower x-axis limit (x_min).
 Defines where the time axis begins.
 Unit: seconds (s).</translation>
     </message>
     <message>
-        <location filename="../views/plot_view.py" line="127"/>
+        <location filename="../views/plot_view.py" line="134"/>
         <source>plot.end.tooltip</source>
         <translation>Upper x-axis limit (x_max).
 Defines where the time axis ends.
