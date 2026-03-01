@@ -51,6 +51,12 @@ class BaseFunction(ABC):
         self._logger.debug("Returning all params: %s", self._param)
         return self._param
 
+    def copy(self) -> BaseFunction:
+        """Return a copy of the current function instance."""
+        cloned = self.__class__()
+        cloned._param = self._param.copy()
+        return cloned
+
     @abstractmethod
     def get_formula(self) -> str:
         """Return a string representation of the function (for display)."""
