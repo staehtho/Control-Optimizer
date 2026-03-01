@@ -91,13 +91,15 @@ if __name__ == '__main__':
                     for title in [ViewTitle.REFERENCE, ViewTitle.INPUT_DISTURBANCE, ViewTitle.MEASUREMENT_DISTURBANCE]
                     }
 
-    vm_plots = {"excitation":
-                    {title.name: engine.ensure_plot_viewmodel(title.name)
-                     for title in
-                     [ViewTitle.REFERENCE, ViewTitle.INPUT_DISTURBANCE, ViewTitle.MEASUREMENT_DISTURBANCE]
-                     },
-                "time_domain": {"response": engine.ensure_plot_viewmodel("response")},
-                }
+    vm_plots = {
+        "excitation": {
+            title.name: engine.ensure_plot_viewmodel(title.name)
+            for title in [ViewTitle.REFERENCE, ViewTitle.INPUT_DISTURBANCE, ViewTitle.MEASUREMENT_DISTURBANCE]
+        },
+        "time_domain": {
+            "response": engine.ensure_plot_viewmodel("response")
+        },
+    }
 
     view_evaluator = EvaluationView(engine.vm_lang, engine.vm_plant, engine.vm_evaluator, vm_functions, vm_plots)
     # print_tab_order(view_evaluator)
