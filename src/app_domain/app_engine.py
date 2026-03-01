@@ -1,8 +1,8 @@
 import logging
-import numpy as np
 
 from app_domain.engine import PsoSimulationParam
 from app_domain.controlsys import MySolver, AntiWindup, ExcitationTarget, PerformanceIndex
+from app_domain.functions import StepFunction
 from models import ModelContainer
 from service import SimulationService
 from viewmodels import (
@@ -126,7 +126,7 @@ class AppEngine:
             anti_windup=AntiWindup.CLAMPING,
             constraint=(-5, 5),
             excitation_target=ExcitationTarget.REFERENCE,
-            function=lambda t: np.zeros_like(t),  # zero reference
+            function=StepFunction(),
             performance_index=PerformanceIndex.ITAE,
             kp=(0, 10),
             ti=(1e-9, 10),
