@@ -217,14 +217,10 @@ class FunctionView(BaseView, QWidget):
 
         selected_type = resolve_function_type(self._vm_function.selected_function)
 
-        was_blocked = self._cmb_function.blockSignals(True)
-        try:
-            self._cmb_add_item(self._cmb_function, function_labels)
-            index = self._cmb_function.findData(selected_type)
-            if index >= 0:
-                self._cmb_function.setCurrentIndex(index)
-        finally:
-            self._cmb_function.blockSignals(was_blocked)
+        self._cmb_add_item(self._cmb_function, function_labels)
+        index = self._cmb_function.findData(selected_type)
+        if index >= 0:
+            self._cmb_function.setCurrentIndex(index)
 
     # -------------------------------------------------
     # Apply initial values
@@ -250,6 +246,19 @@ class FunctionView(BaseView, QWidget):
     def _on_vm_function_changed(self) -> None:
         """Rebuild parameter grid when selected function changes."""
         self._logger.info(f"Function changed to: {self._vm_function.selected_function.__class__.__name__}")
+
+        if self._cmb_function.currentData() == self._vm_function.selected_function:
+            self._logger.debug(
+                "Function selection ignored because it matches current ViewModel state (%s).",
+                self._vm_function.selected_function
+            )
+            return
+
+        # update cmb index
+        selected_type = resolve_function_type(self._vm_function.selected_function)
+        index = self._cmb_function.findData(selected_type)
+        if index >= 0:
+            self._cmb_function.setCurrentIndex(index)
 
         self.setUpdatesEnabled(False)
         try:
