@@ -6,9 +6,11 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QWidget
 
 from app_domain import AppEngine
+from app_domain.controlsys import ExcitationTarget
 from app_domain.functions import FunctionTypes
-from views import PlantView, FunctionView, ControllerView, PsoConfigurationView, EvaluationView
-from views.translations import ViewTitle
+from views import PlantView, FunctionView, ControllerView, PsoConfigurationView, EvaluationView, MainView
+from views.widgets import NavItem
+from views.translations import NavLabels
 
 
 def print_tab_order(parent_widget: QWidget) -> None:
@@ -59,13 +61,16 @@ if __name__ == '__main__':
 
     engine = AppEngine()
 
-    view_plant = PlantView(engine.vm_lang, engine.vm_plant, engine.ensure_plot_viewmodel("plant"))
+    vm_function = engine.ensure_function_viewmodel("excitation_target")
+    vm_function.set_selected_function(FunctionTypes.STEP)
+
+    vm_functions = {title.name: engine.ensure_function_viewmodel(title.name) for title in ExcitationTarget}
+
+    '''view_plant = PlantView(engine.vm_lang, engine.vm_plant, engine.ensure_plot_viewmodel("plant"))
     #print_tab_order(view_plant)
     view_plant.setWindowTitle(view_plant.__class__.__name__)
     view_plant.show()
 
-    vm_function = engine.ensure_function_viewmodel("excitation_target")
-    vm_function.set_selected_function(FunctionTypes.STEP)
     view_function = FunctionView(engine.vm_lang, engine.ensure_function_viewmodel("excitation_target"),
                                  engine.ensure_plot_viewmodel("function"))
     #print_tab_order(view_function)
@@ -83,14 +88,37 @@ if __name__ == '__main__':
     view_pso.setWindowTitle(view_pso.__class__.__name__)
     view_pso.show()
 
-    vm_functions = {title.name: engine.ensure_function_viewmodel(title.name)
-                    for title in [ViewTitle.REFERENCE, ViewTitle.INPUT_DISTURBANCE, ViewTitle.MEASUREMENT_DISTURBANCE]
-                    }
 
     view_evaluator = EvaluationView(engine.vm_lang, engine.vm_plant, engine.vm_evaluator, vm_functions,
                                     engine.ensure_plot_viewmodel("response"))
     # print_tab_order(view_evaluator)
     view_evaluator.setWindowTitle(view_evaluator.__class__.__name__)
-    view_evaluator.show()
+    view_evaluator.show()'''
+
+    items = [NavItem(key, "") for key in NavLabels]
+
+    view_factories = {
+        NavLabels.PLANT: lambda parent=None: PlantView(
+            engine.vm_lang, engine.vm_plant, engine.ensure_plot_viewmodel("plant"), parent=parent
+        ),
+        NavLabels.EXCITATION_FUNCTION: lambda parent=None: FunctionView(
+            engine.vm_lang, engine.ensure_function_viewmodel("excitation_target"),
+            engine.ensure_plot_viewmodel("function"), parent=parent
+        ),
+        NavLabels.CONTROLLER: lambda parent=None: ControllerView(
+            engine.vm_lang, engine.vm_controller, parent=parent
+        ),
+        NavLabels.PSO_PARAMETER: lambda parent=None: PsoConfigurationView(
+            engine.vm_lang, engine.vm_plant, engine.ensure_function_viewmodel("excitation_target"), engine.vm_pso,
+            parent=parent
+        ),
+        NavLabels.EVALUATION: lambda parent=None: EvaluationView(
+            engine.vm_lang, engine.vm_plant, engine.vm_evaluator, vm_functions,
+            engine.ensure_plot_viewmodel("response"), parent=parent
+        )
+    }
+
+    main_view = MainView(engine.vm_lang, items, view_factories)
+    main_view.show()
 
     sys.exit(app.exec())

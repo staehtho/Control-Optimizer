@@ -7,12 +7,12 @@ from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex
 from app_domain.functions import FunctionTypes
 
 
-class ViewTitle(Enum):
-    EXCITATION_TARGET = "Excitation Target"
-    CLOSED_LOOP = "Closed Loop"
-    REFERENCE = "Reference"
-    INPUT_DISTURBANCE = "Input Disturbance"
-    MEASUREMENT_DISTURBANCE = "Measurement Disturbance"
+class NavLabels(Enum):
+    PLANT = "Plant"
+    EXCITATION_FUNCTION = "Excitation Function"
+    CONTROLLER = "Controller"
+    PSO_PARAMETER = "PSO Parameter"
+    EVALUATION = "Evaluation"
 
 
 class Translation:
@@ -30,7 +30,7 @@ class Translation:
             ExcitationTarget: self._excitation_target_label,
             FunctionTypes: self._function_type_label,
             PerformanceIndex: self._performance_index_label,
-            ViewTitle: self._view_title_label,
+            NavLabels: self._nav_label,
         }
 
     def __call__(self, enum_type: Type[Any]) -> dict[Any, str]:
@@ -94,12 +94,12 @@ class Translation:
         }
 
     @staticmethod
-    def _view_title_label() -> dict[ViewTitle, str]:
-        """Return translated labels for Titles enum."""
+    def _nav_label() -> dict[NavLabels, str]:
+        """Return translated labels for NavLabel enum."""
         return {
-            ViewTitle.EXCITATION_TARGET: QCoreApplication.translate("ControlEnums", "Excitation Target"),
-            ViewTitle.CLOSED_LOOP: QCoreApplication.translate("ControlEnums", "Closed Loop"),
-            ViewTitle.REFERENCE: QCoreApplication.translate("ControlEnums", "Reference"),
-            ViewTitle.INPUT_DISTURBANCE: QCoreApplication.translate("ControlEnums", "Input Disturbance"),
-            ViewTitle.MEASUREMENT_DISTURBANCE: QCoreApplication.translate("ControlEnums", "Measurement Disturbance"),
+            NavLabels.PLANT: QCoreApplication.translate("ControlEnums", "Plant"),
+            NavLabels.EXCITATION_FUNCTION: QCoreApplication.translate("ControlEnums", "Excitation Function"),
+            NavLabels.CONTROLLER: QCoreApplication.translate("ControlEnums", "Controller"),
+            NavLabels.PSO_PARAMETER: QCoreApplication.translate("ControlEnums", "PSO Parameter"),
+            NavLabels.EVALUATION: QCoreApplication.translate("ControlEnums", "Evaluation"),
         }

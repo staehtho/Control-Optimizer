@@ -9,7 +9,6 @@ from utils import LatexRenderer
 from viewmodels import LanguageViewModel, PlantViewModel, EvaluationViewModel, FunctionViewModel, PlotViewModel
 from views import BaseView
 from views.widgets import PlotWidget, PlotConfiguration, FunctionWidget
-from views.translations import ViewTitle
 
 
 class EvaluationView(BaseView, QWidget):
@@ -146,10 +145,10 @@ class EvaluationView(BaseView, QWidget):
         frame_layout.addWidget(self._lbl_title_cl_response)
 
         self._cl_plot_cfg = PlotConfiguration(
-            context="ControlEnums",
-            title=self._enum_translation(ViewTitle).get(ViewTitle.CLOSED_LOOP),
-            x_label=str(QT_TRANSLATE_NOOP("ControlEnums", "Time [s]")),
-            y_label=str(QT_TRANSLATE_NOOP("ControlEnums", "Output"))
+            context="EvaluationView",
+            title=str(QT_TRANSLATE_NOOP("EvaluationView", "Closed Loop")),
+            x_label=str(QT_TRANSLATE_NOOP("EvaluationView", "Time [s]")),
+            y_label=str(QT_TRANSLATE_NOOP("EvaluationView", "Output"))
         )
 
         plot_view = PlotWidget(
@@ -193,7 +192,7 @@ class EvaluationView(BaseView, QWidget):
         """Update all UI texts after a language change."""
         self._lbl_title_cl.setText(self.tr("Closed Loop"))
         self._lbl_title_function.setText(self.tr("Excitation Function"))
-        self._lbl_title_cl_response.setText(self._enum_translation(ViewTitle).get(ViewTitle.CLOSED_LOOP))
+        self._lbl_title_cl_response.setText(self.tr("Closed Loop"))
 
         # translate pages
         for text, i in zip(ExcitationTarget, range(self._function_tab.count())):

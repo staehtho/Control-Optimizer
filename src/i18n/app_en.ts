@@ -15,19 +15,16 @@
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="70"/>
-        <location filename="../views/translations/enum_translations.py" line="102"/>
         <source>Reference</source>
         <translation>Reference</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="71"/>
-        <location filename="../views/translations/enum_translations.py" line="103"/>
         <source>Input Disturbance</source>
         <translation>Input Disturbance</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="72"/>
-        <location filename="../views/translations/enum_translations.py" line="104"/>
         <source>Measurement Disturbance</source>
         <translation>Measurement Disturbance</translation>
     </message>
@@ -73,22 +70,43 @@
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="100"/>
-        <source>Excitation Target</source>
-        <translation>Excitation Function</translation>
+        <source>Plant</source>
+        <translation>Plant</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="101"/>
-        <source>Closed Loop</source>
-        <translation>Closed Loop</translation>
+        <source>Excitation Function</source>
+        <translation>Excitation Function</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="139"/>
+        <location filename="../views/translations/enum_translations.py" line="102"/>
+        <source>Controller</source>
+        <translation>Controller</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="103"/>
+        <source>PSO Parameter</source>
+        <translation>PSO Parameter</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="104"/>
+        <source>Evaluation</source>
+        <translation>Evaluation</translation>
+    </message>
+    <message>
+        <source>Excitation Target</source>
+        <translation type="vanished">Excitation Function</translation>
+    </message>
+    <message>
+        <source>Closed Loop</source>
+        <translation type="vanished">Closed Loop</translation>
+    </message>
+    <message>
         <location filename="../views/function_view.py" line="72"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="140"/>
         <location filename="../views/function_view.py" line="73"/>
         <source>Output</source>
         <translation>Output</translation>
@@ -130,12 +148,24 @@
 <context>
     <name>EvaluationView</name>
     <message>
-        <location filename="../views/evaluation_view.py" line="180"/>
+        <location filename="../views/evaluation_view.py" line="149"/>
+        <location filename="../views/evaluation_view.py" line="193"/>
+        <location filename="../views/evaluation_view.py" line="195"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="181"/>
+        <location filename="../views/evaluation_view.py" line="150"/>
+        <source>Time [s]</source>
+        <translation>Time [s]</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="151"/>
+        <source>Output</source>
+        <translation>Output</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="194"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
     </message>
@@ -196,6 +226,25 @@
         <location filename="../views/function_view.py" line="110"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
+    </message>
+</context>
+<context>
+    <name>MainView</name>
+    <message>
+        <location filename="../views/main_view.py" line="52"/>
+        <source>Control Optimizer</source>
+        <translation>Control Optimizer</translation>
+    </message>
+</context>
+<context>
+    <name>NavigationWidget</name>
+    <message>
+        <source>Navigation</source>
+        <translation type="vanished">Navigation</translation>
+    </message>
+    <message>
+        <source>Choose the section to configure or inspect.</source>
+        <translation type="vanished">Choose the section to configure or inspect.</translation>
     </message>
 </context>
 <context>

@@ -1,1 +1,1 @@
-from .enum_translations import ViewTitle, Translation
+from .enum_translations import Translation, NavLabels

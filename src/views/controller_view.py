@@ -19,8 +19,8 @@ FIELDS: list[FieldConfig] = [
 
 
 class ControllerView(BaseView, QWidget):
-    def __init__(self, vm_lang: LanguageViewModel, vm_controller: ControllerViewModel):
-        QWidget.__init__(self)
+    def __init__(self, vm_lang: LanguageViewModel, vm_controller: ControllerViewModel, parent: QWidget = None):
+        QWidget.__init__(self, parent)
 
         self._vm_controller = vm_controller
 
