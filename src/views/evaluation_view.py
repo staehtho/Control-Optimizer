@@ -161,12 +161,11 @@ class EvaluationView(BaseView, QWidget):
         """Update all UI texts after a language change."""
         self._lbl_title_cl.setText(self.tr("Closed Loop"))
         self._lbl_title_function.setText(self.tr("Excitation Function"))
-        self._lbl_title_cl_response.setText(self.tr("Closed Loop Response"))
+        self._lbl_title_cl_response.setText(self._enum_translation(ViewTitle).get(ViewTitle.CLOSED_LOOP))
 
         # translate pages
-        translation = Translation()
         for text, i in zip(ExcitationTarget, range(self._function_tab.count())):
-            new_label = translation(ExcitationTarget).get(text)
+            new_label = self._enum_translation(ExcitationTarget).get(text)
             self._function_tab.setTabText(i, new_label)
 
     # -------------------------------------------------

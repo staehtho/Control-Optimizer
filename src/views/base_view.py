@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from typing import Type
 
 from viewmodels import LanguageViewModel
+from views.translations import Translation
 
 
 @dataclass
@@ -42,6 +43,7 @@ class BaseView:
         # -----------------------------
         # Store reference to the LanguageViewModel
         self._vm_lang = vm_lang
+        self._enum_translation = Translation()
         # Connect signal: whenever language changes, call _retranslate
         self._vm_lang.languageChanged.connect(self._retranslate)
 

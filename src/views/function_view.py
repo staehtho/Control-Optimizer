@@ -9,7 +9,7 @@ from app_domain.functions import FunctionTypes, resolve_function_type
 from utils import LatexRenderer
 from viewmodels import LanguageViewModel, FunctionViewModel, PlotViewModel
 from views import BaseView, PlotView, PlotConfiguration
-from views.translations import Translation, ViewTitle
+from views.translations import ViewTitle
 
 
 class FunctionView(BaseView, QWidget):
@@ -65,9 +65,8 @@ class FunctionView(BaseView, QWidget):
         frame.setLayout(self._frame_layout)
         main_layout.addWidget(frame)
 
-        translation = Translation()
         function_type = resolve_function_type(self._vm_function.selected_function)
-        title = translation(FunctionTypes).get(function_type)
+        title = self._enum_translation(FunctionTypes).get(function_type)
 
         self._plot_cfg = PlotConfiguration(
             context="ControlEnums",
@@ -77,13 +76,13 @@ class FunctionView(BaseView, QWidget):
             show_start_end_time=self._show_start_end_time,
         )
 
-        self._plot_view = PlotView(
+        plot_view = PlotView(
             self._vm_plot,
             self._plot_cfg,
             self._vm_lang,
         )
 
-        main_layout.addWidget(self._plot_view)
+        main_layout.addWidget(plot_view)
         self.setLayout(main_layout)
 
     def _init_param_grid(self) -> QGridLayout:
@@ -172,10 +171,10 @@ class FunctionView(BaseView, QWidget):
     # -------------------------------------------------
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
-        translation = Translation()
-        self._lbl_title.setText(translation(ViewTitle).get(self._title))
 
-        function_labels = Translation()(FunctionTypes)
+        self._lbl_title.setText(self._enum_translation(ViewTitle).get(self._title))
+
+        function_labels = self._enum_translation(FunctionTypes)
         selected_type = resolve_function_type(self._vm_function.selected_function)
 
         was_blocked = self._cmb_function.blockSignals(True)
@@ -218,9 +217,8 @@ class FunctionView(BaseView, QWidget):
         self._param_grid = self._init_param_grid()
         self._frame_layout.addLayout(self._param_grid)
 
-        translation = Translation()
         function_type = resolve_function_type(self._vm_function.selected_function)
-        self._plot_cfg.title = translation(FunctionTypes).get(function_type)
+        self._plot_cfg.title = self._enum_translation(FunctionTypes).get(function_type)
 
     def _on_vm_compute_finished(self, t: ndarray, y: ndarray) -> None:
         """Update plot data after function computation completes."""

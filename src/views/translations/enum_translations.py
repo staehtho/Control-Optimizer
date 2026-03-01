@@ -9,6 +9,7 @@ from app_domain.functions import FunctionTypes
 
 class ViewTitle(Enum):
     EXCITATION_TARGET = "Excitation Target"
+    CLOSED_LOOP = "Closed Loop"
     REFERENCE = "Reference"
     INPUT_DISTURBANCE = "Input Disturbance"
     MEASUREMENT_DISTURBANCE = "Measurement Disturbance"
@@ -96,6 +97,7 @@ class Translation:
         """Return translated labels for Titles enum."""
         return {
             ViewTitle.EXCITATION_TARGET: QCoreApplication.translate("ControlEnums", "Excitation Target"),
+            ViewTitle.CLOSED_LOOP: QCoreApplication.translate("ControlEnums", "Closed Loop"),
             ViewTitle.REFERENCE: QCoreApplication.translate("ControlEnums", "Reference"),
             ViewTitle.INPUT_DISTURBANCE: QCoreApplication.translate("ControlEnums", "Input Disturbance"),
             ViewTitle.MEASUREMENT_DISTURBANCE: QCoreApplication.translate("ControlEnums", "Measurement Disturbance"),
