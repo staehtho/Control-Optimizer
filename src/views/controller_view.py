@@ -1,6 +1,6 @@
 from functools import partial
 
-from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QVBoxLayout, QFrame, QLineEdit, QCheckBox
+from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QVBoxLayout, QFrame, QLineEdit
 
 from app_domain.controlsys import AntiWindup
 from viewmodels import LanguageViewModel, ControllerViewModel
@@ -31,19 +31,15 @@ class ControllerView(BaseView, QWidget):
     # -------------------------------------------------
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
-        main_layout = QVBoxLayout()
+        main_layout = self._create_page_layout()
 
         main_layout.addWidget(self._create_controller_frame())
+        main_layout.addStretch()
 
         self.setLayout(main_layout)
 
     def _create_controller_frame(self) -> QFrame:
-
-        frame = QFrame()
-        frame.setFrameShape(QFrame.StyledPanel)  # type: ignore[attr-defined]
-        frame.setFrameShadow(QFrame.Raised)  # type: ignore[attr-defined]
-
-        frame_layout = QVBoxLayout(frame)
+        frame, frame_layout = self._create_card()
 
         # Title
         self._lbl_title_controller = QLabel()

@@ -1,7 +1,7 @@
 from functools import partial
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QComboBox, QGridLayout, QLabel, QLineEdit
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QComboBox, QGridLayout, QLabel, QLineEdit, QFrame
 from PySide6.QtGui import QDoubleValidator
 
 from app_domain.functions import resolve_function_type, FunctionTypes
@@ -37,19 +37,16 @@ class FunctionWidget(BaseView, QWidget):
     # -------------------------------------------------
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
-        main_layout = QVBoxLayout()
+        main_layout = self._create_page_layout()
 
-        self._function_layout = self._create_function_selector_layout()
-        main_layout.addLayout(self._function_layout)
-
-        main_layout.addStretch()
+        frame = self._create_function_selector_layout()
+        main_layout.addWidget(frame)
 
         main_layout.addStretch()
         self.setLayout(main_layout)
 
-    def _create_function_selector_layout(self) -> QVBoxLayout:
-
-        frame_layout = QVBoxLayout()
+    def _create_function_selector_layout(self) -> QFrame:
+        frame, frame_layout = self._create_card()
 
         self._cmb_function = QComboBox()
         frame_layout.addWidget(self._cmb_function)
@@ -60,7 +57,8 @@ class FunctionWidget(BaseView, QWidget):
         self._param_widget.setLayout(self._param_grid)
         frame_layout.addWidget(self._param_widget)
 
-        return frame_layout
+        self._function_layout = frame_layout
+        return frame
 
     def _create_param_grid(self, show_formula: bool = True) -> QGridLayout:
         """Create and populate the parameter grid."""

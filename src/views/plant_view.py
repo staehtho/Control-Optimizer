@@ -37,7 +37,7 @@ class PlantView(BaseView, QWidget):
         regex = QRegularExpression(r"[0-9.,\-\s]*")
         validator = QRegularExpressionValidator(regex)
 
-        main_layout = QVBoxLayout()
+        main_layout = self._create_page_layout()
 
         # Title
         self._lbl_title = QLabel()
@@ -45,11 +45,10 @@ class PlantView(BaseView, QWidget):
 
         main_layout.addWidget(self._lbl_title)
 
-        frame = QFrame()
-        frame.setFrameShape(QFrame.StyledPanel) # type: ignore[attr-defined]
-        frame.setFrameShadow(QFrame.Raised) # type: ignore[attr-defined]
-
+        frame, frame_vlayout = self._create_card()
         frame_layout = QGridLayout()
+        frame_layout.setHorizontalSpacing(10)
+        frame_layout.setVerticalSpacing(10)
         frame_layout.setColumnStretch(2, 1)
 
         # -------------------
@@ -108,7 +107,7 @@ class PlantView(BaseView, QWidget):
 
         frame_layout.addWidget(scroll_formula, 0, 2, 4, 1)
 
-        frame.setLayout(frame_layout)
+        frame_vlayout.addLayout(frame_layout)
         main_layout.addWidget(frame)
 
         # -------------------
@@ -124,6 +123,7 @@ class PlantView(BaseView, QWidget):
         self._plot_view = PlotWidget(self._vm_plot, plot_cfg, self._vm_lang)
 
         main_layout.addWidget(self._plot_view)
+        main_layout.addStretch()
 
         self.setLayout(main_layout)
 

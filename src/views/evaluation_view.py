@@ -1,6 +1,6 @@
 from functools import partial
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QFrame, QLabel, QTabWidget, QScrollArea, QSizePolicy
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QFrame, QLabel, QTabWidget, QSizePolicy
 from PySide6.QtCore import Qt, QT_TRANSLATE_NOOP
 from numpy import ndarray
 
@@ -40,7 +40,8 @@ class EvaluationView(BaseView, QWidget):
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
         content_widget = QWidget()
-        main_layout = QVBoxLayout(content_widget)
+        main_layout = self._create_page_layout()
+        content_widget.setLayout(main_layout)
 
         cl_frame = self._create_cl_frame()
         function_frame = self._create_function_frame()
@@ -57,23 +58,15 @@ class EvaluationView(BaseView, QWidget):
         main_layout.addWidget(function_frame, 0)
         main_layout.addWidget(response_frame, 1)
 
-        # Scroll area
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setWidget(content_widget)
-
-        # Outer layout for your view
-        outer_layout = QVBoxLayout()
+        # Outer layout for this view
+        outer_layout = self._create_page_layout()
+        scroll = self._wrap_in_scroll_area(content_widget)
         outer_layout.addWidget(scroll)
 
         self.setLayout(outer_layout)
 
     def _create_cl_frame(self) -> QFrame:
-        frame = QFrame()
-        frame.setFrameShape(QFrame.StyledPanel)  # type: ignore[attr-defined]
-        frame.setFrameShadow(QFrame.Raised)  # type: ignore[attr-defined]
-
-        frame_layout = QVBoxLayout(frame)
+        frame, frame_layout = self._create_card()
 
         # Title
         self._lbl_title_cl = QLabel()
@@ -102,11 +95,7 @@ class EvaluationView(BaseView, QWidget):
         return frame
 
     def _create_function_frame(self) -> QFrame:
-        frame = QFrame()
-        frame.setFrameShape(QFrame.StyledPanel)  # type: ignore[attr-defined]
-        frame.setFrameShadow(QFrame.Raised)  # type: ignore[attr-defined]
-
-        frame_layout = QVBoxLayout(frame)
+        frame, frame_layout = self._create_card()
 
         # Title
         self._lbl_title_function = QLabel()
@@ -133,11 +122,7 @@ class EvaluationView(BaseView, QWidget):
         return frame
 
     def _create_cl_response_frame(self) -> QFrame:
-        frame = QFrame()
-        frame.setFrameShape(QFrame.StyledPanel)  # type: ignore[attr-defined]
-        frame.setFrameShadow(QFrame.Raised)  # type: ignore[attr-defined]
-
-        frame_layout = QVBoxLayout(frame)
+        frame, frame_layout = self._create_card()
 
         # Title
         self._lbl_title_cl_response = QLabel()

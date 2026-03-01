@@ -32,8 +32,7 @@ class FunctionView(BaseView, QWidget):
     # -------------------------------------------------
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
-
-        main_layout = QVBoxLayout()
+        main_layout = self._create_page_layout()
 
         # Title
         self._lbl_title = QLabel()
@@ -44,16 +43,10 @@ class FunctionView(BaseView, QWidget):
         main_layout.addWidget(self._create_plot_widget())
 
         main_layout.addStretch()
-
-        main_layout.addStretch()
         self.setLayout(main_layout)
 
     def _create_function_frame(self) -> QFrame:
-        frame = QFrame()
-        frame.setFrameShape(QFrame.StyledPanel)  # type: ignore[attr-defined]
-        frame.setFrameShadow(QFrame.Raised)  # type: ignore[attr-defined]
-
-        frame_layout = QVBoxLayout(frame)
+        frame, frame_layout = self._create_card()
 
         self._function_widget = FunctionWidget(
             self._vm_lang, self._vm_function, [FunctionTypes.NULL], self

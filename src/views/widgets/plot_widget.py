@@ -1,9 +1,12 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QCheckBox, QLineEdit, QSizePolicy, QFrame
+from pathlib import Path
+
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QCheckBox, QLineEdit, QSizePolicy
 from PySide6.QtCore import QCoreApplication, QObject
-from PySide6.QtGui import QDoubleValidator
+from PySide6.QtGui import QDoubleValidator, QColor, QPainter, QPixmap, QIcon
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
+from matplotlib import cbook
 from dataclasses import dataclass
 
 from viewmodels import PlotViewModel, LanguageViewModel
@@ -34,29 +37,24 @@ class PlotWidget(BaseView, QWidget):
     # -------------------------------------------------
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
-        main_layout = QVBoxLayout()
+        main_layout = self._create_page_layout()
         main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.setSpacing(0)
 
-        frame = QFrame()
-        frame.setFrameShape(QFrame.StyledPanel)  # type: ignore[attr-defined]
-        frame.setFrameShadow(QFrame.Raised)  # type: ignore[attr-defined]
-
-        frame_layout = QVBoxLayout()
+        frame, frame_layout = self._create_card()
         frame_layout.addLayout(self._create_header())
 
         # figure
-        self._figure = Figure(constrained_layout=True)
+        self._figure = Figure()
         self._canvas = FigureCanvas(self._figure)
         self._toolbar = NavigationToolbar(self._canvas, self)
         self._canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore[attr-defined]
         self._canvas.setMinimumSize(400, 250)
+        self._apply_toolbar_icons()
         self._update_plot()
 
         frame_layout.addWidget(self._toolbar)
         frame_layout.addWidget(self._canvas)
 
-        frame.setLayout(frame_layout)
         main_layout.addWidget(frame)
         self.setLayout(main_layout)
 
@@ -211,3 +209,57 @@ class PlotWidget(BaseView, QWidget):
     def resizeEvent(self, event) -> None:
         self._canvas.draw_idle()
         super().resizeEvent(event)
+
+    def _on_theme_applied(self) -> None:
+        self._apply_toolbar_icons()
+
+    def _apply_toolbar_icons(self) -> None:
+        if not hasattr(self, "_toolbar"):
+            return
+
+        app_theme = QCoreApplication.instance().property("appTheme")
+        icon_color = QColor("#17212b") if app_theme == "light" else QColor("#e2e8f0")
+
+        image_keys = {}
+        for item in getattr(self._toolbar, "toolitems", []):
+            if not item:
+                continue
+            text, _tooltip, image_file, _callback = item
+            if text and image_file:
+                image_keys[text] = image_file
+
+        for action in self._toolbar.actions():
+            key = image_keys.get(action.text())
+            if key is None:
+                continue
+
+            icon = self._build_tinted_icon(key, icon_color)
+            if not icon.isNull():
+                action.setIcon(icon)
+
+    @staticmethod
+    def _build_tinted_icon(image_key: str, color: QColor) -> QIcon:
+        candidates = [
+            Path(cbook._get_data_path("images", f"{image_key}.png")),
+            Path(cbook._get_data_path("images", f"{image_key}_large.png")),
+            Path(cbook._get_data_path("images", f"{image_key}.svg")),
+        ]
+
+        source = next((path for path in candidates if path.exists()), None)
+        if source is None:
+            return QIcon()
+
+        pixmap = QPixmap(str(source))
+        if pixmap.isNull():
+            return QIcon()
+
+        tinted = QPixmap(pixmap.size())
+        tinted.fill(QColor(0, 0, 0, 0))
+
+        painter = QPainter(tinted)
+        painter.drawPixmap(0, 0, pixmap)
+        painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
+        painter.fillRect(tinted.rect(), color)
+        painter.end()
+
+        return QIcon(tinted)

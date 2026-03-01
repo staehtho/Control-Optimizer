@@ -17,13 +17,19 @@ class LatexRenderer:
 
         app = QApplication.instance()
 
-        # --- Farbe ---
-        qt_color = app.palette().color(QPalette.Text)
-        color = (
-            qt_color.redF(),
-            qt_color.greenF(),
-            qt_color.blueF(),
-        )
+        # --- Color from active app theme ---
+        app_theme = app.property("appTheme")
+        if app_theme == "light":
+            color = (0.09, 0.13, 0.17)
+        elif app_theme == "dark":
+            color = (0.90, 0.93, 0.96)
+        else:
+            qt_color = app.palette().color(QPalette.Text)
+            color = (
+                qt_color.redF(),
+                qt_color.greenF(),
+                qt_color.blueF(),
+            )
 
         # --- Qt Font & DPI ---
         font = app.font()

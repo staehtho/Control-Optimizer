@@ -2,8 +2,7 @@ from dataclasses import dataclass
 from functools import partial
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QFrame, QLabel, QPushButton, QSizePolicy
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QSizePolicy
 
 from viewmodels import LanguageViewModel
 from views import BaseView
@@ -33,18 +32,18 @@ class NavigationWidget(BaseView, QWidget):
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
         self.setFixedWidth(220)
+        self.setObjectName("card")
 
         self._layout = QVBoxLayout()
-        self._layout.setContentsMargins(10, 20, 10, 20)
-        self._layout.setSpacing(6)
+        self._layout.setContentsMargins(12, 14, 12, 14)
+        self._layout.setSpacing(8)
         self.setLayout(self._layout)
-
-        self._toggle_btn = QPushButton("☰")
+        # TODO: nicht "Menu" sondern einen Pfeil < und >
+        self._toggle_btn = QPushButton("Menu")
         self._layout.insertWidget(0, self._toggle_btn)
 
         for item in self._nav_items:
             btn = QPushButton()
-            # btn.setIcon(QIcon(item.icon))
             btn.setCheckable(True)
             btn.setCursor(Qt.PointingHandCursor)
             btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)

@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QStackedWidget
+from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QStackedWidget
 
 from viewmodels import LanguageViewModel
 from views import BaseView
@@ -23,13 +23,17 @@ class MainView(BaseView, QMainWindow):
         """Create and configure all UI components."""
         central = QWidget()
         layout = QHBoxLayout(central)
+        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setSpacing(12)
         self.setCentralWidget(central)
 
         self._nav = NavigationWidget(self._vm_lang, self._nav_items, self)
-        self._stack = QStackedWidget()
+        stack_frame, stack_layout = self._create_card()
+        self._stack = QStackedWidget(stack_frame)
+        stack_layout.addWidget(self._stack)
 
         layout.addWidget(self._nav)
-        layout.addWidget(self._stack)
+        layout.addWidget(stack_frame, 1)
 
     # -------------------------------------------------
     # Signal / ViewModel Binding

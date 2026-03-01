@@ -55,22 +55,18 @@ class PsoConfigurationView(BaseView, QWidget):
     # -------------------------------------------------
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
-        main_layout = QVBoxLayout()
+        main_layout = self._create_page_layout()
 
         main_layout.addWidget(self._create_plant_frame())
         main_layout.addWidget(self._create_function_frame())
         main_layout.addWidget(self._create_control_frame())
         main_layout.addWidget(self._create_run_pso_frame())
+        main_layout.addStretch()
 
         self.setLayout(main_layout)
 
     def _create_plant_frame(self) -> QFrame:
-
-        frame = QFrame()
-        frame.setFrameShape(QFrame.StyledPanel)  # type: ignore[attr-defined]
-        frame.setFrameShadow(QFrame.Raised)  # type: ignore[attr-defined]
-
-        frame_layout = QVBoxLayout(frame)
+        frame, frame_layout = self._create_card()
 
         # Title
         self._lbl_title_plant = QLabel()
@@ -95,12 +91,7 @@ class PsoConfigurationView(BaseView, QWidget):
         return frame
 
     def _create_function_frame(self) -> QFrame:
-
-        frame = QFrame()
-        frame.setFrameShape(QFrame.StyledPanel)  # type: ignore[attr-defined]
-        frame.setFrameShadow(QFrame.Raised)  # type: ignore[attr-defined]
-
-        frame_layout = QVBoxLayout(frame)
+        frame, frame_layout = self._create_card()
 
         # Title
         self._lbl_title_function = QLabel()
@@ -127,12 +118,7 @@ class PsoConfigurationView(BaseView, QWidget):
         return frame
 
     def _create_control_frame(self) -> QFrame:
-
-        frame = QFrame()
-        frame.setFrameShape(QFrame.StyledPanel)  # type: ignore[attr-defined]
-        frame.setFrameShadow(QFrame.Raised)  # type: ignore[attr-defined]
-
-        frame_layout = QVBoxLayout(frame)
+        frame, frame_layout = self._create_card()
 
         # Title
         self._lbl_title_control = QLabel()
@@ -144,11 +130,7 @@ class PsoConfigurationView(BaseView, QWidget):
         return frame
 
     def _create_run_pso_frame(self) -> QFrame:
-        frame = QFrame()
-        frame.setFrameShape(QFrame.StyledPanel)  # type: ignore[attr-defined]
-        frame.setFrameShadow(QFrame.Raised)  # type: ignore[attr-defined]
-
-        frame_layout = QVBoxLayout(frame)
+        frame, frame_layout = self._create_card()
 
         # Title
         self._lbl_title_run_pso = QLabel()
