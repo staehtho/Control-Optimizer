@@ -15,7 +15,7 @@ class EvaluationView(BaseView, QWidget):
             vm_plant: PlantViewModel,
             vm_evaluator: EvaluationViewModel,
             vm_functions: dict[str, FunctionViewModel],
-            vm_plots: dict[str, PlotViewModel],
+            vm_plots: dict[str, dict[str, PlotViewModel]],
             parent: QWidget = None
     ):
         QWidget.__init__(self, parent)
@@ -41,6 +41,7 @@ class EvaluationView(BaseView, QWidget):
 
         main_layout.addWidget(self._create_cl_frame())
         main_layout.addWidget(self._create_function_frame())
+        main_layout.addWidget(self._create_cl_response_frame())
 
         # Scroll area
         scroll = QScrollArea()
@@ -111,11 +112,31 @@ class EvaluationView(BaseView, QWidget):
         for key in self._vm_functions.keys():
             function_page = QWidget()
             function_page_layout = QVBoxLayout(function_page)
-            function_view = FunctionView(self._vm_lang, self._vm_functions[key], self._vm_plots[key], ViewTitle[key])
+            function_view = FunctionView(
+                self._vm_lang,
+                self._vm_functions[key],
+                self._vm_plots.get("excitation").get(key),
+                ViewTitle[key],
+                show_start_end_time=False
+            )
             function_page_layout.addWidget(function_view)
 
             self._function_tab_pages.setdefault(key, function_page)
             self._function_tab.addTab(function_page, key)
+
+        return frame
+
+    def _create_cl_response_frame(self) -> QFrame:
+        frame = QFrame()
+        frame.setFrameShape(QFrame.StyledPanel)  # type: ignore[attr-defined]
+        frame.setFrameShadow(QFrame.Raised)  # type: ignore[attr-defined]
+
+        frame_layout = QVBoxLayout(frame)
+
+        # Title
+        self._lbl_title_cl_response = QLabel()
+        self._apply_title_property(self._lbl_title_cl_response)
+        frame_layout.addWidget(self._lbl_title_cl_response)
 
         return frame
 
@@ -140,6 +161,7 @@ class EvaluationView(BaseView, QWidget):
         """Update all UI texts after a language change."""
         self._lbl_title_cl.setText(self.tr("Closed Loop"))
         self._lbl_title_function.setText(self.tr("Excitation Function"))
+        self._lbl_title_cl_response.setText(self.tr("Closed Loop Response"))
 
         # translate pages
         translation = Translation()

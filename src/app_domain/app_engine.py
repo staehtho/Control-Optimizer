@@ -67,7 +67,7 @@ class AppEngine:
         self.vm_pso = PsoConfigurationViewModel(self.model_container, self.simulation_service)
 
         # Evaluation ViewModel
-        self.vm_evaluator = EvaluationViewModel(self.model_container.model_evaluator, self.vm_pso)
+        self.vm_evaluator = EvaluationViewModel(self.model_container, self.vm_pso, self.simulation_service)
 
         self.logger.info("Application Engine initialization completed.")
 

@@ -11,12 +11,14 @@ from infrastructure import PlantStepResponseWorker, FunctionWorker, PsoSimulatio
 
 
 class SimulationService:
-    """Application service to orchestrate simulation computations.
+    """Application service that orchestrates asynchronous simulations.
 
-    Handles asynchronous execution of Engines via Workers and
-    provides a simple interface for ViewModels.
+    The service wires domain engines to Qt worker threads and exposes
+    callback-based methods for ViewModels.
     """
+
     def __init__(self):
+        """Initialize engines and worker slots used for async execution."""
         self._logger = logging.getLogger(f"{self.__class__.__name__}.{id(self)}")
         self._logger.debug("SimulationService initialized.")
         self._step_engine = PlantStepResponseEngine()
@@ -29,8 +31,15 @@ class SimulationService:
         self._pso_simulation_worker = None
         self._closed_loop_worker = None
 
-    # Plant Step Response
-    def compute_step_response(self, num: list[float], den: list[float], t0: float, t1: float, solver: MySolver, callback: Callable[[ndarray, ndarray], None]) -> None:
+    def compute_step_response(
+            self,
+            num: list[float],
+            den: list[float],
+            t0: float,
+            t1: float,
+            solver: MySolver,
+            callback: Callable[[ndarray, ndarray], None],
+    ) -> None:
         """Compute a step response asynchronously using a worker.
 
         Args:
@@ -38,8 +47,8 @@ class SimulationService:
             den: Plant denominator coefficients.
             t0: Start time.
             t1: End time.
-            solver: Solver instance for simulation.
-            callback: Callable to invoke with (t, y) when computation finishes.
+            solver: Numerical solver used by the simulation backend.
+            callback: Function invoked with ``(t, y)`` when the worker completes.
         """
         if self._step_worker and self._step_worker.isRunning():
             self._logger.warning("StepResponseWorker is busy. Ignoring request.")
@@ -50,14 +59,18 @@ class SimulationService:
         self._step_worker.resultReady.connect(callback)
         self._step_worker.start()
 
-    # Function computation
-    def compute_function(self, t: ndarray, func: Callable[[ndarray], ndarray], callback: Callable[[ndarray, ndarray], None]) -> None:
+    def compute_function(
+            self,
+            t: ndarray,
+            func: Callable[[ndarray], ndarray],
+            callback: Callable[[ndarray, ndarray], None],
+    ) -> None:
         """Compute a function asynchronously.
 
         Args:
             t: Input time vector.
-            func: Callable function mapping t -> y.
-            callback: Callable to invoke with (t, y) when computation finishes.
+            func: Callable mapping ``t -> y``.
+            callback: Function invoked with ``(t, y)`` when the worker completes.
         """
         if self._function_worker and self._function_worker.isRunning():
             self._logger.warning("FunctionWorker is busy. Ignoring request.")
@@ -72,26 +85,19 @@ class SimulationService:
             self,
             pso_simulation_param: PsoSimulationParam,
             callback: Callable[[PsoResult], None],
-            progress_callback: Callable[[int], None]
+            progress_callback: Callable[[int], None],
     ) -> None:
         """Run a PSO-based PID optimization asynchronously.
 
-        Starts a PsoSimulationWorker that executes the PSO optimization
-        in a background thread. Progress updates are emitted after each
-        completed PSO iteration, and the final optimized result is
-        returned via the provided callback when the computation finishes.
-
-        If a PSO simulation is already running, the request is ignored.
+        Starts a ``PsoSimulationWorker`` in a background thread. Progress
+        updates are forwarded after each completed iteration, and the final
+        result is emitted via the completion callback. If a simulation is
+        already running, the request is ignored.
 
         Args:
-            pso_simulation_param: Container holding all simulation and
-                optimization parameters.
-            callback: Callable invoked with the PsoResult once the
-                optimization has completed successfully.
-            progress_callback: Callable invoked after each completed
-                PSO iteration. Receives the current iteration index
-                (int) and can be used to update a progress indicator
-                such as a QProgressBar.
+            pso_simulation_param: Full optimization configuration.
+            callback: Function invoked with the final ``PsoResult``.
+            progress_callback: Function invoked with the current iteration index.
         """
         if self._pso_simulation_worker and self._pso_simulation_worker.isRunning():
             self._logger.warning("PsoSimulationWorker is busy. Ignoring request.")
@@ -103,8 +109,17 @@ class SimulationService:
         self._pso_simulation_worker.progressChanged.connect(progress_callback)
         self._pso_simulation_worker.start()
 
-    def compute_closed_loop_response(self, context: ClosedLoopResponseContext,
-                                     callback: Callable[[ndarray, ndarray], None]) -> None:
+    def compute_closed_loop_response(
+            self,
+            context: ClosedLoopResponseContext,
+            callback: Callable[[ndarray, ndarray], None],
+    ) -> None:
+        """Compute a closed-loop response asynchronously.
+
+        Args:
+            context: Closed-loop simulation inputs and disturbance signals.
+            callback: Function invoked with ``(t, y)`` when the worker completes.
+        """
         if self._closed_loop_worker and self._closed_loop_worker.isRunning():
             self._logger.warning("ClosedLoopResponseWorker is busy. Ignoring request.")
             return

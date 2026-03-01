@@ -1,9 +1,11 @@
 import pytest
 from PySide6.QtTest import QSignalSpy
 from PySide6.QtCore import Signal, QObject
+from unittest.mock import MagicMock
 
+from service import SimulationService
 from app_domain.engine import PsoResult
-from models import EvaluationModel
+from models import ModelContainer
 from viewmodels import EvaluationViewModel
 
 
@@ -22,14 +24,19 @@ class DummyVm(QObject):
 
 
 @pytest.fixture
-def model_evaluator() -> EvaluationModel:
-    return EvaluationModel()
+def mock_simulation_service() -> MagicMock:
+    return MagicMock(spec=SimulationService)
 
 
 @pytest.fixture
-def vm_evaluator(model_evaluator: EvaluationModel) -> EvaluationViewModel:
+def model_container() -> ModelContainer:
+    return ModelContainer()
+
+
+@pytest.fixture
+def vm_evaluator(model_container: ModelContainer, mock_simulation_service) -> EvaluationViewModel:
     vm_dummy = DummyVm()
-    return EvaluationViewModel(model_evaluator, vm_dummy)
+    return EvaluationViewModel(model_container, vm_dummy, mock_simulation_service)
 
 
 @pytest.mark.parametrize(
@@ -46,7 +53,7 @@ def vm_evaluator(model_evaluator: EvaluationModel) -> EvaluationViewModel:
     ],
 )
 def test_property_update_emits_only_on_change(
-        model_evaluator: EvaluationModel,
+        model_container: ModelContainer,
         vm_evaluator: EvaluationViewModel,
         attribute: str,
         signal: str,
@@ -54,12 +61,12 @@ def test_property_update_emits_only_on_change(
         value: float,
         expected_signal_count: int,
 ) -> None:
-    setattr(model_evaluator, attribute, init_value)
+    setattr(model_container, attribute, init_value)
 
     spy = QSignalSpy(getattr(vm_evaluator, signal))
     setattr(vm_evaluator, attribute, value)
 
-    assert getattr(model_evaluator, attribute) == getattr(vm_evaluator, attribute)
+    assert getattr(model_container.model_evaluator, attribute) == getattr(vm_evaluator, attribute)
     assert spy.size() == expected_signal_count
 
 

@@ -70,7 +70,7 @@ if __name__ == '__main__':
     view_function.show()
 
     view_controller = ControllerView(engine.vm_lang, engine.vm_controller)
-    # print_tab_order(view_controller)
+    ## print_tab_order(view_controller)
     view_controller.setWindowTitle(view_controller.__class__.__name__)
     view_controller.show()
 
@@ -84,8 +84,12 @@ if __name__ == '__main__':
                     for title in [ViewTitle.REFERENCE, ViewTitle.INPUT_DISTURBANCE, ViewTitle.MEASUREMENT_DISTURBANCE]
                     }
 
-    vm_plots = {title.name: engine.ensure_plot_viewmodel(title.name)
-                for title in [ViewTitle.REFERENCE, ViewTitle.INPUT_DISTURBANCE, ViewTitle.MEASUREMENT_DISTURBANCE]
+    vm_plots = {"excitation":
+                    {title.name: engine.ensure_plot_viewmodel(title.name)
+                     for title in
+                     [ViewTitle.REFERENCE, ViewTitle.INPUT_DISTURBANCE, ViewTitle.MEASUREMENT_DISTURBANCE]
+                     },
+                "time_domain": {"response": engine.ensure_plot_viewmodel("response")},
                 }
 
     view_evaluator = EvaluationView(engine.vm_lang, engine.vm_plant, engine.vm_evaluator, vm_functions, vm_plots)
