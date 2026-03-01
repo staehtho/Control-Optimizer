@@ -1,4 +1,4 @@
-from app_domain.functions import StepFunction
+from app_domain.functions import NullFunction
 from models import PlantModel, SettingsModel, FunctionModel, PsoConfigurationModel, ControllerModel, EvaluationModel
 
 class ModelContainer:
@@ -25,4 +25,4 @@ class ModelContainer:
         Returns:
             FunctionModel: The cached or newly created FunctionModel instance.
         """
-        return self._model_functions.setdefault(key, FunctionModel(StepFunction()))
+        return self._model_functions.setdefault(key, FunctionModel(NullFunction()))

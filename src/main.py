@@ -6,6 +6,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QWidget
 
 from app_domain import AppEngine
+from app_domain.functions import FunctionTypes
 from views import PlantView, FunctionView, FunctionConfiguration, ControllerView, PsoConfigurationView, EvaluationView
 from views.translations import ViewTitle
 
@@ -65,7 +66,10 @@ if __name__ == '__main__':
 
     cfg = FunctionConfiguration(
         title=ViewTitle.EXCITATION_TARGET,
+        excluded_functions=[FunctionTypes.NULL]
     )
+    vm_function = engine.ensure_function_viewmodel("excitation_target")
+    vm_function.set_selected_function(FunctionTypes.STEP)
     view_function = FunctionView(engine.vm_lang, engine.ensure_function_viewmodel("excitation_target"),
                                  engine.ensure_plot_viewmodel("function"), cfg)
     #print_tab_order(view_function)
