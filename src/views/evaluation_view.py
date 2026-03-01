@@ -69,8 +69,8 @@ class EvaluationView(BaseView, QWidget):
 
         # TF closed loop
         latex_text = {
-            "cl": r"T(s) = C(s) \cdot G(s)",
-            "controller": r"C(s) = \frac{K_p}{T_i}",
+            "cl": r"T(s) = \frac{C(s) \cdot G(s)}{1 + C(s) \cdot G(s)}",
+            "controller": r"C(s) = K_p \left( 1 + \frac{1}{T_i\,s} + \frac{T_d\,s}{1 + T_f\,s} \right)",
             "plant": r"G(s) = " + self._vm_plant.get_tf(),
         }
 
@@ -79,12 +79,7 @@ class EvaluationView(BaseView, QWidget):
             lbl_latex.setAttribute(Qt.WA_TranslucentBackground)  # type: ignore[attr-defined]
             lbl_latex.setStyleSheet("background: transparent;")
 
-            lbl_latex.setPixmap(
-                LatexRenderer.latex2pixmap(
-                    text,
-                    font_size_scale=self._formula_font_size_scale
-                )
-            )
+            lbl_latex.setPixmap(LatexRenderer.latex2pixmap(text, font_size_scale=self._formula_font_size_scale))
             lbl_latex.setAlignment(Qt.AlignHCenter)  # type: ignore[attr-defined]
 
             frame_layout.addWidget(lbl_latex)
@@ -175,6 +170,9 @@ class EvaluationView(BaseView, QWidget):
     # -------------------------------------------------
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
+        # vm plant
+        self._vm_plant.tfChanged.connect(self._on_vm_tf_changed)
+        # vm evaluator
         self._vm_evaluator.closedLoopResponseChanged.connect(self._on_vm_compute_finished)
         self._vm_evaluator.psoSimulationFinished.connect(self._on_vm_pso_simulation_finished)
 
@@ -202,6 +200,11 @@ class EvaluationView(BaseView, QWidget):
     # -------------------------------------------------
     # ViewModel change handlers
     # -------------------------------------------------
+    def _on_vm_tf_changed(self) -> None:
+        label = self._latex_labels.get("plant")
+        text = self._vm_plant.get_tf()
+        label.setPixmap(LatexRenderer.latex2pixmap(r"G(s) = " + text, font_size_scale=self._formula_font_size_scale))
+
     def _on_vm_compute_finished(self, t: ndarray, y: ndarray) -> None:
         self._logger.debug("Closed loop response computation finished, updating plot")
         self._vm_plots.get("time_domain").get("response").update_data("function", (t, y))
