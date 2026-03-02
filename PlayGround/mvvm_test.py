@@ -5,9 +5,7 @@ from app_domain.controlsys import ExcitationTarget
 # TODO: legende von plot ausserhalb
 # TODO: Stellgrösse als subplot -> PlotWidget subplot
 # TODO: BodePlot von PlotWidget erben oder ein BasePlotWidget?
-# TODO: Alle Views Scrollbar einfügen
 # TODO: SettingsView
-# TODO: ThemeHandler (oder so)
 
 
 if __name__ == '__main__':

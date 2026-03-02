@@ -95,7 +95,7 @@ class SettingsModel:
         if theme not in self._theme_cfg:
             raise ValueError(f"Unknown theme '{theme}'. Valid themes: {', '.join(self._theme_cfg.keys())}")
         self._logger.debug(f"Setting UI theme to '{theme}'")
-        self._settings.setValue("ui/theme", theme)
+        self._settings.setValue("ui/theme", theme.strip())
 
     # -------------------
     # Window state

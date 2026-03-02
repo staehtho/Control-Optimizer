@@ -1,5 +1,5 @@
 from PySide6.QtCore import QObject, QT_TRANSLATE_NOOP
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QFrame
+from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QFrame
 from numpy import ndarray
 
 from app_domain.ui_context import UiContext

@@ -149,8 +149,8 @@
     <name>EvaluationView</name>
     <message>
         <location filename="../views/evaluation_view.py" line="129"/>
-        <location filename="../views/evaluation_view.py" line="173"/>
-        <location filename="../views/evaluation_view.py" line="175"/>
+        <location filename="../views/evaluation_view.py" line="181"/>
+        <location filename="../views/evaluation_view.py" line="183"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
@@ -165,7 +165,7 @@
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="174"/>
+        <location filename="../views/evaluation_view.py" line="182"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
     </message>

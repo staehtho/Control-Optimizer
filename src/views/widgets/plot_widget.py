@@ -174,6 +174,13 @@ class PlotWidget(BaseView, QWidget):
         ax.grid(self._vm.grid)
         ax.set_xlim(self._vm.start_time, self._vm.end_time)
 
+        start_text = f"{self._vm.start_time:.{self._dec}f}"
+        end_text = f"{self._vm.end_time:.{self._dec}f}"
+        if self._txt_start.text() != start_text:
+            self._txt_start.setText(start_text)
+        if self._txt_end.text() != end_text:
+            self._txt_end.setText(end_text)
+
         self._canvas.draw()
 
     # -------------------------------------------------
