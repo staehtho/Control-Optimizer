@@ -4,12 +4,27 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QFrame, QLabel, QTabWidget, 
 from PySide6.QtCore import Qt, QT_TRANSLATE_NOOP
 from numpy import ndarray
 
+from app_domain.functions import resolve_function_type, FunctionTypes
 from app_domain.ui_context import UiContext
 from app_domain.controlsys import ExcitationTarget
 from utils import LatexRenderer
-from viewmodels import PlantViewModel, EvaluationViewModel, FunctionViewModel, PlotViewModel
+from viewmodels import PlantViewModel, EvaluationViewModel, FunctionViewModel, PlotViewModel, PlotData
 from views import BaseView
 from views.widgets import PlotWidget, PlotConfiguration, FunctionWidget
+
+COLORS = {
+    "RESPONSE": "#1f77b4",
+    "REFERENCE": "#ff7f0e",
+    "INPUT_DISTURBANCE": "#2ca02c",
+    "MEASUREMENT_DISTURBANCE": "#d62728",
+}
+
+PLOT_ORDER = {
+    "RESPONSE": 0,
+    "REFERENCE": 1,
+    "INPUT_DISTURBANCE": 2,
+    "MEASUREMENT_DISTURBANCE": 3,
+}
 
 
 class EvaluationView(BaseView, QWidget):
@@ -152,7 +167,7 @@ class EvaluationView(BaseView, QWidget):
                 widget.functionChanged.connect(partial(self._on_vm_function_changed, key))
 
     # -------------------------------------------------
-    # ViewModel bindings (ViewModel â†’ UI)
+    # ViewModel bindings (ViewModel -> UI)
     # -------------------------------------------------
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
@@ -169,7 +184,7 @@ class EvaluationView(BaseView, QWidget):
         self._vm_evaluator.startTimeChanged.connect(self._sync_plot_time_window_from_model)
         self._vm_evaluator.endTimeChanged.connect(self._sync_plot_time_window_from_model)
 
-        # Plot ViewModel â†’ Function recomputation
+        # Plot ViewModel -> Function recomputation
         self._vm_plot.startTimeChanged.connect(self._on_vm_time_changed)
         self._vm_plot.endTimeChanged.connect(self._on_vm_time_changed)
 
@@ -213,21 +228,38 @@ class EvaluationView(BaseView, QWidget):
 
     def _on_vm_function_compute_finished(self, key: str, t: ndarray, y: ndarray) -> None:
         self._logger.debug(
-            "Function VM '%s' finished computation â†’ updating plot (samples=%d)",
+            "Function VM '%s' finished computation -> updating plot (samples=%d)",
             key, len(t),
         )
-        self._vm_plot.update_data(key, (t, y))
+
+        show = True
+        if resolve_function_type(self._vm_functions.get(key).selected_function) == FunctionTypes.NULL:
+            show = False
+
+        self._vm_plot.update_data(
+            PlotData(
+                key=key,
+                label=self._enum_translation(ExcitationTarget).get(ExcitationTarget[key]),
+                x=t,
+                y=y,
+                color=COLORS.get(key),
+                order=PLOT_ORDER.get(key),
+                show=show,
+            )
+        )
 
     def _on_vm_compute_finished(self, t: ndarray, y: ndarray) -> None:
         self._logger.debug(
-            "Closed-loop response computation finished â†’ updating response plot (samples=%d)",
+            "Closed-loop response computation finished -> updating response plot (samples=%d)",
             len(t),
         )
-        self._vm_plot.update_data("response", (t, y))
+        self._vm_plot.update_data(
+            PlotData("RESPONSE", "RESPONSE", t, y, COLORS.get("RESPONSE"), PLOT_ORDER.get("RESPONSE"))
+        )
 
     def _on_vm_pso_simulation_finished(self, target: ExcitationTarget) -> None:
         self._logger.debug(
-            "PSO simulation finished for target '%s' â†’ refreshing all excitation functions",
+            "PSO simulation finished for target '%s' -> refreshing all excitation functions",
             target.name,
         )
 
@@ -270,7 +302,7 @@ class EvaluationView(BaseView, QWidget):
         t1 = self._vm_plot.end_time
 
         self._logger.debug(
-            "Excitation function changed â†’ recomputing closed-loop response (time window=[%.3f, %.3f])",
+            "Excitation function changed -> recomputing closed-loop response (time window=[%.3f, %.3f])",
             t0, t1,
         )
 

@@ -1,12 +1,12 @@
 from PySide6.QtCore import QObject
 from PySide6.QtCore import QRegularExpression, Qt, QT_TRANSLATE_NOOP
 from PySide6.QtGui import QRegularExpressionValidator
-from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QScrollArea, QFrame, QVBoxLayout
+from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QScrollArea
 from numpy import ndarray
 
 from app_domain.ui_context import UiContext
 from utils import LatexRenderer
-from viewmodels import PlantViewModel, PlotViewModel
+from viewmodels import PlantViewModel, PlotViewModel, PlotData
 from .base_view import BaseView
 from views.widgets import PlotWidget, PlotConfiguration
 
@@ -200,7 +200,7 @@ class PlantView(BaseView, QWidget):
         self._vm_plant.compute_step_response(self._vm_plot.start_time, self._vm_plot.end_time)
 
     def _on_step_response_changed(self, t: ndarray, y: ndarray) -> None:
-        self._vm_plot.update_data("Step Response", (t, y))
+        self._vm_plot.update_data(PlotData("step_response", "step_response", t, y, "#1f77b4"))
 
     # -------------------------------------------------
     # UI event handlers

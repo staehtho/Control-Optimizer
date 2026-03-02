@@ -4,7 +4,7 @@ from numpy import ndarray
 
 from app_domain.ui_context import UiContext
 from app_domain.functions import FunctionTypes, resolve_function_type
-from viewmodels import FunctionViewModel, PlotViewModel
+from viewmodels import FunctionViewModel, PlotViewModel, PlotData
 from views import BaseView
 from views.widgets import PlotWidget, PlotConfiguration, FunctionWidget
 
@@ -129,7 +129,7 @@ class FunctionView(BaseView, QWidget):
     def _on_vm_compute_finished(self, t: ndarray, y: ndarray) -> None:
         """Update plot data after function computation completes."""
         self._logger.debug("Function computation finished, updating plot")
-        self._vm_plot.update_data("function", (t, y))
+        self._vm_plot.update_data(PlotData("function", "function", t, y, "#1f77b4"))
 
     def _on_vm_time_changed(self) -> None:
         """Trigger recomputation when plot time range changes."""

@@ -148,24 +148,24 @@
 <context>
     <name>EvaluationView</name>
     <message>
-        <location filename="../views/evaluation_view.py" line="129"/>
-        <location filename="../views/evaluation_view.py" line="181"/>
-        <location filename="../views/evaluation_view.py" line="183"/>
+        <location filename="../views/evaluation_view.py" line="145"/>
+        <location filename="../views/evaluation_view.py" line="197"/>
+        <location filename="../views/evaluation_view.py" line="199"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="130"/>
+        <location filename="../views/evaluation_view.py" line="146"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="131"/>
+        <location filename="../views/evaluation_view.py" line="147"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="182"/>
+        <location filename="../views/evaluation_view.py" line="198"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
     </message>
@@ -231,7 +231,7 @@
 <context>
     <name>MainView</name>
     <message>
-        <location filename="../views/main_view.py" line="67"/>
+        <location filename="../views/main_view.py" line="68"/>
         <source>Control Optimizer</source>
         <translation>Control Optimizer</translation>
     </message>

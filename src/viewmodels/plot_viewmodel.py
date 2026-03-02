@@ -1,12 +1,19 @@
-from typing import Sequence, Union
-
 import numpy as np
+from dataclasses import dataclass
 from PySide6.QtCore import QObject, Signal, Slot
 
 from .base_viewmodel import BaseViewModel
 
-NumberSeq = Union[Sequence[float], np.ndarray]
 
+@dataclass
+class PlotData:
+    key: str
+    label: str
+    x: list[float] | np.ndarray
+    y: list[float] | np.ndarray
+    color: str
+    order: int = 0
+    show: bool = True
 
 class PlotViewModel(BaseViewModel):
     """ViewModel for plot settings and plot series data."""
@@ -22,7 +29,7 @@ class PlotViewModel(BaseViewModel):
         self._grid: bool = True
         self._start_time: float = 0.0
         self._end_time: float = 10.0
-        self._data: dict[str, tuple[np.ndarray, np.ndarray]] = {}
+        self._data: dict[str, PlotData] = {}
 
     def _connect_signals(self) -> None:
         # No signals to connect
@@ -72,18 +79,16 @@ class PlotViewModel(BaseViewModel):
     # -------------------
     # data
     # -------------------
-    def get_data(self) -> dict[str, tuple[np.ndarray, np.ndarray]]:
-        return {k: (np.array(v[0]), np.array(v[1])) for k, v in self._data.items()}
+    def get_data(self) -> dict[str, PlotData]:
+        return {k: v for k, v in self._data.items()}
 
-    @Slot(str, tuple)
-    def update_data(self, key: str, data: tuple[NumberSeq, NumberSeq]) -> None:
-        x_arr = np.array(data[0])
-        y_arr = np.array(data[1])
+    @Slot(PlotData)
+    def update_data(self, data: PlotData) -> None:
 
-        current = self._data.get(key)
-        if current is None or not (np.array_equal(current[0], x_arr) and np.array_equal(current[1], y_arr)):
-            self._data[key] = (x_arr, y_arr)
-            self.logger.debug(f"Data updated for key '{key}' (length {len(x_arr)})")
+        current = self._data.get(data.key)
+        if current is None or not (np.array_equal(current.x, data.x) and np.array_equal(current.y, data.y)):
+            self._data[data.key] = data
+            self.logger.debug(f"Data updated for key '{data.key}' ({data})")
             self.dataChanged.emit()
 
     @Slot(str)

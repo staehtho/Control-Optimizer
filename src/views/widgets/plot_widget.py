@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QCheckBox, QLineEdit, QSizePolicy
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QCheckBox, QLineEdit, QSizePolicy
 from PySide6.QtCore import QCoreApplication, QObject
 from PySide6.QtGui import QDoubleValidator, QColor, QPainter, QPixmap, QIcon
 from matplotlib.figure import Figure
@@ -50,7 +50,7 @@ class PlotWidget(BaseView, QWidget):
         self._canvas = FigureCanvas(self._figure)
         self._toolbar = NavigationToolbar(self._canvas, self)
         self._canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore[attr-defined]
-        self._canvas.setMinimumSize(400, 250)
+        self._canvas.setMinimumSize(500, 350)
         self._apply_toolbar_icons()
         self._update_plot()
 
@@ -160,19 +160,33 @@ class PlotWidget(BaseView, QWidget):
         data = self._vm.get_data()
         self._logger.debug(f"Plot contains {len(data)} data series")
 
-        for label, series in data.items():
-            self._logger.debug(f"Plotting series: {label} (points={len(series[0])})")
-            ax.plot(*series, label=label)
+        sorted_series = sorted(data.values(), key=lambda s: s.order)
 
-        # Add legend only if multiple series
+        for series in sorted_series:
+            if not series.show:
+                continue
+            self._logger.debug(f"Plotting series: {series}")
+            ax.plot(series.x, series.y, label=series.label, color=series.color,
+                    zorder=len(sorted_series) - series.order)
+
+        bottom_margin = 0.20
+
+        # Add legend only if data exists
         if len(data) > 1:
-            ax.legend()
+            ax.legend(
+                loc="upper center",
+                bbox_to_anchor=(0.5, -0.18),
+                ncol=2,
+                frameon=False
+            )
+            bottom_margin = 0.30
 
         ax.set_title(QCoreApplication.translate(self._cfg.context, self._cfg.title))
         ax.set_xlabel(QCoreApplication.translate(self._cfg.context, self._cfg.x_label))
         ax.set_ylabel(QCoreApplication.translate(self._cfg.context, self._cfg.y_label))
         ax.grid(self._vm.grid)
         ax.set_xlim(self._vm.start_time, self._vm.end_time)
+        self._figure.subplots_adjust(left=0.10, right=0.98, top=0.90, bottom=bottom_margin)
 
         start_text = f"{self._vm.start_time:.{self._dec}f}"
         end_text = f"{self._vm.end_time:.{self._dec}f}"
