@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QStackedWidget
+from PySide6.QtGui import QCloseEvent
 
 from app_domain.ui_context import UiContext
 from views import BaseView
@@ -71,6 +72,7 @@ class MainView(BaseView, QMainWindow):
     # -------------------------------------------------
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
+        self._restore_window_state()
         self._switch_views(NavLabels.PLANT)
 
     # -------------------------------------------------
@@ -88,3 +90,16 @@ class MainView(BaseView, QMainWindow):
             self._stack.addWidget(view)
 
         self._stack.setCurrentWidget(self._views[key])
+
+    def closeEvent(self, event: QCloseEvent) -> None:
+        self._ui_context.settings.set_window_geometry(self.saveGeometry())
+        self._ui_context.settings.set_window_maximized(self.isMaximized())
+        super().closeEvent(event)
+
+    def _restore_window_state(self) -> None:
+        geometry = self._ui_context.settings.get_window_geometry()
+        if geometry is not None and not geometry.isEmpty():
+            self.restoreGeometry(geometry)
+
+        if self._ui_context.settings.get_window_maximized():
+            self.showMaximized()
