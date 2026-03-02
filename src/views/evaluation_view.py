@@ -232,9 +232,9 @@ class EvaluationView(BaseView, QWidget):
             key, len(t),
         )
 
-        show = True
+        ignore = False
         if resolve_function_type(self._vm_functions.get(key).selected_function) == FunctionTypes.NULL:
-            show = False
+            ignore = True
 
         self._vm_plot.update_data(
             PlotData(
@@ -244,7 +244,8 @@ class EvaluationView(BaseView, QWidget):
                 y=y,
                 color=COLORS.get(key),
                 order=PLOT_ORDER.get(key),
-                show=show,
+                ignore_plot=ignore,
+                show=not ignore,
             )
         )
 

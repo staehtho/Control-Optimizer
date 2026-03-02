@@ -1,4 +1,5 @@
 from pathlib import Path
+from functools import partial
 
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QCheckBox, QLineEdit, QSizePolicy
 from PySide6.QtCore import QCoreApplication, QObject
@@ -30,6 +31,7 @@ class PlotWidget(BaseView, QWidget):
 
         self._vm = vm
         self._cfg = plot_configuration
+        self._series_checkboxes: dict[str, QCheckBox] = {}
 
         BaseView.__init__(self, ui_context)
         self._logger.debug(f"PlotWidget initialized (context={self._cfg.context})")
@@ -44,6 +46,7 @@ class PlotWidget(BaseView, QWidget):
 
         frame, frame_layout = self._create_card()
         frame_layout.addLayout(self._create_header())
+        frame_layout.addLayout(self._create_series_row())
 
         # figure
         self._figure = Figure()
@@ -98,6 +101,15 @@ class PlotWidget(BaseView, QWidget):
 
         layout.addStretch()  # keeps everything left-aligned
 
+        return layout
+
+    def _create_series_row(self) -> QHBoxLayout:
+        layout = QHBoxLayout()
+        self._lbl_series = QLabel("Data:")
+        self._lbl_series.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)  # type: ignore[attr-defined]
+        layout.addWidget(self._lbl_series)
+        layout.addStretch()
+        self._series_layout = layout
         return layout
 
     # -------------------------------------------------
@@ -158,6 +170,7 @@ class PlotWidget(BaseView, QWidget):
         ax = self._figure.add_subplot(111)
 
         data = self._vm.get_data()
+        self._sync_series_checkboxes(data)
         self._logger.debug(f"Plot contains {len(data)} data series")
 
         sorted_series = sorted(data.values(), key=lambda s: s.order)
@@ -197,6 +210,44 @@ class PlotWidget(BaseView, QWidget):
 
         self._canvas.draw()
 
+    def _sync_series_checkboxes(self, data: dict) -> None:
+        existing_keys = set(self._series_checkboxes.keys())
+        sorted_series = sorted(data.values(), key=lambda s: s.order)
+
+        insert_index = 1
+        for series in sorted_series:
+            if series.ignore_plot:
+                checkbox = self._series_checkboxes.pop(series.key, None)
+                if checkbox is not None:
+                    self._series_layout.removeWidget(checkbox)
+                    checkbox.deleteLater()
+                    self._widgets.pop(f"plot_data_{series.key}", None)
+                existing_keys.discard(series.key)
+                continue
+            checkbox = self._series_checkboxes.get(series.key)
+            if checkbox is None:
+                checkbox = QCheckBox(series.label)
+                checkbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)  # type: ignore[attr-defined]
+                checkbox.toggled.connect(partial(self._on_series_checkbox_toggled, series.key))
+                self._series_checkboxes[series.key] = checkbox
+                self._widgets[f"plot_data_{series.key}"] = checkbox
+            else:
+                checkbox.setText(series.label)
+
+            if checkbox.isChecked() != series.show:
+                checkbox.setChecked(series.show)
+
+            self._series_layout.removeWidget(checkbox)
+            self._series_layout.insertWidget(insert_index, checkbox)
+            insert_index += 1
+            existing_keys.discard(series.key)
+
+        for key in existing_keys:
+            checkbox = self._series_checkboxes.pop(key)
+            self._series_layout.removeWidget(checkbox)
+            checkbox.deleteLater()
+            self._widgets.pop(f"plot_data_{key}", None)
+
     # -------------------------------------------------
     # UI event handlers
     # -------------------------------------------------
@@ -204,6 +255,10 @@ class PlotWidget(BaseView, QWidget):
         checked = self._chk_grid.isChecked()
         self._logger.debug(f"UI event: grid changed -> {checked}")
         self._vm.grid = checked
+
+    def _on_series_checkbox_toggled(self, key: str, checked: bool) -> None:
+        self._logger.debug(f"UI event: series visibility changed -> {key}={checked}")
+        self._vm.set_data_visibility(key, checked)
 
     def _on_txt_start_changed(self) -> None:
         try:

@@ -1,6 +1,7 @@
 import numpy as np
 from dataclasses import dataclass
 from PySide6.QtCore import QObject, Signal, Slot
+from numba.core.typing.builtins import Bool
 
 from .base_viewmodel import BaseViewModel
 
@@ -13,7 +14,9 @@ class PlotData:
     y: list[float] | np.ndarray
     color: str
     order: int = 0
+    ignore_plot: bool = False
     show: bool = True
+
 
 class PlotViewModel(BaseViewModel):
     """ViewModel for plot settings and plot series data."""
@@ -86,10 +89,24 @@ class PlotViewModel(BaseViewModel):
     def update_data(self, data: PlotData) -> None:
 
         current = self._data.get(data.key)
+        if current is not None:
+            # Keep user visibility selection across data refreshes.
+            if not data.ignore_plot:
+                data.show = current.show
+
         if current is None or not (np.array_equal(current.x, data.x) and np.array_equal(current.y, data.y)):
             self._data[data.key] = data
             self.logger.debug(f"Data updated for key '{data.key}' ({data})")
             self.dataChanged.emit()
+
+    @Slot(str, bool)
+    def set_data_visibility(self, key: str, show: bool) -> None:
+        data = self._data.get(key)
+        if data is None or data.show == show:
+            return
+        data.show = show
+        self.logger.debug(f"Visibility updated for key '{key}' -> {show}")
+        self.dataChanged.emit()
 
     @Slot(str)
     def remove_data(self, key: str) -> None:
