@@ -4,8 +4,9 @@ from PySide6.QtGui import QRegularExpressionValidator
 from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QScrollArea, QFrame, QVBoxLayout
 from numpy import ndarray
 
+from app_domain.ui_context import UiContext
 from utils import LatexRenderer
-from viewmodels import LanguageViewModel, PlantViewModel, PlotViewModel
+from viewmodels import PlantViewModel, PlotViewModel
 from .base_view import BaseView
 from views.widgets import PlotWidget, PlotConfiguration
 
@@ -14,7 +15,7 @@ class PlantView(BaseView, QWidget):
 
     def __init__(
         self,
-        vm_lang: LanguageViewModel,
+            ui_context: UiContext,
         vm_plant: PlantViewModel,
         vm_plot: PlotViewModel,
         parent: QObject = None,
@@ -25,7 +26,7 @@ class PlantView(BaseView, QWidget):
         self._vm_plant = vm_plant
         self._vm_plot = vm_plot
 
-        BaseView.__init__(self, vm_lang)
+        BaseView.__init__(self, ui_context)
 
     # -------------------------------------------------
     # UI Initialization
@@ -120,7 +121,7 @@ class PlantView(BaseView, QWidget):
             y_label=str(QT_TRANSLATE_NOOP("plant.view", "Output")),
         )
 
-        self._plot_view = PlotWidget(self._vm_plot, plot_cfg, self._vm_lang)
+        self._plot_view = PlotWidget(self._ui_context, self._vm_plot, plot_cfg)
 
         main_layout.addWidget(self._plot_view)
         main_layout.addStretch()

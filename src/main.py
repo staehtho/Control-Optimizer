@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QApplication, QWidget
 from app_domain import AppEngine
 from app_domain.controlsys import ExcitationTarget
 from app_domain.functions import FunctionTypes
-from views import PlantView, FunctionView, ControllerView, PsoConfigurationView, EvaluationView, MainView
+from views import PlantView, FunctionView, ControllerView, PsoConfigurationView, EvaluationView, MainView, BaseView
 from views.widgets import NavItem
 from views.translations import NavLabels
 
@@ -60,65 +60,39 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     engine = AppEngine()
+    ui_context = engine.ui_context
+    BaseView.load_themes(ui_context.vm_theme.get_theme_cfg(), ui_context.vm_theme.current_theme)
+    ui_context.vm_theme.themeChanged.connect(BaseView.set_theme)
 
     vm_function = engine.ensure_function_viewmodel("excitation_target")
     vm_function.set_selected_function(FunctionTypes.STEP)
 
     vm_functions = {title.name: engine.ensure_function_viewmodel(title.name) for title in ExcitationTarget}
 
-    '''view_plant = PlantView(engine.vm_lang, engine.vm_plant, engine.ensure_plot_viewmodel("plant"))
-    #print_tab_order(view_plant)
-    view_plant.setWindowTitle(view_plant.__class__.__name__)
-    view_plant.show()
-
-    view_function = FunctionView(engine.vm_lang, engine.ensure_function_viewmodel("excitation_target"),
-                                 engine.ensure_plot_viewmodel("function"))
-    #print_tab_order(view_function)
-    view_function.setWindowTitle(view_function.__class__.__name__)
-    view_function.show()
-
-    view_controller = ControllerView(engine.vm_lang, engine.vm_controller)
-    ## print_tab_order(view_controller)
-    view_controller.setWindowTitle(view_controller.__class__.__name__)
-    view_controller.show()
-
-    view_pso = PsoConfigurationView(engine.vm_lang, engine.vm_plant,
-                                    engine.ensure_function_viewmodel("excitation_target"), engine.vm_pso)
-    # print_tab_order(view_pso)
-    view_pso.setWindowTitle(view_pso.__class__.__name__)
-    view_pso.show()
-
-
-    view_evaluator = EvaluationView(engine.vm_lang, engine.vm_plant, engine.vm_evaluator, vm_functions,
-                                    engine.ensure_plot_viewmodel("response"))
-    # print_tab_order(view_evaluator)
-    view_evaluator.setWindowTitle(view_evaluator.__class__.__name__)
-    view_evaluator.show()'''
-
     items = [NavItem(key, "") for key in NavLabels]
 
     view_factories = {
         NavLabels.PLANT: lambda parent=None: PlantView(
-            engine.vm_lang, engine.vm_plant, engine.ensure_plot_viewmodel("plant"), parent=parent
+            ui_context, engine.vm_plant, engine.ensure_plot_viewmodel("plant"), parent=parent
         ),
         NavLabels.EXCITATION_FUNCTION: lambda parent=None: FunctionView(
-            engine.vm_lang, engine.ensure_function_viewmodel("excitation_target"),
+            ui_context, engine.ensure_function_viewmodel("excitation_target"),
             engine.ensure_plot_viewmodel("function"), parent=parent
         ),
         NavLabels.CONTROLLER: lambda parent=None: ControllerView(
-            engine.vm_lang, engine.vm_controller, parent=parent
+            ui_context, engine.vm_controller, parent=parent
         ),
         NavLabels.PSO_PARAMETER: lambda parent=None: PsoConfigurationView(
-            engine.vm_lang, engine.vm_plant, engine.ensure_function_viewmodel("excitation_target"), engine.vm_pso,
+            ui_context, engine.vm_plant, engine.ensure_function_viewmodel("excitation_target"), engine.vm_pso,
             parent=parent
         ),
         NavLabels.EVALUATION: lambda parent=None: EvaluationView(
-            engine.vm_lang, engine.vm_plant, engine.vm_evaluator, vm_functions,
+            ui_context, engine.vm_plant, engine.vm_evaluator, vm_functions,
             engine.ensure_plot_viewmodel("response"), parent=parent
         )
     }
 
-    main_view = MainView(engine.vm_lang, items, view_factories)
+    main_view = MainView(ui_context, items, view_factories)
     main_view.show()
 
     sys.exit(app.exec())

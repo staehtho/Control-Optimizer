@@ -1,20 +1,20 @@
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QStackedWidget
 
-from viewmodels import LanguageViewModel
+from app_domain.ui_context import UiContext
 from views import BaseView
 from views.widgets import NavItem, NavigationWidget
 from views.translations import NavLabels
 
 
 class MainView(BaseView, QMainWindow):
-    def __init__(self, vm_lang: LanguageViewModel, nav_items: list[NavItem], view_factories: dict):
+    def __init__(self, ui_context: UiContext, nav_items: list[NavItem], view_factories: dict):
         QMainWindow.__init__(self)
 
         self._nav_items = nav_items
         self._view_factories = view_factories
         self._views = {}
 
-        BaseView.__init__(self, vm_lang)
+        BaseView.__init__(self, ui_context)
 
     # -------------------------------------------------
     # UI Initialization
@@ -27,7 +27,7 @@ class MainView(BaseView, QMainWindow):
         layout.setSpacing(12)
         self.setCentralWidget(central)
 
-        self._nav = NavigationWidget(self._vm_lang, self._nav_items, self)
+        self._nav = NavigationWidget(self._ui_context, self._nav_items, self)
         stack_frame, stack_layout = self._create_card()
         self._stack = QStackedWidget(stack_frame)
         stack_layout.addWidget(self._stack)

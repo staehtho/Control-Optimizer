@@ -9,7 +9,8 @@ from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as Navigation
 from matplotlib import cbook
 from dataclasses import dataclass
 
-from viewmodels import PlotViewModel, LanguageViewModel
+from app_domain.ui_context import UiContext
+from viewmodels import PlotViewModel
 from views import BaseView
 
 
@@ -23,13 +24,14 @@ class PlotConfiguration:
 
 
 class PlotWidget(BaseView, QWidget):
-    def __init__(self, vm: PlotViewModel, plot_configuration: PlotConfiguration, vm_lang: LanguageViewModel, parent: QObject = None):
+    def __init__(self, ui_context: UiContext, vm: PlotViewModel, plot_configuration: PlotConfiguration,
+                 parent: QObject = None):
         QWidget.__init__(self, parent)
 
         self._vm = vm
         self._cfg = plot_configuration
 
-        BaseView.__init__(self, vm_lang)
+        BaseView.__init__(self, ui_context)
         self._logger.debug(f"PlotWidget initialized (context={self._cfg.context})")
 
     # -------------------------------------------------

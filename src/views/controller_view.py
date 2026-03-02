@@ -2,8 +2,9 @@ from functools import partial
 
 from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QVBoxLayout, QFrame, QLineEdit
 
+from app_domain.ui_context import UiContext
 from app_domain.controlsys import AntiWindup
-from viewmodels import LanguageViewModel, ControllerViewModel
+from viewmodels import ControllerViewModel
 from views import BaseView, FieldConfig, SectionConfig
 from .translations import Translation
 
@@ -19,12 +20,12 @@ FIELDS: list[FieldConfig] = [
 
 
 class ControllerView(BaseView, QWidget):
-    def __init__(self, vm_lang: LanguageViewModel, vm_controller: ControllerViewModel, parent: QWidget = None):
+    def __init__(self, ui_context: UiContext, vm_controller: ControllerViewModel, parent: QWidget = None):
         QWidget.__init__(self, parent)
 
         self._vm_controller = vm_controller
 
-        BaseView.__init__(self, vm_lang)
+        BaseView.__init__(self, ui_context)
 
     # -------------------------------------------------
     # UI Initialization

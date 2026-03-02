@@ -4,9 +4,10 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QFrame, QLabel, QTabWidget, 
 from PySide6.QtCore import Qt, QT_TRANSLATE_NOOP
 from numpy import ndarray
 
+from app_domain.ui_context import UiContext
 from app_domain.controlsys import ExcitationTarget
 from utils import LatexRenderer
-from viewmodels import LanguageViewModel, PlantViewModel, EvaluationViewModel, FunctionViewModel, PlotViewModel
+from viewmodels import PlantViewModel, EvaluationViewModel, FunctionViewModel, PlotViewModel
 from views import BaseView
 from views.widgets import PlotWidget, PlotConfiguration, FunctionWidget
 
@@ -14,7 +15,7 @@ from views.widgets import PlotWidget, PlotConfiguration, FunctionWidget
 class EvaluationView(BaseView, QWidget):
     def __init__(
             self,
-            vm_lang: LanguageViewModel,
+            ui_context: UiContext,
             vm_plant: PlantViewModel,
             vm_evaluator: EvaluationViewModel,
             vm_functions: dict[str, FunctionViewModel],
@@ -32,7 +33,7 @@ class EvaluationView(BaseView, QWidget):
 
         self._latex_labels: dict[str, QLabel] = {}
 
-        BaseView.__init__(self, vm_lang)
+        BaseView.__init__(self, ui_context)
 
     # -------------------------------------------------
     # UI Initialization
@@ -61,7 +62,9 @@ class EvaluationView(BaseView, QWidget):
         # Outer layout for this view
         outer_layout = self._create_page_layout()
         scroll = self._wrap_in_scroll_area(content_widget)
-        outer_layout.addWidget(scroll)
+        outer_frame, outer_frame_layout = self._create_card()
+        outer_frame_layout.addWidget(scroll)
+        outer_layout.addWidget(outer_frame)
 
         self.setLayout(outer_layout)
 
@@ -111,7 +114,7 @@ class EvaluationView(BaseView, QWidget):
             function_page = QWidget()
             function_page_layout = QVBoxLayout(function_page)
 
-            function_widget = FunctionWidget(self._vm_lang, self._vm_functions[key], parent=function_page)
+            function_widget = FunctionWidget(self._ui_context, self._vm_functions[key], parent=function_page)
 
             function_page_layout.addWidget(function_widget)
             self._widgets[key] = function_widget
@@ -137,9 +140,9 @@ class EvaluationView(BaseView, QWidget):
         )
 
         plot_view = PlotWidget(
+            self._ui_context,
             self._vm_plot,
             self._cl_plot_cfg,
-            self._vm_lang,
             parent=frame
         )
 

@@ -3,9 +3,10 @@ from functools import partial
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QFrame, QLabel, QLineEdit, QComboBox, QPushButton, QProgressBar
 from PySide6.QtCore import QObject, Qt
 
+from app_domain.ui_context import UiContext
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
 from utils import LatexRenderer
-from viewmodels import LanguageViewModel, PlantViewModel, FunctionViewModel, PsoConfigurationViewModel
+from viewmodels import PlantViewModel, FunctionViewModel, PsoConfigurationViewModel
 from views import BaseView, FieldConfig, SectionConfig
 from .translations import Translation
 
@@ -40,7 +41,8 @@ FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
 
 
 class PsoConfigurationView(BaseView, QWidget):
-    def __init__(self, vm_lang: LanguageViewModel, vm_plant: PlantViewModel, vm_function: FunctionViewModel, vm_pso: PsoConfigurationViewModel,
+    def __init__(self, ui_context: UiContext, vm_plant: PlantViewModel, vm_function: FunctionViewModel,
+                 vm_pso: PsoConfigurationViewModel,
                  parent: QObject = None):
         QWidget.__init__(self, parent)
 
@@ -48,7 +50,7 @@ class PsoConfigurationView(BaseView, QWidget):
         self._vm_function = vm_function
         self._vm_pso = vm_pso
 
-        BaseView.__init__(self, vm_lang)
+        BaseView.__init__(self, ui_context)
 
     # -------------------------------------------------
     # UI Initialization

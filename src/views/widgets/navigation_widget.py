@@ -4,7 +4,7 @@ from functools import partial
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QSizePolicy
 
-from viewmodels import LanguageViewModel
+from app_domain.ui_context import UiContext
 from views import BaseView
 from views.translations import NavLabels
 
@@ -18,13 +18,13 @@ class NavItem:
 class NavigationWidget(BaseView, QWidget):
     viewSelected = Signal(NavLabels)
 
-    def __init__(self, vm_lang: LanguageViewModel, nav_items: list[NavItem], parent: QWidget = None):
+    def __init__(self, ui_context: UiContext, nav_items: list[NavItem], parent: QWidget = None):
         QWidget.__init__(self, parent)
 
         self._nav_items = nav_items
         self._collapsed = False
 
-        BaseView.__init__(self, vm_lang)
+        BaseView.__init__(self, ui_context)
 
     # -------------------------------------------------
     # UI Initialization

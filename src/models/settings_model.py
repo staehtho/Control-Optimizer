@@ -27,6 +27,10 @@ class SettingsModel:
         self._i18n_base_dir = self._config_base_dir.parent / "i18n"
         self._logger.debug(f"i18n base dir: {self._i18n_base_dir}")
 
+        # Store base directory for theme stylesheet files
+        self._themes_base_dir = self._config_base_dir / "themes"
+        self._logger.debug(f"Themes base dir: {self._themes_base_dir}")
+
         # File name for the QSettings INI file
         settings_file = "settings.ini"
 
@@ -41,8 +45,16 @@ class SettingsModel:
             self._config_base_dir / "languages.json"
         ).get("languages", {})
 
+        # Load available theme stylesheets from config/themes/*.qss
+        self._theme_cfg: dict[str, str] = self._load_themes()
+
         # Log initialization with info level
-        self._logger.info(f"SettingsModel initialized, config dir: {self._config_base_dir}, languages loaded: {list(self._lang_cfg.keys())}")
+        self._logger.info(
+            "SettingsModel initialized, config dir: %s, languages loaded: %s, themes loaded: %s",
+            self._config_base_dir,
+            list(self._lang_cfg.keys()),
+            list(self._theme_cfg.keys()),
+        )
 
     # -------------------
     # language config accessors
@@ -66,6 +78,24 @@ class SettingsModel:
         """
         self._logger.debug(f"Setting UI language to '{lang}'")
         self._settings.setValue("ui/language", lang)
+
+    # -------------------
+    # UI themes
+    # -------------------
+    def get_themes_cfg(self) -> dict[str, str]:
+        """Returns a mapping of available themes to their stylesheet content."""
+        return dict(self._theme_cfg)
+
+    def get_theme(self) -> str:
+        """Returns the currently selected UI theme, defaults to 'dark'."""
+        return str(self._settings.value("ui/theme", "dark", type=str))
+
+    def set_theme(self, theme: str) -> None:
+        """Sets the UI theme and logs the change."""
+        if theme not in self._theme_cfg:
+            raise ValueError(f"Unknown theme '{theme}'. Valid themes: {', '.join(self._theme_cfg.keys())}")
+        self._logger.debug(f"Setting UI theme to '{theme}'")
+        self._settings.setValue("ui/theme", theme)
 
     # -------------------
     # Window state
@@ -219,3 +249,19 @@ class SettingsModel:
             self._logger.debug(f"Loaded JSON from {path}")
             return json.load(f)
 
+    def _load_themes(self) -> dict[str, str]:
+        """Loads all theme stylesheets from config/themes/*.qss."""
+        if not self._themes_base_dir.exists():
+            self._logger.error(f"Themes directory not found: {self._themes_base_dir}")
+            raise FileNotFoundError(f"Themes directory not found: {self._themes_base_dir}")
+
+        themes: dict[str, str] = {}
+        for qss_file in sorted(self._themes_base_dir.glob("*.qss")):
+            themes[qss_file.stem] = qss_file.read_text(encoding="utf-8")
+            self._logger.debug(f"Loaded theme stylesheet from {qss_file}")
+
+        if not themes:
+            self._logger.error(f"No .qss theme files found in {self._themes_base_dir}")
+            raise FileNotFoundError(f"No .qss theme files found in {self._themes_base_dir}")
+
+        return themes

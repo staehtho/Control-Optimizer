@@ -5,8 +5,9 @@ from app_domain.controlsys import MySolver, AntiWindup, ExcitationTarget, Perfor
 from app_domain.functions import StepFunction
 from models import ModelContainer
 from service import SimulationService
+from .ui_context import UiContext
 from viewmodels import (
-    PlantViewModel, LanguageViewModel, PlotViewModel, FunctionViewModel, ControllerViewModel,
+    PlantViewModel, LanguageViewModel, ThemeViewModel, PlotViewModel, FunctionViewModel, ControllerViewModel,
     PsoConfigurationViewModel, EvaluationViewModel
 )
 
@@ -56,6 +57,8 @@ class AppEngine:
 
         # Language ViewModel (e.g., for translations)
         self.vm_lang = LanguageViewModel(self.model_container.model_settings)
+        # Theme ViewModel (e.g., for UI styles)
+        self.vm_theme = ThemeViewModel(self.model_container.model_settings)
 
         # Plant
         self.vm_plant = PlantViewModel(self.model_container, self.simulation_service)
@@ -68,6 +71,12 @@ class AppEngine:
 
         # Evaluation ViewModel
         self.vm_evaluator = EvaluationViewModel(self.model_container, self.vm_pso, self.simulation_service)
+
+        self.ui_context = UiContext(
+            settings=self.model_container.model_settings,
+            vm_lang=self.vm_lang,
+            vm_theme=self.vm_theme,
+        )
 
         self.logger.info("Application Engine initialization completed.")
 

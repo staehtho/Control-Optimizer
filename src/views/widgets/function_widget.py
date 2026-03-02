@@ -4,9 +4,10 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QComboBox, QGridLayout, QLabel, QLineEdit, QFrame
 from PySide6.QtGui import QDoubleValidator
 
+from app_domain.ui_context import UiContext
 from app_domain.functions import resolve_function_type, FunctionTypes
 from utils import LatexRenderer
-from viewmodels import LanguageViewModel, FunctionViewModel
+from viewmodels import FunctionViewModel
 from views import BaseView
 
 
@@ -15,7 +16,7 @@ class FunctionWidget(BaseView, QWidget):
 
     def __init__(
             self,
-            vm_lang: LanguageViewModel,
+            ui_context: UiContext,
             vm_function: FunctionViewModel,
             excluded_function_types: list[FunctionTypes] | None = None,
             parent: QWidget = None
@@ -30,7 +31,7 @@ class FunctionWidget(BaseView, QWidget):
 
         self._txt_function_params: dict[str, QLineEdit] = {}
 
-        BaseView.__init__(self, vm_lang)
+        BaseView.__init__(self, ui_context)
 
     # -------------------------------------------------
     # UI Initialization

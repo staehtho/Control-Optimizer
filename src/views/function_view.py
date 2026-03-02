@@ -2,8 +2,9 @@ from PySide6.QtCore import QObject, QT_TRANSLATE_NOOP
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QFrame
 from numpy import ndarray
 
+from app_domain.ui_context import UiContext
 from app_domain.functions import FunctionTypes, resolve_function_type
-from viewmodels import LanguageViewModel, FunctionViewModel, PlotViewModel
+from viewmodels import FunctionViewModel, PlotViewModel
 from views import BaseView
 from views.widgets import PlotWidget, PlotConfiguration, FunctionWidget
 
@@ -13,7 +14,7 @@ class FunctionView(BaseView, QWidget):
 
     def __init__(
             self,
-            vm_lang: LanguageViewModel,
+            ui_context: UiContext,
             vm_function: FunctionViewModel,
             vm_plot: PlotViewModel,
             parent: QObject | None = None,
@@ -25,7 +26,7 @@ class FunctionView(BaseView, QWidget):
 
         self._txt_function_params: dict[str, QLineEdit] = {}
 
-        BaseView.__init__(self, vm_lang)
+        BaseView.__init__(self, ui_context)
 
     # -------------------------------------------------
     # UI Initialization
@@ -49,7 +50,7 @@ class FunctionView(BaseView, QWidget):
         frame, frame_layout = self._create_card()
 
         self._function_widget = FunctionWidget(
-            self._vm_lang, self._vm_function, [FunctionTypes.NULL], self
+            self._ui_context, self._vm_function, [FunctionTypes.NULL], self
         )
 
         frame_layout.addWidget(self._function_widget)
@@ -67,9 +68,9 @@ class FunctionView(BaseView, QWidget):
         )
 
         plot_view = PlotWidget(
+            self._ui_context,
             self._vm_plot,
             self._plot_cfg,
-            self._vm_lang,
             parent=self
         )
 

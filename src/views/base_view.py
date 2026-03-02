@@ -10,7 +10,7 @@ from PySide6.QtGui import QDoubleValidator
 from dataclasses import dataclass
 from typing import Type, ClassVar
 
-from viewmodels import LanguageViewModel
+from app_domain.ui_context import UiContext
 from views.translations import Translation
 
 
@@ -38,311 +38,25 @@ class BaseView:
 
     _instances: ClassVar[WeakSet] = WeakSet()
     _active_theme: ClassVar[str] = "dark"
-    _themes: ClassVar[dict[str, str]] = {
-        "light": """
-            QWidget {
-                color: #17212b;
-                font-size: 13px;
-            }
-            QWidget#viewRoot {
-                background: #f4f7fb;
-            }
-            QFrame#card {
-                background: #ffffff;
-                border: 1px solid #dce3ee;
-                border-radius: 14px;
-                padding: 8px;
-            }
-            QLabel#viewTitle {
-                color: #0f1d2d;
-                font-size: 20px;
-                font-weight: 700;
-                padding: 4px 2px 8px 2px;
-            }
-            QLabel#sectionTitle {
-                color: #1f2d3a;
-                font-size: 15px;
-                font-weight: 600;
-                padding-bottom: 4px;
-            }
-            QLabel {
-                background: transparent;
-            }
-            QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox {
-                background: #ffffff;
-                border: 1px solid #c9d4e5;
-                border-radius: 8px;
-                min-height: 30px;
-                padding: 4px 8px;
-                selection-background-color: #2f80ed;
-            }
-            QComboBox {
-                color: #17212b;
-            }
-            QComboBox::drop-down {
-                border-left: 1px solid #dce3ee;
-                background: #f4f7fb;
-                width: 22px;
-                border-top-right-radius: 8px;
-                border-bottom-right-radius: 8px;
-            }
-            QComboBox QAbstractItemView {
-                background: #ffffff;
-                color: #17212b;
-                border: 1px solid #c9d4e5;
-                selection-background-color: #2f80ed;
-                selection-color: #ffffff;
-            }
-            QPushButton {
-                background: #2f80ed;
-                color: #ffffff;
-                border: none;
-                border-radius: 8px;
-                min-height: 32px;
-                padding: 6px 12px;
-                font-weight: 600;
-            }
-            QPushButton:hover {
-                background: #1d6cd7;
-            }
-            QPushButton:checked {
-                background: #0d57ba;
-            }
-            QPushButton:disabled {
-                background: #a8bddb;
-                color: #e8eef8;
-            }
-            QTabWidget::pane {
-                border: 1px solid #dce3ee;
-                border-radius: 10px;
-                background: #ffffff;
-            }
-            QTabBar::tab {
-                background: #eaf0f8;
-                border: 1px solid #dce3ee;
-                border-bottom: none;
-                border-top-left-radius: 8px;
-                border-top-right-radius: 8px;
-                padding: 8px 14px;
-                margin-right: 2px;
-            }
-            QTabBar::tab:selected {
-                background: #ffffff;
-            }
-            QScrollArea {
-                border: none;
-                background: transparent;
-            }
-            QProgressBar {
-                background: #eaf0f8;
-                border: 1px solid #dce3ee;
-                border-radius: 8px;
-                min-height: 20px;
-                text-align: center;
-            }
-            QProgressBar::chunk {
-                border-radius: 7px;
-                background: #2f80ed;
-            }
-            QToolBar {
-                background: #ffffff;
-                border: 1px solid #dce3ee;
-                border-radius: 8px;
-                spacing: 6px;
-                padding: 4px;
-            }
-            QToolButton {
-                background: #f4f7fb;
-                color: #17212b;
-                border: 1px solid #dce3ee;
-                border-radius: 6px;
-                padding: 4px 8px;
-            }
-            QToolButton:hover {
-                background: #eaf0f8;
-            }
-            QToolButton:pressed {
-                background: #dce7f7;
-            }
-            QToolBar QLineEdit {
-                min-height: 26px;
-            }
-            QCheckBox {
-                spacing: 6px;
-            }
-            QCheckBox::indicator {
-                width: 16px;
-                height: 16px;
-                border: 1px solid #c9d4e5;
-                border-radius: 4px;
-                background: #ffffff;
-            }
-            QCheckBox::indicator:checked {
-                background: #2f80ed;
-                border-color: #2f80ed;
-            }
-            QCheckBox::indicator:unchecked:hover {
-                background: #f4f7fb;
-                border-color: #9fb2cf;
-            }
-        """,
-        "dark": """
-            QWidget {
-                color: #e2e8f0;
-                font-size: 13px;
-            }
-            QWidget#viewRoot {
-                background: #0f172a;
-            }
-            QFrame#card {
-                background: #111827;
-                border: 1px solid #2a3648;
-                border-radius: 14px;
-                padding: 8px;
-            }
-            QLabel#viewTitle {
-                color: #f1f5f9;
-                font-size: 20px;
-                font-weight: 700;
-                padding: 4px 2px 8px 2px;
-            }
-            QLabel#sectionTitle {
-                color: #dbe6f5;
-                font-size: 15px;
-                font-weight: 600;
-                padding-bottom: 4px;
-            }
-            QLabel {
-                background: transparent;
-            }
-            QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox {
-                background: #0b1220;
-                border: 1px solid #334155;
-                border-radius: 8px;
-                min-height: 30px;
-                padding: 4px 8px;
-                selection-background-color: #3b82f6;
-            }
-            QComboBox {
-                color: #e2e8f0;
-            }
-            QComboBox::drop-down {
-                border-left: 1px solid #334155;
-                background: #1f2937;
-                width: 22px;
-                border-top-right-radius: 8px;
-                border-bottom-right-radius: 8px;
-            }
-            QComboBox QAbstractItemView {
-                background: #111827;
-                color: #e2e8f0;
-                border: 1px solid #334155;
-                selection-background-color: #3b82f6;
-                selection-color: #ffffff;
-            }
-            QPushButton {
-                background: #2563eb;
-                color: #ffffff;
-                border: none;
-                border-radius: 8px;
-                min-height: 32px;
-                padding: 6px 12px;
-                font-weight: 600;
-            }
-            QPushButton:hover {
-                background: #1d4ed8;
-            }
-            QPushButton:checked {
-                background: #1e40af;
-            }
-            QPushButton:disabled {
-                background: #334155;
-                color: #94a3b8;
-            }
-            QTabWidget::pane {
-                border: 1px solid #334155;
-                border-radius: 10px;
-                background: #111827;
-            }
-            QTabBar::tab {
-                background: #1f2937;
-                border: 1px solid #334155;
-                border-bottom: none;
-                border-top-left-radius: 8px;
-                border-top-right-radius: 8px;
-                padding: 8px 14px;
-                margin-right: 2px;
-            }
-            QTabBar::tab:selected {
-                background: #111827;
-            }
-            QScrollArea {
-                border: none;
-                background: transparent;
-            }
-            QProgressBar {
-                background: #1f2937;
-                border: 1px solid #334155;
-                border-radius: 8px;
-                min-height: 20px;
-                text-align: center;
-            }
-            QProgressBar::chunk {
-                border-radius: 7px;
-                background: #2563eb;
-            }
-            QToolBar {
-                background: #111827;
-                border: 1px solid #334155;
-                border-radius: 8px;
-                spacing: 6px;
-                padding: 4px;
-            }
-            QToolButton {
-                background: #1f2937;
-                color: #e2e8f0;
-                border: 1px solid #334155;
-                border-radius: 6px;
-                padding: 4px 8px;
-            }
-            QToolButton:hover {
-                background: #273449;
-            }
-            QToolButton:pressed {
-                background: #334155;
-            }
-            QToolBar QLineEdit {
-                min-height: 26px;
-            }
-            QCheckBox {
-                spacing: 6px;
-            }
-            QCheckBox::indicator {
-                width: 16px;
-                height: 16px;
-                border: 1px solid #334155;
-                border-radius: 4px;
-                background: #0b1220;
-            }
-            QCheckBox::indicator:checked {
-                background: #2563eb;
-                border-color: #2563eb;
-            }
-            QCheckBox::indicator:unchecked:hover {
-                background: #1f2937;
-                border-color: #475569;
-            }
-        """,
-    }
+    _themes: ClassVar[dict[str, str]] = {}
 
-    def __init__(self, vm_lang: LanguageViewModel):
+    @classmethod
+    def load_themes(cls, themes: dict[str, str], active_theme: str) -> None:
+        cls._themes = dict(themes)
+        if not cls._themes:
+            raise ValueError("No themes provided")
+
+        cls._active_theme = active_theme if active_theme in cls._themes else next(iter(cls._themes))
+
+    def __init__(self, ui_context: UiContext):
+        self._ui_context = ui_context
 
         self._initializing = True
         # -----------------------------
         # Language support
         # -----------------------------
         # Store reference to the LanguageViewModel
-        self._vm_lang = vm_lang
+        self._vm_lang = self._ui_context.vm_lang
         self._enum_translation = Translation()
         # Connect signal: whenever language changes, call _retranslate
         self._vm_lang.languageChanged.connect(self._retranslate)
@@ -367,7 +81,7 @@ class BaseView:
         # -----------------------------
         # Step 1: Initialize UI components (widgets, layouts, etc.)
         self._init_ui()
-        self._apply_theme()
+        self.apply_theme()
         self._logger.debug("UI initialized")
 
         # Step 2: Connect UI signals (buttons, inputs, etc.)
@@ -401,7 +115,7 @@ class BaseView:
         raise NotImplementedError
 
     def _bind_vm(self) -> None:
-        """Bind ViewModel signals to View updates (model → view)."""
+        """Bind ViewModel signals to View updates (model â†’ view)."""
         raise NotImplementedError
 
     def _retranslate(self) -> None:
@@ -445,7 +159,7 @@ class BaseView:
         for enum_key, text in sorted_items:
             cmb.addItem(text, enum_key)
 
-        # alten Wert wieder auswählen, falls noch gültig
+        # alten Wert wieder auswÃ¤hlen, falls noch gÃ¼ltig
         if current_data in data:
             index = cmb.findData(current_data)
             if index >= 0:
@@ -516,13 +230,15 @@ class BaseView:
         item = grid_layout.itemAtPosition(row, col)
         return item is not None and item.widget() is not None
 
-    def _create_page_layout(self) -> QVBoxLayout:
+    @staticmethod
+    def _create_page_layout() -> QVBoxLayout:
         layout = QVBoxLayout()
         layout.setContentsMargins(20, 16, 20, 16)
         layout.setSpacing(14)
         return layout
 
-    def _create_card(self) -> tuple[QFrame, QVBoxLayout]:
+    @staticmethod
+    def _create_card() -> tuple[QFrame, QVBoxLayout]:
         frame = QFrame()
         frame.setObjectName("card")
         frame_layout = QVBoxLayout(frame)
@@ -530,19 +246,26 @@ class BaseView:
         frame_layout.setSpacing(10)
         return frame, frame_layout
 
-    def _wrap_in_scroll_area(self, content_widget: QWidget) -> QScrollArea:
+    @staticmethod
+    def _wrap_in_scroll_area(content_widget: QWidget) -> QScrollArea:
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.NoFrame)  # type: ignore[attr-defined]
+        scroll.setStyleSheet("background: transparent;")
+        scroll.viewport().setStyleSheet("background: transparent;")
         scroll.setWidget(content_widget)
         return scroll
 
-    def _apply_theme(self) -> None:
+    def apply_theme(self) -> None:
         widget = self if isinstance(self, QWidget) else None
         if widget is None:
             return
+        if not BaseView._themes:
+            return
 
         widget.setObjectName("viewRoot")
-        theme = BaseView._themes.get(BaseView._active_theme, BaseView._themes["light"])
+        fallback_theme = next(iter(BaseView._themes.values()))
+        theme = BaseView._themes.get(BaseView._active_theme, fallback_theme)
         widget.setStyleSheet(theme)
         app = QApplication.instance()
         if app is not None:
@@ -562,7 +285,7 @@ class BaseView:
         cls._active_theme = theme
 
         for view in list(cls._instances):
-            view._apply_theme()
+            view.apply_theme()
 
     def _on_widget_changed(self, key: str, attribute: str, *args, **kwargs) -> None:
         """Handle changes from various input widgets and update the corresponding attribute.
@@ -673,3 +396,4 @@ class BaseView:
 
         else:
             self._logger.warning(f"Widget type '{type(widget)}' not handled for key '{key}'")
+
