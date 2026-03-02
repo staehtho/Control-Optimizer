@@ -40,9 +40,8 @@ class EvaluationView(BaseView, QWidget):
     # -------------------------------------------------
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
-        content_widget = QWidget()
+
         main_layout = self._create_page_layout()
-        content_widget.setLayout(main_layout)
 
         cl_frame = self._create_cl_frame()
         function_frame = self._create_function_frame()
@@ -59,14 +58,7 @@ class EvaluationView(BaseView, QWidget):
         main_layout.addWidget(function_frame, 0)
         main_layout.addWidget(response_frame, 1)
 
-        # Outer layout for this view
-        outer_layout = self._create_page_layout()
-        scroll = self._wrap_in_scroll_area(content_widget)
-        outer_frame, outer_frame_layout = self._create_card()
-        outer_frame_layout.addWidget(scroll)
-        outer_layout.addWidget(outer_frame)
-
-        self.setLayout(outer_layout)
+        self.setLayout(main_layout)
 
     def _create_cl_frame(self) -> QFrame:
         frame, frame_layout = self._create_card()

@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QStackedWidget
+from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QStackedWidget
 
 from app_domain.ui_context import UiContext
 from views import BaseView
@@ -22,18 +22,29 @@ class MainView(BaseView, QMainWindow):
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
         central = QWidget()
+        self.setCentralWidget(central)
+
         layout = QHBoxLayout(central)
         layout.setContentsMargins(16, 16, 16, 16)
         layout.setSpacing(12)
-        self.setCentralWidget(central)
 
         self._nav = NavigationWidget(self._ui_context, self._nav_items, self)
         stack_frame, stack_layout = self._create_card()
         self._stack = QStackedWidget(stack_frame)
         stack_layout.addWidget(self._stack)
 
+        stack_content = QWidget()
+        stack_content_layout = QVBoxLayout(stack_content)
+        stack_content_layout.setContentsMargins(0, 0, 0, 0)
+        stack_content_layout.setSpacing(0)
+        stack_content_layout.addWidget(stack_frame)
+
+        scroll = self._wrap_in_scroll_area(stack_content)
+        outer_frame, outer_frame_layout = self._create_card()
+        outer_frame_layout.addWidget(scroll)
+
         layout.addWidget(self._nav)
-        layout.addWidget(stack_frame, 1)
+        layout.addWidget(outer_frame, 1)
 
     # -------------------------------------------------
     # Signal / ViewModel Binding

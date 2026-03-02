@@ -1,7 +1,7 @@
 from functools import partial
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QComboBox, QGridLayout, QLabel, QLineEdit, QFrame
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QComboBox, QGridLayout, QLabel, QLineEdit
 from PySide6.QtGui import QDoubleValidator
 
 from app_domain.ui_context import UiContext
@@ -46,8 +46,11 @@ class FunctionWidget(BaseView, QWidget):
         main_layout.addStretch()
         self.setLayout(main_layout)
 
-    def _create_function_selector_layout(self) -> QFrame:
-        frame, frame_layout = self._create_card()
+    def _create_function_selector_layout(self) -> QWidget:
+        container = QWidget()
+        frame_layout = QVBoxLayout(container)
+        frame_layout.setContentsMargins(0, 0, 0, 0)
+        frame_layout.setSpacing(10)
 
         self._cmb_function = QComboBox()
         frame_layout.addWidget(self._cmb_function)
@@ -59,7 +62,7 @@ class FunctionWidget(BaseView, QWidget):
         frame_layout.addWidget(self._param_widget)
 
         self._function_layout = frame_layout
-        return frame
+        return container
 
     def _create_param_grid(self, show_formula: bool = True) -> QGridLayout:
         """Create and populate the parameter grid."""
