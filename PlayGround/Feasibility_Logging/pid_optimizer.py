@@ -74,7 +74,7 @@ def main():
     plant_den = [1, 2, 1]
 
     use_freq_metrics = True
-    pm_min_deg = 100
+    pm_min_deg = 80
     gm_min_db = 10
     ms_max = 20
     big_m = 10e9
@@ -153,6 +153,8 @@ def main():
         big_m=big_m,
         performance_index=performance_index,
         swarm_size=swarm_size,
+        enable_logging=True,    # TODO FLO Rückgängig logging
+        log_path="particle_log.csv", # TODO FLO Rückgängig logging
     )
 
     # init values
@@ -167,6 +169,7 @@ def main():
 
 
     for run_idx in pbar:
+        obj_func.set_run_id(run_idx)  # TODO Flo rückgängig logging
         swarm = Swarm(obj_func, swarm_size, 3, bounds)
         swarm_result, performance_index_val = swarm.simulate_swarm()
 
