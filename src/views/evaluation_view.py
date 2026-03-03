@@ -181,12 +181,12 @@ class EvaluationView(BaseView, QWidget):
         # vm evaluator
         self._vm_evaluator.closedLoopResponseChanged.connect(self._on_vm_compute_finished)
         self._vm_evaluator.psoSimulationFinished.connect(self._on_vm_pso_simulation_finished)
-        self._vm_evaluator.startTimeChanged.connect(self._sync_plot_time_window_from_model)
-        self._vm_evaluator.endTimeChanged.connect(self._sync_plot_time_window_from_model)
+        self._vm_evaluator.xMinChanged.connect(self._sync_plot_time_window_from_model)
+        self._vm_evaluator.xMaxChanged.connect(self._sync_plot_time_window_from_model)
 
         # Plot ViewModel -> Function recomputation
-        self._vm_plot.startTimeChanged.connect(self._on_vm_time_changed)
-        self._vm_plot.endTimeChanged.connect(self._on_vm_time_changed)
+        self._vm_plot.xMinChanged.connect(self._on_vm_time_changed)
+        self._vm_plot.xMaxChanged.connect(self._on_vm_time_changed)
 
     # -------------------------------------------------
     # Translation
@@ -209,8 +209,8 @@ class EvaluationView(BaseView, QWidget):
         """Apply initial values to all UI elements."""
         self._sync_plot_time_window_from_model()
 
-        t0 = self._vm_plot.start_time
-        t1 = self._vm_plot.end_time
+        t0 = 0
+        t1 = self._vm_plot.x_max
 
         for vm in self._vm_functions.values():
             vm.refresh_from_model()
@@ -265,8 +265,8 @@ class EvaluationView(BaseView, QWidget):
 
         self._sync_plot_time_window_from_model()
 
-        t0 = self._vm_evaluator.start_time
-        t1 = self._vm_evaluator.end_time
+        t0 = self._vm_evaluator.x_min
+        t1 = self._vm_evaluator.x_max
 
         self._vm_evaluator.compute_closed_loop_response(t0, t1)
 
@@ -282,12 +282,9 @@ class EvaluationView(BaseView, QWidget):
 
     def _on_vm_time_changed(self) -> None:
         """Trigger recomputation when plot time range changes."""
-        t0 = self._vm_plot.start_time
-        t1 = self._vm_plot.end_time
-        self._vm_evaluator.end_time = t1
-        self._vm_evaluator.start_time = t0
-        t0 = self._vm_evaluator.start_time
-        t1 = self._vm_evaluator.end_time
+        t0 = 0
+        t1 = self._vm_plot.x_max
+
         self._logger.debug(f"Time range changed: t0={t0}, t1={t1}")
         self._vm_evaluator.compute_closed_loop_response(t0, t1)
 
@@ -298,8 +295,8 @@ class EvaluationView(BaseView, QWidget):
     # UI event handlers
     # -------------------------------------------------
     def _on_vm_function_changed(self, key: str) -> None:
-        t0 = self._vm_plot.start_time
-        t1 = self._vm_plot.end_time
+        t0 = 0
+        t1 = self._vm_plot.x_max
 
         self._logger.debug(
             "Excitation function changed -> recomputing closed-loop response (time window=[%.3f, %.3f])",
@@ -311,22 +308,5 @@ class EvaluationView(BaseView, QWidget):
 
     def _sync_plot_time_window_from_model(self) -> None:
         """Sync plot time range from persisted evaluator state via evaluator VM."""
-        start_time = self._vm_evaluator.start_time
-        end_time = self._vm_evaluator.end_time
-        if start_time >= end_time:
-            return
-
-        current_start = self._vm_plot.start_time
-        current_end = self._vm_plot.end_time
-
-        # Update in a valid order so PlotViewModel constraints are respected.
-        if end_time > current_start:
-            if current_end != end_time:
-                self._vm_plot.end_time = end_time
-            if current_start != start_time:
-                self._vm_plot.start_time = start_time
-        else:
-            if current_start != start_time:
-                self._vm_plot.start_time = start_time
-            if current_end != end_time:
-                self._vm_plot.end_time = end_time
+        self._vm_plot.x_min = self._vm_evaluator.x_min
+        self._vm_plot.x_max = self._vm_evaluator.x_max

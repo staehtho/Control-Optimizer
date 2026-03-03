@@ -17,8 +17,8 @@ FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
     ],
     "control": [
         SectionConfig("simulation_time", [
-            FieldConfig("start_time", QLineEdit),
-            FieldConfig("end_time", QLineEdit),
+            FieldConfig("x_min", QLineEdit),
+            FieldConfig("x_max", QLineEdit),
         ]),
         SectionConfig("performance_index", [
             FieldConfig("time_domain", QComboBox),
@@ -161,8 +161,8 @@ class PsoConfigurationView(BaseView, QWidget):
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
         attributes: dict[str, tuple[str, str, object]] = {
-            "start_time": ("editingFinished", "_vm_pso.start_time", float),
-            "end_time": ("editingFinished", "_vm_pso.end_time", float),
+            "x_min": ("editingFinished", "_vm_pso.x_min", float),
+            "x_max": ("editingFinished", "_vm_pso.x_max", float),
             "excitation_target": ("currentIndexChanged", "_vm_pso.excitation_target", ExcitationTarget),
             "time_domain": ("currentIndexChanged", "_vm_pso.performance_index", PerformanceIndex),
             "kp_min": ("editingFinished", "_vm_pso.kp_min", float),
@@ -191,8 +191,8 @@ class PsoConfigurationView(BaseView, QWidget):
         self._vm_function.functionChanged.connect(self._on_vm_function_function_changed)
         # vm pso
         attributes: dict[str, tuple[str, str]] = {
-            "start_time": ("startTimeChanged", "_vm_pso.start_time"),
-            "end_time": ("endTimeChanged", "_vm_pso.end_time"),
+            "x_min": ("xMinChanged", "_vm_pso.x_min"),
+            "x_max": ("xMaxChanged", "_vm_pso.x_max"),
             "excitation_target": ("excitationTargetChanged", "_vm_pso.excitation_target"),
             "time_domain": ("performanceIndexChanged", "_vm_pso.performance_index"),
             "kp_min": ("kpMinChanged", "_vm_pso.kp_min"),
@@ -223,8 +223,8 @@ class PsoConfigurationView(BaseView, QWidget):
 
         labels = {
             "simulation_time": self.tr("Simulation Time"),
-            "start_time": self.tr("Start Time"),
-            "end_time": self.tr("End Time"),
+            "x_min": self.tr("Start Time"),
+            "x_max": self.tr("End Time"),
             "excitation_target": self.tr("Excitation Target"),
             "performance_index": self.tr("Performance Index"),
             "time_domain": self.tr("Time Domain"),
@@ -280,10 +280,10 @@ class PsoConfigurationView(BaseView, QWidget):
     # -------------------------------------------------
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
-        keys = ["start_time", "end_time", "kp_min", "kp_max", "ti_min", "ti_max", "td_min", "td_max"]
+        keys = ["x_min", "x_max", "kp_min", "kp_max", "ti_min", "ti_max", "td_min", "td_max"]
         values = [
-            self._vm_pso.start_time,
-            self._vm_pso.end_time,
+            self._vm_pso.x_min,
+            self._vm_pso.x_max,
             self._vm_pso.kp_min,
             self._vm_pso.kp_max,
             self._vm_pso.ti_min,

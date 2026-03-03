@@ -496,11 +496,11 @@ Tf   = %(tf).3f</translation>
         <translation type="vanished">Parameter zur Optimierung des Reglers</translation>
     </message>
     <message>
-        <source>control.start_time</source>
+        <source>control.x_min</source>
         <translation type="vanished">Startzeit</translation>
     </message>
     <message>
-        <source>control.end_time</source>
+        <source>control.x_max</source>
         <translation type="vanished">Endzeit</translation>
     </message>
     <message>

@@ -147,8 +147,8 @@ class PlantView(BaseView, QWidget):
         self._vm_plant.tfChanged.connect(self._on_vm_formula_changed)
         self._vm_plant.stepResponseChanged.connect(self._on_step_response_changed)
         # vm plot
-        self._vm_plot.startTimeChanged.connect(self._on_plot_time_changed)
-        self._vm_plot.endTimeChanged.connect(self._on_plot_time_changed)
+        self._vm_plot.xMinChanged.connect(self._on_plot_time_changed)
+        self._vm_plot.xMaxChanged.connect(self._on_plot_time_changed)
 
     # -------------------------------------------------
     # Translation
@@ -197,7 +197,7 @@ class PlantView(BaseView, QWidget):
 
     def _on_plot_time_changed(self) -> None:
         """Update plot when start or end time changes."""
-        self._vm_plant.compute_step_response(self._vm_plot.start_time, self._vm_plot.end_time)
+        self._vm_plant.compute_step_response(0, self._vm_plot.x_max)
 
     def _on_step_response_changed(self, t: ndarray, y: ndarray) -> None:
         self._vm_plot.update_data(PlotData("step_response", "step_response", t, y, "#1f77b4"))

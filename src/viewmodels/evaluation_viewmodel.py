@@ -19,8 +19,8 @@ from .pso_configuration_viewmodel import PsoConfigurationViewModel
 
 class EvaluationViewModel(BaseViewModel):
     """Exposes controller evaluation values and keeps them synced with PSO output."""
-    startTimeChanged = Signal()
-    endTimeChanged = Signal()
+    xMinChanged = Signal()
+    xMaxChanged = Signal()
     kpChanged = Signal()
     tiChanged = Signal()
     tdChanged = Signal()
@@ -57,34 +57,36 @@ class EvaluationViewModel(BaseViewModel):
     # -------------------
     # simulation time window
     # -------------------
-    def _verify_start_time(self, value: float) -> bool:
-        if self._model_evaluator.end_time <= value:
+    def _verify_x_min(self, value: float) -> bool:
+        if self._model_evaluator.x_max <= value:
             self.logger.debug(
-                f"Skipped 'start_time' update (value={value} >= end_time={self._model_evaluator.end_time})"
+                f"Skipped 'x_min' update (value={value} >= x_max={self._model_evaluator.x_max})"
             )
             return False
         return True
 
-    start_time: float = BaseViewModel._logged_property(
-        attribute="_model_evaluator.start_time",
-        notify_signal="startTimeChanged",
+    x_min: float = BaseViewModel._logged_property(
+        attribute="_model_evaluator.x_min",
+        notify_signal="xMinChanged",
         property_type=float,
-        custom_setter=_verify_start_time,
+        custom_setter=_verify_x_min,
+        read_only=True
     )
 
-    def _verify_end_time(self, value: float) -> bool:
-        if self._model_evaluator.start_time >= value:
+    def _verify_x_max(self, value: float) -> bool:
+        if self._model_evaluator.x_min >= value:
             self.logger.debug(
-                f"Skipped 'end_time' update (value={value} <= start_time={self._model_evaluator.start_time})"
+                f"Skipped 'x_max' update (value={value} <= x_min={self._model_evaluator.x_min})"
             )
             return False
         return True
 
-    end_time: float = BaseViewModel._logged_property(
-        attribute="_model_evaluator.end_time",
-        notify_signal="endTimeChanged",
+    x_max: float = BaseViewModel._logged_property(
+        attribute="_model_evaluator.x_max",
+        notify_signal="xMaxChanged",
         property_type=float,
-        custom_setter=_verify_end_time,
+        custom_setter=_verify_x_max,
+        read_only=True
     )
 
     kp: float = BaseViewModel._logged_property(
@@ -117,14 +119,14 @@ class EvaluationViewModel(BaseViewModel):
         # Persist simulation time window for pull-based views.
         # Prefer the result payload because tests/mocks may not expose VM fields.
         if result is not None:
-            self.end_time = result.t1
-            self.start_time = result.t0
+            self._model_evaluator.x_max = result.t1
+            self._model_evaluator.x_min = result.t0
         else:
-            pso_start = getattr(self._vm_pso, "start_time", None)
-            pso_end = getattr(self._vm_pso, "end_time", None)
+            pso_start = getattr(self._vm_pso, "x_min", None)
+            pso_end = getattr(self._vm_pso, "x_max", None)
             if isinstance(pso_start, (int, float)) and isinstance(pso_end, (int, float)) and pso_start < pso_end:
-                self.end_time = float(pso_end)
-                self.start_time = float(pso_start)
+                self._model_evaluator.x_max = float(pso_end)
+                self._model_evaluator.x_min = float(pso_start)
 
         if result is None:
             # Clear previously shown gains if the run did not produce a valid result.
@@ -149,10 +151,6 @@ class EvaluationViewModel(BaseViewModel):
             function_model.selected_function = result.function.copy()
 
         self.psoSimulationFinished.emit(result.excitation_target)
-
-    def get_simulation_time_window(self) -> tuple[float, float]:
-        """Return the current simulation time window from evaluation model state."""
-        return self.start_time, self.end_time
 
 
     @Slot(float, float)

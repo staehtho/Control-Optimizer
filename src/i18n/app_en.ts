@@ -498,11 +498,11 @@ Tf   = %(tf).3f</translation>
         <translation type="vanished">Controller Optimization Parameters</translation>
     </message>
     <message>
-        <source>control.start_time</source>
+        <source>control.x_min</source>
         <translation type="vanished">Start time</translation>
     </message>
     <message>
-        <source>control.end_time</source>
+        <source>control.x_max</source>
         <translation type="vanished">End time</translation>
     </message>
     <message>

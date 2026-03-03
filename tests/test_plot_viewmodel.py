@@ -23,44 +23,44 @@ def test_grid_changed_does_not_emit_on_same_value() -> None:
     assert spy.size() == 0
 
 
-def test_start_time_changed_emits_for_valid_value() -> None:
+def test_x_min_changed_emits_for_valid_value() -> None:
     vm = PlotViewModel()
-    spy = QSignalSpy(vm.startTimeChanged)
+    spy = QSignalSpy(vm.xMinChanged)
 
-    vm.start_time = 2.0
+    vm.x_min = 2.0
 
     assert spy.size() == 1
-    assert vm.start_time == 2.0
+    assert vm.x_min == 2.0
 
 
-def test_start_time_rejects_invalid_value() -> None:
+def test_x_min_rejects_invalid_value() -> None:
     vm = PlotViewModel()
-    spy = QSignalSpy(vm.startTimeChanged)
+    spy = QSignalSpy(vm.xMinChanged)
 
-    vm.start_time = vm.end_time
+    vm.x_min = vm.x_max
 
     assert spy.size() == 0
-    assert vm.start_time == 0.0
+    assert vm.x_min == 0.0
 
 
-def test_end_time_changed_emits_for_valid_value() -> None:
+def test_x_max_changed_emits_for_valid_value() -> None:
     vm = PlotViewModel()
-    spy = QSignalSpy(vm.endTimeChanged)
+    spy = QSignalSpy(vm.xMaxChanged)
 
-    vm.end_time = 20.0
+    vm.x_max = 20.0
 
     assert spy.size() == 1
-    assert vm.end_time == 20.0
+    assert vm.x_max == 20.0
 
 
-def test_end_time_rejects_invalid_value() -> None:
+def test_x_max_rejects_invalid_value() -> None:
     vm = PlotViewModel()
-    spy = QSignalSpy(vm.endTimeChanged)
+    spy = QSignalSpy(vm.xMaxChanged)
 
-    vm.end_time = vm.start_time
+    vm.x_max = vm.x_min
 
     assert spy.size() == 0
-    assert vm.end_time == 10.0
+    assert vm.x_max == 10.0
 
 
 def test_update_data_emits_only_for_new_or_changed_data() -> None:

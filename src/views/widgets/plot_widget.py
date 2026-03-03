@@ -21,7 +21,7 @@ class PlotConfiguration:
     title: str
     x_label: str
     y_label: str
-    show_start_end_time: bool = True
+    show_start_x_max: bool = True
 
 
 class PlotWidget(BaseView, QWidget):
@@ -66,7 +66,7 @@ class PlotWidget(BaseView, QWidget):
     def _create_header(self) -> QHBoxLayout:
         layout = QHBoxLayout()
 
-        show = self._cfg.show_start_end_time  # True = show, False = hide
+        show = self._cfg.show_start_x_max  # True = show, False = hide
 
         # Start time
         self._lbl_start = QLabel("")
@@ -130,8 +130,8 @@ class PlotWidget(BaseView, QWidget):
         """Bind ViewModel signals to View update handlers."""
         # Thread-safe call to update plot
         self._vm.gridChanged.connect(self._update_plot)
-        self._vm.startTimeChanged.connect(self._update_plot)
-        self._vm.endTimeChanged.connect(self._update_plot)
+        self._vm.xMinChanged.connect(self._update_plot)
+        self._vm.xMaxChanged.connect(self._update_plot)
         self._vm.dataChanged.connect(self._update_plot)
 
     # -------------------------------------------------
@@ -151,8 +151,8 @@ class PlotWidget(BaseView, QWidget):
     # -------------------------------------------------
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
-        self._txt_start.setText(f"{self._vm.start_time:.{self._dec}f}")
-        self._txt_end.setText(f"{self._vm.end_time:.{self._dec}f}")
+        self._txt_start.setText(f"{self._vm.x_min:.{self._dec}f}")
+        self._txt_end.setText(f"{self._vm.x_max:.{self._dec}f}")
         self._chk_grid.setChecked(self._vm.grid)
 
     # -------------------------------------------------
@@ -164,7 +164,7 @@ class PlotWidget(BaseView, QWidget):
         Thread-safe via QMetaObject.invokeMethod.
         """
         self._logger.debug(
-            f"Updating plot (grid={self._vm.grid}, xlim=[{self._vm.start_time:.6f}, {self._vm.end_time:.6f}])"
+            f"Updating plot (grid={self._vm.grid}, xlim=[{self._vm.x_min:.6f}, {self._vm.x_max:.6f}])"
         )
         self._figure.clear()
         ax = self._figure.add_subplot(111)
@@ -198,11 +198,11 @@ class PlotWidget(BaseView, QWidget):
         ax.set_xlabel(QCoreApplication.translate(self._cfg.context, self._cfg.x_label))
         ax.set_ylabel(QCoreApplication.translate(self._cfg.context, self._cfg.y_label))
         ax.grid(self._vm.grid)
-        ax.set_xlim(self._vm.start_time, self._vm.end_time)
+        ax.set_xlim(self._vm.x_min, self._vm.x_max)
         self._figure.subplots_adjust(left=0.10, right=0.98, top=0.90, bottom=bottom_margin)
 
-        start_text = f"{self._vm.start_time:.{self._dec}f}"
-        end_text = f"{self._vm.end_time:.{self._dec}f}"
+        start_text = f"{self._vm.x_min:.{self._dec}f}"
+        end_text = f"{self._vm.x_max:.{self._dec}f}"
         if self._txt_start.text() != start_text:
             self._txt_start.setText(start_text)
         if self._txt_end.text() != end_text:
@@ -265,11 +265,11 @@ class PlotWidget(BaseView, QWidget):
             value = float(self._txt_start.text())
         except ValueError:
             self._logger.warning(f"Invalid start time input: {self._txt_start.text()}")
-            self._txt_start.setText(f"{self._vm.start_time:.{self._dec}f}")
+            self._txt_start.setText(f"{self._vm.x_min:.{self._dec}f}")
             return
 
-        self._logger.debug(f"UI event: start_time changed -> {value:.6f}")
-        self._vm.start_time = value
+        self._logger.debug(f"UI event: x_min changed -> {value:.6f}")
+        self._vm.x_min = value
         self._txt_start.setText(f"{value:.{self._dec}f}")
 
     def _on_txt_end_changed(self) -> None:
@@ -277,11 +277,11 @@ class PlotWidget(BaseView, QWidget):
             value = float(self._txt_end.text())
         except ValueError:
             self._logger.warning(f"Invalid end time input: {self._txt_end.text()}")
-            self._txt_end.setText(f"{self._vm.end_time:.{self._dec}f}")
+            self._txt_end.setText(f"{self._vm.x_max:.{self._dec}f}")
             return
 
-        self._logger.debug(f"UI event: end_time changed -> {value:.6f}")
-        self._vm.end_time = value
+        self._logger.debug(f"UI event: x_max changed -> {value:.6f}")
+        self._vm.x_max = value
         self._txt_end.setText(f"{value:.{self._dec}f}")
 
     def resizeEvent(self, event) -> None:

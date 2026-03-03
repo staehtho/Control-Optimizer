@@ -22,16 +22,16 @@ class PlotViewModel(BaseViewModel):
     """ViewModel for plot settings and plot series data."""
 
     gridChanged = Signal()
-    startTimeChanged = Signal()
-    endTimeChanged = Signal()
+    xMinChanged = Signal()
+    xMaxChanged = Signal()
     dataChanged = Signal()
 
     def __init__(self, parent: QObject = None):
         super().__init__(parent)
 
         self._grid: bool = True
-        self._start_time: float = 0.0
-        self._end_time: float = 10.0
+        self._x_min: float = 0.0
+        self._x_max: float = 10.0
         self._data: dict[str, PlotData] = {}
 
     def _connect_signals(self) -> None:
@@ -50,33 +50,33 @@ class PlotViewModel(BaseViewModel):
     # -------------------
     # start time
     # -------------------
-    def _verify_start_time(self, value: float) -> bool:
-        if value >= self._end_time:
-            self.logger.warning(f"Attempted to set start_time >= end_time ({value} >= {self._end_time})")
+    def _verify_x_min(self, value: float) -> bool:
+        if value >= self._x_max:
+            self.logger.warning(f"Attempted to set x_min >= x_max ({value} >= {self._x_max})")
             return False
         return True
-
-    start_time = BaseViewModel._logged_property(
-        attribute="_start_time",
-        notify_signal="startTimeChanged",
+    # TODO: Start Time und End Time umbenennen in x min x max oder so
+    x_min = BaseViewModel._logged_property(
+        attribute="_x_min",
+        notify_signal="xMinChanged",
         property_type=float,
-        custom_setter=_verify_start_time,
+        custom_setter=_verify_x_min,
     )
 
     # -------------------
     # end time
     # -------------------
-    def _verify_end_time(self, value: float) -> bool:
-        if value <= self._start_time:
-            self.logger.warning(f"Attempted to set end_time <= start_time ({value} <= {self._start_time})")
+    def _verify_x_max(self, value: float) -> bool:
+        if value <= self._x_min:
+            self.logger.warning(f"Attempted to set x_max <= x_min ({value} <= {self._x_min})")
             return False
         return True
 
-    end_time = BaseViewModel._logged_property(
-        attribute="_end_time",
-        notify_signal="endTimeChanged",
+    x_max = BaseViewModel._logged_property(
+        attribute="_x_max",
+        notify_signal="xMaxChanged",
         property_type=float,
-        custom_setter=_verify_end_time,
+        custom_setter=_verify_x_max,
     )
 
     # -------------------
