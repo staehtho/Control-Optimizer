@@ -18,10 +18,8 @@ class ClosedLoopResponseWorker(QThread):
         self._context = context
         self._logger = logging.getLogger(f"Worker.{self.__class__.__name__}.{id(self)}")
         self._logger.debug(
-            "Initialized with t0=%.3f, t1=%.3f, dt=%.6f.",
-            context.t0,
-            context.t1,
-            context.dt,
+            "Initialized with t0=%.3f, t1=%.3f",
+            context.t0, context.t1
         )
 
     def run(self) -> None:

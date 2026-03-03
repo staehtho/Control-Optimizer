@@ -168,7 +168,6 @@ class EvaluationViewModel(BaseViewModel):
             tf=self.tf,
             t0=t0,
             t1=t1,
-            dt=self._settings.get_time_step(),
             solver=self._settings.get_solver(),
             anti_windup=self._model_controller.anti_windup,
             constraint=(

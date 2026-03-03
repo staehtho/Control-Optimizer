@@ -20,7 +20,6 @@ class ClosedLoopResponseContext:
 
     t0: float
     t1: float
-    dt: float
 
     solver: MySolver
 
@@ -49,10 +48,8 @@ class ClosedLoopResponseEngine:
             Tuple (t, y) with simulation time and plant output.
         """
         self._logger.info(
-            "Starting closed-loop response computation from %.3f to %.3f (dt=%.6f)",
-            context.t0,
-            context.t1,
-            context.dt,
+            "Starting closed-loop response computation from %.3f to %.3f",
+            context.t0, context.t1
         )
         plant = Plant(context.num, context.den)
 
@@ -65,21 +62,19 @@ class ClosedLoopResponseEngine:
             control_constraint=list(context.constraint),
             anti_windup_method=context.anti_windup
         )
-
+        dt = (context.t1 - context.t0) / 5000
         t, y = pid_cl.system_response(
             t0=context.t0,
             t1=context.t1,
-            dt=context.dt,
+            dt=dt,
             r=context.reference,
             l=context.input_disturbance,
             n=context.measurement_disturbance,
         )
 
         self._logger.info(
-            "Closed-loop response computation finished (dt=%.6f, t.size=%d, y.size=%d)",
-            context.dt,
-            t.size,
-            y.size,
+            "Closed-loop response computation finished (t.size=%d, y.size=%d)",
+            t.size, y.size,
         )
 
         return t, y
