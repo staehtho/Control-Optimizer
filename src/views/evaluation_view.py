@@ -244,8 +244,7 @@ class EvaluationView(BaseView, QWidget):
                 y=y,
                 color=COLORS.get(key),
                 order=PLOT_ORDER.get(key),
-                ignore_plot=ignore,
-                show=not ignore,
+                ignore_plot=ignore
             )
         )
 

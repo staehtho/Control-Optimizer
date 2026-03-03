@@ -176,7 +176,7 @@ class PlotWidget(BaseView, QWidget):
         sorted_series = sorted(data.values(), key=lambda s: s.order)
 
         for series in sorted_series:
-            if not series.show:
+            if not series.show or series.ignore_plot:
                 continue
             self._logger.debug(f"Plotting series: {series}")
             ax.plot(series.x, series.y, label=series.label, color=series.color,
