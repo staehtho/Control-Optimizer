@@ -492,23 +492,19 @@ def system_response(t_eval: np.ndarray, dt: float, u_eval: np.ndarray,
     return y_hist
 
 
-@njit(float64[:](
-    float64, float64, float64, float64,
-    float64[:], float64,
-    float64[:], float64[:], float64[:], float64[:], float64[:],
-    int64, float64[:, :], float64[:], float64[:], float64, int64
-), inline="always")
+@njit(inline="always")
 def pid_system_response(Kp: float, Ti: float, Td: float, Tf: float,
                         t_eval: np.ndarray, dt: float,
                         r_eval: np.ndarray, l_eval: np.ndarray, n_eval: np.ndarray,
                         x: np.ndarray, control_constraint: np.ndarray,
                         anti_windup_method: int,
-                        A: np.ndarray, B: np.ndarray, C: np.ndarray, D: float, solver: int) -> np.ndarray:
+                        A: np.ndarray, B: np.ndarray, C: np.ndarray, D: float, solver: int) -> tuple[
+    np.ndarray, np.ndarray]:
     """
     Simulate a SISO system under PID control with reference and two disturbances (Z1, Z2).
 
-    The function advances the plant state and controller states over t_eval and
-    returns the measured output (including measurement disturbance and feedthrough).
+    The function advances the plant state and controller states over `t_eval` and
+    returns both the control signal history and the measured output trajectory.
 
     Args:
         Kp: Proportional gain.
@@ -522,15 +518,20 @@ def pid_system_response(Kp: float, Ti: float, Td: float, Tf: float,
         n_eval: Disturbance at measurement/output (Z2).
         x: Initial state vector.
         control_constraint: Control limits [u_min, u_max].
-        anti_windup_method: Anti-windup strategy (0=Conditional, 1=Clamping).
-        A: Plant matrix.
+        anti_windup_method: Anti-windup strategy (0 = Conditional, 1 = Clamping).
+        A: Plant state matrix.
         B: Input matrix.
         C: Output matrix.
         D: Feedthrough scalar.
         solver: Solver enum value.
 
     Returns:
-        The output trajectory y(t) (measured output including measurement disturbance).
+        u_hist:
+            Control signal history u(t), shape (n_steps,).
+
+        y_hist:
+            Measured output history y(t), including measurement disturbance and
+            feedthrough term, shape (n_steps,).
     """
     e_prev = 0.0
     filtered_prev = 0.0
@@ -541,6 +542,7 @@ def pid_system_response(Kp: float, Ti: float, Td: float, Tf: float,
 
     n_steps = len(t_eval)
     y_hist = np.zeros(n_steps)
+    u_hist = np.zeros(n_steps)
     y = dot1D(C, x)
 
     for i in range(n_steps):
@@ -565,11 +567,12 @@ def pid_system_response(Kp: float, Ti: float, Td: float, Tf: float,
         y = dot1D(C, x)
 
         # Historie: nur das reale Ausgangssignal plus Feedthrough
+        u_hist[i] = u
         y_hist[i] = y + n + D * (u + l)
 
         e_prev = e
 
-    return y_hist
+    return u_hist, y_hist
 
 
 # =============================================================================
@@ -618,7 +621,7 @@ def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarr
 
         x = np.zeros(system_order, dtype=np.float64)  # Anfangszustand
 
-        y = pid_system_response(Kp, Ti, Td, Tf, t_eval, dt, r_eval, l_eval, n_eval, x, control_constraint,
+        _, y = pid_system_response(Kp, Ti, Td, Tf, t_eval, dt, r_eval, l_eval, n_eval, x, control_constraint,
                                 anti_windup_method, A, B, C, D, solver)
 
         # Kosten berechnen
