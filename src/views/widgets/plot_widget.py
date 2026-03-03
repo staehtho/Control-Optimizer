@@ -128,9 +128,7 @@ class PlotWidget(BaseView, QWidget):
         """Connect UI signals to event handlers."""
         self._chk_grid.stateChanged.connect(self._on_chk_grid_changed)
         self._txt_start.editingFinished.connect(self._on_txt_start_changed)
-        self._txt_start.returnPressed.connect(self._on_txt_start_changed)
         self._txt_end.editingFinished.connect(self._on_txt_end_changed)
-        self._txt_end.returnPressed.connect(self._on_txt_end_changed)
 
     # -------------------------------------------------
     # ViewModel bindings (ViewModel → UI)
@@ -169,8 +167,7 @@ class PlotWidget(BaseView, QWidget):
     # -------------------------------------------------
     def _update_plot(self) -> None:
         """
-        Redraw the plot safely, add legend if multiple series, set grid and limits.
-        Thread-safe via QMetaObject.invokeMethod.
+        Redraw the plot, add legends, and apply axis labels, grid, and limits.
         """
         self._logger.debug(
             f"Updating plot (grid={self._vm.grid}, xlim=[{self._vm.x_min:.6f}, {self._vm.x_max:.6f}])"
@@ -180,52 +177,89 @@ class PlotWidget(BaseView, QWidget):
 
         self._figure.clear()
         subplot = self._cfg.subplot
-        axs = [self._figure.add_subplot(*subplot, i) for i in range(1, subplot[0] * subplot[1] + 1)]
+        rows, cols = subplot
+        if rows < 1 or cols < 1:
+            self._logger.warning(f"Invalid subplot layout {subplot}, falling back to (1, 1)")
+            rows, cols = 1, 1
+        total_subplots = rows * cols
+        axs = [self._figure.add_subplot(rows, cols, i) for i in range(1, total_subplots + 1)]
 
         data = self._vm.get_data()
         self._sync_series_checkboxes(data)
         self._logger.debug(f"Plot contains {len(data)} data series")
 
         sorted_series = sorted(data.values(), key=lambda s: s.order)
+        translated_x_labels: list[str] = []
 
         for i in range(len(axs)):
             for series in sorted_series:
                 if not series.show or series.ignore_plot:
                     continue
 
-                if series.subplot_position != i + 1 and len(axs) != 1:
-                    continue
+                if len(axs) != 1:
+                    subplot_position = series.subplot_position
+                    if subplot_position < 1 or subplot_position > len(axs):
+                        self._logger.warning(
+                            f"Series '{series.key}' has invalid subplot position {subplot_position}; "
+                            "using subplot 1"
+                        )
+                        subplot_position = 1
+                    if subplot_position != i + 1:
+                        continue
 
                 self._logger.debug(f"Plotting series: {series}")
                 axs[i].plot(series.x, series.y, label=series.label, color=series.color,
                             zorder=len(sorted_series) - series.order)
 
-            # Add legend only if data exists
-            if len(data) > 1 and any([d.show and not d.ignore_plot for d in data.values()]):
-                axs[i].legend(
-                    loc="upper center",
-                    bbox_to_anchor=(0.5, -0.18),
+            handles, labels = axs[i].get_legend_handles_labels()
+            if handles:
+                legend = axs[i].legend(
+                    loc="best",
                     ncol=2,
                     frameon=False
                 )
+                legend.set_draggable(True)
 
             if len(axs) == 1:
                 x_label = self._cfg.x_label
                 y_label = self._cfg.y_label
             else:
-                subplot_cfg = self._cfg.subplot_configuration.get(i + 1)
-                x_label = subplot_cfg.x_label
-                y_label = subplot_cfg.y_label
+                subplot_cfg = self._cfg.subplot_configuration.get(i + 1, SubplotConfiguration())
+                x_label = subplot_cfg.x_label or self._cfg.x_label
+                y_label = subplot_cfg.y_label or self._cfg.y_label
 
                 axs[i].set_title(QCoreApplication.translate(context, subplot_cfg.title))
 
-            axs[i].set_xlabel(QCoreApplication.translate(context, x_label))
-            axs[i].set_ylabel(QCoreApplication.translate(context, y_label))
+            translated_x = QCoreApplication.translate(context, x_label)
+            translated_y = QCoreApplication.translate(context, y_label)
+            translated_x_labels.append(translated_x)
+            axs[i].set_xlabel(translated_x)
+            axs[i].set_ylabel(translated_y)
+            if len(axs) > 1:
+                axs[i].xaxis.labelpad = 10
             axs[i].grid(self._vm.grid)
             axs[i].set_xlim(self._vm.x_min, self._vm.x_max)
 
+        same_x_labels = len(axs) > 1 and len({label.strip() for label in translated_x_labels}) == 1
+        if same_x_labels:
+            lowest_idx = len(axs) - 1
+            for i, ax in enumerate(axs):
+                if i != lowest_idx:
+                    ax.set_xlabel("")
+                    ax.tick_params(axis="x", which="both", labelbottom=False)
+                else:
+                    ax.tick_params(axis="x", which="both", labelbottom=True)
+
         self._figure.suptitle(QCoreApplication.translate(context, self._cfg.title))
-        self._figure.subplots_adjust(left=0.10, right=0.98, top=0.90)
+        # Reserve enough margin for x-axis labels in framed layouts.
+        bottom = 0.16
+        if len(axs) == 1:
+            hspace = 0.35
+        elif same_x_labels:
+            hspace = 0.20
+        else:
+            hspace = 0.60
+        self._figure.subplots_adjust(left=0.10, right=0.98, top=0.90, bottom=bottom, hspace=hspace)
 
         start_text = f"{self._vm.x_min:.{self._dec}f}"
         end_text = f"{self._vm.x_max:.{self._dec}f}"
@@ -234,7 +268,7 @@ class PlotWidget(BaseView, QWidget):
         if self._txt_end.text() != end_text:
             self._txt_end.setText(end_text)
 
-        self._canvas.draw()
+        self._canvas.draw_idle()
 
     def _sync_series_checkboxes(self, data: dict) -> None:
         existing_keys = set(self._series_checkboxes.keys())
