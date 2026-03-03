@@ -36,10 +36,9 @@ class AppEngine:
         self.simulation_service = SimulationService()
 
         # ------------------------------
-        # PSO warmup
+        # Warmup
         # ------------------------------
-        # This performs a minimal PSO run to pre-compile and initialize
-        # the PSO engine for faster subsequent simulations.
+        self.pso_warmup()
         self.pso_warmup()
 
         # ------------------------------
@@ -112,6 +111,23 @@ class AppEngine:
         """
         return self._vm_functions.setdefault(
             key, FunctionViewModel(self.model_container.ensure_function_model(key), self.simulation_service)
+        )
+
+    # ------------------------------
+    # Step Response Warmup Method
+    # ------------------------------
+    def step_response_warmup(self):
+        """Perform a minimal step response to warm up the engine.
+
+        This pre-compiles any JIT functions, initializes caches, and
+        triggers one-time setup in the step response engine for faster subsequent runs.
+        """
+        self.logger.info("Starting step response engine warmup.")
+
+        # Run warmup simulation asynchronously
+        self.simulation_service.compute_step_response(
+            [1], [1, 1], 0, 10, MySolver.RK4,
+            callback=lambda t, y: self.logger.info("Step response warmup completed successfully.")
         )
 
     # ------------------------------
