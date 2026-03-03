@@ -108,7 +108,7 @@ class FunctionView(BaseView, QWidget):
     # -------------------------------------------------
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
-        t0 = 0
+        t0 = self._vm_plot.x_min
         t1 = self._vm_plot.x_max
         self._vm_function.compute_function(t0, t1)
 
@@ -122,7 +122,7 @@ class FunctionView(BaseView, QWidget):
         function_type = resolve_function_type(self._vm_function.selected_function)
         self._plot_cfg.title = self._enum_translation(FunctionTypes).get(function_type)
 
-        t0 = 0
+        t0 = self._vm_plot.x_min
         t1 = self._vm_plot.x_max
         self._vm_function.compute_function(t0, t1)
 
@@ -133,7 +133,7 @@ class FunctionView(BaseView, QWidget):
 
     def _on_vm_time_changed(self) -> None:
         """Trigger recomputation when plot time range changes."""
-        t0 = 0
+        t0 = self._vm_plot.x_min
         t1 = self._vm_plot.x_max
         self._logger.debug(f"Time range changed: t0={t0}, t1={t1}")
         self._vm_function.compute_function(t0, t1)

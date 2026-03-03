@@ -197,7 +197,7 @@ class PlantView(BaseView, QWidget):
 
     def _on_plot_time_changed(self) -> None:
         """Update plot when start or end time changes."""
-        self._vm_plant.compute_step_response(0, self._vm_plot.x_max)
+        self._vm_plant.compute_step_response(self._vm_plot.x_min, self._vm_plot.x_max)
 
     def _on_step_response_changed(self, t: ndarray, y: ndarray) -> None:
         self._vm_plot.update_data(PlotData("step_response", "step_response", t, y, "#1f77b4"))

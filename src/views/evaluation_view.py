@@ -282,7 +282,7 @@ class EvaluationView(BaseView, QWidget):
 
     def _on_vm_time_changed(self) -> None:
         """Trigger recomputation when plot time range changes."""
-        t0 = 0
+        t0 = self._vm_plot.x_min
         t1 = self._vm_plot.x_max
 
         self._logger.debug(f"Time range changed: t0={t0}, t1={t1}")
@@ -295,7 +295,7 @@ class EvaluationView(BaseView, QWidget):
     # UI event handlers
     # -------------------------------------------------
     def _on_vm_function_changed(self, key: str) -> None:
-        t0 = 0
+        t0 = self._vm_plot.x_min
         t1 = self._vm_plot.x_max
 
         self._logger.debug(
