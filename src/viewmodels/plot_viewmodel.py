@@ -13,6 +13,7 @@ class PlotData:
     y: list[float] | np.ndarray
     color: str
     order: int = 0
+    subplot_position: int = 1
     ignore_plot: bool = False
     show: bool = True
 

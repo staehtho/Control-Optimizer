@@ -6,7 +6,7 @@ from app_domain.ui_context import UiContext
 from app_domain.functions import FunctionTypes, resolve_function_type
 from viewmodels import FunctionViewModel, PlotViewModel, PlotData
 from views import BaseView
-from views.widgets import PlotWidget, PlotConfiguration, FunctionWidget
+from views.widgets import PlotWidget, PlotWidgetConfiguration, FunctionWidget
 
 
 class FunctionView(BaseView, QWidget):
@@ -60,7 +60,7 @@ class FunctionView(BaseView, QWidget):
     def _create_plot_widget(self) -> QWidget:
         function_type = resolve_function_type(self._vm_function.selected_function)
         title = self._enum_translation(FunctionTypes).get(function_type)
-        self._plot_cfg = PlotConfiguration(
+        self._plot_cfg = PlotWidgetConfiguration(
             context="ControlEnums",
             title=title,
             x_label=str(QT_TRANSLATE_NOOP("ControlEnums", "Time [s]")),

@@ -10,17 +10,19 @@ from app_domain.controlsys import ExcitationTarget
 from utils import LatexRenderer
 from viewmodels import PlantViewModel, EvaluationViewModel, FunctionViewModel, PlotViewModel, PlotData
 from views import BaseView
-from views.widgets import PlotWidget, PlotConfiguration, FunctionWidget
+from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, FunctionWidget
 
 COLORS = {
     "RESPONSE": "#1f77b4",
     "REFERENCE": "#ff7f0e",
     "INPUT_DISTURBANCE": "#2ca02c",
     "MEASUREMENT_DISTURBANCE": "#d62728",
+    "CONTROL_SIGNAL": "#1f77b4"
 }
 
 PLOT_ORDER = {
     "RESPONSE": 0,
+    "CONTROL_SIGNAL": 0,
     "REFERENCE": 1,
     "INPUT_DISTURBANCE": 2,
     "MEASUREMENT_DISTURBANCE": 3,
@@ -139,11 +141,24 @@ class EvaluationView(BaseView, QWidget):
         self._apply_title_property(self._lbl_title_cl_response)
         frame_layout.addWidget(self._lbl_title_cl_response)
 
-        self._cl_plot_cfg = PlotConfiguration(
+        subplot_cfgs = {
+            1: SubplotConfiguration(
+                x_label=str(QT_TRANSLATE_NOOP("EvaluationView", "Time [s]")),
+                y_label=str(QT_TRANSLATE_NOOP("EvaluationView", "Output")),
+                position=1
+            ),
+            2: SubplotConfiguration(
+                x_label=str(QT_TRANSLATE_NOOP("EvaluationView", "Time [s]")),
+                y_label=str(QT_TRANSLATE_NOOP("EvaluationView", "Output")),
+                position=2
+            ),
+        }
+
+        self._cl_plot_cfg = PlotWidgetConfiguration(
             context="EvaluationView",
             title=str(QT_TRANSLATE_NOOP("EvaluationView", "Closed Loop")),
-            x_label=str(QT_TRANSLATE_NOOP("EvaluationView", "Time [s]")),
-            y_label=str(QT_TRANSLATE_NOOP("EvaluationView", "Output"))
+            subplot=(2, 1),
+            subplot_configuration=subplot_cfgs,
         )
 
         plot_view = PlotWidget(
@@ -244,6 +259,7 @@ class EvaluationView(BaseView, QWidget):
                 y=y,
                 color=COLORS.get(key),
                 order=PLOT_ORDER.get(key),
+                subplot_position=1,
                 ignore_plot=ignore
             )
         )
@@ -254,7 +270,27 @@ class EvaluationView(BaseView, QWidget):
             len(t),
         )
         self._vm_plot.update_data(
-            PlotData("RESPONSE", "RESPONSE", t, y, COLORS.get("RESPONSE"), PLOT_ORDER.get("RESPONSE"))
+            PlotData(
+                key="RESPONSE",
+                label="RESPONSE",
+                x=t,
+                y=y,
+                color=COLORS.get("RESPONSE"),
+                order=PLOT_ORDER.get("RESPONSE"),
+                subplot_position=1,
+            )
+        )
+
+        self._vm_plot.update_data(
+            PlotData(
+                key="CONTROL_SIGNAL",
+                label="CONTROL_SIGNAL",
+                x=t,
+                y=u,
+                color=COLORS.get("CONTROL_SIGNAL"),
+                order=PLOT_ORDER.get("CONTROL_SIGNAL"),
+                subplot_position=2,
+            )
         )
 
     def _on_vm_pso_simulation_finished(self, target: ExcitationTarget) -> None:

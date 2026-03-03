@@ -8,7 +8,7 @@ from app_domain.ui_context import UiContext
 from utils import LatexRenderer
 from viewmodels import PlantViewModel, PlotViewModel, PlotData
 from .base_view import BaseView
-from views.widgets import PlotWidget, PlotConfiguration
+from views.widgets import PlotWidget, PlotWidgetConfiguration
 
 
 class PlantView(BaseView, QWidget):
@@ -114,7 +114,7 @@ class PlantView(BaseView, QWidget):
         # -------------------
         # Step response
         # -------------------
-        plot_cfg  = PlotConfiguration(
+        plot_cfg = PlotWidgetConfiguration(
             context="plant.view",
             title=str(QT_TRANSLATE_NOOP("plant.view", "Step Response")),
             x_label=str(QT_TRANSLATE_NOOP("plant.view", "Time [s]")),

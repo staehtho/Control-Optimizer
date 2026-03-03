@@ -1,5 +1,5 @@
 from .base_view import BaseView, FieldConfig, SectionConfig
-from views.widgets.plot_widget import PlotWidget, PlotConfiguration
+from views.widgets.plot_widget import PlotWidget, PlotWidgetConfiguration
 from .plant_view import PlantView
 from .function_view import FunctionView
 from .controller_view import ControllerView

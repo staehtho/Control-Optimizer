@@ -8,7 +8,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib import cbook
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from app_domain.ui_context import UiContext
 from viewmodels import PlotViewModel
@@ -16,16 +16,25 @@ from views import BaseView
 
 
 @dataclass
-class PlotConfiguration:
+class SubplotConfiguration:
+    title: str = ""
+    x_label: str = ""
+    y_label: str = ""
+    position: int = 1
+
+@dataclass
+class PlotWidgetConfiguration:
     context: str
     title: str
-    x_label: str
-    y_label: str
+    x_label: str = ""
+    y_label: str = ""
+    subplot: tuple[int, int] = (1, 1)
+    subplot_configuration: dict[int, SubplotConfiguration] = field(default_factory=dict)
     show_x_min_max: bool = True
 
 
 class PlotWidget(BaseView, QWidget):
-    def __init__(self, ui_context: UiContext, vm: PlotViewModel, plot_configuration: PlotConfiguration,
+    def __init__(self, ui_context: UiContext, vm: PlotViewModel, plot_configuration: PlotWidgetConfiguration,
                  parent: QObject = None):
         QWidget.__init__(self, parent)
 
@@ -166,8 +175,12 @@ class PlotWidget(BaseView, QWidget):
         self._logger.debug(
             f"Updating plot (grid={self._vm.grid}, xlim=[{self._vm.x_min:.6f}, {self._vm.x_max:.6f}])"
         )
+
+        context = self._cfg.context
+
         self._figure.clear()
-        ax = self._figure.add_subplot(111)
+        subplot = self._cfg.subplot
+        axs = [self._figure.add_subplot(*subplot, i) for i in range(1, subplot[0] * subplot[1] + 1)]
 
         data = self._vm.get_data()
         self._sync_series_checkboxes(data)
@@ -175,31 +188,44 @@ class PlotWidget(BaseView, QWidget):
 
         sorted_series = sorted(data.values(), key=lambda s: s.order)
 
-        for series in sorted_series:
-            if not series.show or series.ignore_plot:
-                continue
-            self._logger.debug(f"Plotting series: {series}")
-            ax.plot(series.x, series.y, label=series.label, color=series.color,
-                    zorder=len(sorted_series) - series.order)
+        for i in range(len(axs)):
+            for series in sorted_series:
+                if not series.show or series.ignore_plot:
+                    continue
 
-        bottom_margin = 0.20
+                if series.subplot_position != i + 1 and len(axs) != 1:
+                    continue
 
-        # Add legend only if data exists
-        if len(data) > 1 and any([d.show and not d.ignore_plot for d in data.values()]):
-            ax.legend(
-                loc="upper center",
-                bbox_to_anchor=(0.5, -0.18),
-                ncol=2,
-                frameon=False
-            )
-            bottom_margin = 0.30
+                self._logger.debug(f"Plotting series: {series}")
+                axs[i].plot(series.x, series.y, label=series.label, color=series.color,
+                            zorder=len(sorted_series) - series.order)
 
-        ax.set_title(QCoreApplication.translate(self._cfg.context, self._cfg.title))
-        ax.set_xlabel(QCoreApplication.translate(self._cfg.context, self._cfg.x_label))
-        ax.set_ylabel(QCoreApplication.translate(self._cfg.context, self._cfg.y_label))
-        ax.grid(self._vm.grid)
-        ax.set_xlim(self._vm.x_min, self._vm.x_max)
-        self._figure.subplots_adjust(left=0.10, right=0.98, top=0.90, bottom=bottom_margin)
+            # Add legend only if data exists
+            if len(data) > 1 and any([d.show and not d.ignore_plot for d in data.values()]):
+                axs[i].legend(
+                    loc="upper center",
+                    bbox_to_anchor=(0.5, -0.18),
+                    ncol=2,
+                    frameon=False
+                )
+
+            if len(axs) == 1:
+                x_label = self._cfg.x_label
+                y_label = self._cfg.y_label
+            else:
+                subplot_cfg = self._cfg.subplot_configuration.get(i + 1)
+                x_label = subplot_cfg.x_label
+                y_label = subplot_cfg.y_label
+
+                axs[i].set_title(QCoreApplication.translate(context, subplot_cfg.title))
+
+            axs[i].set_xlabel(QCoreApplication.translate(context, x_label))
+            axs[i].set_ylabel(QCoreApplication.translate(context, y_label))
+            axs[i].grid(self._vm.grid)
+            axs[i].set_xlim(self._vm.x_min, self._vm.x_max)
+
+        self._figure.suptitle(QCoreApplication.translate(context, self._cfg.title))
+        self._figure.subplots_adjust(left=0.10, right=0.98, top=0.90)
 
         start_text = f"{self._vm.x_min:.{self._dec}f}"
         end_text = f"{self._vm.x_max:.{self._dec}f}"
