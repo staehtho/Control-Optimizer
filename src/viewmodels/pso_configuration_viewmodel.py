@@ -8,9 +8,8 @@ from .base_viewmodel import BaseViewModel
 
 
 class PsoConfigurationViewModel(BaseViewModel):
-
-    xMinChanged = Signal()
-    xMaxChanged = Signal()
+    t0Changed = Signal()
+    t1Changed = Signal()
     excitationTargetChanged = Signal()
     performanceIndexChanged = Signal()
     kpMinChanged = Signal()
@@ -46,33 +45,33 @@ class PsoConfigurationViewModel(BaseViewModel):
     # -------------------
     # start time
     # -------------------
-    def _verify_x_min(self, value: float) -> bool:
-        if self._model_pso.x_max <= value:
-            self.logger.debug(f"Skipped 'x_min' update (value={value} >= x_max={self._model_pso.x_max})")
+    def _verify_t0(self, value: float) -> bool:
+        if self._model_pso.t1 <= value:
+            self.logger.debug(f"Skipped 't0' update (value={value} >= t1={self._model_pso.t1})")
             return False
         return True
 
-    x_min: float = BaseViewModel._logged_property(
-        attribute="_model_pso.x_min",
-        notify_signal="xMinChanged",
+    t0: float = BaseViewModel._logged_property(
+        attribute="_model_pso.t0",
+        notify_signal="t0Changed",
         property_type=float,
-        custom_setter=_verify_x_min
+        custom_setter=_verify_t0
     )
 
     # -------------------
     # end time
     # -------------------
-    def _verify_x_max(self, value: float) -> bool:
-        if self._model_pso.x_min >= value:
-            self.logger.debug(f"Skipped 'x_max' update (value={value} <= x_min={self._model_pso.x_min})")
+    def _verify_t1(self, value: float) -> bool:
+        if self._model_pso.t0 >= value:
+            self.logger.debug(f"Skipped 't1' update (value={value} <= t0={self._model_pso.t0})")
             return False
         return True
 
-    x_max: float = BaseViewModel._logged_property(
-        attribute="_model_pso.x_max",
-        notify_signal="xMaxChanged",
+    t1: float = BaseViewModel._logged_property(
+        attribute="_model_pso.t1",
+        notify_signal="t1Changed",
         property_type=float,
-        custom_setter=_verify_x_max
+        custom_setter=_verify_t1
     )
 
     # -------------------
@@ -209,8 +208,8 @@ class PsoConfigurationViewModel(BaseViewModel):
         return PsoSimulationParam(
             num=self._model_plant.num,
             den=self._model_plant.den,
-            t0=self.x_min,
-            t1=self.x_max,
+            t0=self.t0,
+            t1=self.t1,
             dt=self._settings.get_time_step(),
             solver=self._settings.get_solver(),
             anti_windup=self._model_controller.anti_windup,

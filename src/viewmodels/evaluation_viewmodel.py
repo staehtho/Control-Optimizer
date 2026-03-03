@@ -122,8 +122,8 @@ class EvaluationViewModel(BaseViewModel):
             self._model_evaluator.x_max = result.t1
             self._model_evaluator.x_min = result.t0
         else:
-            pso_start = getattr(self._vm_pso, "x_min", None)
-            pso_end = getattr(self._vm_pso, "x_max", None)
+            pso_start = getattr(self._vm_pso, "t0", None)
+            pso_end = getattr(self._vm_pso, "t1", None)
             if isinstance(pso_start, (int, float)) and isinstance(pso_end, (int, float)) and pso_start < pso_end:
                 self._model_evaluator.x_max = float(pso_end)
                 self._model_evaluator.x_min = float(pso_start)

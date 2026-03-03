@@ -29,10 +29,10 @@ def vm_pso(model_container: ModelContainer, mock_simulation_service: MagicMock) 
 @pytest.mark.parametrize(
     ("attribute", "signal", "initial", "new_value", "expected_value", "expected_signal_count"),
     [
-        ("x_min", "xMinChanged", 0.0, 0.5, 0.5, 1),
-        ("x_min", "xMinChanged", 0.0, 1.0, 0.0, 0),
-        ("x_max", "xMaxChanged", 1.0, 1.5, 1.5, 1),
-        ("x_max", "xMaxChanged", 1.0, 0.0, 1.0, 0),
+        ("t0", "t0Changed", 0.0, 0.5, 0.5, 1),
+        ("t0", "t0Changed", 0.0, 1.0, 0.0, 0),
+        ("t1", "t1Changed", 1.0, 1.5, 1.5, 1),
+        ("t1", "t1Changed", 1.0, 0.0, 1.0, 0),
         ("kp_min", "kpMinChanged", 0.0, 0.5, 0.5, 1),
         ("kp_min", "kpMinChanged", 0.0, 1.0, 0.0, 0),
         ("kp_max", "kpMaxChanged", 1.0, 2.0, 2.0, 1),
@@ -53,8 +53,8 @@ def test_numeric_property_validation_and_signal_behavior(
         expected_signal_count: int,
 ) -> None:
     # Keep all min/max constraints coherent for each specific attribute check.
-    model_container.model_pso.x_min = 0.0
-    model_container.model_pso.x_max = 1.0
+    model_container.model_pso.t0 = 0.0
+    model_container.model_pso.t1 = 1.0
     model_container.model_pso.kp_min = 0.0
     model_container.model_pso.kp_max = 1.0
     model_container.model_pso.ti_min = 1e-9
