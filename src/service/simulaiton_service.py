@@ -25,7 +25,7 @@ class SimulationService:
         self._function_engine = FunctionEngine()
         self._pso_simulation_engine = PsoSimulationEngine()
         self._closed_loop_engine = ClosedLoopResponseEngine()
-
+        # TODO: terminate Worker at closing
         self._step_worker = None
         self._function_workers: list[FunctionWorker] = []
         self._pso_simulation_worker = None

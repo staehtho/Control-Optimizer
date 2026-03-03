@@ -5,6 +5,7 @@ from app_domain.controlsys import ExcitationTarget, PerformanceIndex
 
 @dataclass
 class PsoConfigurationModel:
+    # TODO: rename x_min to t0 and x_max to t1
     x_min: float = 0.0
     x_max: float = 10.0
 

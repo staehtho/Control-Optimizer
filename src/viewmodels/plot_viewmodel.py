@@ -1,7 +1,6 @@
 import numpy as np
 from dataclasses import dataclass
 from PySide6.QtCore import QObject, Signal, Slot
-from numba.core.typing.builtins import Bool
 
 from .base_viewmodel import BaseViewModel
 
@@ -55,7 +54,7 @@ class PlotViewModel(BaseViewModel):
             self.logger.warning(f"Attempted to set x_min >= x_max ({value} >= {self._x_max})")
             return False
         return True
-    # TODO: Start Time und End Time umbenennen in x min x max oder so
+
     x_min = BaseViewModel._logged_property(
         attribute="_x_min",
         notify_signal="xMinChanged",
@@ -87,7 +86,7 @@ class PlotViewModel(BaseViewModel):
 
     @Slot(PlotData)
     def update_data(self, data: PlotData) -> None:
-
+        # TODO: data bis auf x_min erweitern, wenn kleiner 0
         current = self._data.get(data.key)
         if current is not None:
             # Keep user visibility selection across data refreshes.
