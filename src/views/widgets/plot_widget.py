@@ -21,7 +21,7 @@ class PlotConfiguration:
     title: str
     x_label: str
     y_label: str
-    show_start_x_max: bool = True
+    show_x_min_max: bool = True
 
 
 class PlotWidget(BaseView, QWidget):
@@ -66,7 +66,7 @@ class PlotWidget(BaseView, QWidget):
     def _create_header(self) -> QHBoxLayout:
         layout = QHBoxLayout()
 
-        show = self._cfg.show_start_x_max  # True = show, False = hide
+        show = self._cfg.show_x_min_max  # True = show, False = hide
 
         # Start time
         self._lbl_start = QLabel("")
@@ -185,7 +185,7 @@ class PlotWidget(BaseView, QWidget):
         bottom_margin = 0.20
 
         # Add legend only if data exists
-        if len(data) > 1:
+        if len(data) > 1 and any([d.show and not d.ignore_plot for d in data.values()]):
             ax.legend(
                 loc="upper center",
                 bbox_to_anchor=(0.5, -0.18),
