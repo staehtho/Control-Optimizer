@@ -1,6 +1,6 @@
 from functools import partial
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QFrame, QLabel, QLineEdit, QComboBox, QPushButton, QProgressBar
+from PySide6.QtWidgets import QWidget, QFrame, QLabel, QLineEdit, QComboBox, QPushButton, QProgressBar
 from PySide6.QtCore import QObject, Qt
 
 from app_domain.ui_context import UiContext
@@ -8,7 +8,6 @@ from app_domain.controlsys import ExcitationTarget, PerformanceIndex
 from utils import LatexRenderer
 from viewmodels import PlantViewModel, FunctionViewModel, PsoConfigurationViewModel
 from views import BaseView, FieldConfig, SectionConfig
-from .translations import Translation
 
 
 FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
@@ -243,11 +242,9 @@ class PsoConfigurationView(BaseView, QWidget):
         for key in labels.keys():
             self._labels[key].setText(labels[key])
 
-        translation = Translation()
-
         item_enums = {
-            "excitation_target": translation(ExcitationTarget),
-            "time_domain": translation(PerformanceIndex),
+            "excitation_target": self._enum_translation(ExcitationTarget),
+            "time_domain": self._enum_translation(PerformanceIndex),
         }
 
         for key in item_enums:

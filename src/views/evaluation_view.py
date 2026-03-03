@@ -11,21 +11,22 @@ from utils import LatexRenderer
 from viewmodels import PlantViewModel, EvaluationViewModel, FunctionViewModel, PlotViewModel, PlotData
 from views import BaseView
 from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, FunctionWidget
+from views.translations import PlotLabels
 
 COLORS = {
-    "RESPONSE": "#1f77b4",
-    "REFERENCE": "#ff7f0e",
-    "INPUT_DISTURBANCE": "#2ca02c",
-    "MEASUREMENT_DISTURBANCE": "#d62728",
-    "CONTROL_SIGNAL": "#1f77b4"
+    PlotLabels.CLOSED_LOOP: "#1f77b4",
+    PlotLabels.REFERENCE: "#ff7f0e",
+    PlotLabels.INPUT_DISTURBANCE: "#2ca02c",
+    PlotLabels.MEASUREMENT_DISTURBANCE: "#d62728",
+    PlotLabels.CONTROL_SIGNAL: "#1f77b4"
 }
 
 PLOT_ORDER = {
-    "RESPONSE": 0,
-    "CONTROL_SIGNAL": 0,
-    "REFERENCE": 1,
-    "INPUT_DISTURBANCE": 2,
-    "MEASUREMENT_DISTURBANCE": 3,
+    PlotLabels.CLOSED_LOOP: 0,
+    PlotLabels.REFERENCE: 1,
+    PlotLabels.INPUT_DISTURBANCE: 2,
+    PlotLabels.MEASUREMENT_DISTURBANCE: 3,
+    PlotLabels.CONTROL_SIGNAL: 0
 }
 
 
@@ -253,12 +254,12 @@ class EvaluationView(BaseView, QWidget):
 
         self._vm_plot.update_data(
             PlotData(
-                key=key,
-                label=self._enum_translation(ExcitationTarget).get(ExcitationTarget[key]),
+                key=PlotLabels[key].value,
+                label=self._enum_translation(PlotLabels).get(PlotLabels[key]),
                 x=t,
                 y=y,
-                color=COLORS.get(key),
-                order=PLOT_ORDER.get(key),
+                color=COLORS.get(PlotLabels[key]),
+                order=PLOT_ORDER.get(PlotLabels[key]),
                 subplot_position=1,
                 ignore_plot=ignore
             )
@@ -271,24 +272,24 @@ class EvaluationView(BaseView, QWidget):
         )
         self._vm_plot.update_data(
             PlotData(
-                key="RESPONSE",
-                label="RESPONSE",
+                key=PlotLabels.CLOSED_LOOP.value,
+                label=self._enum_translation(PlotLabels).get(PlotLabels.CLOSED_LOOP),
                 x=t,
                 y=y,
-                color=COLORS.get("RESPONSE"),
-                order=PLOT_ORDER.get("RESPONSE"),
+                color=COLORS.get(PlotLabels.CLOSED_LOOP),
+                order=PLOT_ORDER.get(PlotLabels.CLOSED_LOOP),
                 subplot_position=1,
             )
         )
 
         self._vm_plot.update_data(
             PlotData(
-                key="CONTROL_SIGNAL",
-                label="CONTROL_SIGNAL",
+                key=PlotLabels.CONTROL_SIGNAL.value,
+                label=self._enum_translation(PlotLabels).get(PlotLabels.CONTROL_SIGNAL),
                 x=t,
                 y=u,
-                color=COLORS.get("CONTROL_SIGNAL"),
-                order=PLOT_ORDER.get("CONTROL_SIGNAL"),
+                color=COLORS.get(PlotLabels.CONTROL_SIGNAL),
+                order=PLOT_ORDER.get(PlotLabels.CONTROL_SIGNAL),
                 subplot_position=2,
             )
         )

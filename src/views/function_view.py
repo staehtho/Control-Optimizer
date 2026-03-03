@@ -7,6 +7,7 @@ from app_domain.functions import FunctionTypes, resolve_function_type
 from viewmodels import FunctionViewModel, PlotViewModel, PlotData
 from views import BaseView
 from views.widgets import PlotWidget, PlotWidgetConfiguration, FunctionWidget
+from views.translations import PlotLabels
 
 
 class FunctionView(BaseView, QWidget):
@@ -129,7 +130,15 @@ class FunctionView(BaseView, QWidget):
     def _on_vm_compute_finished(self, t: ndarray, y: ndarray) -> None:
         """Update plot data after function computation completes."""
         self._logger.debug("Function computation finished, updating plot")
-        self._vm_plot.update_data(PlotData("function", "function", t, y, "#1f77b4"))
+        self._vm_plot.update_data(
+            PlotData(
+                key=PlotLabels.FUNCTION.value,
+                label=self._enum_translation(PlotLabels).get(PlotLabels.FUNCTION),
+                x=t,
+                y=y,
+                color="#1f77b4"
+            )
+        )
 
     def _on_vm_time_changed(self) -> None:
         """Trigger recomputation when plot time range changes."""

@@ -15,6 +15,21 @@ class NavLabels(Enum):
     EVALUATION = "Evaluation"
 
 
+# PlotLabels acts as a unified enum for all keys used in plotting,
+# mapping NavLabels and ExcitationTarget members to consistent strings.
+class PlotLabels(Enum):
+    PLANT = NavLabels.PLANT.value
+    FUNCTION = "Function"
+    CLOSED_LOOP = "Closed Loop"
+    CONTROL_SIGNAL = "Control Signal"
+    REFERENCE = ExcitationTarget.REFERENCE.value
+    INPUT_DISTURBANCE = ExcitationTarget.INPUT_DISTURBANCE.value
+    MEASUREMENT_DISTURBANCE = ExcitationTarget.MEASUREMENT_DISTURBANCE.value
+
+
+assert len(set(e.value for e in PlotLabels)) == len(PlotLabels), "Duplicate values in PlotLabels!"
+
+
 class Translation:
     """Provides translated display labels for supported enum types.
 
@@ -31,6 +46,7 @@ class Translation:
             FunctionTypes: self._function_type_label,
             PerformanceIndex: self._performance_index_label,
             NavLabels: self._nav_label,
+            PlotLabels: self._plot_labels,
         }
 
     def __call__(self, enum_type: Type[Any]) -> dict[Any, str]:
@@ -102,4 +118,17 @@ class Translation:
             NavLabels.CONTROLLER: QCoreApplication.translate("ControlEnums", "Controller"),
             NavLabels.PSO_PARAMETER: QCoreApplication.translate("ControlEnums", "PSO Parameter"),
             NavLabels.EVALUATION: QCoreApplication.translate("ControlEnums", "Evaluation"),
+        }
+
+    @staticmethod
+    def _plot_labels() -> dict[PlotLabels, str]:
+        """Return translated labels for PlotLabels enum."""
+        return {
+            PlotLabels.PLANT: QCoreApplication.translate("ControlEnums", "Plant"),
+            PlotLabels.FUNCTION: QCoreApplication.translate("ControlEnums", "Function"),
+            PlotLabels.CLOSED_LOOP: QCoreApplication.translate("ControlEnums", "Closed Loop"),
+            PlotLabels.CONTROL_SIGNAL: QCoreApplication.translate("ControlEnums", "Control Signal"),
+            PlotLabels.REFERENCE: QCoreApplication.translate("ControlEnums", "Reference"),
+            PlotLabels.INPUT_DISTURBANCE: QCoreApplication.translate("ControlEnums", "Input Disturbance"),
+            PlotLabels.MEASUREMENT_DISTURBANCE: QCoreApplication.translate("ControlEnums", "Measurement Disturbance"),
         }

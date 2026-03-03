@@ -9,6 +9,7 @@ from utils import LatexRenderer
 from viewmodels import PlantViewModel, PlotViewModel, PlotData
 from .base_view import BaseView
 from views.widgets import PlotWidget, PlotWidgetConfiguration
+from views.translations import PlotLabels
 
 
 class PlantView(BaseView, QWidget):
@@ -200,7 +201,15 @@ class PlantView(BaseView, QWidget):
         self._vm_plant.compute_step_response(self._vm_plot.x_min, self._vm_plot.x_max)
 
     def _on_step_response_changed(self, t: ndarray, y: ndarray) -> None:
-        self._vm_plot.update_data(PlotData("step_response", "step_response", t, y, "#1f77b4"))
+        self._vm_plot.update_data(
+            PlotData(
+                key=PlotLabels.PLANT.value,
+                label=self._enum_translation(PlotLabels).get(PlotLabels.PLANT),
+                x=t,
+                y=y,
+                color="#1f77b4"
+            )
+        )
 
     # -------------------------------------------------
     # UI event handlers
