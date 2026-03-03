@@ -26,7 +26,7 @@ class EvaluationViewModel(BaseViewModel):
     tdChanged = Signal()
     tfChanged = Signal()
     psoSimulationFinished = Signal(ExcitationTarget)
-    closedLoopResponseChanged = Signal(ndarray, ndarray)
+    closedLoopResponseChanged = Signal(ndarray, ndarray, ndarray)
 
     def __init__(
             self,
@@ -182,5 +182,5 @@ class EvaluationViewModel(BaseViewModel):
 
         self._simulation_service.compute_closed_loop_response(context, self._on_compute_finished)
 
-    def _on_compute_finished(self, t: ndarray, y: ndarray) -> None:
-        self.closedLoopResponseChanged.emit(t, y)
+    def _on_compute_finished(self, t: ndarray, u: ndarray, y: ndarray) -> None:
+        self.closedLoopResponseChanged.emit(t, u, y)

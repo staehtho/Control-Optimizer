@@ -9,7 +9,7 @@ from app_domain.engine import ClosedLoopResponseContext, ClosedLoopResponseEngin
 class ClosedLoopResponseWorker(QThread):
     """Background worker that computes a closed-loop response."""
 
-    resultReady = Signal(ndarray, ndarray)
+    resultReady = Signal(ndarray, ndarray, ndarray)
 
     def __init__(self, engine: ClosedLoopResponseEngine, context: ClosedLoopResponseContext) -> None:
         """Initialize worker dependencies and closed-loop simulation context."""
@@ -26,7 +26,7 @@ class ClosedLoopResponseWorker(QThread):
         """Run closed-loop simulation and emit ``resultReady``."""
         self._logger.info("Closed-loop response worker started.")
 
-        t, y = self._engine.compute(self._context)
+        t, u, y = self._engine.compute(self._context)
 
-        self._logger.info("Closed-loop response worker finished (t.size=%d, y.size=%d).", t.size, y.size)
-        self.resultReady.emit(t, y)
+        self._logger.info("Closed-loop response worker finished (size=%d).", t.size)
+        self.resultReady.emit(t, u, y)

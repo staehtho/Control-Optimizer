@@ -248,7 +248,7 @@ class EvaluationView(BaseView, QWidget):
             )
         )
 
-    def _on_vm_compute_finished(self, t: ndarray, y: ndarray) -> None:
+    def _on_vm_compute_finished(self, t: ndarray, u: ndarray, y: ndarray) -> None:
         self._logger.debug(
             "Closed-loop response computation finished -> updating response plot (samples=%d)",
             len(t),

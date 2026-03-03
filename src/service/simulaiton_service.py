@@ -115,13 +115,13 @@ class SimulationService:
     def compute_closed_loop_response(
             self,
             context: ClosedLoopResponseContext,
-            callback: Callable[[ndarray, ndarray], None],
+            callback: Callable[[ndarray, ndarray, ndarray], None],
     ) -> None:
         """Compute a closed-loop response asynchronously.
 
         Args:
             context: Closed-loop simulation inputs and disturbance signals.
-            callback: Function invoked with ``(t, y)`` when the worker completes.
+            callback: Function invoked with ``(t, u, y)`` when the worker completes.
         """
         if self._closed_loop_worker and self._closed_loop_worker.isRunning():
             self._logger.warning("ClosedLoopResponseWorker is busy. Ignoring request.")

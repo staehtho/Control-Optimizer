@@ -38,14 +38,19 @@ class ClosedLoopResponseEngine:
         self._logger = logging.getLogger(f"{self.__class__.__name__}.{id(self)}")
         self._logger.debug("ClosedLoopResponseEngine initialized.")
 
-    def compute(self, context: ClosedLoopResponseContext) -> tuple[np.ndarray, np.ndarray]:
+    def compute(self, context: ClosedLoopResponseContext) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Compute a closed-loop response for the given simulation context.
 
         Args:
             context: Closed-loop simulation settings and disturbance signals.
 
         Returns:
-            Tuple (t, y) with simulation time and plant output.
+            tuple[np.ndarray, np.ndarray, np.ndarray]:
+                A tuple containing:
+
+                - **t** (*np.ndarray*): Simulation time vector.
+                - **u** (*np.ndarray*): Control signal history u(t).
+                - **y** (*np.ndarray*): Measured plant output y(t).
         """
         self._logger.info(
             "Starting closed-loop response computation from %.3f to %.3f",
@@ -63,7 +68,7 @@ class ClosedLoopResponseEngine:
             anti_windup_method=context.anti_windup
         )
         dt = (context.t1 - context.t0) / 5000
-        t, y = pid_cl.system_response(
+        t, u, y = pid_cl.system_response(
             t0=context.t0,
             t1=context.t1,
             dt=dt,
@@ -77,4 +82,4 @@ class ClosedLoopResponseEngine:
             t.size, y.size,
         )
 
-        return t, y
+        return t, u, y
