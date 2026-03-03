@@ -238,10 +238,13 @@ class BaseView:
         return layout
 
     @staticmethod
-    def _create_card() -> tuple[QFrame, QVBoxLayout]:
+    def _create_card(expand_vertically_when_expanded: bool = False) -> tuple[QFrame, QVBoxLayout]:
         from .widgets.expandable_frame import ExpandableFrame
 
-        frame = ExpandableFrame(expanded=True)
+        frame = ExpandableFrame(
+            expanded=True,
+            expand_vertically_when_expanded=expand_vertically_when_expanded,
+        )
         frame.setObjectName("card")
         frame_layout = frame.content_layout()
         frame_layout.setContentsMargins(16, 14, 16, 14)

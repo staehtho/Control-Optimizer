@@ -8,7 +8,7 @@ from PySide6.QtCore import (
     Qt,
     Signal,
 )
-from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget, QSizePolicy
 
 
 # TODO: wenn shrink, dann immer gleiche höhe -> gleiche wie Titel
@@ -20,34 +20,20 @@ class ExpandableFrame(QFrame):
             self,
             title: str = "",
             expanded: bool = False,
+            expand_vertically_when_expanded: bool = False,
             animation_duration_ms: int = 200,
             parent: QWidget | None = None,
     ):
         super().__init__(parent)
 
         self._expanded = expanded
+        self._expand_vertically_when_expanded = expand_vertically_when_expanded
 
         self._main_layout = QVBoxLayout(self)
         self._main_layout.setContentsMargins(0, 0, 0, 0)
         self._main_layout.setSpacing(4)
 
-        self._header_widget = QWidget(self)
-        header_layout = QHBoxLayout(self._header_widget)
-        header_layout.setContentsMargins(0, 0, 0, 0)
-        header_layout.setSpacing(8)
-
-        self._title_label = QLabel(title, self._header_widget)
-
-        self._toggle_btn = QPushButton(self._header_widget)
-        self._toggle_btn.setCheckable(True)
-        self._toggle_btn.setChecked(expanded)
-        self._toggle_btn.setFixedWidth(28)
-        self._toggle_btn.setCursor(Qt.PointingHandCursor)
-        self._toggle_btn.toggled.connect(self.set_expanded)
-
-        header_layout.addWidget(self._title_label)
-        header_layout.addStretch()
-        header_layout.addWidget(self._toggle_btn, 0, Qt.AlignRight)
+        self._header_widget = self._create_header_widget(title, expanded)
 
         self._content_widget = QWidget(self)
         self._content_widget.installEventFilter(self)
@@ -55,18 +41,57 @@ class ExpandableFrame(QFrame):
         self._content_layout.setContentsMargins(0, 0, 0, 0)
         self._content_layout.setSpacing(6)
 
-        self._main_layout.addWidget(self._header_widget)
+        self._main_layout.addWidget(self._header_widget, 0, Qt.AlignmentFlag.AlignTop)
         self._main_layout.addWidget(self._content_widget)
 
         self._animation = QPropertyAnimation(self._content_widget, b"maximumHeight", self)
         self._animation.setDuration(animation_duration_ms)
-        self._animation.setEasingCurve(QEasingCurve.InOutCubic)
+        self._animation.setEasingCurve(QEasingCurve.Type.InOutCubic)
+        self._animation.finished.connect(self._on_animation_finished)
 
         self._update_toggle_text()
+        self._apply_size_policy()
         if expanded:
+            self._content_widget.setVisible(True)
             self._content_widget.setMaximumHeight(self._content_height())
         else:
+            self._content_widget.setVisible(False)
             self._content_widget.setMaximumHeight(0)
+
+    def _create_header_widget(self, title: str, expanded: bool) -> QWidget:
+        widget = QWidget()
+        widget.setFixedHeight(44)
+        widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+
+        layout = QHBoxLayout(widget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
+
+        self._title_label = QLabel(title, widget)
+        self._title_label.setObjectName("expandableTitle")
+        self._title_label.setStyleSheet("font-size: 24px; font-weight: 700;")
+        self._title_label.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+        self._title_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+
+        self._toggle_btn = QPushButton(widget)
+        self._toggle_btn.setCheckable(True)
+        self._toggle_btn.setChecked(expanded)
+        self._toggle_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._toggle_btn.toggled.connect(self.set_expanded)
+
+        layout.addWidget(self._title_label)
+        layout.addStretch()
+        layout.addWidget(self._toggle_btn, 0, Qt.AlignmentFlag.AlignRight)
+
+        return widget
+
+    def _create_content_widget(self) -> QWidget:
+        widget = QWidget(self)
+        widget.installEventFilter(self)
+        layout = QVBoxLayout(widget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(6)
+
 
     def add_widget(self, widget: QWidget) -> None:
         self._content_layout.addWidget(widget)
@@ -98,6 +123,10 @@ class ExpandableFrame(QFrame):
         self._expanded = expanded
         self._toggle_btn.setChecked(expanded)
         self._update_toggle_text()
+        self._apply_size_policy()
+
+        if expanded:
+            self._content_widget.setVisible(True)
 
         start_height = self._content_widget.maximumHeight()
         end_height = self._content_height() if expanded else 0
@@ -112,9 +141,9 @@ class ExpandableFrame(QFrame):
     def eventFilter(self, watched: QObject, event: QEvent) -> bool:
         if (
                 watched is self._content_widget
-                and event.type() == QEvent.LayoutRequest
+                and event.type() == QEvent.Type.LayoutRequest
                 and self._expanded
-                and self._animation.state() != QAbstractAnimation.Running
+                and self._animation.state() != QAbstractAnimation.State.Running
         ):
             self._content_widget.setMaximumHeight(self._content_height())
         return super().eventFilter(watched, event)
@@ -123,10 +152,26 @@ class ExpandableFrame(QFrame):
         return self._content_layout.sizeHint().height()
 
     def _refresh_expanded_height(self) -> None:
-        if self._expanded and self._animation.state() != QAbstractAnimation.Running:
+        if self._expanded and self._animation.state() != QAbstractAnimation.State.Running:
             self._content_widget.setMaximumHeight(self._content_height())
 
     def _update_toggle_text(self) -> None:
         self._toggle_btn.setText("-" if self._expanded else "+")
+
+    def _on_animation_finished(self) -> None:
+        # Keep heavy content (e.g., plots with minimum sizes) out of layout flow when collapsed.
+        if not self._expanded:
+            self._content_widget.setVisible(False)
+
+    def _apply_size_policy(self) -> None:
+        if self._expanded and self._expand_vertically_when_expanded:
+            vertical_policy = QSizePolicy.Policy.Expanding
+        elif self._expanded:
+            vertical_policy = QSizePolicy.Policy.Maximum
+        else:
+            vertical_policy = QSizePolicy.Policy.Fixed
+
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, vertical_policy)
+        self.updateGeometry()
 
     title = Property(str, title, set_title, notify=titleChanged)

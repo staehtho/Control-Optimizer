@@ -52,6 +52,7 @@ class PlotWidget(BaseView, QWidget):
         """Create and configure all UI components."""
         main_layout = self._create_page_layout()
         main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(8)
 
         main_layout.addLayout(self._create_header())
         main_layout.addLayout(self._create_series_row())
@@ -60,13 +61,14 @@ class PlotWidget(BaseView, QWidget):
         self._figure = Figure()
         self._canvas = FigureCanvas(self._figure)
         self._toolbar = NavigationToolbar(self._canvas, self)
+        self._toolbar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)  # type: ignore[attr-defined]
         self._canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore[attr-defined]
         self._canvas.setMinimumSize(500, 350)
         self._apply_toolbar_icons()
         self._update_plot()
 
         main_layout.addWidget(self._toolbar)
-        main_layout.addWidget(self._canvas)
+        main_layout.addWidget(self._canvas, 1)
 
         self.setLayout(main_layout)
 

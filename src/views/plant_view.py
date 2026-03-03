@@ -1,14 +1,14 @@
 from PySide6.QtCore import QObject
 from PySide6.QtCore import QRegularExpression, Qt, QT_TRANSLATE_NOOP
 from PySide6.QtGui import QRegularExpressionValidator
-from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QScrollArea
+from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QScrollArea, QFrame
 from numpy import ndarray
 
 from app_domain.ui_context import UiContext
 from utils import LatexRenderer
 from viewmodels import PlantViewModel, PlotViewModel, PlotData
 from .base_view import BaseView
-from views.widgets import PlotWidget, PlotWidgetConfiguration
+from views.widgets import PlotWidget, PlotWidgetConfiguration, ExpandableFrame
 from views.translations import PlotLabels
 
 
@@ -35,10 +35,6 @@ class PlantView(BaseView, QWidget):
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
 
-        # Validator: allow only digits, dot, comma, minus and whitespace
-        regex = QRegularExpression(r"[0-9.,\-\s]*")
-        validator = QRegularExpressionValidator(regex)
-
         main_layout = self._create_page_layout()
 
         # Title
@@ -47,11 +43,25 @@ class PlantView(BaseView, QWidget):
 
         main_layout.addWidget(self._lbl_title)
 
-        frame, frame_vlayout = self._create_card()
-        frame_layout = QGridLayout()
-        frame_layout.setHorizontalSpacing(10)
-        frame_layout.setVerticalSpacing(10)
-        frame_layout.setColumnStretch(2, 1)
+        self._frm_tf = self._create_transfer_function_frame()
+        main_layout.addWidget(self._frm_tf)
+        self._frm_plot = self._create_plot_frame()
+        main_layout.addWidget(self._frm_plot, 1)
+
+        main_layout.addStretch()
+        self.setLayout(main_layout)
+
+    def _create_transfer_function_frame(self) -> ExpandableFrame:
+        frame: ExpandableFrame
+        frame, frame_layout = self._create_card()
+        grid_layout = QGridLayout()
+        grid_layout.setHorizontalSpacing(10)
+        grid_layout.setVerticalSpacing(10)
+        grid_layout.setColumnStretch(2, 1)
+
+        # Validator: allow only digits, dot, comma, minus and whitespace
+        regex = QRegularExpression(r"[0-9.,\-\s]*")
+        validator = QRegularExpressionValidator(regex)
 
         # -------------------
         # Numerator input
@@ -64,8 +74,8 @@ class PlantView(BaseView, QWidget):
         # Set fixed width (height follows style automatically)
         self._txt_num.setFixedWidth(220)
 
-        frame_layout.addWidget(self._lbl_num, 0, 0)
-        frame_layout.addWidget(self._txt_num, 0, 1)
+        grid_layout.addWidget(self._lbl_num, 0, 0)
+        grid_layout.addWidget(self._txt_num, 0, 1)
 
         # -------------------
         # Denominator input
@@ -78,14 +88,14 @@ class PlantView(BaseView, QWidget):
         # Same fixed width for visual consistency
         self._txt_den.setFixedWidth(220)
 
-        frame_layout.addWidget(self._lbl_den, 1, 0)
-        frame_layout.addWidget(self._txt_den, 1, 1)
+        grid_layout.addWidget(self._lbl_den, 1, 0)
+        grid_layout.addWidget(self._txt_den, 1, 1)
 
         # -------------------
         # Transfer function formula display
         # -------------------
         self._lbl_formula = QLabel()
-        self._lbl_formula.setAttribute(Qt.WA_TranslucentBackground) # type: ignore[attr-defined]
+        self._lbl_formula.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self._lbl_formula.setStyleSheet("background: transparent;")
 
         self._lbl_formula.setPixmap(
@@ -94,28 +104,28 @@ class PlantView(BaseView, QWidget):
                 font_size_scale=self._formula_font_size_scale
             )
         )
-        self._lbl_formula.setAlignment(Qt.AlignVCenter)  # type: ignore[attr-defined]
+        self._lbl_formula.setAlignment(Qt.AlignmentFlag.AlignVCenter)
 
         # --- Scroll area for label ---
         scroll_formula = QScrollArea()
         scroll_formula.setWidget(self._lbl_formula)
         scroll_formula.setWidgetResizable(True)
-        scroll_formula.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)   # type: ignore[attr-defined]
-        scroll_formula.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff) # type: ignore[attr-defined]
-        scroll_formula.setFrameShape(QScrollArea.NoFrame)   # type: ignore[attr-defined]
-        scroll_formula.setFocusPolicy(Qt.NoFocus)   # type: ignore[attr-defined]  # cannot be focused at all
+        scroll_formula.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        scroll_formula.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll_formula.setFrameShape(QScrollArea.Shape.NoFrame)
+        scroll_formula.setFocusPolicy(Qt.FocusPolicy.NoFocus)  # cannot be focused at all
         scroll_formula.setStyleSheet("background: transparent;")
         scroll_formula.viewport().setStyleSheet("background: transparent;")
 
-        frame_layout.addWidget(scroll_formula, 0, 2, 4, 1)
+        grid_layout.addWidget(scroll_formula, 0, 2, 4, 1)
 
-        frame_vlayout.addLayout(frame_layout)
-        main_layout.addWidget(frame)
+        frame_layout.addLayout(grid_layout)
 
-        # -------------------
-        # Step response
-        # -------------------
-        frame, frame_layout = self._create_card()
+        return frame
+
+    def _create_plot_frame(self) -> ExpandableFrame:
+        frame: ExpandableFrame
+        frame, frame_layout = self._create_card(expand_vertically_when_expanded=True)
         plot_cfg = PlotWidgetConfiguration(
             context="plant.view",
             title=str(QT_TRANSLATE_NOOP("plant.view", "Step Response")),
@@ -126,11 +136,8 @@ class PlantView(BaseView, QWidget):
         self._plot_view = PlotWidget(self._ui_context, self._vm_plot, plot_cfg)
 
         frame_layout.addWidget(self._plot_view)
-        frame_layout.addStretch()
 
-        main_layout.addWidget(frame)
-
-        self.setLayout(main_layout)
+        return frame
 
     # -------------------------------------------------
     # Signal / ViewModel Binding
@@ -160,6 +167,8 @@ class PlantView(BaseView, QWidget):
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("Plant"))
+        self._frm_tf.set_title(self.tr("Transfer function"))
+        self._frm_plot.set_title(self.tr("Step Response"))
         self._lbl_num.setText(self.tr("plant.num"))
         self._lbl_den.setText(self.tr("plant.den"))
         self._txt_num.setPlaceholderText(self.tr("e.g. 1  → 1"))
