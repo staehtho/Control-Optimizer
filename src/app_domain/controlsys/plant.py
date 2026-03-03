@@ -188,7 +188,7 @@ class Plant:
                 - Time vector (np.ndarray)
                 - Output response (np.ndarray)
         """
-        u = lambda t: np.ones_like(t)
+        u = lambda t: np.where(t >= 0, 1.0, 0.0)
 
         return self.system_response(u, t0, t1, dt, solver=solver)
 
