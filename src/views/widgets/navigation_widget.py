@@ -33,13 +33,16 @@ class NavigationWidget(BaseView, QWidget):
         """Create and configure all UI components."""
         self.setFixedWidth(220)
         self.setObjectName("card")
+        self._btn_size = 30
 
         self._layout = QVBoxLayout()
         self._layout.setContentsMargins(12, 14, 12, 14)
         self._layout.setSpacing(8)
         self.setLayout(self._layout)
-        # TODO: nicht "Menu" sondern einen Pfeil < und >
-        self._toggle_btn = QPushButton("Menu")
+        self._toggle_btn = QPushButton()
+        self._toggle_btn.setCursor(Qt.PointingHandCursor)
+        self._toggle_btn.setCheckable(False)
+        self._toggle_btn.setFixedSize(self._btn_size, self._btn_size)
         self._layout.insertWidget(0, self._toggle_btn)
 
         for item in self._nav_items:
@@ -47,11 +50,13 @@ class NavigationWidget(BaseView, QWidget):
             btn.setCheckable(True)
             btn.setCursor(Qt.PointingHandCursor)
             btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+            btn.setFixedHeight(self._btn_size)
 
             self._layout.addWidget(btn)
             self._widgets[item.key] = btn
 
         self._layout.addStretch()
+        self._update_toggle_button()
 
     # -------------------------------------------------
     # Signal / ViewModel Binding
@@ -103,6 +108,11 @@ class NavigationWidget(BaseView, QWidget):
             self.setFixedWidth(220)
             for item in self._nav_items:
                 self._widgets[item.key].setText(self._enum_translation(NavLabels).get(item.key))
+        self._update_toggle_button()
+
+    def _update_toggle_button(self) -> None:
+        self._toggle_btn.setText(">" if self._collapsed else "<")
+        self._layout.setAlignment(self._toggle_btn, Qt.AlignRight if not self._collapsed else Qt.Alignment())
 
     def _on_btn_clicked(self, key: NavLabels):
         for k, btn in self._widgets.items():
