@@ -53,9 +53,8 @@ class PlotWidget(BaseView, QWidget):
         main_layout = self._create_page_layout()
         main_layout.setContentsMargins(0, 0, 0, 0)
 
-        frame, frame_layout = self._create_card()
-        frame_layout.addLayout(self._create_header())
-        frame_layout.addLayout(self._create_series_row())
+        main_layout.addLayout(self._create_header())
+        main_layout.addLayout(self._create_series_row())
 
         # figure
         self._figure = Figure()
@@ -66,10 +65,9 @@ class PlotWidget(BaseView, QWidget):
         self._apply_toolbar_icons()
         self._update_plot()
 
-        frame_layout.addWidget(self._toolbar)
-        frame_layout.addWidget(self._canvas)
+        main_layout.addWidget(self._toolbar)
+        main_layout.addWidget(self._canvas)
 
-        main_layout.addWidget(frame)
         self.setLayout(main_layout)
 
     def _create_header(self) -> QHBoxLayout:

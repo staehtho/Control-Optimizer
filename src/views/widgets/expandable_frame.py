@@ -11,6 +11,7 @@ from PySide6.QtCore import (
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 
+# TODO: wenn shrink, dann immer gleiche höhe -> gleiche wie Titel
 class ExpandableFrame(QFrame):
     toggled = Signal(bool)
     titleChanged = Signal(str)

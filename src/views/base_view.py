@@ -239,6 +239,17 @@ class BaseView:
 
     @staticmethod
     def _create_card() -> tuple[QFrame, QVBoxLayout]:
+        from .widgets.expandable_frame import ExpandableFrame
+
+        frame = ExpandableFrame(expanded=True)
+        frame.setObjectName("card")
+        frame_layout = frame.content_layout()
+        frame_layout.setContentsMargins(16, 14, 16, 14)
+        frame_layout.setSpacing(10)
+        return frame, frame_layout
+
+    @staticmethod
+    def _create_plain_card() -> tuple[QFrame, QVBoxLayout]:
         frame = QFrame()
         frame.setObjectName("card")
         frame_layout = QVBoxLayout(frame)

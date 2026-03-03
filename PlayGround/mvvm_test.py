@@ -3,9 +3,9 @@ import numpy as np
 from matplotlib.pyplot import figure
 
 # TODO: Evaluation tab erst nach erstem PSO
-# TODO: Stellgrösse als subplot -> PlotWidget subplot
 # TODO: BodePlot von PlotWidget erben oder ein BasePlotWidget?
 # TODO: SettingsView
+# TODO: Title bereinigen
 
 
 if __name__ == '__main__':

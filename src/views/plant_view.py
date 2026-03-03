@@ -115,6 +115,7 @@ class PlantView(BaseView, QWidget):
         # -------------------
         # Step response
         # -------------------
+        frame, frame_layout = self._create_card()
         plot_cfg = PlotWidgetConfiguration(
             context="plant.view",
             title=str(QT_TRANSLATE_NOOP("plant.view", "Step Response")),
@@ -124,8 +125,10 @@ class PlantView(BaseView, QWidget):
 
         self._plot_view = PlotWidget(self._ui_context, self._vm_plot, plot_cfg)
 
-        main_layout.addWidget(self._plot_view)
-        main_layout.addStretch()
+        frame_layout.addWidget(self._plot_view)
+        frame_layout.addStretch()
+
+        main_layout.addWidget(frame)
 
         self.setLayout(main_layout)
 

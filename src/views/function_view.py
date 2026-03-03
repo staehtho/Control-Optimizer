@@ -42,7 +42,7 @@ class FunctionView(BaseView, QWidget):
         main_layout.addWidget(self._lbl_title)
 
         main_layout.addWidget(self._create_function_frame())
-        main_layout.addWidget(self._create_plot_widget())
+        main_layout.addWidget(self._create_plot_frame())
 
         main_layout.addStretch()
         self.setLayout(main_layout)
@@ -58,7 +58,9 @@ class FunctionView(BaseView, QWidget):
 
         return frame
 
-    def _create_plot_widget(self) -> QWidget:
+    def _create_plot_frame(self) -> QWidget:
+        frame, frame_layout = self._create_card()
+
         function_type = resolve_function_type(self._vm_function.selected_function)
         title = self._enum_translation(FunctionTypes).get(function_type)
         self._plot_cfg = PlotWidgetConfiguration(
@@ -75,7 +77,9 @@ class FunctionView(BaseView, QWidget):
             parent=self
         )
 
-        return plot_view
+        frame_layout.addWidget(plot_view)
+
+        return frame
 
     # -------------------------------------------------
     # Signal / ViewModel Binding

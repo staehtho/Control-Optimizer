@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QStackedWidget
+from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QStackedWidget, QFrame
 from PySide6.QtGui import QCloseEvent
 
 from app_domain.ui_context import UiContext
@@ -30,7 +30,7 @@ class MainView(BaseView, QMainWindow):
         layout.setSpacing(12)
 
         self._nav = NavigationWidget(self._ui_context, self._nav_items, self)
-        stack_frame, stack_layout = self._create_card()
+        stack_frame, stack_layout = self._create_plain_card()
         self._stack = QStackedWidget(stack_frame)
         stack_layout.addWidget(self._stack)
 
@@ -41,7 +41,7 @@ class MainView(BaseView, QMainWindow):
         stack_content_layout.addWidget(stack_frame)
 
         scroll = self._wrap_in_scroll_area(stack_content)
-        outer_frame, outer_frame_layout = self._create_card()
+        outer_frame, outer_frame_layout = self._create_plain_card()
         outer_frame_layout.addWidget(scroll)
 
         layout.addWidget(self._nav)
