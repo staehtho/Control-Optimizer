@@ -1,14 +1,14 @@
 import logging
 
-from app_domain.engine import PsoSimulationParam
+from app_domain.engine import PsoSimulationParam, PlantResponseContext
 from app_domain.controlsys import MySolver, AntiWindup, ExcitationTarget, PerformanceIndex
 from app_domain.functions import StepFunction
 from models import ModelContainer
 from service import SimulationService
 from .ui_context import UiContext
 from viewmodels import (
-    PlantViewModel, LanguageViewModel, ThemeViewModel, PlotViewModel, FunctionViewModel, ControllerViewModel,
-    PsoConfigurationViewModel, EvaluationViewModel
+    PlantViewModel, LanguageViewModel, ThemeViewModel, PlotViewModel, FunctionViewModel,
+    ControllerViewModel, PsoConfigurationViewModel, EvaluationViewModel
 )
 
 
@@ -122,11 +122,21 @@ class AppEngine:
         This pre-compiles any JIT functions, initializes caches, and
         triggers one-time setup in the step response engine for faster subsequent runs.
         """
+        import numpy as np
         self.logger.info("Starting step response engine warmup.")
+
+        context = PlantResponseContext(
+            num=[1],
+            den=[1, 2, 1],
+            t0=0,
+            t1=10,
+            solver=MySolver.RK4,
+            reference=lambda t: np.where(t >= 0, 1.0, 0.0),
+        )
 
         # Run warmup simulation asynchronously
         self.simulation_service.compute_step_response(
-            [1], [1, 1], 0, 10, MySolver.RK4,
+            context,
             callback=lambda t, y: self.logger.info("Step response warmup completed successfully.")
         )
 

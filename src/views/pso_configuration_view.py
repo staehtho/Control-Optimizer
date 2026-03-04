@@ -1,6 +1,6 @@
 from functools import partial
 
-from PySide6.QtWidgets import QWidget, QFrame, QLabel, QLineEdit, QComboBox, QPushButton, QProgressBar
+from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QComboBox, QPushButton, QProgressBar
 from PySide6.QtCore import QObject, Qt
 
 from app_domain.ui_context import UiContext
@@ -8,12 +8,13 @@ from app_domain.controlsys import ExcitationTarget, PerformanceIndex
 from utils import LatexRenderer
 from viewmodels import PlantViewModel, FunctionViewModel, PsoConfigurationViewModel
 from views import BaseView, FieldConfig, SectionConfig
-from views.widgets import ExpandableFrame
+from views.widgets import ExpandableFrame, FormulaWidget
 
 
 FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
     "excitation_target": [
         FieldConfig("excitation_target", QComboBox),
+        FieldConfig("function_formula", FormulaWidget),
     ],
     "control": [
         SectionConfig("simulation_time", [
@@ -82,7 +83,7 @@ class PsoConfigurationView(BaseView, QWidget):
 
         # TF
         self._lbl_tf = QLabel()
-        self._lbl_tf.setAttribute(Qt.WA_TranslucentBackground)  # type: ignore[attr-defined]
+        self._lbl_tf.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self._lbl_tf.setStyleSheet("background: transparent;")
 
         self._lbl_tf.setPixmap(
@@ -91,7 +92,7 @@ class PsoConfigurationView(BaseView, QWidget):
                 font_size_scale=self._formula_font_size_scale
             )
         )
-        self._lbl_tf.setAlignment(Qt.AlignHCenter)  # type: ignore[attr-defined]
+        self._lbl_tf.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
         frame_layout.addWidget(self._lbl_tf)
 
@@ -103,20 +104,9 @@ class PsoConfigurationView(BaseView, QWidget):
 
         frame_layout.addLayout(self._create_grid(FIELDS["excitation_target"], 4))
 
-        self._lbl_function = QLabel()
-        self._lbl_function.setAttribute(Qt.WA_TranslucentBackground)  # type: ignore[attr-defined]
-        self._lbl_function.setStyleSheet("background: transparent;")
-
-        self._lbl_function.setPixmap(
-            LatexRenderer.latex2pixmap(
-                self._vm_function.selected_function.get_formula(),
-                font_size_scale=self._formula_font_size_scale
-            )
-        )
-        self._lbl_function.setAlignment(Qt.AlignHCenter)  # type: ignore[attr-defined]
-
-        frame_layout.addWidget(self._lbl_function)
-
+        widget: FormulaWidget = self._widgets["function_formula"]
+        widget.set_font_size(self._formula_font_size_scale)
+        widget.set_formula(self._vm_function.selected_function.get_formula())
 
         return frame
 
@@ -220,6 +210,7 @@ class PsoConfigurationView(BaseView, QWidget):
             "t0": self.tr("Start Time"),
             "t1": self.tr("End Time"),
             "excitation_target": self.tr("Excitation Target"),
+            "function_formula": self.tr("Function"),
             "performance_index": self.tr("Performance Index"),
             "time_domain": self.tr("Time Domain"),
             "pso_bounds_kp": self.tr("PSO Bounds: Kp"),
@@ -309,12 +300,7 @@ class PsoConfigurationView(BaseView, QWidget):
         )
 
     def _on_vm_function_function_changed(self) -> None:
-        self._lbl_function.setPixmap(
-            LatexRenderer.latex2pixmap(
-                self._vm_function.selected_function.get_formula(),
-                font_size_scale=self._formula_font_size_scale
-            )
-        )
+        self._widgets["function_formula"].set_formula(self._vm_function.selected_function.get_formula())
 
     # -------------------------------------------------
     # UI event handlers

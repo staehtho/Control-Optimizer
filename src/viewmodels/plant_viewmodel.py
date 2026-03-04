@@ -1,8 +1,10 @@
 import re
 
 from PySide6.QtCore import QObject, Signal, Slot, QTimer
+import numpy as np
 from numpy import ndarray
 
+from app_domain.engine import PlantResponseContext
 from models import ModelContainer, PlantModel, SettingsModel
 from service import SimulationService
 from utils import LatexRenderer
@@ -207,14 +209,15 @@ class PlantViewModel(BaseViewModel):
 
         self.logger.debug(f"Computing step response for {t0} to {t1}")
         solver = self._settings.get_solver()
-        self._simulation_service.compute_step_response(
-            self._model_plant.num,
-            self._model_plant.den,
-            t0,
-            t1,
-            solver,
-            self._on_result
+        context = PlantResponseContext(
+            num=self._model_plant.num,
+            den=self._model_plant.den,
+            t0=t0,
+            t1=t1,
+            solver=solver,
+            reference=lambda t: np.where(t >= 0, 1.0, 0.0),
         )
+        self._simulation_service.compute_step_response(context, self._on_result)
 
     def _on_result(self, t: ndarray, y: ndarray) -> None:
         self.stepResponseChanged.emit(t, y)

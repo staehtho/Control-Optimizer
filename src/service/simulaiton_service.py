@@ -3,7 +3,7 @@ import logging
 from numpy import ndarray
 
 from app_domain.engine import (
-    PlantStepResponseEngine, FunctionEngine, PsoSimulationEngine, PsoSimulationParam,
+    PlantResponseEngine, PlantResponseContext, FunctionEngine, PsoSimulationEngine, PsoSimulationParam,
     PsoResult, ClosedLoopResponseEngine, ClosedLoopResponseContext
 )
 from app_domain.controlsys import MySolver
@@ -21,7 +21,7 @@ class SimulationService:
         """Initialize engines and worker slots used for async execution."""
         self._logger = logging.getLogger(f"{self.__class__.__name__}.{id(self)}")
         self._logger.debug("SimulationService initialized.")
-        self._step_engine = PlantStepResponseEngine()
+        self._step_engine = PlantResponseEngine()
         self._function_engine = FunctionEngine()
         self._pso_simulation_engine = PsoSimulationEngine()
         self._closed_loop_engine = ClosedLoopResponseEngine()
@@ -33,21 +33,13 @@ class SimulationService:
 
     def compute_step_response(
             self,
-            num: list[float],
-            den: list[float],
-            t0: float,
-            t1: float,
-            solver: MySolver,
+            context: PlantResponseContext,
             callback: Callable[[ndarray, ndarray], None],
     ) -> None:
         """Compute a step response asynchronously using a worker.
 
         Args:
-            num: Plant numerator coefficients.
-            den: Plant denominator coefficients.
-            t0: Start time.
-            t1: End time.
-            solver: Numerical solver used by the simulation backend.
+            context: Plant simulation settings and disturbance signal
             callback: Function invoked with ``(t, y)`` when the worker completes.
         """
         if self._step_worker and self._step_worker.isRunning():
@@ -55,7 +47,7 @@ class SimulationService:
             return
 
         self._logger.info("Starting StepResponseWorker for asynchronous computation")
-        self._step_worker = PlantStepResponseWorker(self._step_engine, num, den, t0, t1, solver)
+        self._step_worker = PlantStepResponseWorker(self._step_engine, context)
         self._step_worker.resultReady.connect(callback)
         self._step_worker.start()
 
