@@ -1,14 +1,14 @@
 from functools import partial
 
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QComboBox, QGridLayout, QLabel, QLineEdit
+from PySide6.QtCore import Signal
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QComboBox, QGridLayout, QLineEdit
 from PySide6.QtGui import QDoubleValidator
 
 from app_domain.ui_context import UiContext
 from app_domain.functions import resolve_function_type, FunctionTypes
-from utils import LatexRenderer
 from viewmodels import FunctionViewModel
 from views import BaseView
+from .formula_widget import FormulaWidget
 
 
 class FunctionWidget(BaseView, QWidget):
@@ -78,11 +78,7 @@ class FunctionWidget(BaseView, QWidget):
         if show_formula:
             formula = self._vm_function.selected_function.get_formula()
 
-            lbl_formula = QLabel()
-            lbl_formula.setAttribute(Qt.WA_TranslucentBackground)  # type: ignore[attr-defined]
-            lbl_formula.setStyleSheet("background: transparent;")
-            lbl_formula.setPixmap(LatexRenderer.latex2pixmap(formula, font_size_scale=1.5))
-            lbl_formula.setAlignment(Qt.AlignCenter)  # type: ignore[attr-defined]
+            lbl_formula = FormulaWidget(formula, 1.5)
 
             grid.addWidget(lbl_formula, 0, 0, 1, 6)
             row_offset = 1
@@ -95,10 +91,7 @@ class FunctionWidget(BaseView, QWidget):
             row = i // 2 + row_offset
             col = (i % 2) * 2 + 1
 
-            lbl_param = QLabel()
-            lbl_param.setAttribute(Qt.WA_TranslucentBackground)  # type: ignore[attr-defined]
-            lbl_param.setStyleSheet("background: transparent;")
-            lbl_param.setPixmap(LatexRenderer.latex2pixmap(f"{label}:"))
+            lbl_param = FormulaWidget(f"{label}:", 1.5)
 
             grid.addWidget(lbl_param, row, col)
 

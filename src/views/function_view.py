@@ -1,12 +1,12 @@
 from PySide6.QtCore import QObject, QT_TRANSLATE_NOOP
-from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QFrame
+from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QSizePolicy
 from numpy import ndarray
 
 from app_domain.ui_context import UiContext
 from app_domain.functions import FunctionTypes, resolve_function_type
 from viewmodels import FunctionViewModel, PlotViewModel, PlotData
 from views import BaseView
-from views.widgets import PlotWidget, PlotWidgetConfiguration, FunctionWidget
+from views.widgets import PlotWidget, PlotWidgetConfiguration, FunctionWidget, ExpandableFrame
 from views.translations import PlotLabels
 
 
@@ -38,16 +38,19 @@ class FunctionView(BaseView, QWidget):
 
         # Title
         self._lbl_title = QLabel()
-        self._apply_title_property(self._lbl_title)
+        self._lbl_title.setObjectName("viewTitle")
         main_layout.addWidget(self._lbl_title)
 
-        main_layout.addWidget(self._create_function_frame())
-        main_layout.addWidget(self._create_plot_frame())
+        self._frm_function = self._create_function_frame()
+        main_layout.addWidget(self._frm_function, 0)
+        self._frm_plot = self._create_plot_frame()
+        main_layout.addWidget(self._frm_plot, 1)
 
         main_layout.addStretch()
         self.setLayout(main_layout)
 
-    def _create_function_frame(self) -> QFrame:
+    def _create_function_frame(self) -> ExpandableFrame:
+        frame: ExpandableFrame
         frame, frame_layout = self._create_card()
 
         self._function_widget = FunctionWidget(
@@ -58,8 +61,9 @@ class FunctionView(BaseView, QWidget):
 
         return frame
 
-    def _create_plot_frame(self) -> QWidget:
-        frame, frame_layout = self._create_card()
+    def _create_plot_frame(self) -> ExpandableFrame:
+        frame: ExpandableFrame
+        frame, frame_layout = self._create_card(expand_vertically_when_expanded=True)
 
         function_type = resolve_function_type(self._vm_function.selected_function)
         title = self._enum_translation(FunctionTypes).get(function_type)
@@ -70,14 +74,10 @@ class FunctionView(BaseView, QWidget):
             y_label=str(QT_TRANSLATE_NOOP("ControlEnums", "Output")),
         )
 
-        plot_view = PlotWidget(
-            self._ui_context,
-            self._vm_plot,
-            self._plot_cfg,
-            parent=self
-        )
+        plot_view = PlotWidget(self._ui_context, self._vm_plot, self._plot_cfg, parent=self)
+        plot_view.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
-        frame_layout.addWidget(plot_view)
+        frame_layout.addWidget(plot_view, 1)
 
         return frame
 
@@ -107,6 +107,8 @@ class FunctionView(BaseView, QWidget):
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("Excitation Function"))
+        self._frm_function.set_title(self.tr("Function"))
+        self._frm_plot.set_title(self.tr("Function Plot"))
 
     # -------------------------------------------------
     # Apply initial values

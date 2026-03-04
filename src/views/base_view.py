@@ -239,7 +239,7 @@ class BaseView:
 
     @staticmethod
     def _create_card(expand_vertically_when_expanded: bool = False) -> tuple[QFrame, QVBoxLayout]:
-        from .widgets.expandable_frame import ExpandableFrame
+        from views.widgets import ExpandableFrame
 
         frame = ExpandableFrame(
             expanded=True,

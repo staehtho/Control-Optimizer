@@ -22,11 +22,11 @@ COLORS = {
 }
 
 PLOT_ORDER = {
-    PlotLabels.CLOSED_LOOP: 0,
-    PlotLabels.REFERENCE: 1,
-    PlotLabels.INPUT_DISTURBANCE: 2,
-    PlotLabels.MEASUREMENT_DISTURBANCE: 3,
-    PlotLabels.CONTROL_SIGNAL: 0
+    PlotLabels.CLOSED_LOOP: 10,
+    PlotLabels.REFERENCE: 11,
+    PlotLabels.INPUT_DISTURBANCE: 12,
+    PlotLabels.MEASUREMENT_DISTURBANCE: 13,
+    PlotLabels.CONTROL_SIGNAL: 10
 }
 
 

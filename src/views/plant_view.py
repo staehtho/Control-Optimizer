@@ -121,10 +121,10 @@ class PlantView(BaseView, QWidget):
             y_label=str(QT_TRANSLATE_NOOP("plant.view", "Output")),
         )
 
-        self._plot_view = PlotWidget(self._ui_context, self._vm_plot, plot_cfg)
-        self._plot_view.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        plot_view = PlotWidget(self._ui_context, self._vm_plot, plot_cfg, parent=self)
+        plot_view.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
-        frame_layout.addWidget(self._plot_view, 1)
+        frame_layout.addWidget(plot_view, 1)
 
         return frame
 

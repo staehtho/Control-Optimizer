@@ -125,12 +125,12 @@
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="69"/>
+        <location filename="../views/function_view.py" line="73"/>
         <source>Time [s]</source>
         <translation>Zeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="70"/>
+        <location filename="../views/function_view.py" line="74"/>
         <source>Output</source>
         <translation>Ausgang</translation>
     </message>
@@ -251,6 +251,16 @@
         <location filename="../views/function_view.py" line="109"/>
         <source>Excitation Function</source>
         <translation>Anregungsfunktion</translation>
+    </message>
+    <message>
+        <location filename="../views/function_view.py" line="110"/>
+        <source>Function</source>
+        <translation>Funktion</translation>
+    </message>
+    <message>
+        <location filename="../views/function_view.py" line="111"/>
+        <source>Function Plot</source>
+        <translation>Plot der Funktion</translation>
     </message>
 </context>
 <context>
