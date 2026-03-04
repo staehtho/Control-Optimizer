@@ -1,12 +1,13 @@
 from functools import partial
 
-from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QVBoxLayout, QFrame, QLineEdit
+from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QFrame, QLineEdit
 
 from app_domain.ui_context import UiContext
 from app_domain.controlsys import AntiWindup
 from viewmodels import ControllerViewModel
 from views import BaseView, FieldConfig, SectionConfig
-from .translations import Translation
+from views.widgets import ExpandableFrame
+from views.translations import Translation
 
 FIELDS: list[FieldConfig] = [
     SectionConfig("constraint", [
@@ -34,18 +35,20 @@ class ControllerView(BaseView, QWidget):
         """Create and configure all UI components."""
         main_layout = self._create_page_layout()
 
-        main_layout.addWidget(self._create_controller_frame())
+        self._lbl_title = QLabel()
+        self._lbl_title.setObjectName("viewTitle")
+        main_layout.addWidget(self._lbl_title)
+
+        self._frm_controller = self._create_controller_frame()
+        main_layout.addWidget(self._frm_controller)
         main_layout.addStretch()
 
         self.setLayout(main_layout)
 
-    def _create_controller_frame(self) -> QFrame:
+    def _create_controller_frame(self) -> ExpandableFrame:
+        frame: ExpandableFrame
         frame, frame_layout = self._create_card()
 
-        # Title
-        self._lbl_title_controller = QLabel()
-        self._apply_title_property(self._lbl_title_controller)
-        frame_layout.addWidget(self._lbl_title_controller)
         frame_layout.addLayout(self._create_grid(FIELDS))
 
         return frame
@@ -85,7 +88,8 @@ class ControllerView(BaseView, QWidget):
     # -------------------------------------------------
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
-        self._lbl_title_controller.setText(self.tr("Controller"))
+        self._lbl_title.setText(self.tr("Controller"))
+        self._frm_controller.set_title(self.tr("Parameters"))
 
         labels = {
             "controller_type": self.tr("Controller Type"),

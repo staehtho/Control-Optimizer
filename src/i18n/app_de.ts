@@ -138,32 +138,37 @@
 <context>
     <name>ControllerView</name>
     <message>
-        <location filename="../views/controller_view.py" line="88"/>
+        <location filename="../views/controller_view.py" line="91"/>
         <source>Controller</source>
         <translation>Regler</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="91"/>
+        <location filename="../views/controller_view.py" line="92"/>
+        <source>Parameters</source>
+        <translation>Parameter</translation>
+    </message>
+    <message>
+        <location filename="../views/controller_view.py" line="95"/>
         <source>Controller Type</source>
         <translation>Reglertyp</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="92"/>
+        <location filename="../views/controller_view.py" line="96"/>
         <source>Anti Windup</source>
         <translation>Windup</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="93"/>
+        <location filename="../views/controller_view.py" line="97"/>
         <source>Constraint</source>
         <translation>Begrenzung</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="94"/>
+        <location filename="../views/controller_view.py" line="98"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="95"/>
+        <location filename="../views/controller_view.py" line="99"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
