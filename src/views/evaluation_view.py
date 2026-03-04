@@ -10,7 +10,8 @@ from app_domain.controlsys import ExcitationTarget
 from utils import LatexRenderer
 from viewmodels import PlantViewModel, EvaluationViewModel, FunctionViewModel, PlotViewModel, PlotData
 from views import BaseView
-from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, FunctionWidget
+from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, ExpandableFrame, FunctionWidget, \
+    FormulaWidget
 from views.translations import PlotLabels
 
 COLORS = {
@@ -61,30 +62,24 @@ class EvaluationView(BaseView, QWidget):
 
         main_layout = self._create_page_layout()
 
-        cl_frame = self._create_cl_frame()
-        function_frame = self._create_function_frame()
-        response_frame = self._create_cl_response_frame()
+        # Title
+        self._lbl_title = QLabel()
+        self._lbl_title.setObjectName("viewTitle")
+        main_layout.addWidget(self._lbl_title)
 
-        # Keep the first two frames at their natural height.
-        cl_frame.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)  # type: ignore[attr-defined]
-        function_frame.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)  # type: ignore[attr-defined]
+        self._frm_cl = self._create_cl_frame()
+        main_layout.addWidget(self._frm_cl, 0)
+        self._frm_function = self._create_function_frame()
+        main_layout.addWidget(self._frm_function, 0)
+        self._frm_response = self._create_cl_response_frame()
+        main_layout.addWidget(self._frm_response, 1)
 
-        # Only the response frame should consume extra vertical space.
-        response_frame.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)  # type: ignore[attr-defined]
-
-        main_layout.addWidget(cl_frame, 0)
-        main_layout.addWidget(function_frame, 0)
-        main_layout.addWidget(response_frame, 1)
-
+        main_layout.addStretch()
         self.setLayout(main_layout)
 
-    def _create_cl_frame(self) -> QFrame:
+    def _create_cl_frame(self) -> ExpandableFrame:
+        frame: ExpandableFrame
         frame, frame_layout = self._create_card()
-
-        # Title
-        self._lbl_title_cl = QLabel()
-        self._apply_title_property(self._lbl_title_cl)
-        frame_layout.addWidget(self._lbl_title_cl)
 
         # TF closed loop
         latex_text = {
@@ -94,26 +89,15 @@ class EvaluationView(BaseView, QWidget):
         }
 
         for key, text in latex_text.items():
-            lbl_latex = QLabel()
-            lbl_latex.setAttribute(Qt.WA_TranslucentBackground)  # type: ignore[attr-defined]
-            lbl_latex.setStyleSheet("background: transparent;")
-
-            lbl_latex.setPixmap(LatexRenderer.latex2pixmap(text, font_size_scale=self._formula_font_size_scale))
-            lbl_latex.setAlignment(Qt.AlignHCenter)  # type: ignore[attr-defined]
-
+            lbl_latex = FormulaWidget(text, self._formula_font_size_scale)
             frame_layout.addWidget(lbl_latex)
-
             self._latex_labels[key] = lbl_latex
 
         return frame
 
-    def _create_function_frame(self) -> QFrame:
+    def _create_function_frame(self) -> ExpandableFrame:
+        frame: ExpandableFrame
         frame, frame_layout = self._create_card()
-
-        # Title
-        self._lbl_title_function = QLabel()
-        self._apply_title_property(self._lbl_title_function)
-        frame_layout.addWidget(self._lbl_title_function)
 
         # Function Tab
         self._function_tab = QTabWidget()
@@ -134,13 +118,9 @@ class EvaluationView(BaseView, QWidget):
 
         return frame
 
-    def _create_cl_response_frame(self) -> QFrame:
-        frame, frame_layout = self._create_card()
-
-        # Title
-        self._lbl_title_cl_response = QLabel()
-        self._apply_title_property(self._lbl_title_cl_response)
-        frame_layout.addWidget(self._lbl_title_cl_response)
+    def _create_cl_response_frame(self) -> ExpandableFrame:
+        frame: ExpandableFrame
+        frame, frame_layout = self._create_card(expand_vertically_when_expanded=True)
 
         subplot_cfgs = {
             1: SubplotConfiguration(
@@ -155,19 +135,15 @@ class EvaluationView(BaseView, QWidget):
             ),
         }
 
-        self._cl_plot_cfg = PlotWidgetConfiguration(
+        cl_plot_cfg = PlotWidgetConfiguration(
             context="EvaluationView",
             title=str(QT_TRANSLATE_NOOP("EvaluationView", "Closed Loop")),
             subplot=(2, 1),
             subplot_configuration=subplot_cfgs,
         )
 
-        plot_view = PlotWidget(
-            self._ui_context,
-            self._vm_plot,
-            self._cl_plot_cfg,
-            parent=frame
-        )
+        plot_view = PlotWidget(self._ui_context, self._vm_plot, cl_plot_cfg, parent=frame)
+        plot_view.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         frame_layout.addWidget(plot_view)
 
@@ -209,9 +185,10 @@ class EvaluationView(BaseView, QWidget):
     # -------------------------------------------------
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
-        self._lbl_title_cl.setText(self.tr("Closed Loop"))
-        self._lbl_title_function.setText(self.tr("Excitation Function"))
-        self._lbl_title_cl_response.setText(self.tr("Closed Loop"))
+        self._lbl_title.setText(self.tr("Evaluation"))
+        self._frm_cl.set_title(self.tr("Closed Loop"))
+        self._frm_function.set_title(self.tr("Excitation Function"))
+        self._frm_response.set_title(self.tr("Closed Loop"))
 
         # translate pages
         for text, i in zip(ExcitationTarget, range(self._function_tab.count())):

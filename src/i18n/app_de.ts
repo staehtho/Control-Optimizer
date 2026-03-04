@@ -176,26 +176,31 @@
 <context>
     <name>EvaluationView</name>
     <message>
-        <location filename="../views/evaluation_view.py" line="160"/>
-        <location filename="../views/evaluation_view.py" line="212"/>
-        <location filename="../views/evaluation_view.py" line="214"/>
+        <location filename="../views/evaluation_view.py" line="139"/>
+        <location filename="../views/evaluation_view.py" line="188"/>
+        <location filename="../views/evaluation_view.py" line="190"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="147"/>
-        <location filename="../views/evaluation_view.py" line="152"/>
+        <location filename="../views/evaluation_view.py" line="126"/>
+        <location filename="../views/evaluation_view.py" line="131"/>
         <source>Time [s]</source>
         <translation>Zeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="148"/>
-        <location filename="../views/evaluation_view.py" line="153"/>
+        <location filename="../views/evaluation_view.py" line="127"/>
+        <location filename="../views/evaluation_view.py" line="132"/>
         <source>Output</source>
         <translation>Ausgang</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="213"/>
+        <location filename="../views/evaluation_view.py" line="187"/>
+        <source>Evaluation</source>
+        <translation>Auswertung</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="189"/>
         <source>Excitation Function</source>
         <translation>Anregungsfunktion</translation>
     </message>

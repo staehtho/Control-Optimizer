@@ -155,6 +155,10 @@ class EvaluationViewModel(BaseViewModel):
 
     @Slot(float, float)
     def compute_closed_loop_response(self, t0: float, t1: float) -> None:
+        if not self._model_plant.is_valid:
+            self.logger.debug("Plant is not valid, closed loop response are not computed")
+            return
+
         self.logger.debug("Running closed loop response.")
 
         context = ClosedLoopResponseContext(
