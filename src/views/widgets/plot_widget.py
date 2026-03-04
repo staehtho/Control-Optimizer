@@ -54,20 +54,22 @@ class PlotWidget(BaseView, QWidget):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(8)
 
-        main_layout.addLayout(self._create_header())
-        main_layout.addLayout(self._create_series_row())
+        header_layout = self._create_header()
+        series_layout = self._create_series_row()
+        main_layout.addLayout(header_layout, 0)
+        main_layout.addLayout(series_layout, 0)
 
         # figure
         self._figure = Figure()
         self._canvas = FigureCanvas(self._figure)
         self._toolbar = NavigationToolbar(self._canvas, self)
-        self._toolbar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)  # type: ignore[attr-defined]
-        self._canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)  # type: ignore[attr-defined]
+        self._toolbar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        self._canvas.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self._canvas.setMinimumSize(500, 350)
         self._apply_toolbar_icons()
         self._update_plot()
 
-        main_layout.addWidget(self._toolbar)
+        main_layout.addWidget(self._toolbar, 0)
         main_layout.addWidget(self._canvas, 1)
 
         self.setLayout(main_layout)
@@ -79,33 +81,33 @@ class PlotWidget(BaseView, QWidget):
 
         # Start time
         self._lbl_start = QLabel("")
-        self._lbl_start.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)  # type: ignore[attr-defined]
+        self._lbl_start.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self._lbl_start.setVisible(show)
         layout.addWidget(self._lbl_start)
 
         self._txt_start = QLineEdit()
         self._txt_start.setFixedWidth(90)
-        self._txt_start.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)  # type: ignore[attr-defined]
+        self._txt_start.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self._txt_start.setValidator(QDoubleValidator())
         self._txt_start.setVisible(show)
         layout.addWidget(self._txt_start)
 
         # End time
         self._lbl_end = QLabel("")
-        self._lbl_end.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)  # type: ignore[attr-defined]
+        self._lbl_end.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self._lbl_end.setVisible(show)
         layout.addWidget(self._lbl_end)
 
         self._txt_end = QLineEdit()
         self._txt_end.setFixedWidth(90)
-        self._txt_end.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)  # type: ignore[attr-defined]
+        self._txt_end.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self._txt_end.setValidator(QDoubleValidator())
         self._txt_end.setVisible(show)
         layout.addWidget(self._txt_end)
 
         # Grid checkbox
         self._chk_grid = QCheckBox("")
-        self._chk_grid.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)  # type: ignore[attr-defined]
+        self._chk_grid.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         layout.addWidget(self._chk_grid)
 
         layout.addStretch()  # keeps everything left-aligned
@@ -115,7 +117,7 @@ class PlotWidget(BaseView, QWidget):
     def _create_series_row(self) -> QHBoxLayout:
         layout = QHBoxLayout()
         self._lbl_series = QLabel("Data:")
-        self._lbl_series.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)  # type: ignore[attr-defined]
+        self._lbl_series.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         layout.addWidget(self._lbl_series)
         layout.addStretch()
         self._series_layout = layout
@@ -287,7 +289,7 @@ class PlotWidget(BaseView, QWidget):
             checkbox = self._series_checkboxes.get(series.key)
             if checkbox is None:
                 checkbox = QCheckBox(series.label)
-                checkbox.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)  # type: ignore[attr-defined]
+                checkbox.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
                 checkbox.toggled.connect(partial(self._on_series_checkbox_toggled, series.key))
                 self._series_checkboxes[series.key] = checkbox
                 self._widgets[f"plot_data_{series.key}"] = checkbox
@@ -396,7 +398,7 @@ class PlotWidget(BaseView, QWidget):
 
         painter = QPainter(tinted)
         painter.drawPixmap(0, 0, pixmap)
-        painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
+        painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
         painter.fillRect(tinted.rect(), color)
         painter.end()
 

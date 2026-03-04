@@ -41,11 +41,9 @@ class MainView(BaseView, QMainWindow):
         stack_content_layout.addWidget(stack_frame)
 
         scroll = self._wrap_in_scroll_area(stack_content)
-        outer_frame, outer_frame_layout = self._create_plain_card()
-        outer_frame_layout.addWidget(scroll)
 
         layout.addWidget(self._nav)
-        layout.addWidget(outer_frame, 1)
+        layout.addWidget(scroll, 1)
 
     # -------------------------------------------------
     # Signal / ViewModel Binding

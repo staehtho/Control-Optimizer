@@ -159,7 +159,7 @@ class BaseView:
         for enum_key, text in sorted_items:
             cmb.addItem(text, enum_key)
 
-        # alten Wert wieder auswÃ¤hlen, falls noch gÃ¼ltig
+        # alten Wert wieder auswählen, falls noch gültig
         if current_data in data:
             index = cmb.findData(current_data)
             if index >= 0:

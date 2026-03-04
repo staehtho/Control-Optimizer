@@ -25,6 +25,7 @@ class ExpandableFrame(QFrame):
             parent: QWidget | None = None,
     ):
         super().__init__(parent)
+        self._max_widget_height = 16777215
 
         self._expanded = expanded
         self._expand_vertically_when_expanded = expand_vertically_when_expanded
@@ -32,6 +33,7 @@ class ExpandableFrame(QFrame):
         self._main_layout = QVBoxLayout(self)
         self._main_layout.setContentsMargins(0, 0, 0, 0)
         self._main_layout.setSpacing(4)
+        self._main_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         self._header_widget = self._create_header_widget(title, expanded)
 
@@ -53,7 +55,10 @@ class ExpandableFrame(QFrame):
         self._apply_size_policy()
         if expanded:
             self._content_widget.setVisible(True)
-            self._content_widget.setMaximumHeight(self._content_height())
+            if self._expand_vertically_when_expanded:
+                self._content_widget.setMaximumHeight(self._max_widget_height)
+            else:
+                self._content_widget.setMaximumHeight(self._content_height())
         else:
             self._content_widget.setVisible(False)
             self._content_widget.setMaximumHeight(0)
@@ -68,8 +73,7 @@ class ExpandableFrame(QFrame):
         layout.setSpacing(8)
 
         self._title_label = QLabel(title, widget)
-        self._title_label.setObjectName("expandableTitle")
-        self._title_label.setStyleSheet("font-size: 24px; font-weight: 700;")
+        self._title_label.setObjectName("sectionTitle")
         self._title_label.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         self._title_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
 
@@ -84,14 +88,6 @@ class ExpandableFrame(QFrame):
         layout.addWidget(self._toggle_btn, 0, Qt.AlignmentFlag.AlignRight)
 
         return widget
-
-    def _create_content_widget(self) -> QWidget:
-        widget = QWidget(self)
-        widget.installEventFilter(self)
-        layout = QVBoxLayout(widget)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(6)
-
 
     def add_widget(self, widget: QWidget) -> None:
         self._content_layout.addWidget(widget)
@@ -144,6 +140,7 @@ class ExpandableFrame(QFrame):
                 and event.type() == QEvent.Type.LayoutRequest
                 and self._expanded
                 and self._animation.state() != QAbstractAnimation.State.Running
+                and not self._expand_vertically_when_expanded
         ):
             self._content_widget.setMaximumHeight(self._content_height())
         return super().eventFilter(watched, event)
@@ -152,7 +149,11 @@ class ExpandableFrame(QFrame):
         return self._content_layout.sizeHint().height()
 
     def _refresh_expanded_height(self) -> None:
-        if self._expanded and self._animation.state() != QAbstractAnimation.State.Running:
+        if (
+                self._expanded
+                and self._animation.state() != QAbstractAnimation.State.Running
+                and not self._expand_vertically_when_expanded
+        ):
             self._content_widget.setMaximumHeight(self._content_height())
 
     def _update_toggle_text(self) -> None:
@@ -162,6 +163,10 @@ class ExpandableFrame(QFrame):
         # Keep heavy content (e.g., plots with minimum sizes) out of layout flow when collapsed.
         if not self._expanded:
             self._content_widget.setVisible(False)
+            return
+
+        if self._expand_vertically_when_expanded:
+            self._content_widget.setMaximumHeight(self._max_widget_height)
 
     def _apply_size_policy(self) -> None:
         if self._expanded and self._expand_vertically_when_expanded:
@@ -169,7 +174,7 @@ class ExpandableFrame(QFrame):
         elif self._expanded:
             vertical_policy = QSizePolicy.Policy.Maximum
         else:
-            vertical_policy = QSizePolicy.Policy.Fixed
+            vertical_policy = QSizePolicy.Policy.Maximum
 
         self.setSizePolicy(QSizePolicy.Policy.Expanding, vertical_policy)
         self.updateGeometry()

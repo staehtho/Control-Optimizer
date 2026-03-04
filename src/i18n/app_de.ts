@@ -256,7 +256,7 @@
 <context>
     <name>MainView</name>
     <message>
-        <location filename="../views/main_view.py" line="68"/>
+        <location filename="../views/main_view.py" line="66"/>
         <source>Control Optimizer</source>
         <translation>Control Optimizer</translation>
     </message>
@@ -275,44 +275,44 @@
 <context>
     <name>PlantView</name>
     <message>
-        <location filename="../views/plant_view.py" line="69"/>
-        <location filename="../views/plant_view.py" line="172"/>
+        <location filename="../views/plant_view.py" line="67"/>
+        <location filename="../views/plant_view.py" line="161"/>
         <source>plant.num</source>
         <translation>Nenner</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="83"/>
-        <location filename="../views/plant_view.py" line="173"/>
+        <location filename="../views/plant_view.py" line="81"/>
+        <location filename="../views/plant_view.py" line="162"/>
         <source>plant.den</source>
         <translation>Zähler</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="169"/>
+        <location filename="../views/plant_view.py" line="158"/>
         <source>Plant</source>
         <translation>Regelstrecke</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="170"/>
+        <location filename="../views/plant_view.py" line="159"/>
         <source>Transfer function</source>
         <translation>Transferfunction</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="171"/>
+        <location filename="../views/plant_view.py" line="160"/>
         <source>Step Response</source>
         <translation>Sprungantwort</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="174"/>
+        <location filename="../views/plant_view.py" line="163"/>
         <source>e.g. 1  → 1</source>
         <translation>z.B. 1  → 1</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="175"/>
+        <location filename="../views/plant_view.py" line="164"/>
         <source>e.g. 1, 0, 0  → 1*s^2 + 0*s + 0</source>
         <translation>z.B. 1, 0, 0  → 1*s² + 0*s + 0</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="177"/>
+        <location filename="../views/plant_view.py" line="166"/>
         <source>tooltip_num_den</source>
         <translation>Verwenden Sie „.“ als Dezimaltrennzeichen.
 Die erste Zahl entspricht der höchsten Potenz von s.
@@ -331,29 +331,29 @@ Beispiel: 1, 0.5, 2 → 1·s² + 0,5·s + 2</translation>
 <context>
     <name>PlotWidget</name>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="149"/>
+        <location filename="../views/widgets/plot_widget.py" line="151"/>
         <source>plot.grid</source>
         <translation>Grid</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="150"/>
+        <location filename="../views/widgets/plot_widget.py" line="152"/>
         <source>plot.start</source>
         <translation>Startzeit</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="151"/>
+        <location filename="../views/widgets/plot_widget.py" line="153"/>
         <source>plot.end</source>
         <translation>Endzeit</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="152"/>
+        <location filename="../views/widgets/plot_widget.py" line="154"/>
         <source>plot.start.tooltip</source>
         <translation>Untere Grenze der x-Achse (x_min).
 Legt fest, wo die Zeitachse beginnt.
 Einheit: Sekunden (s).</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="153"/>
+        <location filename="../views/widgets/plot_widget.py" line="155"/>
         <source>plot.end.tooltip</source>
         <translation>Obere Grenze der x-Achse (x_max).
 Legt fest, wo die Zeitachse endet.
@@ -562,17 +562,17 @@ Tf   = %(tf).3f</translation>
 <context>
     <name>plant.view</name>
     <message>
-        <location filename="../views/plant_view.py" line="131"/>
+        <location filename="../views/plant_view.py" line="119"/>
         <source>Step Response</source>
         <translation>Sprungantwort</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="132"/>
+        <location filename="../views/plant_view.py" line="120"/>
         <source>Time [s]</source>
         <translation>Zeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="133"/>
+        <location filename="../views/plant_view.py" line="121"/>
         <source>Output</source>
         <translation>Ausgang</translation>
     </message>

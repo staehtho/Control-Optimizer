@@ -17,13 +17,13 @@ QWidget {
             }
             QLabel#viewTitle {
                 color: #f1f5f9;
-                font-size: 20px;
+                font-size: 32px;
                 font-weight: 700;
                 padding: 4px 2px 8px 2px;
             }
             QLabel#sectionTitle {
                 color: #dbe6f5;
-                font-size: 15px;
+                font-size: 24px;
                 font-weight: 600;
                 padding-bottom: 4px;
             }

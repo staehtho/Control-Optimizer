@@ -1,14 +1,13 @@
 from PySide6.QtCore import QObject
 from PySide6.QtCore import QRegularExpression, Qt, QT_TRANSLATE_NOOP
 from PySide6.QtGui import QRegularExpressionValidator
-from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QScrollArea, QFrame
+from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QScrollArea, QSizePolicy
 from numpy import ndarray
 
 from app_domain.ui_context import UiContext
-from utils import LatexRenderer
 from viewmodels import PlantViewModel, PlotViewModel, PlotData
 from .base_view import BaseView
-from views.widgets import PlotWidget, PlotWidgetConfiguration, ExpandableFrame
+from views.widgets import PlotWidget, PlotWidgetConfiguration, ExpandableFrame, FormulaWidget
 from views.translations import PlotLabels
 
 
@@ -39,12 +38,11 @@ class PlantView(BaseView, QWidget):
 
         # Title
         self._lbl_title = QLabel()
-        self._apply_title_property(self._lbl_title)
-
+        self._lbl_title.setObjectName("viewTitle")
         main_layout.addWidget(self._lbl_title)
 
         self._frm_tf = self._create_transfer_function_frame()
-        main_layout.addWidget(self._frm_tf)
+        main_layout.addWidget(self._frm_tf, 0)
         self._frm_plot = self._create_plot_frame()
         main_layout.addWidget(self._frm_plot, 1)
 
@@ -94,17 +92,7 @@ class PlantView(BaseView, QWidget):
         # -------------------
         # Transfer function formula display
         # -------------------
-        self._lbl_formula = QLabel()
-        self._lbl_formula.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        self._lbl_formula.setStyleSheet("background: transparent;")
-
-        self._lbl_formula.setPixmap(
-            LatexRenderer.latex2pixmap(
-                r"G(s) = " + self._vm_plant.get_tf(),
-                font_size_scale=self._formula_font_size_scale
-            )
-        )
-        self._lbl_formula.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+        self._lbl_formula = FormulaWidget(r"G(s) = " + self._vm_plant.get_tf(), self._formula_font_size_scale)
 
         # --- Scroll area for label ---
         scroll_formula = QScrollArea()
@@ -134,8 +122,9 @@ class PlantView(BaseView, QWidget):
         )
 
         self._plot_view = PlotWidget(self._ui_context, self._vm_plot, plot_cfg)
+        self._plot_view.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
-        frame_layout.addWidget(self._plot_view)
+        frame_layout.addWidget(self._plot_view, 1)
 
         return frame
 
@@ -201,12 +190,7 @@ class PlantView(BaseView, QWidget):
 
     def _on_vm_formula_changed(self) -> None:
         """Update LaTeX formula label when ViewModel formula changes."""
-        self._lbl_formula.setPixmap(
-            LatexRenderer.latex2pixmap(
-                r"G(s) = " + self._vm_plant.get_tf(),
-                font_size_scale=self._formula_font_size_scale
-            )
-        )
+        self._lbl_formula.set_formula(r"G(s) = " + self._vm_plant.get_tf())
 
     def _on_plot_time_changed(self) -> None:
         """Update plot when start or end time changes."""
