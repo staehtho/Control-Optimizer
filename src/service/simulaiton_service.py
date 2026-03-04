@@ -1,12 +1,12 @@
 from typing import Callable
 import logging
 from numpy import ndarray
+from PySide6.QtCore import QThread
 
 from app_domain.engine import (
     PlantResponseEngine, PlantResponseContext, FunctionEngine, PsoSimulationEngine, PsoSimulationParam,
     PsoResult, ClosedLoopResponseEngine, ClosedLoopResponseContext
 )
-from app_domain.controlsys import MySolver
 from infrastructure import PlantStepResponseWorker, FunctionWorker, PsoSimulationWorker, ClosedLoopResponseWorker
 
 
@@ -25,11 +25,47 @@ class SimulationService:
         self._function_engine = FunctionEngine()
         self._pso_simulation_engine = PsoSimulationEngine()
         self._closed_loop_engine = ClosedLoopResponseEngine()
-        # TODO: terminate Worker at closing
+
         self._step_worker = None
         self._function_workers: list[FunctionWorker] = []
         self._pso_simulation_worker = None
         self._closed_loop_worker = None
+
+    def _stop_worker(self, worker: QThread | None, name: str, timeout_ms: int = 2000) -> None:
+        """Try graceful stop first, then force terminate as a last resort."""
+        if worker is None or not worker.isRunning():
+            return
+
+        self._logger.info("Stopping %s...", name)
+        worker.requestInterruption()
+        worker.quit()
+
+        if worker.wait(timeout_ms):
+            self._logger.info("%s stopped gracefully.", name)
+            return
+
+        self._logger.warning("%s did not stop in time; forcing terminate().", name)
+        worker.terminate()
+        worker.wait()
+
+    def shutdown(self) -> None:
+        """Stop all running simulation workers during application shutdown."""
+        self._logger.info("SimulationService shutdown started.")
+
+        self._stop_worker(self._step_worker, "PlantStepResponseWorker")
+        self._step_worker = None
+
+        for worker in list(self._function_workers):
+            self._stop_worker(worker, f"FunctionWorker[{id(worker)}]")
+        self._function_workers.clear()
+
+        self._stop_worker(self._pso_simulation_worker, "PsoSimulationWorker")
+        self._pso_simulation_worker = None
+
+        self._stop_worker(self._closed_loop_worker, "ClosedLoopResponseWorker")
+        self._closed_loop_worker = None
+
+        self._logger.info("SimulationService shutdown finished.")
 
     def compute_plant_response(
             self,
