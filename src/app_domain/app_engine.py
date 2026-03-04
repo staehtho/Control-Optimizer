@@ -135,10 +135,8 @@ class AppEngine:
         )
 
         # Run warmup simulation asynchronously
-        self.simulation_service.compute_step_response(
-            context,
-            callback=lambda t, y: self.logger.info("Step response warmup completed successfully.")
-        )
+        self.simulation_service.compute_plant_response(context, callback=lambda t, y: self.logger.info(
+            "Step response warmup completed successfully."))
 
     # ------------------------------
     # PSO Warmup Method

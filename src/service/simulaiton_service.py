@@ -31,7 +31,7 @@ class SimulationService:
         self._pso_simulation_worker = None
         self._closed_loop_worker = None
 
-    def compute_step_response(
+    def compute_plant_response(
             self,
             context: PlantResponseContext,
             callback: Callable[[ndarray, ndarray], None],

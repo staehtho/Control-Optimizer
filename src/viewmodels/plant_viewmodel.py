@@ -217,7 +217,7 @@ class PlantViewModel(BaseViewModel):
             solver=solver,
             reference=lambda t: np.where(t >= 0, 1.0, 0.0),
         )
-        self._simulation_service.compute_step_response(context, self._on_result)
+        self._simulation_service.compute_plant_response(context, self._on_result)
 
     def _on_result(self, t: ndarray, y: ndarray) -> None:
         self.stepResponseChanged.emit(t, y)

@@ -211,7 +211,7 @@ class PlotWidget(BaseView, QWidget):
 
                 self._logger.debug(f"Plotting series: {series}")
                 axs[i].plot(series.x, series.y, label=series.label, color=series.color,
-                            zorder=len(sorted_series) - series.order)
+                            zorder=len(sorted_series) - series.order + 1)
 
             handles, labels = axs[i].get_legend_handles_labels()
             if handles:

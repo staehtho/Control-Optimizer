@@ -18,6 +18,7 @@ from views.translations import Translation
 class FieldConfig:
     key: str
     widget_type: Type[QWidget] = QLabel
+    create_label: bool = True
 
 
 @dataclass
@@ -142,7 +143,7 @@ class BaseView:
         font.setPointSize(self._title_size if font_size == 0 else font_size)  # size in pt
         font.setBold(True)
         lbl.setFont(font)
-        lbl.setAlignment(Qt.AlignLeft)  # type: ignore[attr-defined]
+        lbl.setAlignment(Qt.AlignmentFlag.AlignLeft)
         if font_size == 0:
             lbl.setObjectName("viewTitle")
         else:
@@ -212,16 +213,21 @@ class BaseView:
                         col = 0
                         row += 1
 
-                label = QLabel()
                 widget: QWidget = field.widget_type()
                 if isinstance(widget, QLineEdit):
                     widget.setValidator(QDoubleValidator())
 
-                layout.addWidget(label, row, col)
-                layout.addWidget(widget, row, col + 1)
-
                 self._widgets[field.key] = widget
-                self._labels[field.key] = label
+
+                if field.create_label:
+                    label = QLabel()
+                    layout.addWidget(label, row, col)
+                    self._labels[field.key] = label
+
+                    layout.addWidget(widget, row, col + 1)
+                else:
+                    layout.addWidget(widget, row, col, 1, 2)
+
 
         return layout
 
@@ -264,7 +270,7 @@ class BaseView:
     def _wrap_in_scroll_area(content_widget: QWidget) -> QScrollArea:
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QFrame.NoFrame)  # type: ignore[attr-defined]
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
         scroll.setStyleSheet("background: transparent;")
         scroll.viewport().setStyleSheet("background: transparent;")
         scroll.setWidget(content_widget)

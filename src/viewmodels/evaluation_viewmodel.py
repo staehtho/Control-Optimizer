@@ -2,7 +2,7 @@ from PySide6.QtCore import QObject, Signal, Slot
 from numpy import ndarray
 
 from service import SimulationService
-from app_domain.engine import ClosedLoopResponseContext
+from app_domain.engine import ClosedLoopResponseContext, PlantResponseContext
 from app_domain.controlsys import ExcitationTarget
 from app_domain.functions import NullFunction
 from models import (
@@ -27,6 +27,7 @@ class EvaluationViewModel(BaseViewModel):
     tfChanged = Signal()
     psoSimulationFinished = Signal(ExcitationTarget)
     closedLoopResponseChanged = Signal(ndarray, ndarray, ndarray)
+    plantResponseChanged = Signal(ndarray, ndarray)
 
     def __init__(
             self,
@@ -184,7 +185,30 @@ class EvaluationViewModel(BaseViewModel):
                 ExcitationTarget.MEASUREMENT_DISTURBANCE.name).selected_function.get_function()
         )
 
-        self._simulation_service.compute_closed_loop_response(context, self._on_compute_finished)
+        self._simulation_service.compute_closed_loop_response(context, self._on_closed_loop_compute_finished)
 
-    def _on_compute_finished(self, t: ndarray, u: ndarray, y: ndarray) -> None:
+    def _on_closed_loop_compute_finished(self, t: ndarray, u: ndarray, y: ndarray) -> None:
         self.closedLoopResponseChanged.emit(t, u, y)
+
+    @Slot(float, float)
+    def compute_plant_response(self, t0: float, t1: float) -> None:
+        if not self._model_plant.is_valid:
+            self.logger.debug("Plant is not valid, plant response are not computed")
+            return
+
+        self.logger.debug("Running plant response.")
+
+        context = PlantResponseContext(
+            num=self._model_plant.num,
+            den=self._model_plant.den,
+            t0=t0,
+            t1=t1,
+            solver=self._settings.get_solver(),
+            reference=self._model_functions.get(
+                ExcitationTarget.REFERENCE.name).selected_function.get_function()
+        )
+
+        self._simulation_service.compute_plant_response(context, self._on_plant_compute_finished)
+
+    def _on_plant_compute_finished(self, t: ndarray, y: ndarray) -> None:
+        self.plantResponseChanged.emit(t, y)

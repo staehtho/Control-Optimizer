@@ -90,8 +90,8 @@ def test_compute_step_response_calls_service_when_valid(
 
     vm.compute_step_response(0.0, 2.0)
 
-    assert mock_simulation_service.compute_step_response.call_count == 1
-    args = mock_simulation_service.compute_step_response.call_args.args
+    assert mock_simulation_service.compute_plant_response.call_count == 1
+    args = mock_simulation_service.compute_plant_response.call_args.args
     assert args[0] is not None
 
 
@@ -101,7 +101,7 @@ def test_compute_step_response_does_not_call_service_when_invalid(
 ) -> None:
     plant_vm.compute_step_response(0.0, 2.0)
 
-    assert mock_simulation_service.compute_step_response.call_count == 0
+    assert mock_simulation_service.compute_plant_response.call_count == 0
 
 
 def test_on_result_emits_step_response_changed(plant_vm: PlantViewModel) -> None:

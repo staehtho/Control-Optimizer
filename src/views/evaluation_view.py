@@ -1,7 +1,7 @@
 from functools import partial
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QFrame, QLabel, QTabWidget, QSizePolicy
-from PySide6.QtCore import Qt, QT_TRANSLATE_NOOP
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QTabWidget, QSizePolicy
+from PySide6.QtCore import QT_TRANSLATE_NOOP
 from numpy import ndarray
 
 from app_domain.functions import resolve_function_type, FunctionTypes
@@ -15,18 +15,20 @@ from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfigurat
 from views.translations import PlotLabels
 
 COLORS = {
-    PlotLabels.CLOSED_LOOP: "#1f77b4",
-    PlotLabels.REFERENCE: "#ff7f0e",
-    PlotLabels.INPUT_DISTURBANCE: "#2ca02c",
-    PlotLabels.MEASUREMENT_DISTURBANCE: "#d62728",
-    PlotLabels.CONTROL_SIGNAL: "#1f77b4"
+    PlotLabels.REFERENCE: "#ff7f0e",  # orange – reference / setpoint
+    PlotLabels.INPUT_DISTURBANCE: "#2ca02c",  # green – input disturbance
+    PlotLabels.MEASUREMENT_DISTURBANCE: "#d62728",  # red – measurement disturbance
+    PlotLabels.PLANT: "#7f7f7f",  # gray – plant (neutral)
+    PlotLabels.CLOSED_LOOP: "#1f77b4",  # blue – closed-loop output
+    PlotLabels.CONTROL_SIGNAL: "#9467bd",  # purple – control effort
 }
 
 PLOT_ORDER = {
-    PlotLabels.CLOSED_LOOP: 10,
     PlotLabels.REFERENCE: 11,
     PlotLabels.INPUT_DISTURBANCE: 12,
     PlotLabels.MEASUREMENT_DISTURBANCE: 13,
+    PlotLabels.PLANT: 14,
+    PlotLabels.CLOSED_LOOP: 15,
     PlotLabels.CONTROL_SIGNAL: 10
 }
 
@@ -171,7 +173,8 @@ class EvaluationView(BaseView, QWidget):
             vm.computeFinished.connect(partial(self._on_vm_function_compute_finished, key))
 
         # vm evaluator
-        self._vm_evaluator.closedLoopResponseChanged.connect(self._on_vm_compute_finished)
+        self._vm_evaluator.closedLoopResponseChanged.connect(self._on_vm_closed_loop_compute_finished)
+        self._vm_evaluator.plantResponseChanged.connect(self._on_vm_plant_compute_finished)
         self._vm_evaluator.psoSimulationFinished.connect(self._on_vm_pso_simulation_finished)
         self._vm_evaluator.xMinChanged.connect(self._sync_plot_time_window_from_model)
         self._vm_evaluator.xMaxChanged.connect(self._sync_plot_time_window_from_model)
@@ -210,6 +213,7 @@ class EvaluationView(BaseView, QWidget):
             vm.compute_function(t0, t1)
 
         self._vm_evaluator.compute_closed_loop_response(t0, t1)
+        self._vm_evaluator.compute_plant_response(t0, t1)
 
     # -------------------------------------------------
     # ViewModel change handlers
@@ -242,7 +246,7 @@ class EvaluationView(BaseView, QWidget):
             )
         )
 
-    def _on_vm_compute_finished(self, t: ndarray, u: ndarray, y: ndarray) -> None:
+    def _on_vm_closed_loop_compute_finished(self, t: ndarray, u: ndarray, y: ndarray) -> None:
         self._logger.debug(
             "Closed-loop response computation finished -> updating response plot (samples=%d)",
             len(t),
@@ -271,6 +275,23 @@ class EvaluationView(BaseView, QWidget):
             )
         )
 
+    def _on_vm_plant_compute_finished(self, t: ndarray, y: ndarray) -> None:
+        self._logger.debug(
+            "Plant response computation finished -> updating response plot (samples=%d)",
+            len(t),
+        )
+        self._vm_plot.update_data(
+            PlotData(
+                key=PlotLabels.PLANT.value,
+                label=self._enum_translation(PlotLabels).get(PlotLabels.PLANT),
+                x=t,
+                y=y,
+                color=COLORS.get(PlotLabels.PLANT),
+                order=PLOT_ORDER.get(PlotLabels.PLANT),
+                subplot_position=1,
+            )
+        )
+
     def _on_vm_pso_simulation_finished(self, target: ExcitationTarget) -> None:
         self._logger.debug(
             "PSO simulation finished for target '%s' -> refreshing all excitation functions",
@@ -283,6 +304,7 @@ class EvaluationView(BaseView, QWidget):
         t1 = self._vm_evaluator.x_max
 
         self._vm_evaluator.compute_closed_loop_response(t0, t1)
+        self._vm_evaluator.compute_plant_response(t0, t1)
 
         # update all function plots
         for vm in self._vm_functions.values():
@@ -301,6 +323,7 @@ class EvaluationView(BaseView, QWidget):
 
         self._logger.debug(f"Time range changed: t0={t0}, t1={t1}")
         self._vm_evaluator.compute_closed_loop_response(t0, t1)
+        self._vm_evaluator.compute_plant_response(t0, t1)
 
         for vm in self._vm_functions.values():
             vm.compute_function(t0, t1)
@@ -319,6 +342,7 @@ class EvaluationView(BaseView, QWidget):
 
         self._vm_functions.get(key).compute_function(t0, t1)
         self._vm_evaluator.compute_closed_loop_response(t0, t1)
+        self._vm_evaluator.compute_plant_response(t0, t1)
 
     def _sync_plot_time_window_from_model(self) -> None:
         """Sync plot time range from persisted evaluator state via evaluator VM."""
