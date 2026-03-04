@@ -60,6 +60,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     engine = AppEngine()
+    app.aboutToQuit.connect(engine.shutdown)
     ui_context = engine.ui_context
     BaseView.load_themes(ui_context.vm_theme.get_theme_cfg(), ui_context.vm_theme.current_theme)
     ui_context.vm_theme.themeChanged.connect(BaseView.set_theme)

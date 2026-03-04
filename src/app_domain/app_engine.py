@@ -178,3 +178,8 @@ class AppEngine:
                 "PSO warmup iteration %d completed.", iteration
             )
         )
+
+    def shutdown(self) -> None:
+        """Stop background workers before the application exits."""
+        self.logger.info("Shutting down AppEngine.")
+        self.simulation_service.shutdown()
