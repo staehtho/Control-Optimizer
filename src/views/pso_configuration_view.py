@@ -8,6 +8,7 @@ from app_domain.controlsys import ExcitationTarget, PerformanceIndex
 from utils import LatexRenderer
 from viewmodels import PlantViewModel, FunctionViewModel, PsoConfigurationViewModel
 from views import BaseView, FieldConfig, SectionConfig
+from views.widgets import ExpandableFrame
 
 
 FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
@@ -58,21 +59,26 @@ class PsoConfigurationView(BaseView, QWidget):
         """Create and configure all UI components."""
         main_layout = self._create_page_layout()
 
-        main_layout.addWidget(self._create_plant_frame())
-        main_layout.addWidget(self._create_function_frame())
-        main_layout.addWidget(self._create_control_frame())
-        main_layout.addWidget(self._create_run_pso_frame())
-        main_layout.addStretch()
+        # Title
+        self._lbl_title = QLabel()
+        self._lbl_title.setObjectName("viewTitle")
+        main_layout.addWidget(self._lbl_title)
 
+        self._frm_plant = self._create_plant_frame()
+        main_layout.addWidget(self._frm_plant)
+        self._frm_function = self._create_function_frame()
+        main_layout.addWidget(self._frm_function)
+        self._frm_controller = self._create_controller_frame()
+        main_layout.addWidget(self._frm_controller)
+        self._frm_run_pso = self._create_run_pso_frame()
+        main_layout.addWidget(self._frm_run_pso)
+
+        main_layout.addStretch()
         self.setLayout(main_layout)
 
-    def _create_plant_frame(self) -> QFrame:
+    def _create_plant_frame(self) -> ExpandableFrame:
+        frame: ExpandableFrame
         frame, frame_layout = self._create_card()
-
-        # Title
-        self._lbl_title_plant = QLabel()
-        self._apply_title_property(self._lbl_title_plant)
-        frame_layout.addWidget(self._lbl_title_plant)
 
         # TF
         self._lbl_tf = QLabel()
@@ -91,13 +97,9 @@ class PsoConfigurationView(BaseView, QWidget):
 
         return frame
 
-    def _create_function_frame(self) -> QFrame:
+    def _create_function_frame(self) -> ExpandableFrame:
+        frame: ExpandableFrame
         frame, frame_layout = self._create_card()
-
-        # Title
-        self._lbl_title_function = QLabel()
-        self._apply_title_property(self._lbl_title_function)
-        frame_layout.addWidget(self._lbl_title_function)
 
         frame_layout.addLayout(self._create_grid(FIELDS["excitation_target"], 4))
 
@@ -118,25 +120,17 @@ class PsoConfigurationView(BaseView, QWidget):
 
         return frame
 
-    def _create_control_frame(self) -> QFrame:
+    def _create_controller_frame(self) -> ExpandableFrame:
+        frame: ExpandableFrame
         frame, frame_layout = self._create_card()
-
-        # Title
-        self._lbl_title_control = QLabel()
-        self._apply_title_property(self._lbl_title_control)
-        frame_layout.addWidget(self._lbl_title_control)
 
         frame_layout.addLayout(self._create_grid(FIELDS["control"], 4))
 
         return frame
 
-    def _create_run_pso_frame(self) -> QFrame:
+    def _create_run_pso_frame(self) -> ExpandableFrame:
+        frame: ExpandableFrame
         frame, frame_layout = self._create_card()
-
-        # Title
-        self._lbl_title_run_pso = QLabel()
-        self._apply_title_property(self._lbl_title_run_pso)
-        frame_layout.addWidget(self._lbl_title_run_pso)
 
         self._progress_bar = QProgressBar()
         self._progress_bar.setMinimum(0)
@@ -215,10 +209,11 @@ class PsoConfigurationView(BaseView, QWidget):
     # -------------------------------------------------
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
-        self._lbl_title_plant.setText(self.tr("Plant"))
-        self._lbl_title_function.setText(self.tr("Excitation Function"))
-        self._lbl_title_control.setText(self.tr("Controller Optimization Parameters"))
-        self._lbl_title_run_pso.setText(self.tr("PSO Simulation"))
+        self._lbl_title.setText(self.tr("PSO Parameter"))
+        self._frm_plant.set_title(self.tr("Plant"))
+        self._frm_function.set_title(self.tr("Excitation Function"))
+        self._frm_controller.set_title(self.tr("Controller Optimization Parameters"))
+        self._frm_run_pso.set_title(self.tr("PSO Simulation"))
 
         labels = {
             "simulation_time": self.tr("Simulation Time"),
