@@ -83,7 +83,7 @@ class PlotViewModel(BaseViewModel):
 
         if current is None or not (np.array_equal(current.x, data.x) and np.array_equal(current.y, data.y)):
             self._data[data.key] = data
-            self.logger.debug(f"Data updated for key '{data.key}' ({data})")
+            self.logger.debug(f"Data updated for key '{data.key}'")
             self.dataChanged.emit()
 
     @Slot(str, bool)

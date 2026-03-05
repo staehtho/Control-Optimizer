@@ -24,7 +24,7 @@ def print_tab_order(parent_widget: QWidget) -> None:
     # Collect all children that accept focus
     focusable_widgets = [
         w for w in parent_widget.findChildren(QWidget)
-        if w.focusPolicy() != Qt.NoFocus
+        if w.focusPolicy() != Qt.FocusPolicy.NoFocus
     ]
 
     # Sort by focus order: in Qt, findChildren returns layout order by default,
@@ -53,7 +53,8 @@ if __name__ == '__main__':
         datefmt="%Y-%m-%d %H:%M:%S"
     )
 
-    for log in ("matplotlib.font_manager", "numba.core.ssa", "numba.core.byteflow", "numba.core.interpreter"):
+    for log in ("matplotlib.font_manager", "numba.core.ssa", "numba.core.byteflow", "numba.core.interpreter",
+                "matplotlib.ticker"):
         logger = logging.getLogger(log)
         old_level = logger.level
         logger.setLevel(logging.CRITICAL + 1)  # nichts wird mehr geloggt
@@ -96,6 +97,37 @@ if __name__ == '__main__':
             parent=parent
         )
     }
+
+    from views.widgets import BodePlotWidget
+    from viewmodels.types import BodePlotData, PlotData
+    from app_domain.controlsys import Plant
+    from views.plot_style import PLOT_STYLE, PlotLabels
+    import numpy as np
+
+    plant = Plant([1], [1, 2, 1])
+
+    omega = np.logspace(-5, 5, 1000)
+    s = 1j * omega
+    y = plant.system(s)
+    mag = 20 * np.log10(np.abs(y)) + 80
+    phase = np.angle(y, deg=True)
+
+    marg = BodePlotData(
+        key="margin",
+        label="Closed Loop",
+        omega=omega,
+        margin=mag,
+        phase=phase,
+        plot_style=PLOT_STYLE.get(PlotLabels.PLANT),
+    )
+
+    vm = engine.ensure_plot_viewmodel("frequency_domain_simulation")
+    vm.x_min = 10 ** (-5)
+    vm.x_max = 10 ** 5
+    vm.update_data(marg)
+
+    widget = BodePlotWidget(ui_context, engine.ensure_plot_viewmodel("frequency_domain_simulation"))
+    widget.show()
 
     main_view = MainView(ui_context, items, view_factories, engine.vm_pso)
     main_view.show()

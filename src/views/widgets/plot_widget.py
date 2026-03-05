@@ -281,7 +281,7 @@ class PlotWidget(BaseView, QWidget):
                     if subplot_position != i + 1:
                         continue
 
-                self._logger.debug(f"Plotting serie: {serie}")
+                self._logger.debug(f"Plotting serie: {serie.key}")
                 axs[i].plot(
                     serie.x,
                     serie.y,

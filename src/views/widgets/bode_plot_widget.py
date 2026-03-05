@@ -104,7 +104,7 @@ class BodePlotWidget(PlotWidget):
             if not isinstance(serie, BodePlotData):
                 raise TypeError("BodePlotWidget expects BodeSeries objects.")
 
-            self._logger.debug(f"Plotting margin and phase: {serie}")
+            self._logger.debug(f"Plotting margin and phase: {serie.key}")
 
             # Plot margin (gain) curve
             ax_margin.semilogx(
