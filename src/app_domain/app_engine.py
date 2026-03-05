@@ -8,7 +8,7 @@ from service import SimulationService
 from .ui_context import UiContext
 from viewmodels import (
     PlantViewModel, LanguageViewModel, ThemeViewModel, PlotViewModel, FunctionViewModel,
-    ControllerViewModel, PsoConfigurationViewModel, EvaluationViewModel
+    ControllerViewModel, PsoConfigurationViewModel, EvaluationViewModel, SimulationViewModel
 )
 
 
@@ -73,7 +73,10 @@ class AppEngine:
                                                 self.simulation_service)
 
         # Simulation ViewModel
-        #self.vm_simulation = SimulationViewModel(self.model_container, self.vm_pso, self.simulation_service)
+        model_functions = {i.name: self.model_container.ensure_function_model(i.name) for i in ExcitationTarget}
+        self.vm_simulation = SimulationViewModel(
+            model_functions, self.model_container.model_settings, self.vm_pso, self.simulation_service
+        )
 
         self.ui_context = UiContext(
             settings=self.model_container.model_settings,

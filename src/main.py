@@ -8,7 +8,8 @@ from PySide6.QtWidgets import QApplication, QWidget
 from app_domain import AppEngine
 from app_domain.controlsys import ExcitationTarget
 from app_domain.functions import FunctionTypes
-from views import PlantView, FunctionView, ControllerView, PsoConfigurationView, EvaluationView, MainView, BaseView
+from views import PlantView, FunctionView, ControllerView, PsoConfigurationView, EvaluationView, MainView, BaseView, \
+    SimulationView
 from views.widgets import NavItem
 from views.translations import NavLabels
 
@@ -90,10 +91,10 @@ if __name__ == '__main__':
         NavLabels.EVALUATION: lambda parent=None: EvaluationView(
             ui_context, engine.vm_evaluator, engine.ensure_plot_viewmodel("time_domain_evaluation"), parent=parent
         ),
-        # NavLabels.SIMULATION: lambda parent=None: SimulationView(
-        #    ui_context, engine.vm_plant, engine.vm_simulation, vm_functions,
-        #    engine.ensure_plot_viewmodel("time_domain_simulation"), parent=parent
-        # )
+        NavLabels.SIMULATION: lambda parent=None: SimulationView(
+            ui_context, engine.vm_simulation, vm_functions, engine.ensure_plot_viewmodel("time_domain_simulation"),
+            parent=parent
+        )
     }
 
     main_view = MainView(ui_context, items, view_factories)

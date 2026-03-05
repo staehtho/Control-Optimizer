@@ -1,5 +1,6 @@
 from app_domain.functions import NullFunction
-from models import PlantModel, SettingsModel, FunctionModel, PsoConfigurationModel, ControllerModel, EvaluationModel
+from models import PlantModel, SettingsModel, FunctionModel, PsoConfigurationModel, ControllerModel, SimulationModel
+
 
 class ModelContainer:
     def __init__(self):
@@ -9,7 +10,7 @@ class ModelContainer:
         self.model_plant = PlantModel()
         self.model_pso = PsoConfigurationModel()
         self.model_controller = ControllerModel()
-        self.model_evaluator = EvaluationModel()
+        self.model_simulation = SimulationModel()
 
     def ensure_function_model(self, key: str) -> FunctionModel:
         """

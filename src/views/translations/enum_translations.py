@@ -13,6 +13,7 @@ class NavLabels(Enum):
     CONTROLLER = "Controller"
     PSO_PARAMETER = "PSO Parameter"
     EVALUATION = "Evaluation"
+    SIMULATION = "Simulation"
 
 
 # PlotLabels acts as a unified enum for all keys used in plotting,
@@ -118,6 +119,7 @@ class Translation:
             NavLabels.CONTROLLER: QCoreApplication.translate("ControlEnums", "Controller"),
             NavLabels.PSO_PARAMETER: QCoreApplication.translate("ControlEnums", "PSO Parameter"),
             NavLabels.EVALUATION: QCoreApplication.translate("ControlEnums", "Evaluation"),
+            NavLabels.SIMULATION: QCoreApplication.translate("ControlEnums", "Simulation"),
         }
 
     @staticmethod

@@ -6,6 +6,7 @@ from matplotlib.pyplot import figure
 # TODO: BodePlot von PlotWidget erben oder ein BasePlotWidget?
 # TODO: SettingsView
 # TODO: Title bereinigen
+# TODO: neu: weitere View als Simulation -> jetzige Evaluation view -> Evaluation view neu nur mit Plot der Auswertung und der entsprechenden Anregungsfunktion und PID Parameter
 
 
 if __name__ == '__main__':

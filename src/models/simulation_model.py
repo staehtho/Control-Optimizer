@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class EvaluationModel:
+class SimulationModel:
     t0: float = 0.0
     t1: float = 10.0
     kp: float = 0.0

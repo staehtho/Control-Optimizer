@@ -26,10 +26,10 @@ class SimulationService:
         self._pso_simulation_engine = PsoSimulationEngine()
         self._closed_loop_engine = ClosedLoopResponseEngine()
 
-        self._step_worker = None
+        self._step_workers: list[PlantStepResponseWorker] = []
         self._function_workers: list[FunctionWorker] = []
         self._pso_simulation_worker = None
-        self._closed_loop_worker = None
+        self._closed_loop_workers: list[ClosedLoopResponseWorker] = []
 
     def _stop_worker(self, worker: QThread | None, name: str, timeout_ms: int = 2000) -> None:
         """Try graceful stop first, then force terminate as a last resort."""
@@ -52,8 +52,9 @@ class SimulationService:
         """Stop all running simulation workers during application shutdown."""
         self._logger.info("SimulationService shutdown started.")
 
-        self._stop_worker(self._step_worker, "PlantStepResponseWorker")
-        self._step_worker = None
+        for worker in list(self._step_workers):
+            self._stop_worker(worker, f"PlantStepResponseWorker[{id(worker)}]")
+        self._step_workers.clear()
 
         for worker in list(self._function_workers):
             self._stop_worker(worker, f"FunctionWorker[{id(worker)}]")
@@ -62,8 +63,9 @@ class SimulationService:
         self._stop_worker(self._pso_simulation_worker, "PsoSimulationWorker")
         self._pso_simulation_worker = None
 
-        self._stop_worker(self._closed_loop_worker, "ClosedLoopResponseWorker")
-        self._closed_loop_worker = None
+        for worker in list(self._closed_loop_workers):
+            self._stop_worker(worker, f"ClosedLoopResponseWorker[{id(worker)}]")
+        self._closed_loop_workers.clear()
 
         self._logger.info("SimulationService shutdown finished.")
 
@@ -78,14 +80,17 @@ class SimulationService:
             context: Plant simulation settings and disturbance signal
             callback: Function invoked with ``(t, y)`` when the worker completes.
         """
-        if self._step_worker and self._step_worker.isRunning():
-            self._logger.warning("StepResponseWorker is busy. Ignoring request.")
-            return
-
         self._logger.info("Starting StepResponseWorker for asynchronous computation")
-        self._step_worker = PlantStepResponseWorker(self._step_engine, context)
-        self._step_worker.resultReady.connect(callback)
-        self._step_worker.start()
+        worker = PlantStepResponseWorker(self._step_engine, context)
+        worker.resultReady.connect(callback)
+        worker.finished.connect(lambda: self._on_step_worker_finished(worker))
+        self._step_workers.append(worker)
+        worker.start()
+
+    def _on_step_worker_finished(self, worker: PlantStepResponseWorker) -> None:
+        if worker in self._step_workers:
+            self._step_workers.remove(worker)
+        worker.deleteLater()
 
     def compute_function(
             self,
@@ -151,11 +156,14 @@ class SimulationService:
             context: Closed-loop simulation inputs and disturbance signals.
             callback: Function invoked with ``(t, u, y)`` when the worker completes.
         """
-        if self._closed_loop_worker and self._closed_loop_worker.isRunning():
-            self._logger.warning("ClosedLoopResponseWorker is busy. Ignoring request.")
-            return
-
         self._logger.info("Starting ClosedLoopResponseWorker for asynchronous computation")
-        self._closed_loop_worker = ClosedLoopResponseWorker(self._closed_loop_engine, context)
-        self._closed_loop_worker.resultReady.connect(callback)
-        self._closed_loop_worker.start()
+        worker = ClosedLoopResponseWorker(self._closed_loop_engine, context)
+        worker.resultReady.connect(callback)
+        worker.finished.connect(lambda: self._on_closed_loop_worker_finished(worker))
+        self._closed_loop_workers.append(worker)
+        worker.start()
+
+    def _on_closed_loop_worker_finished(self, worker: ClosedLoopResponseWorker) -> None:
+        if worker in self._closed_loop_workers:
+            self._closed_loop_workers.remove(worker)
+        worker.deleteLater()
