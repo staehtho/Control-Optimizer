@@ -2,6 +2,30 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US">
 <context>
+    <name>BodePlotWidget</name>
+    <message>
+        <location filename="../views/widgets/bode_plot_widget.py" line="40"/>
+        <location filename="../views/widgets/bode_plot_widget.py" line="45"/>
+        <source>freq /Hz</source>
+        <translation>freq /Hz</translation>
+    </message>
+    <message>
+        <location filename="../views/widgets/bode_plot_widget.py" line="39"/>
+        <source>Margin</source>
+        <translation>Margin</translation>
+    </message>
+    <message>
+        <location filename="../views/widgets/bode_plot_widget.py" line="44"/>
+        <source>Phase</source>
+        <translation>Phase</translation>
+    </message>
+    <message>
+        <location filename="../views/widgets/bode_plot_widget.py" line="53"/>
+        <source>Bode Plot</source>
+        <translation>Bode Plot</translation>
+    </message>
+</context>
+<context>
     <name>ControlEnums</name>
     <message>
         <location filename="../views/translations/enum_translations.py" line="77"/>
@@ -130,12 +154,12 @@
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="74"/>
+        <location filename="../views/function_view.py" line="75"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="75"/>
+        <location filename="../views/function_view.py" line="76"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
@@ -181,26 +205,26 @@
 <context>
     <name>EvaluationView</name>
     <message>
-        <location filename="../views/evaluation_view.py" line="90"/>
-        <location filename="../views/evaluation_view.py" line="130"/>
+        <location filename="../views/evaluation_view.py" line="91"/>
         <location filename="../views/evaluation_view.py" line="131"/>
+        <location filename="../views/evaluation_view.py" line="132"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="77"/>
-        <location filename="../views/evaluation_view.py" line="82"/>
+        <location filename="../views/evaluation_view.py" line="78"/>
+        <location filename="../views/evaluation_view.py" line="83"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="78"/>
-        <location filename="../views/evaluation_view.py" line="83"/>
+        <location filename="../views/evaluation_view.py" line="79"/>
+        <location filename="../views/evaluation_view.py" line="84"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="129"/>
+        <location filename="../views/evaluation_view.py" line="130"/>
         <source>Evaluation</source>
         <translation>Evaluation</translation>
     </message>
@@ -262,17 +286,17 @@
 <context>
     <name>FunctionView</name>
     <message>
-        <location filename="../views/function_view.py" line="110"/>
+        <location filename="../views/function_view.py" line="111"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="111"/>
+        <location filename="../views/function_view.py" line="112"/>
         <source>Function</source>
         <translation>Function</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="112"/>
+        <location filename="../views/function_view.py" line="113"/>
         <source>Function Plot</source>
         <translation>Function Plot</translation>
     </message>
@@ -280,7 +304,7 @@
 <context>
     <name>MainView</name>
     <message>
-        <location filename="../views/main_view.py" line="66"/>
+        <location filename="../views/main_view.py" line="76"/>
         <source>Control Optimizer</source>
         <translation>Control Optimizer</translation>
     </message>
@@ -299,44 +323,44 @@
 <context>
     <name>PlantView</name>
     <message>
-        <location filename="../views/plant_view.py" line="68"/>
-        <location filename="../views/plant_view.py" line="162"/>
+        <location filename="../views/plant_view.py" line="69"/>
+        <location filename="../views/plant_view.py" line="163"/>
         <source>plant.num</source>
         <translation>Numerator</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="82"/>
-        <location filename="../views/plant_view.py" line="163"/>
+        <location filename="../views/plant_view.py" line="83"/>
+        <location filename="../views/plant_view.py" line="164"/>
         <source>plant.den</source>
         <translation>Denumerator</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="159"/>
+        <location filename="../views/plant_view.py" line="160"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="160"/>
+        <location filename="../views/plant_view.py" line="161"/>
         <source>Transfer function</source>
         <translation>Transfer function</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="161"/>
+        <location filename="../views/plant_view.py" line="162"/>
         <source>Step Response</source>
         <translation>Step Response</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="164"/>
+        <location filename="../views/plant_view.py" line="165"/>
         <source>e.g. 1  → 1</source>
         <translation>e.g. 1  → 1</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="165"/>
+        <location filename="../views/plant_view.py" line="166"/>
         <source>e.g. 1, 0, 0  → 1*s^2 + 0*s + 0</source>
         <translation>e.g. 1, 0, 0  → 1*s² + 0*s + 0</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="167"/>
+        <location filename="../views/plant_view.py" line="168"/>
         <source>tooltip_num_den</source>
         <translation>Enter coefficients separated by commas, spaces, or semicolons.
 Use &apos;.&apos; as the decimal point.
@@ -357,29 +381,29 @@ Example: 1, 0.5, 2 → 1*s^2 + 0.5*s + 2</translation>
 <context>
     <name>PlotWidget</name>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="151"/>
+        <location filename="../views/widgets/plot_widget.py" line="167"/>
         <source>plot.grid</source>
         <translation>Grid</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="152"/>
+        <location filename="../views/widgets/plot_widget.py" line="168"/>
         <source>plot.start</source>
         <translation>Start time</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="153"/>
+        <location filename="../views/widgets/plot_widget.py" line="169"/>
         <source>plot.end</source>
         <translation>End time</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="154"/>
+        <location filename="../views/widgets/plot_widget.py" line="170"/>
         <source>plot.start.tooltip</source>
         <translation>Lower x-axis limit (x_min).
 Defines where the time axis begins.
 Unit: seconds (s).</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="155"/>
+        <location filename="../views/widgets/plot_widget.py" line="171"/>
         <source>plot.end.tooltip</source>
         <translation>Upper x-axis limit (x_max).
 Defines where the time axis ends.
@@ -606,30 +630,30 @@ Tf   = %(tf).3f</translation>
         <translation type="vanished">Evaluation</translation>
     </message>
     <message>
-        <location filename="../views/simulation_view.py" line="86"/>
-        <location filename="../views/simulation_view.py" line="91"/>
+        <location filename="../views/simulation_view.py" line="87"/>
+        <location filename="../views/simulation_view.py" line="92"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/simulation_view.py" line="87"/>
-        <location filename="../views/simulation_view.py" line="92"/>
+        <location filename="../views/simulation_view.py" line="88"/>
+        <location filename="../views/simulation_view.py" line="93"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/simulation_view.py" line="99"/>
-        <location filename="../views/simulation_view.py" line="145"/>
+        <location filename="../views/simulation_view.py" line="100"/>
+        <location filename="../views/simulation_view.py" line="146"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/simulation_view.py" line="143"/>
+        <location filename="../views/simulation_view.py" line="144"/>
         <source>Simulation</source>
         <translation>Simulation</translation>
     </message>
     <message>
-        <location filename="../views/simulation_view.py" line="144"/>
+        <location filename="../views/simulation_view.py" line="145"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
     </message>
@@ -637,17 +661,17 @@ Tf   = %(tf).3f</translation>
 <context>
     <name>plant.view</name>
     <message>
-        <location filename="../views/plant_view.py" line="120"/>
+        <location filename="../views/plant_view.py" line="121"/>
         <source>Step Response</source>
         <translation>Step Response</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="121"/>
+        <location filename="../views/plant_view.py" line="122"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="122"/>
+        <location filename="../views/plant_view.py" line="123"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
