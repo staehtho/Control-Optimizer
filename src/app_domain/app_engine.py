@@ -69,7 +69,11 @@ class AppEngine:
         self.vm_pso = PsoConfigurationViewModel(self.model_container, self.simulation_service)
 
         # Evaluation ViewModel
-        self.vm_evaluator = EvaluationViewModel(self.model_container, self.vm_pso, self.simulation_service)
+        self.vm_evaluator = EvaluationViewModel(self.model_container.model_settings, self.vm_pso,
+                                                self.simulation_service)
+
+        # Simulation ViewModel
+        #self.vm_simulation = SimulationViewModel(self.model_container, self.vm_pso, self.simulation_service)
 
         self.ui_context = UiContext(
             settings=self.model_container.model_settings,

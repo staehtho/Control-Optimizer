@@ -27,9 +27,7 @@ class PlantViewModel(BaseViewModel):
         self._settings: SettingsModel = model_container.model_settings
         self._simulation_service = simulation_service
 
-        self._default_tf = r"\frac{b_q s^q + b_{q-1}s^{q-1} + \ldots + b_1 s + b_0}{a_n s^n + a_{n-1}s^{n-1} + \ldots + a_1 s + a_0}"
-        self._last_tf = self._default_tf
-        self._tf = self._default_tf
+        self._last_tf = self._model_plant.tf
 
         self._num_input: str = ""
         self._den_input: str = ""
@@ -155,14 +153,14 @@ class PlantViewModel(BaseViewModel):
     # formula
     # -------------------
     def get_tf(self) -> str:
-        return self._tf
+        return self._model_plant.tf
 
     def _update_tf(self) -> None:
         self.logger.debug("Updating transfer function ...")
 
         if not self._model_plant.is_valid:
             self.logger.debug("Model is not valid -> using last valid transfer function")
-            self._tf = self._last_tf
+            self._model_plant.tf = self._last_tf
             self.tfChanged.emit()
             return
 
@@ -173,14 +171,14 @@ class PlantViewModel(BaseViewModel):
             num = LatexRenderer.array2polynom(self._model_plant.num)
             den = LatexRenderer.array2polynom(self._model_plant.den)
 
-            self._tf = rf"\frac{{{num}}}{{{den}}}"
-            self._last_tf = self._tf
+            self._model_plant.tf = rf"\frac{{{num}}}{{{den}}}"
+            self._last_tf = self._model_plant.tf
 
-            self.logger.debug(f"Generated transfer function: {self._tf}")
+            self.logger.debug(f"Generated transfer function: {self._model_plant.tf}")
 
         except ValueError:
             self.logger.exception("Error while building transfer function")
-            self._tf = self._last_tf
+            self._model_plant.tf = self._last_tf
 
         self.tfChanged.emit()
 

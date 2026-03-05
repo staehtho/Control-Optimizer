@@ -46,8 +46,6 @@ class PsoResult:
     """Result container for optimized PID parameters."""
 
     simulation_time: float
-    excitation_target: ExcitationTarget
-    function: BaseFunction
 
     kp: float = 0
     ti: float = 0
@@ -104,8 +102,6 @@ class PsoSimulationEngine:
 
         return PsoResult(
             simulation_time=self._total_duration,
-            excitation_target=param.excitation_target,
-            function=param.function.copy(),
             kp=self._best_kp,
             ti=self._best_ti,
             td=self._best_td,

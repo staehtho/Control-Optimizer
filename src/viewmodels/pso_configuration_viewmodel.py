@@ -3,7 +3,15 @@ from PySide6.QtCore import QObject, Signal, Slot
 from service import SimulationService
 from app_domain.engine import PsoSimulationParam, PsoResult
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
-from models import ModelContainer, PsoConfigurationModel, SettingsModel, PlantModel, FunctionModel, ControllerModel
+from models import (
+    ModelContainer,
+    PsoConfigurationModel,
+    SettingsModel,
+    PlantModel,
+    FunctionModel,
+    ControllerModel,
+    PsoSimulationSnapshot,
+)
 from .base_viewmodel import BaseViewModel
 
 
@@ -34,6 +42,7 @@ class PsoConfigurationViewModel(BaseViewModel):
 
         self._pos_iteration: int = 0
         self._pso_result: PsoResult | None = None
+        self._pso_snapshot: PsoSimulationSnapshot | None = None
 
         self._connect_signals()
         self.run_pso_simulation()
@@ -197,6 +206,7 @@ class PsoConfigurationViewModel(BaseViewModel):
             return
 
         self._pso_result = None
+        self._pso_snapshot = self._create_model_snapshot()
 
         self._pos_iteration = self._settings.get_pso_iterations()
 
@@ -229,12 +239,27 @@ class PsoConfigurationViewModel(BaseViewModel):
 
     def _on_pso_simulation_finished(self, result: PsoResult):
         self._pso_result = result
-
         self.psoSimulationFinished.emit()
+
+    def _create_model_snapshot(self) -> PsoSimulationSnapshot:
+        return PsoSimulationSnapshot(
+            plant_num=tuple(self._model_plant.num),
+            plant_den=tuple(self._model_plant.den),
+            plant_tf=self._model_plant.tf,
+            controller_anti_windup=self._model_controller.anti_windup,
+            controller_constraint_min=self._model_controller.constraint_min,
+            controller_constraint_max=self._model_controller.constraint_max,
+            excitation_target=self.excitation_target,
+            excitation_function=self._model_function.selected_function.copy(),
+        )
 
     @Slot()
     def get_pso_result(self) -> PsoResult | None:
         return self._pso_result
+
+    @Slot()
+    def get_pso_snapshot(self) -> PsoSimulationSnapshot | None:
+        return self._pso_snapshot
 
     @Slot()
     def get_pos_iteration(self) -> int:

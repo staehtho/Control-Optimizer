@@ -88,9 +88,12 @@ if __name__ == '__main__':
             parent=parent
         ),
         NavLabels.EVALUATION: lambda parent=None: EvaluationView(
-            ui_context, engine.vm_plant, engine.vm_evaluator, vm_functions,
-            engine.ensure_plot_viewmodel("response"), parent=parent
-        )
+            ui_context, engine.vm_evaluator, engine.ensure_plot_viewmodel("time_domain_evaluation"), parent=parent
+        ),
+        # NavLabels.SIMULATION: lambda parent=None: SimulationView(
+        #    ui_context, engine.vm_plant, engine.vm_simulation, vm_functions,
+        #    engine.ensure_plot_viewmodel("time_domain_simulation"), parent=parent
+        # )
     }
 
     main_view = MainView(ui_context, items, view_factories)
