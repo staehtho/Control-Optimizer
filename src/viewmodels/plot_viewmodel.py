@@ -1,5 +1,6 @@
 import numpy as np
 from dataclasses import dataclass
+from typing import Any
 from PySide6.QtCore import QObject, Signal, Slot
 
 from .base_viewmodel import BaseViewModel
@@ -11,8 +12,7 @@ class PlotData:
     label: str
     x: list[float] | np.ndarray
     y: list[float] | np.ndarray
-    color: str
-    order: int = 10
+    plot_style: Any
     subplot_position: int = 1
     ignore_plot: bool = False
     show: bool = True

@@ -5,7 +5,7 @@ from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QFrame, QLineEdit
 from app_domain.ui_context import UiContext
 from app_domain.controlsys import AntiWindup
 from viewmodels import ControllerViewModel
-from views import BaseView, FieldConfig, SectionConfig
+from .base_view import BaseView, FieldConfig, SectionConfig
 from views.widgets import ExpandableFrame
 from views.translations import Translation
 

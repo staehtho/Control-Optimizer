@@ -6,6 +6,7 @@ from app_domain.ui_context import UiContext
 from app_domain.functions import FunctionTypes, resolve_function_type
 from viewmodels import FunctionViewModel, PlotViewModel, PlotData
 from views import BaseView
+from views.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, FunctionWidget, ExpandableFrame
 from views.translations import PlotLabels
 
@@ -142,7 +143,7 @@ class FunctionView(BaseView, QWidget):
                 label=self._enum_translation(PlotLabels).get(PlotLabels.FUNCTION),
                 x=t,
                 y=y,
-                color="#1f77b4"
+                plot_style=PLOT_STYLE.get(PlotLabels.FUNCTION),
             )
         )
 

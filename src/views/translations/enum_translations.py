@@ -16,16 +16,14 @@ class NavLabels(Enum):
     SIMULATION = "Simulation"
 
 
-# PlotLabels acts as a unified enum for all keys used in plotting,
-# mapping NavLabels and ExcitationTarget members to consistent strings.
 class PlotLabels(Enum):
-    PLANT = NavLabels.PLANT.value
+    PLANT = "Plant"
     FUNCTION = "Function"
     CLOSED_LOOP = "Closed Loop"
     CONTROL_SIGNAL = "Control Signal"
-    REFERENCE = ExcitationTarget.REFERENCE.value
-    INPUT_DISTURBANCE = ExcitationTarget.INPUT_DISTURBANCE.value
-    MEASUREMENT_DISTURBANCE = ExcitationTarget.MEASUREMENT_DISTURBANCE.value
+    REFERENCE = "Reference"
+    INPUT_DISTURBANCE = "Input Disturbance"
+    MEASUREMENT_DISTURBANCE = "Measurement Disturbance"
 
 
 assert len(set(e.value for e in PlotLabels)) == len(PlotLabels), "Duplicate values in PlotLabels!"

@@ -7,7 +7,7 @@ from app_domain.ui_context import UiContext
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
 from utils import LatexRenderer
 from viewmodels import PlantViewModel, FunctionViewModel, PsoConfigurationViewModel
-from views import BaseView, FieldConfig, SectionConfig
+from .base_view import BaseView, FieldConfig, SectionConfig
 from views.widgets import ExpandableFrame, FormulaWidget
 
 

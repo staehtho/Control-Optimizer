@@ -7,6 +7,7 @@ from numpy import ndarray
 from app_domain.ui_context import UiContext
 from viewmodels import PlantViewModel, PlotViewModel, PlotData
 from .base_view import BaseView
+from views.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, ExpandableFrame, FormulaWidget
 from views.translations import PlotLabels
 
@@ -203,7 +204,7 @@ class PlantView(BaseView, QWidget):
                 label=self._enum_translation(PlotLabels).get(PlotLabels.PLANT),
                 x=t,
                 y=y,
-                color="#1f77b4"
+                plot_style=PLOT_STYLE.get(PlotLabels.PLANT),
             )
         )
 

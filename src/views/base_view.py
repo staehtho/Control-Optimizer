@@ -49,7 +49,7 @@ class BaseView:
 
         cls._active_theme = active_theme if active_theme in cls._themes else next(iter(cls._themes))
 
-    def __init__(self, ui_context: UiContext):
+    def __init__(self, ui_context: "UiContext"):
         self._ui_context = ui_context
 
         self._initializing = True

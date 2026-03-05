@@ -190,7 +190,7 @@ class PlotWidget(BaseView, QWidget):
         self._sync_series_checkboxes(data)
         self._logger.debug(f"Plot contains {len(data)} data series")
 
-        sorted_series = sorted(data.values(), key=lambda s: s.order)
+        sorted_series = sorted(data.values(), key=lambda s: s.plot_style.z_order)
         translated_x_labels: list[str] = []
 
         for i in range(len(axs)):
@@ -210,8 +210,13 @@ class PlotWidget(BaseView, QWidget):
                         continue
 
                 self._logger.debug(f"Plotting series: {series}")
-                axs[i].plot(series.x, series.y, label=series.label, color=series.color,
-                            zorder=len(sorted_series) - series.order + 1)
+                axs[i].plot(
+                    series.x,
+                    series.y,
+                    label=series.label,
+                    zorder=len(sorted_series) - series.plot_style.z_order + 1,
+                    **series.plot_style.mpl_kwargs(),
+                )
 
             handles, labels = axs[i].get_legend_handles_labels()
             if handles:
@@ -274,7 +279,7 @@ class PlotWidget(BaseView, QWidget):
 
     def _sync_series_checkboxes(self, data: dict) -> None:
         existing_keys = set(self._series_checkboxes.keys())
-        sorted_series = sorted(data.values(), key=lambda s: s.order)
+        sorted_series = sorted(data.values(), key=lambda s: s.plot_style.z_order)
 
         insert_index = 1
         for series in sorted_series:

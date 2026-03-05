@@ -1,4 +1,4 @@
-from functools import partial
+﻿from functools import partial
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QTabWidget, QSizePolicy
 from PySide6.QtCore import QT_TRANSLATE_NOOP
@@ -9,26 +9,9 @@ from app_domain.ui_context import UiContext
 from app_domain.controlsys import ExcitationTarget
 from viewmodels import FunctionViewModel, PlotViewModel, PlotData, SimulationViewModel
 from views import BaseView
+from views.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, ExpandableFrame, FunctionWidget
 from views.translations import PlotLabels
-
-COLORS = {
-    PlotLabels.REFERENCE: "#ff7f0e",  # orange – reference / setpoint
-    PlotLabels.INPUT_DISTURBANCE: "#2ca02c",  # green – input disturbance
-    PlotLabels.MEASUREMENT_DISTURBANCE: "#d62728",  # red – measurement disturbance
-    PlotLabels.PLANT: "#7f7f7f",  # gray – plant (neutral)
-    PlotLabels.CLOSED_LOOP: "#1f77b4",  # blue – closed-loop output
-    PlotLabels.CONTROL_SIGNAL: "#9467bd",  # purple – control effort
-}
-
-PLOT_ORDER = {
-    PlotLabels.REFERENCE: 11,
-    PlotLabels.INPUT_DISTURBANCE: 12,
-    PlotLabels.MEASUREMENT_DISTURBANCE: 13,
-    PlotLabels.PLANT: 14,
-    PlotLabels.CLOSED_LOOP: 15,
-    PlotLabels.CONTROL_SIGNAL: 10
-}
 
 
 class SimulationView(BaseView, QWidget):
@@ -192,8 +175,7 @@ class SimulationView(BaseView, QWidget):
                 label=self._enum_translation(PlotLabels).get(PlotLabels[key]),
                 x=t,
                 y=y,
-                color=COLORS.get(PlotLabels[key]),
-                order=PLOT_ORDER.get(PlotLabels[key]),
+                plot_style=PLOT_STYLE.get(PlotLabels[key]),
                 subplot_position=1,
                 ignore_plot=ignore
             )
@@ -210,8 +192,7 @@ class SimulationView(BaseView, QWidget):
                 label=self._enum_translation(PlotLabels).get(PlotLabels.CLOSED_LOOP),
                 x=t,
                 y=y,
-                color=COLORS.get(PlotLabels.CLOSED_LOOP),
-                order=PLOT_ORDER.get(PlotLabels.CLOSED_LOOP),
+                plot_style=PLOT_STYLE.get(PlotLabels.CLOSED_LOOP),
                 subplot_position=1,
             )
         )
@@ -222,8 +203,7 @@ class SimulationView(BaseView, QWidget):
                 label=self._enum_translation(PlotLabels).get(PlotLabels.CONTROL_SIGNAL),
                 x=t,
                 y=u,
-                color=COLORS.get(PlotLabels.CONTROL_SIGNAL),
-                order=PLOT_ORDER.get(PlotLabels.CONTROL_SIGNAL),
+                plot_style=PLOT_STYLE.get(PlotLabels.CONTROL_SIGNAL),
                 subplot_position=2,
             )
         )
@@ -239,8 +219,7 @@ class SimulationView(BaseView, QWidget):
                 label=self._enum_translation(PlotLabels).get(PlotLabels.PLANT),
                 x=t,
                 y=y,
-                color=COLORS.get(PlotLabels.PLANT),
-                order=PLOT_ORDER.get(PlotLabels.PLANT),
+                plot_style=PLOT_STYLE.get(PlotLabels.PLANT),
                 subplot_position=1,
             )
         )
@@ -302,3 +281,4 @@ class SimulationView(BaseView, QWidget):
         """Sync plot time range from persisted evaluator state via evaluator VM."""
         self._vm_plot.x_min = self._vm_simulation.t0
         self._vm_plot.x_max = self._vm_simulation.t1
+
