@@ -1,6 +1,6 @@
 import logging
 
-from app_domain.engine import PsoSimulationParam, PlantResponseContext
+from app_domain.engine.types import PlantResponseContext, PsoSimulationParam
 from app_domain.controlsys import MySolver, AntiWindup, ExcitationTarget, PerformanceIndex
 from app_domain.functions import StepFunction
 from models import ModelContainer

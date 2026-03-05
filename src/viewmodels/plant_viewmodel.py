@@ -4,7 +4,7 @@ from PySide6.QtCore import QObject, Signal, Slot, QTimer
 import numpy as np
 from numpy import ndarray
 
-from app_domain.engine import PlantResponseContext
+from app_domain.engine.types import PlantResponseContext
 from models import ModelContainer, PlantModel, SettingsModel
 from service import SimulationService
 from utils import LatexRenderer

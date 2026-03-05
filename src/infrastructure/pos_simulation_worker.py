@@ -2,7 +2,8 @@ import logging
 
 from PySide6.QtCore import QThread, Signal
 
-from app_domain.engine import PsoSimulationEngine, PsoSimulationParam, PsoResult
+from app_domain.engine import PsoSimulationEngine
+from app_domain.engine.types import PsoSimulationParam, PsoResult
 
 
 class PsoSimulationWorker(QThread):

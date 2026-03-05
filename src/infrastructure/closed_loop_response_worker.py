@@ -3,7 +3,8 @@ import logging
 from numpy import ndarray
 from PySide6.QtCore import QThread, Signal
 
-from app_domain.engine import ClosedLoopResponseContext, ClosedLoopResponseEngine
+from app_domain.engine import ClosedLoopResponseEngine
+from app_domain.engine.types import ClosedLoopResponseContext
 
 
 class ClosedLoopResponseWorker(QThread):

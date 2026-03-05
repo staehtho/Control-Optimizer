@@ -4,9 +4,7 @@ from PySide6.QtCore import Signal, QObject
 from unittest.mock import MagicMock
 
 from service import SimulationService
-from app_domain.engine import PsoResult
-from app_domain.controlsys import ExcitationTarget
-from app_domain.functions import StepFunction
+from app_domain.engine.types import PsoResult
 from models import ModelContainer
 from viewmodels import EvaluationViewModel
 

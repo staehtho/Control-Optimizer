@@ -3,9 +3,7 @@ from unittest.mock import MagicMock
 import pytest
 from PySide6.QtTest import QSignalSpy
 
-from app_domain.engine import PsoResult
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
-from app_domain.functions import StepFunction
 from models import ModelContainer
 from service import SimulationService
 from viewmodels import PsoConfigurationViewModel

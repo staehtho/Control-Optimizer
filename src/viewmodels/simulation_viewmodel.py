@@ -3,7 +3,7 @@ from numpy import ndarray
 
 from app_domain.functions import NullFunction
 from service import SimulationService
-from app_domain.engine import ClosedLoopResponseContext, PlantResponseContext, PsoResult
+from app_domain.engine.types import ClosedLoopResponseContext, PlantResponseContext, PsoResult
 from app_domain.controlsys import ExcitationTarget
 from models import SettingsModel, FunctionModel, PsoSimulationSnapshot
 from .base_viewmodel import BaseViewModel

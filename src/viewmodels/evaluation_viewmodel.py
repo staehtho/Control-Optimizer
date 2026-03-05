@@ -4,7 +4,8 @@ from PySide6.QtCore import QObject, Signal, Slot
 from numpy import ndarray, linspace
 
 from service import SimulationService
-from app_domain.engine import ClosedLoopResponseContext, PlantResponseContext, PsoResult
+from app_domain.engine.types import PlantResponseContext, PsoResult
+from app_domain.engine.types import ClosedLoopResponseContext
 from app_domain.controlsys import ExcitationTarget
 from app_domain.functions import NullFunction, BaseFunction
 from models import SettingsModel, PsoSimulationSnapshot

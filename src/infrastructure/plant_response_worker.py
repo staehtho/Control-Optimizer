@@ -3,11 +3,11 @@ import logging
 from numpy import ndarray
 from PySide6.QtCore import QThread, Signal
 
-from app_domain.engine import PlantResponseEngine, PlantResponseContext
-from app_domain.controlsys import MySolver
+from app_domain.engine import PlantResponseEngine
+from app_domain.engine.types import PlantResponseContext
 
 
-class PlantStepResponseWorker(QThread):
+class PlantResponseWorker(QThread):
     """Background worker that computes a plant step response."""
 
     resultReady = Signal(ndarray, ndarray)

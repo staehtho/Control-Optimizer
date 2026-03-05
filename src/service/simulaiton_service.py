@@ -3,11 +3,9 @@ import logging
 from numpy import ndarray
 from PySide6.QtCore import QThread
 
-from app_domain.engine import (
-    PlantResponseEngine, PlantResponseContext, FunctionEngine, PsoSimulationEngine, PsoSimulationParam,
-    PsoResult, ClosedLoopResponseEngine, ClosedLoopResponseContext
-)
-from infrastructure import PlantStepResponseWorker, FunctionWorker, PsoSimulationWorker, ClosedLoopResponseWorker
+from app_domain.engine import PlantResponseEngine, FunctionEngine, PsoSimulationEngine, ClosedLoopResponseEngine
+from app_domain.engine.types import PlantResponseContext, PsoSimulationParam, PsoResult, ClosedLoopResponseContext
+from infrastructure import PlantResponseWorker, FunctionWorker, PsoSimulationWorker, ClosedLoopResponseWorker
 
 
 class SimulationService:
@@ -21,12 +19,12 @@ class SimulationService:
         """Initialize engines and worker slots used for async execution."""
         self._logger = logging.getLogger(f"{self.__class__.__name__}.{id(self)}")
         self._logger.debug("SimulationService initialized.")
-        self._step_engine = PlantResponseEngine()
+        self._plant_engine = PlantResponseEngine()
         self._function_engine = FunctionEngine()
         self._pso_simulation_engine = PsoSimulationEngine()
         self._closed_loop_engine = ClosedLoopResponseEngine()
 
-        self._step_workers: list[PlantStepResponseWorker] = []
+        self._plant_workers: list[PlantResponseWorker] = []
         self._function_workers: list[FunctionWorker] = []
         self._pso_simulation_worker = None
         self._closed_loop_workers: list[ClosedLoopResponseWorker] = []
@@ -52,9 +50,9 @@ class SimulationService:
         """Stop all running simulation workers during application shutdown."""
         self._logger.info("SimulationService shutdown started.")
 
-        for worker in list(self._step_workers):
-            self._stop_worker(worker, f"PlantStepResponseWorker[{id(worker)}]")
-        self._step_workers.clear()
+        for worker in list(self._plant_workers):
+            self._stop_worker(worker, f"PlantResponseWorker[{id(worker)}]")
+        self._plant_workers.clear()
 
         for worker in list(self._function_workers):
             self._stop_worker(worker, f"FunctionWorker[{id(worker)}]")
@@ -81,15 +79,15 @@ class SimulationService:
             callback: Function invoked with ``(t, y)`` when the worker completes.
         """
         self._logger.info("Starting StepResponseWorker for asynchronous computation")
-        worker = PlantStepResponseWorker(self._step_engine, context)
+        worker = PlantResponseWorker(self._plant_engine, context)
         worker.resultReady.connect(callback)
         worker.finished.connect(lambda: self._on_step_worker_finished(worker))
-        self._step_workers.append(worker)
+        self._plant_workers.append(worker)
         worker.start()
 
-    def _on_step_worker_finished(self, worker: PlantStepResponseWorker) -> None:
-        if worker in self._step_workers:
-            self._step_workers.remove(worker)
+    def _on_step_worker_finished(self, worker: PlantResponseWorker) -> None:
+        if worker in self._plant_workers:
+            self._plant_workers.remove(worker)
         worker.deleteLater()
 
     def compute_function(
