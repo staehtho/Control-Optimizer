@@ -37,7 +37,7 @@ def test_controller_type_does_not_emit_on_same_value(vm_controller: ControllerVi
     ("value", "expected", "expected_signal_count"),
     [
         (0.5, 0.5, 1),  # valid update
-        (1.0, -5.0, 1),  # invalid (equal to max), custom validation still emits once
+        (1.0, -5.0, 0),  # invalid (equal to max)
     ],
 )
 def test_constraint_min_validation_and_signal_behavior(
@@ -60,7 +60,7 @@ def test_constraint_min_validation_and_signal_behavior(
     ("value", "expected", "expected_signal_count"),
     [
         (0.5, 0.5, 1),  # valid update
-        (0.0, 5.0, 1),  # invalid (equal to min), custom validation still emits once
+        (0.0, 5.0, 0),  # invalid (equal to min)
     ],
 )
 def test_constraint_max_validation_and_signal_behavior(

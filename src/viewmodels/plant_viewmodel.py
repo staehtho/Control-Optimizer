@@ -7,7 +7,7 @@ from numpy import ndarray
 from app_domain.engine.types import PlantResponseContext
 from models import ModelContainer, PlantModel, SettingsModel
 from service import SimulationService
-from utils import LatexRenderer
+from utils import LatexRenderer, LoggedProperty
 from .base_viewmodel import BaseViewModel
 
 
@@ -83,10 +83,10 @@ class PlantViewModel(BaseViewModel):
             self._update_tf()
             self.numChanged.emit()
 
-    num = BaseViewModel._logged_property(
-        attribute="_num_input",
-        notify_signal="numChanged",
-        property_type=str,
+    num = LoggedProperty(
+        path="_num_input",
+        signal="numChanged",
+        typ=str,
         read_only=True,
     )
 
@@ -132,20 +132,20 @@ class PlantViewModel(BaseViewModel):
             self._update_tf()
             self.denChanged.emit()
 
-    den = BaseViewModel._logged_property(
-        attribute="_den_input",
-        notify_signal="denChanged",
-        property_type=str,
+    den = LoggedProperty(
+        path="_den_input",
+        signal="denChanged",
+        typ=str,
         read_only=True,
     )
 
     # -------------------
     # is_valid
     # -------------------
-    is_valid = BaseViewModel._logged_property(
-        attribute="_model_plant.is_valid",
-        notify_signal="isValidChanged",
-        property_type=bool,
+    is_valid = LoggedProperty(
+        path="_model_plant.is_valid",
+        signal="isValidChanged",
+        typ=bool,
         read_only=True,
     )
 

@@ -7,6 +7,7 @@ from app_domain.functions import BaseFunction, FunctionTypes
 from models import FunctionModel
 from service import SimulationService
 from .base_viewmodel import BaseViewModel
+from utils import LoggedProperty
 
 
 class FunctionViewModel(BaseViewModel):
@@ -51,10 +52,9 @@ class FunctionViewModel(BaseViewModel):
             self.logger.debug("Emitting functionChanged after model update")
             self.functionChanged.emit()
 
-    selected_function = BaseViewModel._logged_property(
-        attribute="_model_function.selected_function",
-        notify_signal="functionChanged",
-        property_type=BaseFunction,
+    selected_function = LoggedProperty(
+        path="_model_function.selected_function",
+        typ=BaseFunction,
         read_only=True,
     )
 

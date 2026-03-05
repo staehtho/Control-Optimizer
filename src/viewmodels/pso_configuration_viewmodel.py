@@ -12,6 +12,7 @@ from models import (
     ControllerModel,
     PsoSimulationSnapshot,
 )
+from utils import LoggedProperty
 from .base_viewmodel import BaseViewModel
 
 
@@ -60,10 +61,10 @@ class PsoConfigurationViewModel(BaseViewModel):
             return False
         return True
 
-    t0: float = BaseViewModel._logged_property(
-        attribute="_model_pso.t0",
-        notify_signal="t0Changed",
-        property_type=float,
+    t0: float = LoggedProperty(
+        path="_model_pso.t0",
+        signal="t0Changed",
+        typ=float,
         custom_setter=_verify_t0
     )
 
@@ -76,29 +77,29 @@ class PsoConfigurationViewModel(BaseViewModel):
             return False
         return True
 
-    t1: float = BaseViewModel._logged_property(
-        attribute="_model_pso.t1",
-        notify_signal="t1Changed",
-        property_type=float,
+    t1: float = LoggedProperty(
+        path="_model_pso.t1",
+        signal="t1Changed",
+        typ=float,
         custom_setter=_verify_t1
     )
 
     # -------------------
     # excitation_target
     # -------------------
-    excitation_target: ExcitationTarget = BaseViewModel._logged_property(
-        attribute="_model_pso.excitation_target",
-        notify_signal="excitationTargetChanged",
-        property_type=ExcitationTarget
+    excitation_target: ExcitationTarget = LoggedProperty(
+        path="_model_pso.excitation_target",
+        signal="excitationTargetChanged",
+        typ=ExcitationTarget
     )
 
     # -------------------
     # performance_index
     # -------------------
-    performance_index: PerformanceIndex = BaseViewModel._logged_property(
-        attribute="_model_pso.performance_index",
-        notify_signal="performanceIndexChanged",
-        property_type=PerformanceIndex
+    performance_index: PerformanceIndex = LoggedProperty(
+        path="_model_pso.performance_index",
+        signal="performanceIndexChanged",
+        typ=PerformanceIndex
     )
 
     # -------------------
@@ -110,10 +111,10 @@ class PsoConfigurationViewModel(BaseViewModel):
             return False
         return True
 
-    kp_min: float = BaseViewModel._logged_property(
-        attribute="_model_pso.kp_min",
-        notify_signal="kpMinChanged",
-        property_type=float,
+    kp_min: float = LoggedProperty(
+        path="_model_pso.kp_min",
+        signal="kpMinChanged",
+        typ=float,
         custom_setter=_verify_kp_min
     )
 
@@ -123,32 +124,30 @@ class PsoConfigurationViewModel(BaseViewModel):
             return False
         return True
 
-    kp_max: float = BaseViewModel._logged_property(
-        attribute="_model_pso.kp_max",
-        notify_signal="kpMaxChanged",
-        property_type=float,
+    kp_max: float = LoggedProperty(
+        path="_model_pso.kp_max",
+        signal="kpMaxChanged",
+        typ=float,
         custom_setter=_verify_kp_max
     )
 
     # -------------------
     # ti
     # -------------------
-    def _verify_ti_min(self, value: float) -> float | None:
+    def _verify_ti_min(self, value: float) -> float | bool:
         if value == 0:
             value = 1e-9
 
         if self._model_pso.ti_max <= value:
-            self.logger.debug(
-                f"Skipped 'ti_min' update (value={value} >= ti_max={self._model_pso.ti_max})"
-            )
-            return None
+            self.logger.debug(f"Skipped 'ti_min' update (value={value} >= ti_max={self._model_pso.ti_max})")
+            return False
 
         return value
 
-    ti_min: float = BaseViewModel._logged_property(
-        attribute="_model_pso.ti_min",
-        notify_signal="tiMinChanged",
-        property_type=float,
+    ti_min: float = LoggedProperty(
+        path="_model_pso.ti_min",
+        signal="tiMinChanged",
+        typ=float,
         custom_setter=_verify_ti_min
     )
 
@@ -158,10 +157,10 @@ class PsoConfigurationViewModel(BaseViewModel):
             return False
         return True
 
-    ti_max: float = BaseViewModel._logged_property(
-        attribute="_model_pso.ti_max",
-        notify_signal="tiMaxChanged",
-        property_type=float,
+    ti_max: float = LoggedProperty(
+        path="_model_pso.ti_max",
+        signal="tiMaxChanged",
+        typ=float,
         custom_setter=_verify_ti_max
     )
 
@@ -174,10 +173,10 @@ class PsoConfigurationViewModel(BaseViewModel):
             return False
         return True
 
-    td_min: float = BaseViewModel._logged_property(
-        attribute="_model_pso.td_min",
-        notify_signal="tdMinChanged",
-        property_type=float,
+    td_min: float = LoggedProperty(
+        path="_model_pso.td_min",
+        signal="tdMinChanged",
+        typ=float,
         custom_setter=_verify_td_min
     )
 
@@ -187,10 +186,10 @@ class PsoConfigurationViewModel(BaseViewModel):
             return False
         return True
 
-    td_max: float = BaseViewModel._logged_property(
-        attribute="_model_pso.td_max",
-        notify_signal="tdMaxChanged",
-        property_type=float,
+    td_max: float = LoggedProperty(
+        path="_model_pso.td_max",
+        signal="tdMaxChanged",
+        typ=float,
         custom_setter=_verify_td_max
     )
 

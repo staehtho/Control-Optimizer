@@ -1,6 +1,7 @@
 from PySide6.QtCore import QObject, Signal, Slot
 
 from models import SettingsModel
+from utils import LoggedProperty
 from .base_viewmodel import BaseViewModel
 
 
@@ -39,10 +40,9 @@ class ThemeViewModel(BaseViewModel):
         self._settings.set_theme(theme)
         self.themeChanged.emit(theme)
 
-    current_theme = BaseViewModel._logged_property(
-        attribute="_current_theme",
-        notify_signal="themeChanged",
-        property_type=str,
+    current_theme = LoggedProperty(
+        path="_current_theme",
+        typ=str,
         read_only=True,
     )
 

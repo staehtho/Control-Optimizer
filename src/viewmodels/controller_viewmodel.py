@@ -1,7 +1,9 @@
 from PySide6.QtCore import QObject, Signal
+
 from app_domain.controlsys import AntiWindup
 from models import ControllerModel
 from .base_viewmodel import BaseViewModel
+from utils import LoggedProperty
 
 
 class ControllerViewModel(BaseViewModel):
@@ -24,19 +26,19 @@ class ControllerViewModel(BaseViewModel):
     # -------------------
     # controller
     # -------------------
-    controller_type = BaseViewModel._logged_property(
-        attribute="_model_controller.controller_type",
-        notify_signal="controllerTypeChanged",
-        property_type=str
+    controller_type = LoggedProperty(
+        path="_model_controller.controller_type",
+        signal="controllerTypeChanged",
+        typ=str
     )
 
     # -------------------
     # anti windup
     # -------------------
-    anti_windup = BaseViewModel._logged_property(
-        attribute="_model_controller.anti_windup",
-        notify_signal="antiWindupChanged",
-        property_type=AntiWindup
+    anti_windup = LoggedProperty(
+        path="_model_controller.anti_windup",
+        signal="antiWindupChanged",
+        typ=AntiWindup
     )
 
     # -------------------
@@ -47,14 +49,13 @@ class ControllerViewModel(BaseViewModel):
             self.logger.debug(
                 f"Skipped 'constraint_min' update (value={value} >= constraint_max={self._model_controller.constraint_max})"
             )
-            self.constraintMinChanged.emit()
             return False
         return True
 
-    constraint_min = BaseViewModel._logged_property(
-        attribute="_model_controller.constraint_min",
-        notify_signal="constraintMinChanged",
-        property_type=float,
+    constraint_min = LoggedProperty(
+        path="_model_controller.constraint_min",
+        signal="constraintMinChanged",
+        typ=float,
         custom_setter=_verify_constraint_min
     )
 
@@ -63,13 +64,12 @@ class ControllerViewModel(BaseViewModel):
             self.logger.debug(
                 f"Skipped 'constraint_max' update (value={value} <= constraint_max={self._model_controller.constraint_max})"
             )
-            self.constraintMaxChanged.emit()
             return False
         return True
 
-    constraint_max = BaseViewModel._logged_property(
-        attribute="_model_controller.constraint_max",
-        notify_signal="constraintMaxChanged",
-        property_type=float,
+    constraint_max = LoggedProperty(
+        path="_model_controller.constraint_max",
+        signal="constraintMaxChanged",
+        typ=float,
         custom_setter=_verify_constraint_max
     )

@@ -1,6 +1,7 @@
 import numpy as np
 from PySide6.QtCore import QObject, Signal, Slot
 
+from utils import LoggedProperty
 from .base_viewmodel import BaseViewModel
 from .types import PlotData
 
@@ -28,10 +29,10 @@ class PlotViewModel(BaseViewModel):
     # -------------------
     # grid
     # -------------------
-    grid = BaseViewModel._logged_property(
-        attribute="_grid",
-        notify_signal="gridChanged",
-        property_type=bool,
+    grid = LoggedProperty(
+        path="_grid",
+        signal="gridChanged",
+        typ=bool,
     )
 
     # -------------------
@@ -43,10 +44,10 @@ class PlotViewModel(BaseViewModel):
             return False
         return True
 
-    x_min = BaseViewModel._logged_property(
-        attribute="_x_min",
-        notify_signal="xMinChanged",
-        property_type=float,
+    x_min = LoggedProperty(
+        path="_x_min",
+        signal="xMinChanged",
+        typ=float,
         custom_setter=_verify_x_min,
     )
 
@@ -59,10 +60,10 @@ class PlotViewModel(BaseViewModel):
             return False
         return True
 
-    x_max = BaseViewModel._logged_property(
-        attribute="_x_max",
-        notify_signal="xMaxChanged",
-        property_type=float,
+    x_max = LoggedProperty(
+        path="_x_max",
+        signal="xMaxChanged",
+        typ=float,
         custom_setter=_verify_x_max,
     )
 

@@ -1,6 +1,7 @@
 from PySide6.QtCore import QObject, QCoreApplication, QTranslator, Signal, Slot
 
 from models import SettingsModel
+from utils import LoggedProperty
 from .base_viewmodel import BaseViewModel
 
 
@@ -46,10 +47,10 @@ class LanguageViewModel(BaseViewModel):
         self._settings.set_language(lang_code)
         self.languageChanged.emit()
 
-    current_language = BaseViewModel._logged_property(
-        attribute="_current_lang",
-        notify_signal="languageChanged",
-        property_type=str,
+    current_language = LoggedProperty(
+        path="_current_lang",
+        signal="languageChanged",
+        typ=str,
         read_only=True,
     )
 

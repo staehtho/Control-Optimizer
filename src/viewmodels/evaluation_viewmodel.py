@@ -9,6 +9,7 @@ from app_domain.engine.types import ClosedLoopResponseContext
 from app_domain.controlsys import ExcitationTarget
 from app_domain.functions import NullFunction, BaseFunction
 from models import SettingsModel, PsoSimulationSnapshot
+from utils import LoggedProperty
 from .base_viewmodel import BaseViewModel
 from .pso_configuration_viewmodel import PsoConfigurationViewModel
 
@@ -42,27 +43,27 @@ class EvaluationViewModel(BaseViewModel):
         # Pull fresh evaluation values whenever a new PSO run completes.
         self._vm_pso.psoSimulationFinished.connect(self._on_pso_simulation_finished)
 
-    t0 = BaseViewModel._logged_property(
-        attribute="_pos_result.t0",
-        property_type=float,
+    t0 = LoggedProperty(
+        path="_pos_result.t0",
+        typ=float,
         read_only=True
     )
 
-    t1 = BaseViewModel._logged_property(
-        attribute="_pos_result.t1",
-        property_type=float,
+    t1 = LoggedProperty(
+        path="_pos_result.t1",
+        typ=float,
         read_only=True
     )
 
-    plant_tf = BaseViewModel._logged_property(
-        attribute="_pso_snapshot.plant_tf",
-        property_type=str,
+    plant_tf = LoggedProperty(
+        path="_pso_snapshot.plant_tf",
+        typ=str,
         read_only=True
     )
 
-    excitation_target = BaseViewModel._logged_property(
-        attribute="_pso_snapshot.excitation_target",
-        property_type=ExcitationTarget,
+    excitation_target = LoggedProperty(
+        path="_pso_snapshot.excitation_target",
+        typ=ExcitationTarget,
         read_only=True
     )
 
