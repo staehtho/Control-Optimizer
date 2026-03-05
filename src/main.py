@@ -97,7 +97,7 @@ if __name__ == '__main__':
         )
     }
 
-    main_view = MainView(ui_context, items, view_factories)
+    main_view = MainView(ui_context, items, view_factories, engine.vm_pso)
     main_view.show()
 
     sys.exit(app.exec())

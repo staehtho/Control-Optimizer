@@ -2,18 +2,27 @@ from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QS
 from PySide6.QtGui import QCloseEvent
 
 from app_domain.ui_context import UiContext
+from viewmodels import PsoConfigurationViewModel
 from views import BaseView
 from views.widgets import NavItem, NavigationWidget
 from views.translations import NavLabels
 
 
 class MainView(BaseView, QMainWindow):
-    def __init__(self, ui_context: UiContext, nav_items: list[NavItem], view_factories: dict):
+    def __init__(
+            self,
+            ui_context: UiContext,
+            nav_items: list[NavItem],
+            view_factories: dict,
+            vm_pso: PsoConfigurationViewModel,
+    ):
         QMainWindow.__init__(self)
 
         self._nav_items = nav_items
         self._view_factories = view_factories
         self._views = {}
+        self._vm_pso = vm_pso
+        self._has_pso_finished_once = self._vm_pso.get_pso_result() is not None
 
         BaseView.__init__(self, ui_context)
 
@@ -57,6 +66,7 @@ class MainView(BaseView, QMainWindow):
     # -------------------------------------------------
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
+        self._vm_pso.psoSimulationFinished.connect(self._on_vm_pso_simulation_finished)
 
     # -------------------------------------------------
     # Translation
@@ -71,6 +81,7 @@ class MainView(BaseView, QMainWindow):
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
         self._restore_window_state()
+        self._apply_pso_gate()
         self._switch_views(NavLabels.PLANT)
 
     # -------------------------------------------------
@@ -82,12 +93,33 @@ class MainView(BaseView, QMainWindow):
     # -------------------------------------------------
 
     def _switch_views(self, key: NavLabels):
+        if not self._is_view_accessible(key):
+            return
+
         if key not in self._views:
             view = self._view_factories[key]()
             self._views[key] = view
             self._stack.addWidget(view)
 
         self._stack.setCurrentWidget(self._views[key])
+
+    def _is_view_accessible(self, key: NavLabels) -> bool:
+        if self._has_pso_finished_once:
+            return True
+
+        return key not in (NavLabels.SIMULATION, NavLabels.EVALUATION)
+
+    def _apply_pso_gate(self) -> None:
+        views_active = self._has_pso_finished_once
+        self._nav.set_nav_item_enabled(NavLabels.SIMULATION, views_active)
+        self._nav.set_nav_item_enabled(NavLabels.EVALUATION, views_active)
+
+    def _on_vm_pso_simulation_finished(self) -> None:
+        if self._has_pso_finished_once:
+            return
+
+        self._has_pso_finished_once = True
+        self._apply_pso_gate()
 
     def closeEvent(self, event: QCloseEvent) -> None:
         self._ui_context.settings.set_window_geometry(self.saveGeometry())

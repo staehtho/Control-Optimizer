@@ -40,7 +40,7 @@ class NavigationWidget(BaseView, QWidget):
         self._layout.setSpacing(8)
         self.setLayout(self._layout)
         self._toggle_btn = QPushButton()
-        self._toggle_btn.setCursor(Qt.PointingHandCursor)
+        self._toggle_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self._toggle_btn.setCheckable(False)
         self._toggle_btn.setFixedSize(self._btn_size, self._btn_size)
         self._layout.insertWidget(0, self._toggle_btn)
@@ -48,8 +48,8 @@ class NavigationWidget(BaseView, QWidget):
         for item in self._nav_items:
             btn = QPushButton()
             btn.setCheckable(True)
-            btn.setCursor(Qt.PointingHandCursor)
-            btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+            btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
             btn.setFixedHeight(self._btn_size)
 
             self._layout.addWidget(btn)
@@ -112,10 +112,23 @@ class NavigationWidget(BaseView, QWidget):
 
     def _update_toggle_button(self) -> None:
         self._toggle_btn.setText(">" if self._collapsed else "<")
-        self._layout.setAlignment(self._toggle_btn, Qt.AlignRight if not self._collapsed else Qt.Alignment())
+        self._layout.setAlignment(self._toggle_btn,
+                                  Qt.AlignmentFlag.AlignRight if not self._collapsed else Qt.Alignment())
 
     def _on_btn_clicked(self, key: NavLabels):
         for k, btn in self._widgets.items():
             btn.setChecked(k == key)
 
         self.viewSelected.emit(key)
+
+    def set_nav_item_enabled(self, key: NavLabels, enabled: bool) -> None:
+        btn = self._widgets.get(key)
+        if btn is None:
+            return
+        btn.setEnabled(enabled)
+
+    def is_nav_item_enabled(self, key: NavLabels) -> bool:
+        btn = self._widgets.get(key)
+        if btn is None:
+            return False
+        return btn.isEnabled()
