@@ -176,8 +176,8 @@ class EvaluationView(BaseView, QWidget):
         self._vm_evaluator.closedLoopResponseChanged.connect(self._on_vm_closed_loop_compute_finished)
         self._vm_evaluator.plantResponseChanged.connect(self._on_vm_plant_compute_finished)
         self._vm_evaluator.psoSimulationFinished.connect(self._on_vm_pso_simulation_finished)
-        self._vm_evaluator.xMinChanged.connect(self._sync_plot_time_window_from_model)
-        self._vm_evaluator.xMaxChanged.connect(self._sync_plot_time_window_from_model)
+        self._vm_evaluator.t0Changed.connect(self._sync_plot_time_window_from_model)
+        self._vm_evaluator.t1Changed.connect(self._sync_plot_time_window_from_model)
 
         # Plot ViewModel -> Function recomputation
         self._vm_plot.xMinChanged.connect(self._on_vm_time_changed)
@@ -300,8 +300,8 @@ class EvaluationView(BaseView, QWidget):
 
         self._sync_plot_time_window_from_model()
 
-        t0 = self._vm_evaluator.x_min
-        t1 = self._vm_evaluator.x_max
+        t0 = self._vm_evaluator.t0
+        t1 = self._vm_evaluator.t1
 
         self._vm_evaluator.compute_closed_loop_response(t0, t1)
         self._vm_evaluator.compute_plant_response(t0, t1)
@@ -346,5 +346,5 @@ class EvaluationView(BaseView, QWidget):
 
     def _sync_plot_time_window_from_model(self) -> None:
         """Sync plot time range from persisted evaluator state via evaluator VM."""
-        self._vm_plot.x_min = self._vm_evaluator.x_min
-        self._vm_plot.x_max = self._vm_evaluator.x_max
+        self._vm_plot.x_min = self._vm_evaluator.t0
+        self._vm_plot.x_max = self._vm_evaluator.t1
