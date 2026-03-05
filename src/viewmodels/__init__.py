@@ -1,5 +1,5 @@
 from .base_viewmodel import BaseViewModel
-from .plot_viewmodel import PlotViewModel, PlotData
+from .plot_viewmodel import PlotViewModel
 from .plant_viewmodel import PlantViewModel
 from .language_viewmodel import LanguageViewModel
 from .theme_viewmodel import ThemeViewModel

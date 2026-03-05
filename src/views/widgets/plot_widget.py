@@ -1,14 +1,16 @@
 from pathlib import Path
 from functools import partial
+from dataclasses import dataclass, field
 
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QCheckBox, QLineEdit, QSizePolicy
+from PySide6.QtWidgets import (
+    QWidget, QHBoxLayout, QLabel, QCheckBox, QLineEdit, QSizePolicy
+)
 from PySide6.QtCore import QCoreApplication, QObject
 from PySide6.QtGui import QDoubleValidator, QColor, QPainter, QPixmap, QIcon
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib import cbook
-from dataclasses import dataclass, field
 
 from app_domain.ui_context import UiContext
 from viewmodels import PlotViewModel
@@ -17,13 +19,16 @@ from views import BaseView
 
 @dataclass
 class SubplotConfiguration:
+    """Configuration for individual subplots."""
     title: str = ""
     x_label: str = ""
     y_label: str = ""
     position: int = 1
 
+
 @dataclass
 class PlotWidgetConfiguration:
+    """Configuration for the overall plot widget."""
     context: str
     title: str
     x_label: str = ""
@@ -34,7 +39,16 @@ class PlotWidgetConfiguration:
 
 
 class PlotWidget(BaseView, QWidget):
-    def __init__(self, ui_context: UiContext, vm: PlotViewModel, plot_configuration: PlotWidgetConfiguration,
+    """Generic plotting widget with matplotlib canvas, toolbar, and series checkboxes.
+
+    Attributes:
+        _vm (PlotViewModel): ViewModel providing data and plot settings.
+        _cfg (PlotWidgetConfiguration): Plot widget configuration.
+        _series_checkboxes (dict[str, QCheckBox]): Mapping of series keys to checkboxes.
+    """
+
+    def __init__(self, ui_context: UiContext, vm: PlotViewModel,
+                 plot_configuration: PlotWidgetConfiguration,
                  parent: QObject = None):
         QWidget.__init__(self, parent)
 
@@ -54,12 +68,15 @@ class PlotWidget(BaseView, QWidget):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(8)
 
+        # Header row (start/end x values, grid toggle)
         header_layout = self._create_header()
-        series_layout = self._create_series_row()
         main_layout.addLayout(header_layout, 0)
+
+        # Series row (checkboxes for data visibility)
+        series_layout = self._create_series_row()
         main_layout.addLayout(series_layout, 0)
 
-        # figure
+        # Matplotlib figure and canvas
         self._figure = Figure()
         self._canvas = FigureCanvas(self._figure)
         self._toolbar = NavigationToolbar(self._canvas, self)
@@ -67,7 +84,6 @@ class PlotWidget(BaseView, QWidget):
         self._canvas.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self._canvas.setMinimumSize(500, 350)
         self._apply_toolbar_icons()
-        self._update_plot()
 
         main_layout.addWidget(self._toolbar, 0)
         main_layout.addWidget(self._canvas, 1)
@@ -75,9 +91,9 @@ class PlotWidget(BaseView, QWidget):
         self.setLayout(main_layout)
 
     def _create_header(self) -> QHBoxLayout:
+        """Create the header row with start/end x-values and grid checkbox."""
         layout = QHBoxLayout()
-
-        show = self._cfg.show_x_min_max  # True = show, False = hide
+        show = self._cfg.show_x_min_max
 
         # Start time
         self._lbl_start = QLabel("")
@@ -111,10 +127,10 @@ class PlotWidget(BaseView, QWidget):
         layout.addWidget(self._chk_grid)
 
         layout.addStretch()  # keeps everything left-aligned
-
         return layout
 
     def _create_series_row(self) -> QHBoxLayout:
+        """Create the series checkbox row."""
         layout = QHBoxLayout()
         self._lbl_series = QLabel("Data:")
         self._lbl_series.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
@@ -168,9 +184,7 @@ class PlotWidget(BaseView, QWidget):
     # Plot update
     # -------------------------------------------------
     def _update_plot(self) -> None:
-        """
-        Redraw the plot, add legends, and apply axis labels, grid, and limits.
-        """
+        """Redraw the plot, including axes, legends, and grid."""
         self._logger.debug(
             f"Updating plot (grid={self._vm.grid}, xlim=[{self._vm.x_min:.6f}, {self._vm.x_max:.6f}])"
         )
@@ -190,43 +204,13 @@ class PlotWidget(BaseView, QWidget):
         self._sync_series_checkboxes(data)
         self._logger.debug(f"Plot contains {len(data)} data series")
 
-        sorted_series = sorted(data.values(), key=lambda s: s.plot_style.z_order)
+        sorted_series = sorted(data.values(), key=lambda s: s.plot_style.plot_order)
+
+        self._plot_series_on_axes(axs, sorted_series)
+
         translated_x_labels: list[str] = []
 
         for i in range(len(axs)):
-            for series in sorted_series:
-                if not series.show or series.ignore_plot:
-                    continue
-
-                if len(axs) != 1:
-                    subplot_position = series.subplot_position
-                    if subplot_position < 1 or subplot_position > len(axs):
-                        self._logger.warning(
-                            f"Series '{series.key}' has invalid subplot position {subplot_position}; "
-                            "using subplot 1"
-                        )
-                        subplot_position = 1
-                    if subplot_position != i + 1:
-                        continue
-
-                self._logger.debug(f"Plotting series: {series}")
-                axs[i].plot(
-                    series.x,
-                    series.y,
-                    label=series.label,
-                    zorder=len(sorted_series) - series.plot_style.z_order + 1,
-                    **series.plot_style.mpl_kwargs(),
-                )
-
-            handles, labels = axs[i].get_legend_handles_labels()
-            if handles:
-                legend = axs[i].legend(
-                    loc="best",
-                    ncol=2,
-                    frameon=False
-                )
-                legend.set_draggable(True)
-
             if len(axs) == 1:
                 x_label = self._cfg.x_label
                 y_label = self._cfg.y_label
@@ -277,7 +261,45 @@ class PlotWidget(BaseView, QWidget):
 
         self._canvas.draw_idle()
 
+    # -------------------------------------------------
+    # Helper plotting method (override in subclass)
+    # -------------------------------------------------
+    def _plot_series_on_axes(self, axs, series: list) -> None:
+        for i in range(len(axs)):
+            for serie in series:
+                if not serie.show or serie.ignore_plot:
+                    continue
+
+                if len(axs) != 1:
+                    subplot_position = serie.subplot_position
+                    if subplot_position < 1 or subplot_position > len(axs):
+                        self._logger.warning(
+                            f"Series '{serie.key}' has invalid subplot position {subplot_position}; "
+                            "using subplot 1"
+                        )
+                        subplot_position = 1
+                    if subplot_position != i + 1:
+                        continue
+
+                self._logger.debug(f"Plotting serie: {serie}")
+                axs[i].plot(
+                    serie.x,
+                    serie.y,
+                    label=serie.label,
+                    zorder=len(series) - serie.plot_style.z_order + 1,
+                    **serie.plot_style.mpl_kwargs(),
+                )
+
+            handles, labels = axs[i].get_legend_handles_labels()
+            if handles:
+                legend = axs[i].legend(loc="best", frameon=False)
+                legend.set_draggable(True)
+
+    # -------------------------------------------------
+    # Series checkboxes synchronization
+    # -------------------------------------------------
     def _sync_series_checkboxes(self, data: dict) -> None:
+        """Synchronize UI checkboxes with current data series visibility."""
         existing_keys = set(self._series_checkboxes.keys())
         sorted_series = sorted(data.values(), key=lambda s: s.plot_style.z_order)
 
@@ -291,6 +313,7 @@ class PlotWidget(BaseView, QWidget):
                     self._widgets.pop(f"plot_data_{series.key}", None)
                 existing_keys.discard(series.key)
                 continue
+
             checkbox = self._series_checkboxes.get(series.key)
             if checkbox is None:
                 checkbox = QCheckBox(series.label)
@@ -309,6 +332,7 @@ class PlotWidget(BaseView, QWidget):
             insert_index += 1
             existing_keys.discard(series.key)
 
+        # Remove leftover checkboxes
         for key in existing_keys:
             checkbox = self._series_checkboxes.pop(key)
             self._series_layout.removeWidget(checkbox)
@@ -334,7 +358,6 @@ class PlotWidget(BaseView, QWidget):
             self._logger.warning(f"Invalid start time input: {self._txt_start.text()}")
             self._txt_start.setText(f"{self._vm.x_min:.{self._dec}f}")
             return
-
         self._logger.debug(f"UI event: x_min changed -> {value:.6f}")
         self._vm.x_min = value
         self._txt_start.setText(f"{value:.{self._dec}f}")
@@ -346,19 +369,23 @@ class PlotWidget(BaseView, QWidget):
             self._logger.warning(f"Invalid end time input: {self._txt_end.text()}")
             self._txt_end.setText(f"{self._vm.x_max:.{self._dec}f}")
             return
-
         self._logger.debug(f"UI event: x_max changed -> {value:.6f}")
         self._vm.x_max = value
         self._txt_end.setText(f"{value:.{self._dec}f}")
 
     def resizeEvent(self, event) -> None:
+        """Redraw canvas on widget resize."""
         self._canvas.draw_idle()
         super().resizeEvent(event)
 
+    # -------------------------------------------------
+    # Theme handling
+    # -------------------------------------------------
     def _on_theme_applied(self) -> None:
         self._apply_toolbar_icons()
 
     def _apply_toolbar_icons(self) -> None:
+        """Apply toolbar icons tinted according to current theme."""
         if not hasattr(self, "_toolbar"):
             return
 
@@ -377,34 +404,29 @@ class PlotWidget(BaseView, QWidget):
             key = image_keys.get(action.text())
             if key is None:
                 continue
-
             icon = self._build_tinted_icon(key, icon_color)
             if not icon.isNull():
                 action.setIcon(icon)
 
     @staticmethod
     def _build_tinted_icon(image_key: str, color: QColor) -> QIcon:
+        """Load a toolbar icon and apply color tint."""
         candidates = [
             Path(cbook._get_data_path("images", f"{image_key}.png")),
             Path(cbook._get_data_path("images", f"{image_key}_large.png")),
             Path(cbook._get_data_path("images", f"{image_key}.svg")),
         ]
-
         source = next((path for path in candidates if path.exists()), None)
         if source is None:
             return QIcon()
-
         pixmap = QPixmap(str(source))
         if pixmap.isNull():
             return QIcon()
-
         tinted = QPixmap(pixmap.size())
         tinted.fill(QColor(0, 0, 0, 0))
-
         painter = QPainter(tinted)
         painter.drawPixmap(0, 0, pixmap)
         painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
         painter.fillRect(tinted.rect(), color)
         painter.end()
-
         return QIcon(tinted)

@@ -1,21 +1,8 @@
 import numpy as np
-from dataclasses import dataclass
-from typing import Any
 from PySide6.QtCore import QObject, Signal, Slot
 
 from .base_viewmodel import BaseViewModel
-
-
-@dataclass
-class PlotData:
-    key: str
-    label: str
-    x: list[float] | np.ndarray
-    y: list[float] | np.ndarray
-    plot_style: Any
-    subplot_position: int = 1
-    ignore_plot: bool = False
-    show: bool = True
+from .types import PlotData
 
 
 class PlotViewModel(BaseViewModel):
@@ -87,7 +74,6 @@ class PlotViewModel(BaseViewModel):
 
     @Slot(PlotData)
     def update_data(self, data: PlotData) -> None:
-        # TODO: data bis auf x_min erweitern, wenn kleiner 0
         current = self._data.get(data.key)
         if current is not None:
             # Keep user visibility selection across data refreshes.

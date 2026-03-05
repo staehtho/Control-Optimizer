@@ -4,7 +4,8 @@ from numpy import ndarray
 
 from app_domain.ui_context import UiContext
 from app_domain.functions import FunctionTypes, resolve_function_type
-from viewmodels import FunctionViewModel, PlotViewModel, PlotData
+from viewmodels import FunctionViewModel, PlotViewModel
+from viewmodels.types import PlotData
 from views import BaseView
 from views.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, FunctionWidget, ExpandableFrame

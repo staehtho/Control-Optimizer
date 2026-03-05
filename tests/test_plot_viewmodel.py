@@ -1,7 +1,8 @@
 import numpy as np
 from PySide6.QtTest import QSignalSpy
 
-from viewmodels import PlotViewModel, PlotData
+from viewmodels import PlotViewModel
+from viewmodels.types import PlotData
 
 
 def test_grid_changed_emits_once_on_change() -> None:
@@ -67,9 +68,9 @@ def test_update_data_emits_only_for_new_or_changed_data() -> None:
     vm = PlotViewModel()
     spy = QSignalSpy(vm.dataChanged)
 
-    vm.update_data(PlotData("series", "series", [0.0, 1.0], [1.0, 2.0], "color"))
-    vm.update_data(PlotData("series", "series", [0.0, 1.0], [1.0, 2.0], "color"))  # unchanged
-    vm.update_data(PlotData("series", "series", [0.0, 1.0], [1.0, 3.0], "color"))  # changed
+    vm.update_data(PlotData(key="series", label="series", x=[0.0, 1.0], y=[1.0, 2.0], plot_style=None))
+    vm.update_data(PlotData(key="series", label="series", x=[0.0, 1.0], y=[1.0, 2.0], plot_style=None))  # unchanged
+    vm.update_data(PlotData(key="series", label="series", x=[0.0, 1.0], y=[1.0, 3.0], plot_style=None))  # changed
 
     assert spy.size() == 2
 
@@ -80,8 +81,8 @@ def test_update_data_emits_only_for_new_or_changed_data() -> None:
 
 def test_remove_and_clear_data_emit() -> None:
     vm = PlotViewModel()
-    vm.update_data(PlotData("a", "a", [0.0, 1.0], [1.0, 2.0], "color"))
-    vm.update_data(PlotData("b", "b", [0.0, 1.0], [1.0, 2.0], "color"))
+    vm.update_data(PlotData(key="a", label="a", x=[0.0, 1.0], y=[1.0, 2.0], plot_style=None))
+    vm.update_data(PlotData(key="b", label="b", x=[0.0, 1.0], y=[1.0, 2.0], plot_style=None))
 
     spy_remove = QSignalSpy(vm.dataChanged)
     vm.remove_data("a")

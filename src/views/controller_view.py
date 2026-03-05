@@ -1,6 +1,6 @@
 from functools import partial
 
-from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QFrame, QLineEdit
+from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit
 
 from app_domain.ui_context import UiContext
 from app_domain.controlsys import AntiWindup

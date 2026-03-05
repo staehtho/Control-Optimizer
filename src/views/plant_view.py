@@ -5,7 +5,8 @@ from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QScrollAr
 from numpy import ndarray
 
 from app_domain.ui_context import UiContext
-from viewmodels import PlantViewModel, PlotViewModel, PlotData
+from viewmodels import PlantViewModel, PlotViewModel
+from viewmodels.types import PlotData
 from .base_view import BaseView
 from views.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, ExpandableFrame, FormulaWidget

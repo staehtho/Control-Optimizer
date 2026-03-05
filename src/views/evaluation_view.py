@@ -3,7 +3,8 @@ from PySide6.QtCore import QT_TRANSLATE_NOOP
 from numpy import ndarray
 
 from app_domain.ui_context import UiContext
-from viewmodels import EvaluationViewModel, PlotViewModel, PlotData
+from viewmodels import EvaluationViewModel, PlotViewModel
+from viewmodels.types import PlotData
 from views import BaseView
 from views.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, ExpandableFrame, FormulaWidget
