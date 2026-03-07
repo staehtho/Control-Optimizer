@@ -2,6 +2,29 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US">
 <context>
+    <name>BodePlotViewModel</name>
+    <message>
+        <location filename="../viewmodels/bode_plot_viewmodel.py" line="31"/>
+        <source>Invalid value: omega min ({x_min}) must be smaller than omega max ({x_max}).</source>
+        <translation>Invalid value: omega min ({x_min}) must be smaller than omega max ({x_max}).</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/bode_plot_viewmodel.py" line="38"/>
+        <source>Invalid value: omega min ({value} must be greater than 0)</source>
+        <translation>Invalid value: omega min ({value} must be greater than 0)</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/bode_plot_viewmodel.py" line="51"/>
+        <source>Invalid value: omega max ({x_max}) must be greater than omega min ({x_min}).</source>
+        <translation>Invalid value: omega max ({x_max}) must be greater than omega min ({x_min}).</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/bode_plot_viewmodel.py" line="58"/>
+        <source>Invalid value: omega max ({value} must be greater than 0)</source>
+        <translation>Invalid value: omega max ({value} must be greater than 0)</translation>
+    </message>
+</context>
+<context>
     <name>BodePlotWidget</name>
     <message>
         <location filename="../views/widgets/bode_plot_widget.py" line="40"/>

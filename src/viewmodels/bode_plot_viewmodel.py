@@ -1,5 +1,5 @@
-from utils import LoggedProperty
 from .plot_viewmodel import PlotViewModel
+from .types import ValidationResult
 
 
 class BodePlotViewModel(PlotViewModel):
@@ -22,9 +22,42 @@ class BodePlotViewModel(PlotViewModel):
 
         return True
 
-    x_min = LoggedProperty(
-        path="_x_min",
-        signal="xMinChanged",
-        typ=float,
-        custom_setter=_verify_x_min,
-    )
+    # -------------------
+    # x min
+    # -------------------
+    def validate_x_min(self, value: float) -> ValidationResult:
+        if value >= self._x_max:
+            message = self.tr(
+                "Invalid value: omega min ({x_min}) must be smaller than omega max ({x_max})."
+            ).format(x_min=f"{value:.1e}", x_max=f"{self._x_max:.1e}")
+
+            return ValidationResult(False, message)
+
+        if value <= 0.0:
+            message = self.tr(
+                "Invalid value: omega min ({value} must be greater than 0)"
+            ).format(value=f"{value:.1e}")
+
+            return ValidationResult(False, message)
+
+        return ValidationResult(True)
+
+    # -------------------
+    # x max
+    # -------------------
+    def validate_x_max(self, value: float) -> ValidationResult:
+        if value <= self._x_min:
+            message = self.tr(
+                "Invalid value: omega max ({x_max}) must be greater than omega min ({x_min})."
+            ).format(x_min=self._x_min, x_max=value)
+
+            return ValidationResult(False, message)
+
+        if value <= 0.0:
+            message = self.tr(
+                "Invalid value: omega max ({value} must be greater than 0)"
+            ).format(value=f"{value:.1e}")
+
+            return ValidationResult(False, message)
+
+        return ValidationResult(True)
