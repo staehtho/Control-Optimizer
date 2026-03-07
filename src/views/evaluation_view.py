@@ -155,6 +155,9 @@ class EvaluationView(BaseView, QWidget):
         self._frm_cl.set_title(self.tr("Closed Loop"))
         self._frm_plot.set_title(self.tr("Closed Loop"))
 
+        # translate pages
+        self._plot_tab.setTabText(0, self.tr("Time Domain"))
+        self._plot_tab.setTabText(1, self.tr("Frequency Domain"))
     # -------------------------------------------------
     # Apply initial values
     # -------------------------------------------------
