@@ -1,4 +1,4 @@
-﻿from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy
+﻿from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QTabWidget
 from PySide6.QtCore import QT_TRANSLATE_NOOP
 from numpy import ndarray
 
@@ -7,7 +7,7 @@ from viewmodels import EvaluationViewModel, PlotViewModel
 from viewmodels.types import PlotData
 from views import BaseView
 from views.plot_style import PLOT_STYLE
-from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, ExpandableFrame, FormulaWidget
+from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, ExpandableFrame, FormulaWidget, BodePlotWidget
 from views.translations import PlotLabels
 
 
@@ -16,15 +16,15 @@ class EvaluationView(BaseView, QWidget):
             self,
             ui_context: UiContext,
             vm_evaluator: EvaluationViewModel,
-            vm_plot: PlotViewModel,
+            vm_plots: dict[str, PlotViewModel],
             parent: QWidget = None
     ):
         QWidget.__init__(self, parent)
 
         self._vm_evaluator = vm_evaluator
-        self._vm_plot = vm_plot
+        self._vm_plots = vm_plots
 
-        self._function_tab_pages: dict[str, QWidget] = {}
+        self._plot_tab_pages: dict[str, QWidget] = {}
 
         self._latex_labels: dict[str, QLabel] = {}
 
@@ -45,8 +45,8 @@ class EvaluationView(BaseView, QWidget):
 
         self._frm_cl = self._create_cl_frame()
         main_layout.addWidget(self._frm_cl, 0)
-        self._frm_response = self._create_cl_response_frame()
-        main_layout.addWidget(self._frm_response, 1)
+        self._frm_plot = self._create_plot_frame()
+        main_layout.addWidget(self._frm_plot, 1)
 
         main_layout.addStretch()
         self.setLayout(main_layout)
@@ -69,9 +69,24 @@ class EvaluationView(BaseView, QWidget):
 
         return frame
 
-    def _create_cl_response_frame(self) -> ExpandableFrame:
+    def _create_plot_frame(self) -> ExpandableFrame:
         frame: ExpandableFrame
         frame, frame_layout = self._create_card(expand_vertically_when_expanded=True)
+
+        self._plot_tab = QTabWidget()
+        frame_layout.addWidget(self._plot_tab)
+
+        widget_time_domain = self._create_time_domain_widget()
+        self._plot_tab_pages.setdefault("time_domain", widget_time_domain)
+        self._plot_tab.addTab(widget_time_domain, "time_domain")
+
+        widget_frequency_domain = self._create_frequency_domain_widget()
+        self._plot_tab_pages.setdefault("frequency_domain", widget_frequency_domain)
+        self._plot_tab.addTab(widget_frequency_domain, "frequency_domain")
+
+        return frame
+
+    def _create_time_domain_widget(self) -> QWidget:
 
         subplot_cfgs = {
             1: SubplotConfiguration(
@@ -93,12 +108,17 @@ class EvaluationView(BaseView, QWidget):
             subplot_configuration=subplot_cfgs,
         )
 
-        plot_view = PlotWidget(self._ui_context, self._vm_plot, cl_plot_cfg, parent=frame)
-        plot_view.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        widget = PlotWidget(self._ui_context, self._vm_plots.get("time_domain"), cl_plot_cfg, parent=self)
+        widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
-        frame_layout.addWidget(plot_view)
+        return widget
 
-        return frame
+    def _create_frequency_domain_widget(self) -> QWidget:
+
+        widget = BodePlotWidget(self._ui_context, self._vm_plots.get("frequency_domain"), parent=self)
+        widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+
+        return widget
 
     # -------------------------------------------------
     # Signal / ViewModel Binding
@@ -119,8 +139,8 @@ class EvaluationView(BaseView, QWidget):
         self._vm_evaluator.psoSimulationFinished.connect(self._on_vm_pso_simulation_finished)
 
         # Plot ViewModel -> Function recomputation
-        self._vm_plot.xMinChanged.connect(self._on_vm_time_changed)
-        self._vm_plot.xMaxChanged.connect(self._on_vm_time_changed)
+        self._vm_plots.get("time_domain").xMinChanged.connect(self._on_vm_time_changed)
+        self._vm_plots.get("time_domain").xMaxChanged.connect(self._on_vm_time_changed)
 
     # -------------------------------------------------
     # Translation
@@ -129,7 +149,7 @@ class EvaluationView(BaseView, QWidget):
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("Evaluation"))
         self._frm_cl.set_title(self.tr("Closed Loop"))
-        self._frm_response.set_title(self.tr("Closed Loop"))
+        self._frm_plot.set_title(self.tr("Closed Loop"))
 
     # -------------------------------------------------
     # Apply initial values
@@ -138,8 +158,8 @@ class EvaluationView(BaseView, QWidget):
         """Apply initial values to all UI elements."""
         self._sync_plot_time_window_from_model()
 
-        t0 = self._vm_plot.x_min
-        t1 = self._vm_plot.x_max
+        t0 = self._vm_plots.get("time_domain").x_min
+        t1 = self._vm_plots.get("time_domain").x_max
 
         self._vm_evaluator.compute_closed_loop_response(t0, t1)
         self._vm_evaluator.compute_plant_response(t0, t1)
@@ -156,7 +176,7 @@ class EvaluationView(BaseView, QWidget):
 
         key = self._vm_evaluator.excitation_target.name
 
-        self._vm_plot.update_data(
+        self._vm_plots.get("time_domain").update_data(
             PlotData(
                 key=PlotLabels[key].value,
                 label=self._enum_translation(PlotLabels).get(PlotLabels[key]),
@@ -172,7 +192,7 @@ class EvaluationView(BaseView, QWidget):
             "Closed-loop response computation finished -> updating response plot (samples=%d)",
             len(t),
         )
-        self._vm_plot.update_data(
+        self._vm_plots.get("time_domain").update_data(
             PlotData(
                 key=PlotLabels.CLOSED_LOOP.value,
                 label=self._enum_translation(PlotLabels).get(PlotLabels.CLOSED_LOOP),
@@ -183,7 +203,7 @@ class EvaluationView(BaseView, QWidget):
             )
         )
 
-        self._vm_plot.update_data(
+        self._vm_plots.get("time_domain").update_data(
             PlotData(
                 key=PlotLabels.CONTROL_SIGNAL.value,
                 label=self._enum_translation(PlotLabels).get(PlotLabels.CONTROL_SIGNAL),
@@ -199,7 +219,7 @@ class EvaluationView(BaseView, QWidget):
             "Plant response computation finished -> updating response plot (samples=%d)",
             len(t),
         )
-        self._vm_plot.update_data(
+        self._vm_plots.get("time_domain").update_data(
             PlotData(
                 key=PlotLabels.PLANT.value,
                 label=self._enum_translation(PlotLabels).get(PlotLabels.PLANT),
@@ -217,8 +237,8 @@ class EvaluationView(BaseView, QWidget):
 
         self._sync_plot_time_window_from_model()
 
-        t0 = self._vm_plot.x_min
-        t1 = self._vm_plot.x_max
+        t0 = self._vm_plots.get("time_domain").x_min
+        t1 = self._vm_plots.get("time_domain").x_max
 
         self._vm_evaluator.compute_closed_loop_response(t0, t1)
         self._vm_evaluator.compute_plant_response(t0, t1)
@@ -226,8 +246,8 @@ class EvaluationView(BaseView, QWidget):
 
     def _on_vm_time_changed(self) -> None:
         """Trigger recomputation when plot time range changes."""
-        t0 = self._vm_plot.x_min
-        t1 = self._vm_plot.x_max
+        t0 = self._vm_plots.get("time_domain").x_min
+        t1 = self._vm_plots.get("time_domain").x_max
 
         self._logger.debug(f"Time range changed: t0={t0}, t1={t1}")
         self._vm_evaluator.compute_closed_loop_response(t0, t1)
@@ -239,6 +259,6 @@ class EvaluationView(BaseView, QWidget):
     # -------------------------------------------------
     def _sync_plot_time_window_from_model(self) -> None:
         """Sync plot time range from persisted evaluator state via evaluator VM."""
-        self._vm_plot.x_min = self._vm_evaluator.t0
-        self._vm_plot.x_max = self._vm_evaluator.t1
+        self._vm_plots.get("time_domain").x_min = self._vm_evaluator.t0
+        self._vm_plots.get("time_domain").x_max = self._vm_evaluator.t1
 

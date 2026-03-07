@@ -71,6 +71,10 @@ if __name__ == '__main__':
     vm_function.set_selected_function(FunctionTypes.STEP)
 
     vm_functions = {title.name: engine.ensure_function_viewmodel(title.name) for title in ExcitationTarget}
+    vm_plots = {
+        "time_domain": engine.ensure_plot_viewmodel("time_domain_evaluation"),
+        "frequency_domain": engine.ensure_plot_viewmodel("frequency_domain_evaluation")
+    }
 
     items = [NavItem(key, "") for key in NavLabels]
 
@@ -90,7 +94,7 @@ if __name__ == '__main__':
             parent=parent
         ),
         NavLabels.EVALUATION: lambda parent=None: EvaluationView(
-            ui_context, engine.vm_evaluator, engine.ensure_plot_viewmodel("time_domain_evaluation"), parent=parent
+            ui_context, engine.vm_evaluator, vm_plots, parent=parent
         ),
         NavLabels.SIMULATION: lambda parent=None: SimulationView(
             ui_context, engine.vm_simulation, vm_functions, engine.ensure_plot_viewmodel("time_domain_simulation"),
