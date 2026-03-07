@@ -3,9 +3,18 @@ import logging
 from numpy import ndarray
 from PySide6.QtCore import QThread
 
-from app_domain.engine import PlantResponseEngine, FunctionEngine, PsoSimulationEngine, ClosedLoopResponseEngine
-from app_domain.engine.types import PlantResponseContext, PsoSimulationParam, PsoResult, ClosedLoopResponseContext
-from infrastructure import PlantResponseWorker, FunctionWorker, PsoSimulationWorker, ClosedLoopResponseWorker
+from app_domain.engine import (
+    PlantResponseEngine, FunctionEngine, PsoSimulationEngine, ClosedLoopResponseEngine, PlantTransferEngine,
+    ControllerTransferEngine, FrequencyGridEngine, FrequencyResponseEngine
+)
+from app_domain.engine.types import (
+    PlantResponseContext, PsoSimulationParam, PsoResult, ClosedLoopResponseContext, PlantTransferContext,
+    PlantFrequencyResponse, ControllerTransferContext, ClosedLoopFrequencyResponseResult
+)
+from infrastructure import (
+    PlantResponseWorker, FunctionWorker, PsoSimulationWorker, ClosedLoopResponseWorker, PlantFrequencyWorker,
+    ClosedLoopFrequencyWorker
+)
 
 
 class SimulationService:
@@ -23,11 +32,17 @@ class SimulationService:
         self._function_engine = FunctionEngine()
         self._pso_simulation_engine = PsoSimulationEngine()
         self._closed_loop_engine = ClosedLoopResponseEngine()
+        self._frequency_grid_engine = FrequencyGridEngine()
+        self._plant_transfer_engine = PlantTransferEngine()
+        self._controller_transfer_engine = ControllerTransferEngine()
+        self._frequency_response_engine = FrequencyResponseEngine()
 
         self._plant_workers: list[PlantResponseWorker] = []
         self._function_workers: list[FunctionWorker] = []
-        self._pso_simulation_worker = None
+        self._pso_simulation_worker: PsoSimulationWorker | None = None
         self._closed_loop_workers: list[ClosedLoopResponseWorker] = []
+        self._plant_transfer_worker: PlantFrequencyWorker | None = None
+        self._closed_loop_frequency_worker: ClosedLoopFrequencyWorker | None = None
 
     def _stop_worker(self, worker: QThread | None, name: str, timeout_ms: int = 2000) -> None:
         """Try graceful stop first, then force terminate as a last resort."""
@@ -64,6 +79,12 @@ class SimulationService:
         for worker in list(self._closed_loop_workers):
             self._stop_worker(worker, f"ClosedLoopResponseWorker[{id(worker)}]")
         self._closed_loop_workers.clear()
+
+        self._stop_worker(self._plant_transfer_worker, "PlantFrequencyWorker")
+        self._plant_transfer_worker = None
+
+        self._stop_worker(self._closed_loop_frequency_worker, "ClosedLoopFrequencyWorker")
+        self._closed_loop_frequency_worker = None
 
         self._logger.info("SimulationService shutdown finished.")
 
@@ -165,3 +186,91 @@ class SimulationService:
         if worker in self._closed_loop_workers:
             self._closed_loop_workers.remove(worker)
         worker.deleteLater()
+
+    def compute_plant_transfer_response(
+            self,
+            context: PlantTransferContext,
+            omega_min: float,
+            omega_max: float,
+            callback: Callable[[PlantFrequencyResponse], None],
+    ) -> None:
+        """Compute the plant frequency response asynchronously.
+
+        This method starts a `PlantFrequencyWorker` in a background thread.
+        It generates the frequency vector, computes the plant transfer function,
+        converts it to magnitude and phase, and invokes the callback when done.
+
+        If a previous worker is still running, the request is ignored.
+
+        Args:
+            context: Plant transfer context including numerator/denominator coefficients.
+            omega_min: Minimum frequency (rad/s) for the computation.
+            omega_max: Maximum frequency (rad/s) for the computation.
+            callback: Function invoked with a `PlantFrequencyResponse` result
+                      when the worker completes.
+        """
+        if self._plant_transfer_worker and self._plant_transfer_worker.isRunning():
+            self._logger.warning("PlantFrequencyWorker is busy. Ignoring request.")
+            return
+
+        self._logger.info(
+            "Starting PlantFrequencyWorker for asynchronous plant Bode computation"
+        )
+
+        # Create and start the worker
+        self._plant_transfer_worker = PlantFrequencyWorker(
+            self._plant_transfer_engine,
+            self._frequency_grid_engine,
+            context,
+            omega_min,
+            omega_max
+        )
+        self._plant_transfer_worker.resultReady.connect(callback)
+        self._plant_transfer_worker.start()
+
+    def compute_closed_transfer_response(
+            self,
+            context_plant: PlantTransferContext,
+            context_control: ControllerTransferContext,
+            omega_min: float,
+            omega_max: float,
+            callback: Callable[[ClosedLoopFrequencyResponseResult], None],
+    ) -> None:
+        """Compute the closed-loop frequency-domain response asynchronously.
+
+        This method starts a `ClosedLoopFrequencyWorker` in a background thread.
+        It generates the frequency vector, computes plant and controller transfer
+        functions, calculates open-loop, sensitivity, and complementary sensitivity,
+        converts all results to magnitude and phase, and invokes the callback when done.
+
+        If a previous worker is still running, the request is ignored.
+
+        Args:
+            context_plant: Plant transfer context including numerator/denominator coefficients.
+            context_control: Controller transfer context including PID parameters.
+            omega_min: Minimum frequency (rad/s) for the computation.
+            omega_max: Maximum frequency (rad/s) for the computation.
+            callback: Function invoked with a `ClosedLoopFrequencyResponseResult`
+                      when the worker completes.
+        """
+        if self._closed_loop_frequency_worker and self._closed_loop_frequency_worker.isRunning():
+            self._logger.warning("ClosedLoopFrequencyWorker is busy. Ignoring request.")
+            return
+
+        self._logger.info(
+            "Starting ClosedLoopFrequencyWorker for asynchronous closed-loop Bode computation"
+        )
+
+        # Create and start the worker
+        self._closed_loop_frequency_worker = ClosedLoopFrequencyWorker(
+            self._plant_transfer_engine,
+            self._controller_transfer_engine,
+            self._frequency_response_engine,
+            self._frequency_grid_engine,
+            context_plant,
+            context_control,
+            omega_min,
+            omega_max
+        )
+        self._closed_loop_frequency_worker.resultReady.connect(callback)
+        self._closed_loop_frequency_worker.start()

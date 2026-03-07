@@ -2,3 +2,5 @@ from .function_worker import FunctionWorker
 from .plant_response_worker import PlantResponseWorker
 from .pos_simulation_worker import PsoSimulationWorker
 from .closed_loop_response_worker import ClosedLoopResponseWorker
+from .plant_frequency_worker import PlantFrequencyWorker
+from .closed_loop_frequency_worker import ClosedLoopFrequencyWorker
