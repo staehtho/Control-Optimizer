@@ -13,6 +13,7 @@ from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as Navigation
 from matplotlib import cbook
 
 from app_domain.ui_context import UiContext
+from viewmodels.types import PlotField
 from viewmodels import PlotViewModel
 from views import BaseView
 
@@ -111,6 +112,7 @@ class PlotWidget(BaseView, QWidget):
         self._txt_min.setValidator(QDoubleValidator())
         self._txt_min.setVisible(show)
         layout.addWidget(self._txt_min)
+        self._field_widgets.setdefault(PlotField.X_MIN, self._txt_min)
 
         # End time
         self._lbl_max = QLabel("", self)
@@ -124,6 +126,7 @@ class PlotWidget(BaseView, QWidget):
         self._txt_max.setValidator(QDoubleValidator())
         self._txt_max.setVisible(show)
         layout.addWidget(self._txt_max)
+        self._field_widgets.setdefault(PlotField.X_MAX, self._txt_max)
 
         # Grid checkbox
         self._chk_grid = QCheckBox("", self)
@@ -158,6 +161,7 @@ class PlotWidget(BaseView, QWidget):
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
         # Thread-safe call to update plot
+        self._vm.validationFailed.connect(self._on_validation_failed)
         self._vm.gridChanged.connect(self._update_plot)
         self._vm.xMinChanged.connect(self._on_vm_min_changed)
         self._vm.xMaxChanged.connect(self._on_vm_max_changed)
@@ -320,7 +324,7 @@ class PlotWidget(BaseView, QWidget):
                 if checkbox is not None:
                     self._series_layout.removeWidget(checkbox)
                     checkbox.deleteLater()
-                    self._widgets.pop(f"plot_data_{series.key}", None)
+                    self._field_widgets.pop(f"plot_data_{series.key}", None)
                 existing_keys.discard(series.key)
                 continue
 
@@ -330,7 +334,7 @@ class PlotWidget(BaseView, QWidget):
                 checkbox.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
                 checkbox.toggled.connect(partial(self._on_series_checkbox_toggled, series.key))
                 self._series_checkboxes[series.key] = checkbox
-                self._widgets[f"plot_data_{series.key}"] = checkbox
+                self._field_widgets[f"plot_data_{series.key}"] = checkbox
             else:
                 checkbox.setText(series.label)
 
@@ -347,7 +351,7 @@ class PlotWidget(BaseView, QWidget):
             checkbox = self._series_checkboxes.pop(key)
             self._series_layout.removeWidget(checkbox)
             checkbox.deleteLater()
-            self._widgets.pop(f"plot_data_{key}", None)
+            self._field_widgets.pop(f"plot_data_{key}", None)
 
     # -------------------------------------------------
     # UI event handlers
@@ -365,23 +369,23 @@ class PlotWidget(BaseView, QWidget):
         try:
             value = float(self._txt_min.text())
         except ValueError:
-            self._logger.warning(f"Invalid min input: {self._txt_min.text()}")
             self._txt_min.setText(f"{self._vm.x_min:{self._format_spec}}")
             return
+
+        self._clear_input_error(self._txt_min)
         self._logger.debug(f"UI event: x_min changed -> {value:.6f}")
         self._vm.x_min = value
-        self._txt_min.setText(f"{value:{self._format_spec}}")
 
     def _on_txt_max_changed(self) -> None:
         try:
             value = float(self._txt_max.text())
         except ValueError:
-            self._logger.warning(f"Invalid min time input: {self._txt_max.text()}")
             self._txt_max.setText(f"{self._vm.x_max:{self._format_spec}}")
             return
+
+        self._clear_input_error(self._txt_max)
         self._logger.debug(f"UI event: x_max changed -> {value:.6f}")
         self._vm.x_max = value
-        self._txt_max.setText(f"{value:{self._format_spec}}")
 
     def resizeEvent(self, event) -> None:
         """Redraw canvas on widget resize."""
