@@ -254,6 +254,16 @@
         <translation>Auswertung</translation>
     </message>
     <message>
+        <location filename="../views/evaluation_view.py" line="159"/>
+        <source>Time Domain</source>
+        <translation>Zeitbereich</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="160"/>
+        <source>Frequency Domain</source>
+        <translation>Frequenzbereich</translation>
+    </message>
+    <message>
         <source>Excitation Function</source>
         <translation type="vanished">Anregungsfunktion</translation>
     </message>
@@ -402,36 +412,57 @@ Beispiel: 1, 0.5, 2 → 1·s² + 0,5·s + 2</translation>
     </message>
 </context>
 <context>
+    <name>PlotViewModel</name>
+    <message>
+        <location filename="../viewmodels/plot_viewmodel.py" line="43"/>
+        <source>Invalid value: start ({x_min}) must be smaller than end ({x_max}).</source>
+        <translation>Ungültiger Wert: Der Startwert ({x_min}) muss kleiner als der Endwert ({x_max}) sein.</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/plot_viewmodel.py" line="73"/>
+        <source>Invalid value: end ({x_max}) must be greater than start ({x_min}).</source>
+        <translation>Ungültiger Wert: Der Endwert ({x_max}) muss größer als der Startwert ({x_min}) sein.</translation>
+    </message>
+</context>
+<context>
     <name>PlotWidget</name>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="171"/>
+        <location filename="../views/widgets/plot_widget.py" line="175"/>
         <source>plot.grid</source>
         <translation>Grid</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="172"/>
+        <location filename="../views/widgets/plot_widget.py" line="176"/>
         <source>plot.start</source>
         <translation>Startzeit</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="173"/>
+        <location filename="../views/widgets/plot_widget.py" line="177"/>
         <source>plot.end</source>
         <translation>Endzeit</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="174"/>
+        <location filename="../views/widgets/plot_widget.py" line="178"/>
         <source>plot.start.tooltip</source>
         <translation>Untere Grenze der x-Achse (x_min).
 Legt fest, wo die Zeitachse beginnt.
 Einheit: Sekunden (s).</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="175"/>
+        <location filename="../views/widgets/plot_widget.py" line="179"/>
         <source>plot.end.tooltip</source>
         <translation>Obere Grenze der x-Achse (x_max).
 Legt fest, wo die Zeitachse endet.
 Einheit: Sekunden (s).
 Muss grösser als die Startzeit sein.</translation>
+    </message>
+    <message>
+        <source>Invalid value: start ({x_min}) must be smaller than end ({x_max}).</source>
+        <translation type="vanished">Ungültiger Wert: Der Startwert ({x_min}) muss kleiner als der Endwert ({x_max}) sein.</translation>
+    </message>
+    <message>
+        <source>Invalid value: end ({x_max}) must be greater than start ({x_min}).</source>
+        <translation type="vanished">Ungültiger Wert: Der Endwert ({x_max}) muss größer als der Startwert ({x_min}) sein.</translation>
     </message>
 </context>
 <context>

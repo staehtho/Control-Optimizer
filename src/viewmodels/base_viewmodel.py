@@ -2,11 +2,15 @@ from contextlib import contextmanager
 import logging
 from typing import Iterator
 
-from PySide6.QtCore import QObject
+from PySide6.QtCore import QObject, Signal
+
+from .types import FieldType
 
 
 class BaseViewModel(QObject):
     """Base ViewModel with an update-guard to avoid feedback loops."""
+
+    validationFailed = Signal(FieldType, str)
 
     def __init__(self, parent: QObject = None):
         super().__init__(parent)

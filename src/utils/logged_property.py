@@ -38,26 +38,23 @@ class LoggedProperty:
 
         instance.logger.debug(f"Setter '{field}' called (value={value})")
 
-        if old_value == value:
-            instance.logger.debug(f"Skipped '{field}' update (same value)")
-            return
-
         if self.custom_setter:
-            result = self.custom_setter(instance, value)
-
-            # Legacy behavior: custom setter returns bool (allow/deny).
-            if isinstance(result, bool):
-                if not result:
+            # always run validation
+            valid_or_value = self.custom_setter(instance, value)
+            if isinstance(valid_or_value, bool):
+                if not valid_or_value:
                     return
-            # New behavior: custom setter returns transformed value or None (deny).
-            elif result is None:
+            elif valid_or_value is None:
                 return
             else:
-                value = result
+                value = valid_or_value
 
-        with instance.updating(".".join(self.path)):
-            setattr(obj, field, value)
+        # Only update if the value changed
+        if old_value != value:
+            with instance.updating(".".join(self.path)):
+                setattr(obj, field, value)
 
+        # Emit signal always
         if self.signal:
             instance.logger.debug(f"Emitting {self.signal}")
             getattr(instance, self.signal).emit()

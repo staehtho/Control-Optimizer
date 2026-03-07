@@ -2,15 +2,16 @@ import logging
 from weakref import WeakSet
 from PySide6.QtWidgets import (
     QWidget, QLayout, QLabel, QComboBox, QGridLayout, QFrame, QVBoxLayout, QLineEdit, QCheckBox, QSpinBox,
-    QDoubleSpinBox, QScrollArea, QApplication
+    QDoubleSpinBox, QScrollArea, QApplication, QToolTip
 )
 from PySide6.QtGui import QFont
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QPoint
 from PySide6.QtGui import QDoubleValidator
 from dataclasses import dataclass
 from typing import Type, ClassVar, Optional
 
 from app_domain.ui_context import UiContext
+from viewmodels.types import FieldType
 from views.translations import Translation
 
 
@@ -223,7 +224,7 @@ class BaseView:
                 if isinstance(widget, QLineEdit):
                     widget.setValidator(QDoubleValidator())
 
-                self._widgets[field.key] = widget
+                self._field_widgets[field.key] = widget
 
                 if field.create_label:
                     label = QLabel(parent_widget)
@@ -305,6 +306,30 @@ class BaseView:
         """Hook for subclasses that need non-QSS theme updates."""
         ...
 
+    def _on_validation_failed(self, field: FieldType, message: str) -> None:
+        widget = self._field_widgets.get(field)
+
+        if widget is None:
+            return
+
+        self._show_invalid_input(widget, message)
+
+    @staticmethod
+    def _show_invalid_input(widget: QLineEdit, message: str) -> None:
+        """Show a consistent invalid-input state for line edits across all views."""
+        if widget.property("_default_tooltip") is None:
+            widget.setProperty("_default_tooltip", widget.toolTip())
+        widget.setStyleSheet("border: 1px solid #d9534f;")
+        widget.setToolTip(message)
+        QToolTip.showText(widget.mapToGlobal(QPoint(0, widget.height())), message, widget)
+
+    @staticmethod
+    def _clear_input_error(widget: QLineEdit) -> None:
+        """Restore a line edit to its normal state after invalid-input handling."""
+        widget.setStyleSheet("")
+        default_tooltip = widget.property("_default_tooltip")
+        widget.setToolTip("" if default_tooltip is None else str(default_tooltip))
+
     @classmethod
     def set_theme(cls, theme: str) -> None:
         if theme not in cls._themes:
@@ -323,7 +348,7 @@ class BaseView:
         indicated by the dotted path `attribute`.
 
         Args:
-            key (str): The key identifying the widget in self._widgets.
+            key (str): The key identifying the widget in self._field_widgets.
             attribute (str): The dotted path to the attribute to update
                              (e.g., "_vm_controller.anti_windup").
             *args: Additional arguments passed by the Qt signal (e.g., index for QComboBox).
@@ -331,7 +356,7 @@ class BaseView:
         if self._initializing:
             return
 
-        widget = self._widgets[key]
+        widget = self._field_widgets[key]
 
         # Determine new value based on widget type
         if isinstance(widget, QComboBox):
