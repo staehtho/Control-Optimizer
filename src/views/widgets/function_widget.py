@@ -47,15 +47,15 @@ class FunctionWidget(BaseView, QWidget):
         self.setLayout(main_layout)
 
     def _create_function_selector_layout(self) -> QWidget:
-        container = QWidget()
+        container = QWidget(self)
         frame_layout = QVBoxLayout(container)
         frame_layout.setContentsMargins(0, 0, 0, 0)
         frame_layout.setSpacing(10)
 
-        self._cmb_function = QComboBox()
+        self._cmb_function = QComboBox(container)
         frame_layout.addWidget(self._cmb_function)
 
-        self._param_widget = QWidget()
+        self._param_widget = QWidget(container)
         show_formula = resolve_function_type(self._vm_function.selected_function) != FunctionTypes.NULL
         self._param_grid = self._create_param_grid(show_formula=show_formula)
         self._param_widget.setLayout(self._param_grid)
@@ -78,7 +78,7 @@ class FunctionWidget(BaseView, QWidget):
         if show_formula:
             formula = self._vm_function.selected_function.get_formula()
 
-            lbl_formula = FormulaWidget(formula, 1.5)
+            lbl_formula = FormulaWidget(formula, 1.5, parent=self._param_widget)
 
             grid.addWidget(lbl_formula, 0, 0, 1, 6)
             row_offset = 1
@@ -91,11 +91,11 @@ class FunctionWidget(BaseView, QWidget):
             row = i // 2 + row_offset
             col = (i % 2) * 2 + 1
 
-            lbl_param = FormulaWidget(f"{label}:", 1.5)
+            lbl_param = FormulaWidget(f"{label}:", 1.5, parent=self._param_widget)
 
             grid.addWidget(lbl_param, row, col)
 
-            txt_param = QLineEdit()
+            txt_param = QLineEdit(self._param_widget)
             txt_param.setValidator(QDoubleValidator())
             txt_param.setFixedWidth(80)
             txt_param.setText(f"{value:.3f}")
@@ -186,7 +186,7 @@ class FunctionWidget(BaseView, QWidget):
 
             old_param_widget = self._param_widget
 
-            self._param_widget = QWidget()
+            self._param_widget = QWidget(self)
             show_formula = resolve_function_type(self._vm_function.selected_function) != FunctionTypes.NULL
             self._param_grid = self._create_param_grid(show_formula=show_formula)
             self._param_widget.setLayout(self._param_grid)

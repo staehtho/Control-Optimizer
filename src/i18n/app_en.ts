@@ -205,26 +205,26 @@
 <context>
     <name>EvaluationView</name>
     <message>
-        <location filename="../views/evaluation_view.py" line="91"/>
-        <location filename="../views/evaluation_view.py" line="131"/>
-        <location filename="../views/evaluation_view.py" line="132"/>
+        <location filename="../views/evaluation_view.py" line="106"/>
+        <location filename="../views/evaluation_view.py" line="151"/>
+        <location filename="../views/evaluation_view.py" line="152"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="78"/>
-        <location filename="../views/evaluation_view.py" line="83"/>
+        <location filename="../views/evaluation_view.py" line="93"/>
+        <location filename="../views/evaluation_view.py" line="98"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="79"/>
-        <location filename="../views/evaluation_view.py" line="84"/>
+        <location filename="../views/evaluation_view.py" line="94"/>
+        <location filename="../views/evaluation_view.py" line="99"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="130"/>
+        <location filename="../views/evaluation_view.py" line="150"/>
         <source>Evaluation</source>
         <translation>Evaluation</translation>
     </message>

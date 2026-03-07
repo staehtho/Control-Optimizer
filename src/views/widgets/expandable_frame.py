@@ -64,7 +64,7 @@ class ExpandableFrame(QFrame):
             self._content_widget.setMaximumHeight(0)
 
     def _create_header_widget(self, title: str, expanded: bool) -> QWidget:
-        widget = QWidget()
+        widget = QWidget(self)
         widget.setFixedHeight(44)
         widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
 

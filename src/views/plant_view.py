@@ -39,7 +39,7 @@ class PlantView(BaseView, QWidget):
         main_layout = self._create_page_layout()
 
         # Title
-        self._lbl_title = QLabel()
+        self._lbl_title = QLabel(self)
         self._lbl_title.setObjectName("viewTitle")
         main_layout.addWidget(self._lbl_title)
 
@@ -53,7 +53,7 @@ class PlantView(BaseView, QWidget):
 
     def _create_transfer_function_frame(self) -> ExpandableFrame:
         frame: ExpandableFrame
-        frame, frame_layout = self._create_card()
+        frame, frame_layout = self._create_card(self)
         grid_layout = QGridLayout()
         grid_layout.setHorizontalSpacing(10)
         grid_layout.setVerticalSpacing(10)
@@ -66,9 +66,9 @@ class PlantView(BaseView, QWidget):
         # -------------------
         # Numerator input
         # -------------------
-        self._lbl_num = QLabel(self.tr("plant.num"))
+        self._lbl_num = QLabel(self.tr("plant.num"), frame)
 
-        self._txt_num = QLineEdit()
+        self._txt_num = QLineEdit(frame)
         self._txt_num.setValidator(validator)
 
         # Set fixed width (height follows style automatically)
@@ -80,9 +80,9 @@ class PlantView(BaseView, QWidget):
         # -------------------
         # Denominator input
         # -------------------
-        self._lbl_den = QLabel(self.tr("plant.den"))
+        self._lbl_den = QLabel(self.tr("plant.den"), frame)
 
-        self._txt_den = QLineEdit()
+        self._txt_den = QLineEdit(frame)
         self._txt_den.setValidator(validator)
 
         # Same fixed width for visual consistency
@@ -94,10 +94,11 @@ class PlantView(BaseView, QWidget):
         # -------------------
         # Transfer function formula display
         # -------------------
-        self._lbl_formula = FormulaWidget(r"G(s) = " + self._vm_plant.get_tf(), self._formula_font_size_scale)
+        self._lbl_formula = FormulaWidget(r"G(s) = " + self._vm_plant.get_tf(), self._formula_font_size_scale,
+                                          parent=frame)
 
         # --- Scroll area for label ---
-        scroll_formula = QScrollArea()
+        scroll_formula = QScrollArea(frame)
         scroll_formula.setWidget(self._lbl_formula)
         scroll_formula.setWidgetResizable(True)
         scroll_formula.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
@@ -115,7 +116,7 @@ class PlantView(BaseView, QWidget):
 
     def _create_plot_frame(self) -> ExpandableFrame:
         frame: ExpandableFrame
-        frame, frame_layout = self._create_card(expand_vertically_when_expanded=True)
+        frame, frame_layout = self._create_card(self, True)
         plot_cfg = PlotWidgetConfiguration(
             context="plant.view",
             title=str(QT_TRANSLATE_NOOP("plant.view", "Step Response")),

@@ -39,7 +39,7 @@ class FunctionView(BaseView, QWidget):
         main_layout = self._create_page_layout()
 
         # Title
-        self._lbl_title = QLabel()
+        self._lbl_title = QLabel(self)
         self._lbl_title.setObjectName("viewTitle")
         main_layout.addWidget(self._lbl_title)
 
@@ -53,10 +53,10 @@ class FunctionView(BaseView, QWidget):
 
     def _create_function_frame(self) -> ExpandableFrame:
         frame: ExpandableFrame
-        frame, frame_layout = self._create_card()
+        frame, frame_layout = self._create_card(self)
 
         self._function_widget = FunctionWidget(
-            self._ui_context, self._vm_function, [FunctionTypes.NULL], self
+            self._ui_context, self._vm_function, [FunctionTypes.NULL], parent=self
         )
 
         frame_layout.addWidget(self._function_widget)
@@ -65,7 +65,7 @@ class FunctionView(BaseView, QWidget):
 
     def _create_plot_frame(self) -> ExpandableFrame:
         frame: ExpandableFrame
-        frame, frame_layout = self._create_card(expand_vertically_when_expanded=True)
+        frame, frame_layout = self._create_card(self, True)
 
         function_type = resolve_function_type(self._vm_function.selected_function)
         title = self._enum_translation(FunctionTypes).get(function_type)

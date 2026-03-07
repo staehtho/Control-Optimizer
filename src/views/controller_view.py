@@ -35,7 +35,7 @@ class ControllerView(BaseView, QWidget):
         """Create and configure all UI components."""
         main_layout = self._create_page_layout()
 
-        self._lbl_title = QLabel()
+        self._lbl_title = QLabel(self)
         self._lbl_title.setObjectName("viewTitle")
         main_layout.addWidget(self._lbl_title)
 
@@ -47,7 +47,7 @@ class ControllerView(BaseView, QWidget):
 
     def _create_controller_frame(self) -> ExpandableFrame:
         frame: ExpandableFrame
-        frame, frame_layout = self._create_card()
+        frame, frame_layout = self._create_card(self)
 
         frame_layout.addLayout(self._create_grid(FIELDS))
 

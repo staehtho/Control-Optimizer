@@ -39,7 +39,7 @@ class EvaluationView(BaseView, QWidget):
         main_layout = self._create_page_layout()
 
         # Title
-        self._lbl_title = QLabel()
+        self._lbl_title = QLabel(self)
         self._lbl_title.setObjectName("viewTitle")
         main_layout.addWidget(self._lbl_title)
 
@@ -53,7 +53,7 @@ class EvaluationView(BaseView, QWidget):
 
     def _create_cl_frame(self) -> ExpandableFrame:
         frame: ExpandableFrame
-        frame, frame_layout = self._create_card()
+        frame, frame_layout = self._create_card(self)
 
         # TF closed loop
         latex_text = {
@@ -63,7 +63,7 @@ class EvaluationView(BaseView, QWidget):
         }
 
         for key, text in latex_text.items():
-            lbl_latex = FormulaWidget(text, self._formula_font_size_scale)
+            lbl_latex = FormulaWidget(text, self._formula_font_size_scale, parent=frame)
             frame_layout.addWidget(lbl_latex)
             self._latex_labels[key] = lbl_latex
 
@@ -71,9 +71,9 @@ class EvaluationView(BaseView, QWidget):
 
     def _create_plot_frame(self) -> ExpandableFrame:
         frame: ExpandableFrame
-        frame, frame_layout = self._create_card(expand_vertically_when_expanded=True)
+        frame, frame_layout = self._create_card(self, True)
 
-        self._plot_tab = QTabWidget()
+        self._plot_tab = QTabWidget(frame)
         frame_layout.addWidget(self._plot_tab)
 
         widget_time_domain = self._create_time_domain_widget()
@@ -108,14 +108,13 @@ class EvaluationView(BaseView, QWidget):
             subplot_configuration=subplot_cfgs,
         )
 
-        widget = PlotWidget(self._ui_context, self._vm_plots.get("time_domain"), cl_plot_cfg, parent=self)
+        widget = PlotWidget(self._ui_context, self._vm_plots.get("time_domain"), cl_plot_cfg, parent=self._plot_tab)
         widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         return widget
 
     def _create_frequency_domain_widget(self) -> QWidget:
-
-        widget = BodePlotWidget(self._ui_context, self._vm_plots.get("frequency_domain"), parent=self)
+        widget = BodePlotWidget(self._ui_context, self._vm_plots.get("frequency_domain"), parent=self._plot_tab)
         widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         return widget

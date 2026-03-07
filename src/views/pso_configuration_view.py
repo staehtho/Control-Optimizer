@@ -61,7 +61,7 @@ class PsoConfigurationView(BaseView, QWidget):
         main_layout = self._create_page_layout()
 
         # Title
-        self._lbl_title = QLabel()
+        self._lbl_title = QLabel(self)
         self._lbl_title.setObjectName("viewTitle")
         main_layout.addWidget(self._lbl_title)
 
@@ -79,10 +79,10 @@ class PsoConfigurationView(BaseView, QWidget):
 
     def _create_plant_frame(self) -> ExpandableFrame:
         frame: ExpandableFrame
-        frame, frame_layout = self._create_card()
+        frame, frame_layout = self._create_card(self)
 
         # TF
-        self._lbl_tf = QLabel()
+        self._lbl_tf = QLabel(frame)
         self._lbl_tf.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self._lbl_tf.setStyleSheet("background: transparent;")
 
@@ -100,7 +100,7 @@ class PsoConfigurationView(BaseView, QWidget):
 
     def _create_function_frame(self) -> ExpandableFrame:
         frame: ExpandableFrame
-        frame, frame_layout = self._create_card()
+        frame, frame_layout = self._create_card(self)
 
         frame_layout.addLayout(self._create_grid(FIELDS["excitation_target"], 4))
 
@@ -112,7 +112,7 @@ class PsoConfigurationView(BaseView, QWidget):
 
     def _create_controller_frame(self) -> ExpandableFrame:
         frame: ExpandableFrame
-        frame, frame_layout = self._create_card()
+        frame, frame_layout = self._create_card(self)
 
         frame_layout.addLayout(self._create_grid(FIELDS["control"], 4))
 
@@ -120,19 +120,19 @@ class PsoConfigurationView(BaseView, QWidget):
 
     def _create_run_pso_frame(self) -> ExpandableFrame:
         frame: ExpandableFrame
-        frame, frame_layout = self._create_card()
+        frame, frame_layout = self._create_card(self)
 
-        self._progress_bar = QProgressBar()
+        self._progress_bar = QProgressBar(frame)
         self._progress_bar.setMinimum(0)
         self._progress_bar.setValue(0)
         frame_layout.addWidget(self._progress_bar)
 
-        lbl_pso_result = QLabel()
+        lbl_pso_result = QLabel(frame)
         lbl_pso_result.setWordWrap(True)
         frame_layout.addWidget(lbl_pso_result)
         self._labels["pso_result"] = lbl_pso_result
 
-        btn_run_pso = QPushButton()
+        btn_run_pso = QPushButton(frame)
         frame_layout.addWidget(btn_run_pso)
         self._labels["run_pso"] = btn_run_pso
 

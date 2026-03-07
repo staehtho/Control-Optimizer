@@ -96,12 +96,12 @@ class PlotWidget(BaseView, QWidget):
         show = self._cfg.show_x_min_max
 
         # Start time
-        self._lbl_start = QLabel("")
+        self._lbl_start = QLabel("", self)
         self._lbl_start.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self._lbl_start.setVisible(show)
         layout.addWidget(self._lbl_start)
 
-        self._txt_start = QLineEdit()
+        self._txt_start = QLineEdit(self)
         self._txt_start.setFixedWidth(90)
         self._txt_start.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self._txt_start.setValidator(QDoubleValidator())
@@ -109,12 +109,12 @@ class PlotWidget(BaseView, QWidget):
         layout.addWidget(self._txt_start)
 
         # End time
-        self._lbl_end = QLabel("")
+        self._lbl_end = QLabel("", self)
         self._lbl_end.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self._lbl_end.setVisible(show)
         layout.addWidget(self._lbl_end)
 
-        self._txt_end = QLineEdit()
+        self._txt_end = QLineEdit(self)
         self._txt_end.setFixedWidth(90)
         self._txt_end.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self._txt_end.setValidator(QDoubleValidator())
@@ -122,7 +122,7 @@ class PlotWidget(BaseView, QWidget):
         layout.addWidget(self._txt_end)
 
         # Grid checkbox
-        self._chk_grid = QCheckBox("")
+        self._chk_grid = QCheckBox("", self)
         self._chk_grid.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         layout.addWidget(self._chk_grid)
 
@@ -132,7 +132,7 @@ class PlotWidget(BaseView, QWidget):
     def _create_series_row(self) -> QHBoxLayout:
         """Create the series checkbox row."""
         layout = QHBoxLayout()
-        self._lbl_series = QLabel("Data:")
+        self._lbl_series = QLabel("Data:", self)
         self._lbl_series.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         layout.addWidget(self._lbl_series)
         layout.addStretch()
@@ -316,7 +316,7 @@ class PlotWidget(BaseView, QWidget):
 
             checkbox = self._series_checkboxes.get(series.key)
             if checkbox is None:
-                checkbox = QCheckBox(series.label)
+                checkbox = QCheckBox(series.label, self)
                 checkbox.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
                 checkbox.toggled.connect(partial(self._on_series_checkbox_toggled, series.key))
                 self._series_checkboxes[series.key] = checkbox

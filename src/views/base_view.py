@@ -8,7 +8,7 @@ from PySide6.QtGui import QFont
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QDoubleValidator
 from dataclasses import dataclass
-from typing import Type, ClassVar
+from typing import Type, ClassVar, Optional
 
 from app_domain.ui_context import UiContext
 from views.translations import Translation
@@ -171,17 +171,18 @@ class BaseView:
         layout.setHorizontalSpacing(10)
         layout.setVerticalSpacing(10)
         layout.setContentsMargins(0, 0, 0, 0)
+        parent_widget = self if isinstance(self, QWidget) else None
 
         for col in range(columns):
             layout.setColumnStretch(col, 1)  # all columns get equal stretch
 
         for field in fields:
             if isinstance(field, SectionConfig):
-                frame = QFrame()
+                frame = QFrame(parent_widget)
                 frame.setObjectName("card")
 
                 frame_layout = QVBoxLayout(frame)
-                label = QLabel()
+                label = QLabel(frame)
                 self._apply_title_property(label, int(self._title_size * 0.75))
                 frame_layout.addWidget(label)
                 self._labels[field.key] = label
@@ -213,14 +214,19 @@ class BaseView:
                         col = 0
                         row += 1
 
-                widget: QWidget = field.widget_type()
+                try:
+                    widget: QWidget = field.widget_type(parent=parent_widget)
+                except TypeError:
+                    widget = field.widget_type()
+                    if parent_widget is not None and widget.parent() is None:
+                        widget.setParent(parent_widget)
                 if isinstance(widget, QLineEdit):
                     widget.setValidator(QDoubleValidator())
 
                 self._widgets[field.key] = widget
 
                 if field.create_label:
-                    label = QLabel()
+                    label = QLabel(parent_widget)
                     layout.addWidget(label, row, col)
                     self._labels[field.key] = label
 
@@ -244,12 +250,14 @@ class BaseView:
         return layout
 
     @staticmethod
-    def _create_card(expand_vertically_when_expanded: bool = False) -> tuple[QFrame, QVBoxLayout]:
+    def _create_card(parent: Optional[QWidget] = None, expand_vertically_when_expanded: bool = False) -> tuple[
+        QFrame, QVBoxLayout]:
         from views.widgets import ExpandableFrame
 
         frame = ExpandableFrame(
             expanded=True,
             expand_vertically_when_expanded=expand_vertically_when_expanded,
+            parent=parent
         )
         frame.setObjectName("card")
         frame_layout = frame.content_layout()
@@ -258,8 +266,8 @@ class BaseView:
         return frame, frame_layout
 
     @staticmethod
-    def _create_plain_card() -> tuple[QFrame, QVBoxLayout]:
-        frame = QFrame()
+    def _create_plain_card(parent: Optional[QWidget] = None) -> tuple[QFrame, QVBoxLayout]:
+        frame = QFrame(parent)
         frame.setObjectName("card")
         frame_layout = QVBoxLayout(frame)
         frame_layout.setContentsMargins(16, 14, 16, 14)
@@ -268,7 +276,7 @@ class BaseView:
 
     @staticmethod
     def _wrap_in_scroll_area(content_widget: QWidget) -> QScrollArea:
-        scroll = QScrollArea()
+        scroll = QScrollArea(content_widget.parentWidget())
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
         scroll.setStyleSheet("background: transparent;")

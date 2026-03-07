@@ -102,37 +102,6 @@ if __name__ == '__main__':
         )
     }
 
-    from views.widgets import BodePlotWidget
-    from viewmodels.types import BodePlotData, PlotData
-    from app_domain.controlsys import Plant
-    from views.plot_style import PLOT_STYLE, PlotLabels
-    import numpy as np
-
-    plant = Plant([1], [1, 2, 1])
-
-    omega = np.logspace(-5, 5, 1000)
-    s = 1j * omega
-    y = plant.system(s)
-    mag = 20 * np.log10(np.abs(y)) + 80
-    phase = np.angle(y, deg=True)
-
-    marg = BodePlotData(
-        key="margin",
-        label="Closed Loop",
-        omega=omega,
-        margin=mag,
-        phase=phase,
-        plot_style=PLOT_STYLE.get(PlotLabels.PLANT),
-    )
-
-    vm = engine.ensure_plot_viewmodel("frequency_domain_simulation")
-    vm.x_min = 10 ** (-5)
-    vm.x_max = 10 ** 5
-    vm.update_data(marg)
-
-    widget = BodePlotWidget(ui_context, engine.ensure_plot_viewmodel("frequency_domain_simulation"))
-    widget.show()
-
     main_view = MainView(ui_context, items, view_factories, engine.vm_pso)
     main_view.show()
 

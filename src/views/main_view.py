@@ -31,7 +31,7 @@ class MainView(BaseView, QMainWindow):
     # -------------------------------------------------
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
-        central = QWidget()
+        central = QWidget(self)
         self.setCentralWidget(central)
 
         layout = QHBoxLayout(central)
@@ -39,11 +39,11 @@ class MainView(BaseView, QMainWindow):
         layout.setSpacing(12)
 
         self._nav = NavigationWidget(self._ui_context, self._nav_items, self)
-        stack_frame, stack_layout = self._create_plain_card()
+        stack_frame, stack_layout = self._create_plain_card(central)
         self._stack = QStackedWidget(stack_frame)
         stack_layout.addWidget(self._stack)
 
-        stack_content = QWidget()
+        stack_content = QWidget(central)
         stack_content_layout = QVBoxLayout(stack_content)
         stack_content_layout.setContentsMargins(0, 0, 0, 0)
         stack_content_layout.setSpacing(0)
@@ -96,12 +96,14 @@ class MainView(BaseView, QMainWindow):
         if not self._is_view_accessible(key):
             return
 
+        self._stack.setUpdatesEnabled(False)
         if key not in self._views:
-            view = self._view_factories[key]()
+            view = self._view_factories[key](self._stack)
             self._views[key] = view
             self._stack.addWidget(view)
 
         self._stack.setCurrentWidget(self._views[key])
+        self._stack.setUpdatesEnabled(True)
 
     def _is_view_accessible(self, key: NavLabels) -> bool:
         if self._has_pso_finished_once:

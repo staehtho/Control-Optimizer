@@ -35,18 +35,18 @@ class NavigationWidget(BaseView, QWidget):
         self.setObjectName("card")
         self._btn_size = 30
 
-        self._layout = QVBoxLayout()
+        self._layout = QVBoxLayout(self)
         self._layout.setContentsMargins(12, 14, 12, 14)
         self._layout.setSpacing(8)
         self.setLayout(self._layout)
-        self._toggle_btn = QPushButton()
+        self._toggle_btn = QPushButton(self)
         self._toggle_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self._toggle_btn.setCheckable(False)
         self._toggle_btn.setFixedSize(self._btn_size, self._btn_size)
         self._layout.insertWidget(0, self._toggle_btn)
 
         for item in self._nav_items:
-            btn = QPushButton()
+            btn = QPushButton(self)
             btn.setCheckable(True)
             btn.setCursor(Qt.CursorShape.PointingHandCursor)
             btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)

@@ -43,7 +43,7 @@ class SimulationView(BaseView, QWidget):
         main_layout = self._create_page_layout()
 
         # Title
-        self._lbl_title = QLabel()
+        self._lbl_title = QLabel(self)
         self._lbl_title.setObjectName("viewTitle")
         main_layout.addWidget(self._lbl_title)
 
@@ -57,15 +57,15 @@ class SimulationView(BaseView, QWidget):
 
     def _create_function_frame(self) -> ExpandableFrame:
         frame: ExpandableFrame
-        frame, frame_layout = self._create_card()
+        frame, frame_layout = self._create_card(self)
 
         # Function Tab
-        self._function_tab = QTabWidget()
+        self._function_tab = QTabWidget(frame)
         frame_layout.addWidget(self._function_tab)
 
         # create function tab pages
         for key in self._vm_functions.keys():
-            function_page = QWidget()
+            function_page = QWidget(self._function_tab)
             function_page_layout = QVBoxLayout(function_page)
 
             function_widget = FunctionWidget(self._ui_context, self._vm_functions[key], parent=function_page)
@@ -80,7 +80,7 @@ class SimulationView(BaseView, QWidget):
 
     def _create_cl_response_frame(self) -> ExpandableFrame:
         frame: ExpandableFrame
-        frame, frame_layout = self._create_card(expand_vertically_when_expanded=True)
+        frame, frame_layout = self._create_card(self, True)
 
         subplot_cfgs = {
             1: SubplotConfiguration(
