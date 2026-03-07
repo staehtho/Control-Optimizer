@@ -4,8 +4,9 @@ from PySide6.QtCore import QObject, Signal, Slot
 from numpy import ndarray, linspace
 
 from service import SimulationService
-from app_domain.engine.types import PlantResponseContext, PsoResult
-from app_domain.engine.types import ClosedLoopResponseContext
+from app_domain.engine.types import (
+    PlantResponseContext, ClosedLoopResponseContext, PsoResult, PlantTransferContext, ControllerTransferContext
+)
 from app_domain.controlsys import ExcitationTarget
 from app_domain.functions import NullFunction, BaseFunction
 from models import SettingsModel, PsoSimulationSnapshot
@@ -20,6 +21,8 @@ class EvaluationViewModel(BaseViewModel):
     closedLoopResponseChanged = Signal(ndarray, ndarray, ndarray)
     plantResponseChanged = Signal(ndarray, ndarray)
     functionChanged = Signal(ndarray, ndarray)
+    plantFrequencyResponseChanged = Signal(object)
+    closedLoopFrequencyResponseChanged = Signal(object)
 
     def __init__(
             self,
@@ -154,3 +157,57 @@ class EvaluationViewModel(BaseViewModel):
 
     def _on_function_compute_finished(self, t: ndarray, y: ndarray) -> None:
         self.functionChanged.emit(t, y)
+
+    @Slot(float, float)
+    def compute_plant_frequency_response(self, omega_min: float, omega_max: float) -> None:
+        if self._pos_result is None or self._pso_snapshot is None:
+            self.logger.debug("Plant is not valid, plant frequency response are not computed")
+            return
+
+        self.logger.debug("Running plant frequency response.")
+
+        context = PlantTransferContext(
+            num=list(self._pso_snapshot.plant_num),
+            den=list(self._pso_snapshot.plant_den),
+        )
+
+        self._simulation_service.compute_plant_transfer_response(
+            context,
+            omega_min=omega_min,
+            omega_max=omega_max,
+            callback=self._on_plant_frequency_response_finished,
+        )
+
+    def _on_plant_frequency_response_finished(self, result) -> None:
+        self.plantFrequencyResponseChanged.emit(result)
+
+    @Slot(float, float)
+    def compute_closed_loop_frequency_response(self, omega_min: float, omega_max: float) -> None:
+        if self._pos_result is None or self._pso_snapshot is None:
+            self.logger.debug("Plant is not valid, closed loop frequency response are not computed")
+            return
+
+        self.logger.debug("Running closed loop frequency response.")
+
+        context_plant = PlantTransferContext(
+            num=list(self._pso_snapshot.plant_num),
+            den=list(self._pso_snapshot.plant_den),
+        )
+
+        context_controller = ControllerTransferContext(
+            kp=self._pos_result.kp,
+            ti=self._pos_result.ti,
+            td=self._pos_result.td,
+            tf=self._pos_result.tf,
+        )
+
+        self._simulation_service.compute_closed_loop_transfer_response(
+            context_plant=context_plant,
+            context_control=context_controller,
+            omega_min=omega_min,
+            omega_max=omega_max,
+            callback=self._on_closed_loop_frequency_response_finished
+        )
+
+    def _on_closed_loop_frequency_response_finished(self, result) -> None:
+        self.closedLoopFrequencyResponseChanged.emit(result)

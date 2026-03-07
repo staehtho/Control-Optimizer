@@ -9,7 +9,7 @@ from app_domain.engine import (
 )
 from app_domain.engine.types import (
     PlantResponseContext, PsoSimulationParam, PsoResult, ClosedLoopResponseContext, PlantTransferContext,
-    PlantFrequencyResponse, ControllerTransferContext, ClosedLoopFrequencyResponseResult
+    FrequencyResponse, ControllerTransferContext
 )
 from infrastructure import (
     PlantResponseWorker, FunctionWorker, PsoSimulationWorker, ClosedLoopResponseWorker, PlantFrequencyWorker,
@@ -192,7 +192,7 @@ class SimulationService:
             context: PlantTransferContext,
             omega_min: float,
             omega_max: float,
-            callback: Callable[[PlantFrequencyResponse], None],
+            callback: Callable[[FrequencyResponse], None],
     ) -> None:
         """Compute the plant frequency response asynchronously.
 
@@ -206,7 +206,7 @@ class SimulationService:
             context: Plant transfer context including numerator/denominator coefficients.
             omega_min: Minimum frequency (rad/s) for the computation.
             omega_max: Maximum frequency (rad/s) for the computation.
-            callback: Function invoked with a `PlantFrequencyResponse` result
+            callback: Function invoked with a `FrequencyResponse` result
                       when the worker completes.
         """
         if self._plant_transfer_worker and self._plant_transfer_worker.isRunning():
@@ -228,13 +228,13 @@ class SimulationService:
         self._plant_transfer_worker.resultReady.connect(callback)
         self._plant_transfer_worker.start()
 
-    def compute_closed_transfer_response(
+    def compute_closed_loop_transfer_response(
             self,
             context_plant: PlantTransferContext,
             context_control: ControllerTransferContext,
             omega_min: float,
             omega_max: float,
-            callback: Callable[[ClosedLoopFrequencyResponseResult], None],
+            callback: Callable[[FrequencyResponse], None],
     ) -> None:
         """Compute the closed-loop frequency-domain response asynchronously.
 
@@ -250,7 +250,7 @@ class SimulationService:
             context_control: Controller transfer context including PID parameters.
             omega_min: Minimum frequency (rad/s) for the computation.
             omega_max: Maximum frequency (rad/s) for the computation.
-            callback: Function invoked with a `ClosedLoopFrequencyResponseResult`
+            callback: Function invoked with a `FrequencyResponse`
                       when the worker completes.
         """
         if self._closed_loop_frequency_worker and self._closed_loop_frequency_worker.isRunning():

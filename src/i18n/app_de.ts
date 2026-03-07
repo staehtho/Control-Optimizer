@@ -28,108 +28,133 @@
 <context>
     <name>ControlEnums</name>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="77"/>
+        <location filename="../views/translations/enum_translations.py" line="82"/>
         <source>Clamping</source>
         <translation>Clamping</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="78"/>
+        <location filename="../views/translations/enum_translations.py" line="83"/>
         <source>Conditional</source>
         <translation>Conditional</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="85"/>
-        <location filename="../views/translations/enum_translations.py" line="131"/>
+        <location filename="../views/translations/enum_translations.py" line="90"/>
+        <location filename="../views/translations/enum_translations.py" line="136"/>
         <source>Reference</source>
         <translation>Führung</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="86"/>
-        <location filename="../views/translations/enum_translations.py" line="132"/>
+        <location filename="../views/translations/enum_translations.py" line="91"/>
+        <location filename="../views/translations/enum_translations.py" line="137"/>
         <source>Input Disturbance</source>
         <translation>Eingangsstörung</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="87"/>
-        <location filename="../views/translations/enum_translations.py" line="133"/>
+        <location filename="../views/translations/enum_translations.py" line="92"/>
+        <location filename="../views/translations/enum_translations.py" line="138"/>
         <source>Measurement Disturbance</source>
         <translation>Messstörung</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="95"/>
+        <location filename="../views/translations/enum_translations.py" line="100"/>
         <source>ITAE</source>
         <translation>ITAE</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="96"/>
+        <location filename="../views/translations/enum_translations.py" line="101"/>
         <source>IAE</source>
         <translation>IAE</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="97"/>
+        <location filename="../views/translations/enum_translations.py" line="102"/>
         <source>ITSE</source>
         <translation>ITSE</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="98"/>
+        <location filename="../views/translations/enum_translations.py" line="103"/>
         <source>ISE</source>
         <translation>ISE</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="105"/>
+        <location filename="../views/translations/enum_translations.py" line="110"/>
         <source>Null</source>
         <translation>Keine Funktion</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="106"/>
+        <location filename="../views/translations/enum_translations.py" line="111"/>
         <source>step</source>
         <translation>Sprungfunktion</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="107"/>
+        <location filename="../views/translations/enum_translations.py" line="112"/>
         <source>sine</source>
         <translation>Sinusfunktion</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="108"/>
+        <location filename="../views/translations/enum_translations.py" line="113"/>
         <source>cosine</source>
         <translation>Kosinusfunktion</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="115"/>
-        <location filename="../views/translations/enum_translations.py" line="127"/>
+        <location filename="../views/translations/enum_translations.py" line="120"/>
+        <location filename="../views/translations/enum_translations.py" line="132"/>
         <source>Plant</source>
         <translation>Regelstrecke</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="116"/>
+        <location filename="../views/translations/enum_translations.py" line="121"/>
         <source>Excitation Function</source>
         <translation>Anregungsfunktion</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="117"/>
+        <location filename="../views/translations/enum_translations.py" line="122"/>
         <source>Controller</source>
         <translation>Regler</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="118"/>
+        <location filename="../views/translations/enum_translations.py" line="123"/>
         <source>PSO Parameter</source>
         <translation>PSO Parameter</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="119"/>
+        <location filename="../views/translations/enum_translations.py" line="124"/>
         <source>Evaluation</source>
         <translation>Auswertung</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="120"/>
+        <location filename="../views/translations/enum_translations.py" line="125"/>
         <source>Simulation</source>
         <translation>Simulation</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="128"/>
+        <location filename="../views/translations/enum_translations.py" line="133"/>
         <source>Function</source>
         <translation>Funktion</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="139"/>
+        <source>G_plant</source>
+        <translation>G Regelstrecke</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="140"/>
+        <source>C_controller</source>
+        <translation>C Regler</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="141"/>
+        <source>L_open_loop</source>
+        <translation>L offene Kette</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="142"/>
+        <source>S_sensitivity</source>
+        <translation>S Sensitivität</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="143"/>
+        <source>T_complement_sensitivity</source>
+        <translation>T komplementär Sensitivität</translation>
     </message>
     <message>
         <source>Plant Step Response</source>
@@ -140,7 +165,7 @@
         <translation type="vanished">Systemantwort</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="130"/>
+        <location filename="../views/translations/enum_translations.py" line="135"/>
         <source>Control Signal</source>
         <translation>Stellgrösse</translation>
     </message>
@@ -149,7 +174,7 @@
         <translation type="vanished">Anregungsfunktion</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="129"/>
+        <location filename="../views/translations/enum_translations.py" line="134"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
@@ -205,26 +230,26 @@
 <context>
     <name>EvaluationView</name>
     <message>
-        <location filename="../views/evaluation_view.py" line="106"/>
-        <location filename="../views/evaluation_view.py" line="151"/>
-        <location filename="../views/evaluation_view.py" line="152"/>
+        <location filename="../views/evaluation_view.py" line="107"/>
+        <location filename="../views/evaluation_view.py" line="153"/>
+        <location filename="../views/evaluation_view.py" line="154"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="93"/>
-        <location filename="../views/evaluation_view.py" line="98"/>
+        <location filename="../views/evaluation_view.py" line="94"/>
+        <location filename="../views/evaluation_view.py" line="99"/>
         <source>Time [s]</source>
         <translation>Zeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="94"/>
-        <location filename="../views/evaluation_view.py" line="99"/>
+        <location filename="../views/evaluation_view.py" line="95"/>
+        <location filename="../views/evaluation_view.py" line="100"/>
         <source>Output</source>
         <translation>Ausgang</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="150"/>
+        <location filename="../views/evaluation_view.py" line="152"/>
         <source>Evaluation</source>
         <translation>Auswertung</translation>
     </message>
@@ -324,43 +349,43 @@
     <name>PlantView</name>
     <message>
         <location filename="../views/plant_view.py" line="69"/>
-        <location filename="../views/plant_view.py" line="163"/>
+        <location filename="../views/plant_view.py" line="164"/>
         <source>plant.num</source>
         <translation>Nenner</translation>
     </message>
     <message>
         <location filename="../views/plant_view.py" line="83"/>
-        <location filename="../views/plant_view.py" line="164"/>
+        <location filename="../views/plant_view.py" line="165"/>
         <source>plant.den</source>
         <translation>Zähler</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="160"/>
+        <location filename="../views/plant_view.py" line="161"/>
         <source>Plant</source>
         <translation>Regelstrecke</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="161"/>
+        <location filename="../views/plant_view.py" line="162"/>
         <source>Transfer function</source>
         <translation>Transferfunction</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="162"/>
+        <location filename="../views/plant_view.py" line="163"/>
         <source>Step Response</source>
         <translation>Sprungantwort</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="165"/>
+        <location filename="../views/plant_view.py" line="166"/>
         <source>e.g. 1  → 1</source>
         <translation>z.B. 1  → 1</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="166"/>
+        <location filename="../views/plant_view.py" line="167"/>
         <source>e.g. 1, 0, 0  → 1*s^2 + 0*s + 0</source>
         <translation>z.B. 1, 0, 0  → 1*s² + 0*s + 0</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="168"/>
+        <location filename="../views/plant_view.py" line="169"/>
         <source>tooltip_num_den</source>
         <translation>Verwenden Sie „.“ als Dezimaltrennzeichen.
 Die erste Zahl entspricht der höchsten Potenz von s.
@@ -659,17 +684,17 @@ Tf   = %(tf).3f</translation>
 <context>
     <name>plant.view</name>
     <message>
-        <location filename="../views/plant_view.py" line="121"/>
+        <location filename="../views/plant_view.py" line="122"/>
         <source>Step Response</source>
         <translation>Sprungantwort</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="122"/>
+        <location filename="../views/plant_view.py" line="123"/>
         <source>Time [s]</source>
         <translation>Zeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="123"/>
+        <location filename="../views/plant_view.py" line="124"/>
         <source>Output</source>
         <translation>Ausgang</translation>
     </message>

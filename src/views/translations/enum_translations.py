@@ -24,6 +24,11 @@ class PlotLabels(Enum):
     REFERENCE = "Reference"
     INPUT_DISTURBANCE = "Input Disturbance"
     MEASUREMENT_DISTURBANCE = "Measurement Disturbance"
+    G = "G"
+    C = "C"
+    L = "L"
+    S = "S"
+    T = "T"
 
 
 assert len(set(e.value for e in PlotLabels)) == len(PlotLabels), "Duplicate values in PlotLabels!"
@@ -131,4 +136,9 @@ class Translation:
             PlotLabels.REFERENCE: QCoreApplication.translate("ControlEnums", "Reference"),
             PlotLabels.INPUT_DISTURBANCE: QCoreApplication.translate("ControlEnums", "Input Disturbance"),
             PlotLabels.MEASUREMENT_DISTURBANCE: QCoreApplication.translate("ControlEnums", "Measurement Disturbance"),
+            PlotLabels.G: QCoreApplication.translate("ControlEnums", "G_plant"),
+            PlotLabels.C: QCoreApplication.translate("ControlEnums", "C_controller"),
+            PlotLabels.L: QCoreApplication.translate("ControlEnums", "L_open_loop"),
+            PlotLabels.S: QCoreApplication.translate("ControlEnums", "S_sensitivity"),
+            PlotLabels.T: QCoreApplication.translate("ControlEnums", "T_complement_sensitivity"),
         }

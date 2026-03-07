@@ -2,9 +2,10 @@
 from PySide6.QtCore import QT_TRANSLATE_NOOP
 from numpy import ndarray
 
+from app_domain.engine.types import FrequencyResponse
 from app_domain.ui_context import UiContext
 from viewmodels import EvaluationViewModel, PlotViewModel
-from viewmodels.types import PlotData
+from viewmodels.types import PlotData, BodePlotData
 from views import BaseView
 from views.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, ExpandableFrame, FormulaWidget, BodePlotWidget
@@ -136,6 +137,8 @@ class EvaluationView(BaseView, QWidget):
         self._vm_evaluator.plantResponseChanged.connect(self._on_vm_plant_compute_finished)
         self._vm_evaluator.functionChanged.connect(self._on_vm_compute_finished)
         self._vm_evaluator.psoSimulationFinished.connect(self._on_vm_pso_simulation_finished)
+        self._vm_evaluator.plantFrequencyResponseChanged.connect(self._on_vm_frequency_computation_finished)
+        self._vm_evaluator.closedLoopFrequencyResponseChanged.connect(self._on_vm_frequency_computation_finished)
 
         # Plot ViewModel -> Function recomputation
         self._vm_plots.get("time_domain").xMinChanged.connect(self._on_vm_time_changed)
@@ -157,12 +160,8 @@ class EvaluationView(BaseView, QWidget):
         """Apply initial values to all UI elements."""
         self._sync_plot_time_window_from_model()
 
-        t0 = self._vm_plots.get("time_domain").x_min
-        t1 = self._vm_plots.get("time_domain").x_max
-
-        self._vm_evaluator.compute_closed_loop_response(t0, t1)
-        self._vm_evaluator.compute_plant_response(t0, t1)
-        self._vm_evaluator.compute_function(t0, t1)
+        self._update_time_domain_plots()
+        self._update_frequency_domain_plots()
 
     # -------------------------------------------------
     # ViewModel change handlers
@@ -229,6 +228,26 @@ class EvaluationView(BaseView, QWidget):
             )
         )
 
+    def _on_vm_frequency_computation_finished(self, result: FrequencyResponse) -> None:
+        self._logger.debug(
+            "Closed loop frequency response computation finished -> updating response plot (samples=%d)",
+            len(result.omega)
+        )
+
+        keys = set(result.margin.keys()) | set(result.phase.keys())
+
+        for key in keys:
+            self._vm_plots.get("frequency_domain").update_data(
+                BodePlotData(
+                    key=PlotLabels[key].value,
+                    label=self._enum_translation(PlotLabels).get(PlotLabels[key]),
+                    omega=result.omega,
+                    margin=result.margin.get(key),
+                    phase=result.phase.get(key),
+                    plot_style=PLOT_STYLE.get(PlotLabels[key]),
+                )
+            )
+
     def _on_vm_pso_simulation_finished(self) -> None:
         self._logger.debug(
             "PSO simulation finished -> refreshing excitation function"
@@ -236,12 +255,8 @@ class EvaluationView(BaseView, QWidget):
 
         self._sync_plot_time_window_from_model()
 
-        t0 = self._vm_plots.get("time_domain").x_min
-        t1 = self._vm_plots.get("time_domain").x_max
-
-        self._vm_evaluator.compute_closed_loop_response(t0, t1)
-        self._vm_evaluator.compute_plant_response(t0, t1)
-        self._vm_evaluator.compute_function(t0, t1)
+        self._update_time_domain_plots()
+        self._update_frequency_domain_plots()
 
     def _on_vm_time_changed(self) -> None:
         """Trigger recomputation when plot time range changes."""
@@ -249,9 +264,7 @@ class EvaluationView(BaseView, QWidget):
         t1 = self._vm_plots.get("time_domain").x_max
 
         self._logger.debug(f"Time range changed: t0={t0}, t1={t1}")
-        self._vm_evaluator.compute_closed_loop_response(t0, t1)
-        self._vm_evaluator.compute_plant_response(t0, t1)
-        self._vm_evaluator.compute_function(t0, t1)
+        self._update_time_domain_plots()
 
     # -------------------------------------------------
     # UI event handlers
@@ -261,3 +274,20 @@ class EvaluationView(BaseView, QWidget):
         self._vm_plots.get("time_domain").x_min = self._vm_evaluator.t0
         self._vm_plots.get("time_domain").x_max = self._vm_evaluator.t1
 
+    # -------------------------------------------------
+    # Helpers
+    # -------------------------------------------------
+    def _update_time_domain_plots(self) -> None:
+        t0 = self._vm_plots.get("time_domain").x_min
+        t1 = self._vm_plots.get("time_domain").x_max
+
+        self._vm_evaluator.compute_closed_loop_response(t0, t1)
+        self._vm_evaluator.compute_plant_response(t0, t1)
+        self._vm_evaluator.compute_function(t0, t1)
+
+    def _update_frequency_domain_plots(self) -> None:
+        omega_min = self._vm_plots.get("frequency_domain").x_min
+        omega_max = self._vm_plots.get("frequency_domain").x_max
+
+        self._vm_evaluator.compute_plant_frequency_response(omega_min, omega_max)
+        self._vm_evaluator.compute_closed_loop_frequency_response(omega_max, omega_min)
