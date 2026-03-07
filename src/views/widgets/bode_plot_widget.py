@@ -73,11 +73,10 @@ class BodePlotWidget(PlotWidget):
         self._plot_margin_and_phase_on_axes(axs, series)
 
         # Add legends if plot labels exist
-        for ax in axs:
-            handles, labels = ax.get_legend_handles_labels()
-            if handles:
-                legend = ax.legend(loc="best", frameon=False)
-                legend.set_draggable(True)
+        handles, labels = axs[0].get_legend_handles_labels()
+        if handles:
+            legend = axs[0].legend(loc="best", frameon=False)
+            legend.set_draggable(True)
 
     def _plot_margin_and_phase_on_axes(self, axs, series: list) -> None:
         """
@@ -98,11 +97,12 @@ class BodePlotWidget(PlotWidget):
 
         all_margin = []
 
-        required_attrs = ("omega", "margin", "phase")
-
         for serie in series:
             if not isinstance(serie, BodePlotData):
                 raise TypeError("BodePlotWidget expects BodeSeries objects.")
+
+            if not serie.show or serie.ignore_plot:
+                continue
 
             self._logger.debug(f"Plotting margin and phase: {serie.key}")
 
@@ -129,6 +129,9 @@ class BodePlotWidget(PlotWidget):
                 **serie.plot_style.mpl_kwargs(),
             )
 
+        if len(all_margin) == 0:
+            all_margin.append(np.logspace(-5, 5, 20))
+
         # Flatten margin arrays to determine global limits
         all_margin = np.hstack(all_margin)
 
@@ -150,3 +153,4 @@ class BodePlotWidget(PlotWidget):
 
         # Standard phase tick spacing for Bode plots
         ax_phase.set_yticks(np.arange(-180, 181, 45))
+
