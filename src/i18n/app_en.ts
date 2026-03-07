@@ -231,8 +231,8 @@
     <name>EvaluationView</name>
     <message>
         <location filename="../views/evaluation_view.py" line="107"/>
-        <location filename="../views/evaluation_view.py" line="153"/>
-        <location filename="../views/evaluation_view.py" line="154"/>
+        <location filename="../views/evaluation_view.py" line="155"/>
+        <location filename="../views/evaluation_view.py" line="156"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
@@ -249,7 +249,7 @@
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="152"/>
+        <location filename="../views/evaluation_view.py" line="154"/>
         <source>Evaluation</source>
         <translation>Evaluation</translation>
     </message>
@@ -406,29 +406,29 @@ Example: 1, 0.5, 2 → 1*s^2 + 0.5*s + 2</translation>
 <context>
     <name>PlotWidget</name>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="167"/>
+        <location filename="../views/widgets/plot_widget.py" line="171"/>
         <source>plot.grid</source>
         <translation>Grid</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="168"/>
+        <location filename="../views/widgets/plot_widget.py" line="172"/>
         <source>plot.start</source>
         <translation>Start time</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="169"/>
+        <location filename="../views/widgets/plot_widget.py" line="173"/>
         <source>plot.end</source>
         <translation>End time</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="170"/>
+        <location filename="../views/widgets/plot_widget.py" line="174"/>
         <source>plot.start.tooltip</source>
         <translation>Lower x-axis limit (x_min).
 Defines where the time axis begins.
 Unit: seconds (s).</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="171"/>
+        <location filename="../views/widgets/plot_widget.py" line="175"/>
         <source>plot.end.tooltip</source>
         <translation>Upper x-axis limit (x_max).
 Defines where the time axis ends.

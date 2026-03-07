@@ -73,7 +73,7 @@ if __name__ == '__main__':
     vm_functions = {title.name: engine.ensure_function_viewmodel(title.name) for title in ExcitationTarget}
     vm_plots = {
         "time_domain": engine.ensure_plot_viewmodel("time_domain_evaluation"),
-        "frequency_domain": engine.ensure_plot_viewmodel("frequency_domain_evaluation")
+        "frequency_domain": engine.ensure_bode_plot_viewmodel("frequency_domain_evaluation")
     }
 
     items = [NavItem(key, "") for key in NavLabels]
@@ -101,6 +101,7 @@ if __name__ == '__main__':
             parent=parent
         )
     }
+    # TODO: format exponential for x_min and x_max
 
     main_view = MainView(ui_context, items, view_factories, engine.vm_pso)
     main_view.show()

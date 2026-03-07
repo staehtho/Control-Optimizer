@@ -55,7 +55,7 @@ class BodePlotWidget(PlotWidget):
             subplot_configuration=subplot_cfgs,
         )
 
-        super().__init__(ui_context, vm, plt_cfg, parent)
+        super().__init__(ui_context, vm, plt_cfg, ".1e", parent)
 
     def _plot_series_on_axes(self, axs, series: list) -> None:
         """

@@ -49,6 +49,7 @@ class PlotWidget(BaseView, QWidget):
 
     def __init__(self, ui_context: UiContext, vm: PlotViewModel,
                  plot_configuration: PlotWidgetConfiguration,
+                 format_spec: str = ".3f",
                  parent: QObject = None):
         QWidget.__init__(self, parent)
 
@@ -56,7 +57,10 @@ class PlotWidget(BaseView, QWidget):
         self._cfg = plot_configuration
         self._series_checkboxes: dict[str, QCheckBox] = {}
 
+        self._format_spec = format_spec
+
         BaseView.__init__(self, ui_context)
+
         self._logger.debug(f"PlotWidget initialized (context={self._cfg.context})")
 
     # -------------------------------------------------
@@ -91,35 +95,35 @@ class PlotWidget(BaseView, QWidget):
         self.setLayout(main_layout)
 
     def _create_header(self) -> QHBoxLayout:
-        """Create the header row with start/end x-values and grid checkbox."""
+        """Create the header row with min/max x-values and grid checkbox."""
         layout = QHBoxLayout()
         show = self._cfg.show_x_min_max
 
         # Start time
-        self._lbl_start = QLabel("", self)
-        self._lbl_start.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        self._lbl_start.setVisible(show)
-        layout.addWidget(self._lbl_start)
+        self._lbl_min = QLabel("", self)
+        self._lbl_min.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self._lbl_min.setVisible(show)
+        layout.addWidget(self._lbl_min)
 
-        self._txt_start = QLineEdit(self)
-        self._txt_start.setFixedWidth(90)
-        self._txt_start.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        self._txt_start.setValidator(QDoubleValidator())
-        self._txt_start.setVisible(show)
-        layout.addWidget(self._txt_start)
+        self._txt_min = QLineEdit(self)
+        self._txt_min.setFixedWidth(90)
+        self._txt_min.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self._txt_min.setValidator(QDoubleValidator())
+        self._txt_min.setVisible(show)
+        layout.addWidget(self._txt_min)
 
         # End time
-        self._lbl_end = QLabel("", self)
-        self._lbl_end.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        self._lbl_end.setVisible(show)
-        layout.addWidget(self._lbl_end)
+        self._lbl_max = QLabel("", self)
+        self._lbl_max.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self._lbl_max.setVisible(show)
+        layout.addWidget(self._lbl_max)
 
-        self._txt_end = QLineEdit(self)
-        self._txt_end.setFixedWidth(90)
-        self._txt_end.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        self._txt_end.setValidator(QDoubleValidator())
-        self._txt_end.setVisible(show)
-        layout.addWidget(self._txt_end)
+        self._txt_max = QLineEdit(self)
+        self._txt_max.setFixedWidth(90)
+        self._txt_max.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self._txt_max.setValidator(QDoubleValidator())
+        self._txt_max.setVisible(show)
+        layout.addWidget(self._txt_max)
 
         # Grid checkbox
         self._chk_grid = QCheckBox("", self)
@@ -145,8 +149,8 @@ class PlotWidget(BaseView, QWidget):
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
         self._chk_grid.stateChanged.connect(self._on_chk_grid_changed)
-        self._txt_start.editingFinished.connect(self._on_txt_start_changed)
-        self._txt_end.editingFinished.connect(self._on_txt_end_changed)
+        self._txt_min.editingFinished.connect(self._on_txt_min_changed)
+        self._txt_max.editingFinished.connect(self._on_txt_max_changed)
 
     # -------------------------------------------------
     # ViewModel bindings (ViewModel → UI)
@@ -155,8 +159,8 @@ class PlotWidget(BaseView, QWidget):
         """Bind ViewModel signals to View update handlers."""
         # Thread-safe call to update plot
         self._vm.gridChanged.connect(self._update_plot)
-        self._vm.xMinChanged.connect(self._update_plot)
-        self._vm.xMaxChanged.connect(self._update_plot)
+        self._vm.xMinChanged.connect(self._on_vm_min_changed)
+        self._vm.xMaxChanged.connect(self._on_vm_max_changed)
         self._vm.dataChanged.connect(self._update_plot)
 
     # -------------------------------------------------
@@ -165,10 +169,10 @@ class PlotWidget(BaseView, QWidget):
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._chk_grid.setText(self.tr("plot.grid"))
-        self._lbl_start.setText(self.tr("plot.start"))
-        self._lbl_end.setText(self.tr("plot.end"))
-        self._txt_start.setToolTip(self.tr("plot.start.tooltip"))
-        self._txt_end.setToolTip(self.tr("plot.end.tooltip"))
+        self._lbl_min.setText(self.tr("plot.start"))
+        self._lbl_max.setText(self.tr("plot.end"))
+        self._txt_min.setToolTip(self.tr("plot.start.tooltip"))
+        self._txt_max.setToolTip(self.tr("plot.end.tooltip"))
         self._update_plot()
 
     # -------------------------------------------------
@@ -176,9 +180,22 @@ class PlotWidget(BaseView, QWidget):
     # -------------------------------------------------
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
-        self._txt_start.setText(f"{self._vm.x_min:.{self._dec}f}")
-        self._txt_end.setText(f"{self._vm.x_max:.{self._dec}f}")
+        self._txt_min.setText(f"{self._vm.x_min:{self._format_spec}}")
+        self._txt_max.setText(f"{self._vm.x_max:{self._format_spec}}")
         self._chk_grid.setChecked(self._vm.grid)
+
+    # -------------------------------------------------
+    # ViewModel change handlers
+    # -------------------------------------------------
+    def _on_vm_min_changed(self) -> None:
+        min_text = f"{self._vm.x_min:{self._format_spec}}"
+        if self._txt_min.text() != min_text:
+            self._txt_min.setText(min_text)
+
+    def _on_vm_max_changed(self) -> None:
+        max_text = f"{self._vm.x_max:{self._format_spec}}"
+        if self._txt_max.text() != max_text:
+            self._txt_max.setText(max_text)
 
     # -------------------------------------------------
     # Plot update
@@ -251,13 +268,6 @@ class PlotWidget(BaseView, QWidget):
         else:
             hspace = 0.60
         self._figure.subplots_adjust(left=0.10, right=0.98, top=0.90, bottom=bottom, hspace=hspace)
-
-        start_text = f"{self._vm.x_min:.{self._dec}f}"
-        end_text = f"{self._vm.x_max:.{self._dec}f}"
-        if self._txt_start.text() != start_text:
-            self._txt_start.setText(start_text)
-        if self._txt_end.text() != end_text:
-            self._txt_end.setText(end_text)
 
         self._canvas.draw_idle()
 
@@ -351,27 +361,27 @@ class PlotWidget(BaseView, QWidget):
         self._logger.debug(f"UI event: series visibility changed -> {key}={checked}")
         self._vm.set_data_visibility(key, checked)
 
-    def _on_txt_start_changed(self) -> None:
+    def _on_txt_min_changed(self) -> None:
         try:
-            value = float(self._txt_start.text())
+            value = float(self._txt_min.text())
         except ValueError:
-            self._logger.warning(f"Invalid start time input: {self._txt_start.text()}")
-            self._txt_start.setText(f"{self._vm.x_min:.{self._dec}f}")
+            self._logger.warning(f"Invalid min input: {self._txt_min.text()}")
+            self._txt_min.setText(f"{self._vm.x_min:{self._format_spec}}")
             return
         self._logger.debug(f"UI event: x_min changed -> {value:.6f}")
         self._vm.x_min = value
-        self._txt_start.setText(f"{value:.{self._dec}f}")
+        self._txt_min.setText(f"{value:{self._format_spec}}")
 
-    def _on_txt_end_changed(self) -> None:
+    def _on_txt_max_changed(self) -> None:
         try:
-            value = float(self._txt_end.text())
+            value = float(self._txt_max.text())
         except ValueError:
-            self._logger.warning(f"Invalid end time input: {self._txt_end.text()}")
-            self._txt_end.setText(f"{self._vm.x_max:.{self._dec}f}")
+            self._logger.warning(f"Invalid min time input: {self._txt_max.text()}")
+            self._txt_max.setText(f"{self._vm.x_max:{self._format_spec}}")
             return
         self._logger.debug(f"UI event: x_max changed -> {value:.6f}")
         self._vm.x_max = value
-        self._txt_end.setText(f"{value:.{self._dec}f}")
+        self._txt_max.setText(f"{value:{self._format_spec}}")
 
     def resizeEvent(self, event) -> None:
         """Redraw canvas on widget resize."""

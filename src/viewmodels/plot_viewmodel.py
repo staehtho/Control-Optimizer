@@ -1,4 +1,3 @@
-import numpy as np
 from PySide6.QtCore import QObject, Signal, Slot
 
 from utils import LoggedProperty
@@ -36,7 +35,7 @@ class PlotViewModel(BaseViewModel):
     )
 
     # -------------------
-    # start time
+    # x min
     # -------------------
     def _verify_x_min(self, value: float) -> bool:
         if value >= self._x_max:
@@ -52,7 +51,7 @@ class PlotViewModel(BaseViewModel):
     )
 
     # -------------------
-    # end time
+    # x max
     # -------------------
     def _verify_x_max(self, value: float) -> bool:
         if value <= self._x_min:

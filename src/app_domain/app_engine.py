@@ -8,7 +8,7 @@ from service import SimulationService
 from .ui_context import UiContext
 from viewmodels import (
     PlantViewModel, LanguageViewModel, ThemeViewModel, PlotViewModel, FunctionViewModel,
-    ControllerViewModel, PsoConfigurationViewModel, EvaluationViewModel, SimulationViewModel
+    ControllerViewModel, PsoConfigurationViewModel, EvaluationViewModel, SimulationViewModel, BodePlotViewModel
 )
 
 
@@ -51,6 +51,8 @@ class AppEngine:
         # ------------------------------
         # Cache for PlotViewModel instances keyed by plot type.
         self._vm_plots: dict[str, PlotViewModel] = {}
+        # Cache for BodePlotViewModel instances keyed by plot type.
+        self._vm_bode_plots: dict[str, BodePlotViewModel] = {}
         # Cache for FunctionViewModel instances keyed by plot type.
         self._vm_functions: dict[str, FunctionViewModel] = {}
 
@@ -101,6 +103,22 @@ class AppEngine:
             PlotViewModel: The cached or newly created PlotViewModel instance.
         """
         return self._vm_plots.setdefault(key, PlotViewModel())
+
+    def ensure_bode_plot_viewmodel(self, key: str) -> BodePlotViewModel:
+        """
+        Ensure a BodePlotViewModel exists for the given key, creating and caching it if necessary.
+
+        Implements a lazy-initializing factory with caching:
+        - Returns the existing BodePlotViewModel if present.
+        - Otherwise, creates, caches, and returns a new BodePlotViewModel.
+
+        Args:
+            key (str): Identifier for the plot (e.g., "plant").
+
+        Returns:
+            BodePlotViewModel: The cached or newly created BodePlotViewModel instance.
+        """
+        return self._vm_bode_plots.setdefault(key, BodePlotViewModel())
 
     def ensure_function_viewmodel(self, key: str) -> FunctionViewModel:
         """

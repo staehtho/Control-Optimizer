@@ -1,5 +1,6 @@
 from .base_viewmodel import BaseViewModel
 from .plot_viewmodel import PlotViewModel
+from .bode_plot_viewmodel import BodePlotViewModel
 from .plant_viewmodel import PlantViewModel
 from .language_viewmodel import LanguageViewModel
 from .theme_viewmodel import ThemeViewModel

@@ -143,6 +143,8 @@ class EvaluationView(BaseView, QWidget):
         # Plot ViewModel -> Function recomputation
         self._vm_plots.get("time_domain").xMinChanged.connect(self._on_vm_time_changed)
         self._vm_plots.get("time_domain").xMaxChanged.connect(self._on_vm_time_changed)
+        self._vm_plots.get("frequency_domain").xMinChanged.connect(self._on_vm_frequency_changed)
+        self._vm_plots.get("frequency_domain").xMaxChanged.connect(self._on_vm_frequency_changed)
 
     # -------------------------------------------------
     # Translation
@@ -265,6 +267,14 @@ class EvaluationView(BaseView, QWidget):
 
         self._logger.debug(f"Time range changed: t0={t0}, t1={t1}")
         self._update_time_domain_plots()
+
+    def _on_vm_frequency_changed(self) -> None:
+        """Trigger recomputation when plot time range changes."""
+        omega_min = self._vm_plots.get("frequency_domain").x_min
+        omega_max = self._vm_plots.get("frequency_domain").x_max
+
+        self._logger.debug(f"Frequency range changed: {omega_min=}, {omega_max=}")
+        self._update_frequency_domain_plots()
 
     # -------------------------------------------------
     # UI event handlers
