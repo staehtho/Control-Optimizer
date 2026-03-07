@@ -4,7 +4,7 @@ from numpy import ndarray
 
 from app_domain.engine import ControllerTransferEngine, FrequencyResponseEngine, FrequencyGridEngine, \
     PlantTransferEngine
-from app_domain.engine.types import PlantTransferContext, ControllerTransferContext, ClosedLoopFrequencyResponseResult
+from app_domain.engine.types import PlantTransferContext, ControllerTransferContext, FrequencyResponse
 
 
 class ClosedLoopFrequencyWorker(QThread):
@@ -16,10 +16,10 @@ class ClosedLoopFrequencyWorker(QThread):
     and emits the results via the `resultReady` signal.
 
     Signals:
-        resultReady (ClosedLoopFrequencyResponseResult): Emitted when the computation is complete.
+        resultReady (FrequencyResponse): Emitted when the computation is complete.
     """
 
-    resultReady = Signal(ClosedLoopFrequencyResponseResult)
+    resultReady = Signal(FrequencyResponse)
 
     def __init__(
             self,
@@ -68,7 +68,7 @@ class ClosedLoopFrequencyWorker(QThread):
         2. Compute plant and controller transfer functions at each frequency.
         3. Compute open-loop, sensitivity, and complementary sensitivity functions.
         4. Convert all complex responses to magnitude (dB) and phase (deg).
-        5. Emit a `ClosedLoopFrequencyResponseResult` via the `resultReady` signal.
+        5. Emit a `FrequencyResponse` via the `resultReady` signal.
         """
         self._logger.info(
             "Starting closed-loop frequency-domain computation for omega=[%.3f, %.3f]",
@@ -93,21 +93,23 @@ class ClosedLoopFrequencyWorker(QThread):
         # Convert complex responses to magnitude and phase
         mag: dict[str, ndarray] = {}
         phase: dict[str, ndarray] = {}
-        for key, value in zip(["C", "L", "S", "T"], [C, L, S, T]):
+
+        from views.translations import PlotLabels
+        keys = [
+            PlotLabels.C.value,
+            PlotLabels.L.value,
+            PlotLabels.S.value,
+            PlotLabels.T.value,
+        ]
+        for key, value in zip(keys, [C, L, S, T]):
             mag[key], phase[key] = self._frequency_engine.bode_from_complex(value)
         self._logger.debug("Magnitude and phase computed for C, L, S, T")
 
         # Prepare dataclass and emit result
-        result = ClosedLoopFrequencyResponseResult(
+        result = FrequencyResponse(
             omega=omega,
-            margin_C=mag["C"],
-            phase_C=phase["C"],
-            margin_L=mag["L"],
-            phase_L=phase["L"],
-            margin_S=mag["S"],
-            phase_S=phase["S"],
-            margin_T=mag["T"],
-            phase_T=phase["T"]
+            margin=mag,
+            phase=phase,
         )
 
         self._logger.info("Closed-loop frequency-domain computation finished, emitting result")

@@ -3,7 +3,7 @@ from PySide6.QtCore import QThread, Signal
 from numpy import ndarray
 
 from app_domain.engine import PlantTransferEngine, FrequencyGridEngine
-from app_domain.engine.types import PlantTransferContext, PlantFrequencyResponse
+from app_domain.engine.types import PlantTransferContext, FrequencyResponse
 
 
 class PlantFrequencyWorker(QThread):
@@ -14,10 +14,10 @@ class PlantFrequencyWorker(QThread):
     the `resultReady` signal.
 
     Signals:
-        resultReady (PlantFrequencyResponse): Emitted when the computation is complete.
+        resultReady (FrequencyResponse): Emitted when the computation is complete.
     """
 
-    resultReady = Signal(PlantFrequencyResponse)
+    resultReady = Signal(FrequencyResponse)
 
     def __init__(
             self,
@@ -55,7 +55,7 @@ class PlantFrequencyWorker(QThread):
         1. Generate the logarithmic frequency vector.
         2. Compute the plant transfer function at each frequency.
         3. Convert the complex response to magnitude (dB) and phase (deg).
-        4. Emit a `PlantFrequencyResponse` via the `resultReady` signal.
+        4. Emit a `FrequencyResponse` via the `resultReady` signal.
         """
         self._logger.info(
             "Starting plant frequency computation for omega=[%.3f, %.3f]",
@@ -81,10 +81,11 @@ class PlantFrequencyWorker(QThread):
         )
 
         # Prepare response dataclass
-        result = PlantFrequencyResponse(
+        from views.translations import PlotLabels
+        result = FrequencyResponse(
             omega=omega,
-            margin=mag_G,
-            phase=phase_G
+            margin={PlotLabels.G.value: mag_G},
+            phase={PlotLabels.G.value: phase_G}
         )
 
         self._logger.info("Plant frequency computation finished, emitting result")

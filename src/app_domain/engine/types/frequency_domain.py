@@ -4,7 +4,7 @@ from typing import List
 from numpy import ndarray
 
 
-@dataclass
+@dataclass(frozen=True)
 class PlantTransferContext:
     """Input parameters for computing the plant frequency response.
 
@@ -19,24 +19,28 @@ class PlantTransferContext:
     den: List[float]
 
 
-@dataclass
-class PlantFrequencyResponse:
-    """Frequency-domain response of a plant transfer function.
+@dataclass(frozen=True)
+class FrequencyResponse:
+    """Frequency-domain response for one or more transfer functions.
 
-    This dataclass stores the results of a plant Bode computation,
-    including the frequency vector, magnitude (in dB), and phase (in degrees).
+    This dataclass stores the results of Bode computations for a plant,
+    controller, or closed-loop system. The magnitude and phase are stored
+    in dictionaries to allow multiple responses (e.g., 'C', 'L', 'S', 'T')
+    to be represented in a single object.
 
     Attributes:
-        omega: Frequency vector (rad/s) at which the response is evaluated.
-        margin: Magnitude of the plant transfer function in dB.
-        phase: Phase of the plant transfer function in degrees.
+        omega: Frequency vector (rad/s) at which the responses are evaluated.
+        margin: Dictionary mapping transfer function names to their magnitude
+                arrays in dB. Example keys: 'C', 'L', 'S', 'T'.
+        phase: Dictionary mapping transfer function names to their phase arrays
+               in degrees. Example keys: 'C', 'L', 'S', 'T'.
     """
     omega: ndarray
-    margin: ndarray
-    phase: ndarray
+    margin: dict[str, ndarray]
+    phase: dict[str, ndarray]
 
 
-@dataclass
+@dataclass(frozen=True)
 class ControllerTransferContext:
     """Input parameters for computing the controller frequency response.
 
@@ -53,33 +57,3 @@ class ControllerTransferContext:
     ti: float
     td: float
     tf: float
-
-
-@dataclass
-class ClosedLoopFrequencyResponseResult:
-    """Frequency-domain response of a closed-loop system.
-
-    This dataclass stores the computed frequency-domain results for a
-    plant-controller system, including the controller, open-loop,
-    sensitivity, and complementary sensitivity responses.
-
-    Attributes:
-        omega: Frequency vector (rad/s) at which the responses are evaluated.
-        margin_C: Magnitude of the controller transfer function C(s) in dB.
-        phase_C: Phase of the controller transfer function C(s) in degrees.
-        margin_L: Magnitude of the open-loop transfer function L(s) = C(s)G(s) in dB.
-        phase_L: Phase of the open-loop transfer function L(s) in degrees.
-        margin_T: Magnitude of the complementary sensitivity function T(s) = L/(1+L) in dB.
-        phase_T: Phase of the complementary sensitivity function T(s) in degrees.
-        margin_S: Magnitude of the sensitivity function S(s) = 1/(1+L) in dB.
-        phase_S: Phase of the sensitivity function S(s) in degrees.
-    """
-    omega: ndarray
-    margin_C: ndarray
-    phase_C: ndarray
-    margin_L: ndarray
-    phase_L: ndarray
-    margin_T: ndarray
-    phase_T: ndarray
-    margin_S: ndarray
-    phase_S: ndarray

@@ -57,7 +57,8 @@ class ControllerTransferEngine:
             Tf=context.tf,
         )
 
-        C = pid_cl.controller(omega)
+        s = 1j * omega
+        C = pid_cl.controller(s)
 
         self._logger.info(
             "Controller transfer computation finished (omega.size=%d)",

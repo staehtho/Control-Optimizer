@@ -43,7 +43,8 @@ class PlantTransferEngine:
 
         plant = Plant(context.num, context.den)
 
-        G = plant.system(omega)
+        s = 1j * omega
+        G = plant.system(s)
 
         self._logger.info(
             "Plant transfer computation finished (omega.size=%d)",
