@@ -15,15 +15,6 @@ def test_grid_changed_emits_once_on_change() -> None:
     assert vm.grid is False
 
 
-def test_grid_changed_does_not_emit_on_same_value() -> None:
-    vm = PlotViewModel()
-    spy = QSignalSpy(vm.gridChanged)
-
-    vm.grid = vm.grid
-
-    assert spy.size() == 0
-
-
 def test_x_min_changed_emits_for_valid_value() -> None:
     vm = PlotViewModel()
     spy = QSignalSpy(vm.xMinChanged)

@@ -104,7 +104,7 @@ class PsoConfigurationView(BaseView, QWidget):
 
         frame_layout.addLayout(self._create_grid(FIELDS["excitation_target"], 4))
 
-        widget: FormulaWidget = self._widgets["function_formula"]
+        widget: FormulaWidget = self._field_widgets["function_formula"]
         widget.set_font_size(self._formula_font_size_scale)
         widget.set_formula(self._vm_function.selected_function.get_formula())
 
@@ -157,7 +157,7 @@ class PsoConfigurationView(BaseView, QWidget):
         }
         for key, value in attributes.items():
             attr, vm_attr, value_type = value
-            getattr(self._widgets[key], attr).connect(
+            getattr(self._field_widgets[key], attr).connect(
                 partial(self._on_widget_changed, key, vm_attr, value_type=value_type))
 
         self._labels["run_pso"].clicked.connect(self._on_btn_run_pso)
@@ -234,7 +234,7 @@ class PsoConfigurationView(BaseView, QWidget):
         }
 
         for key in item_enums:
-            self._cmb_add_item(self._widgets[key], item_enums[key])
+            self._cmb_add_item(self._field_widgets[key], item_enums[key])
 
         self._lbl_pso_result_template = self.tr(
             "PSO Result:\n"
@@ -275,16 +275,16 @@ class PsoConfigurationView(BaseView, QWidget):
             self._vm_pso.td_max,
         ]
         for key, value in zip(keys, values):
-            self._widgets[key].setText(f"{round(float(value), self._dec):.{self._dec}}")
+            self._field_widgets[key].setText(f"{round(float(value), self._dec):.{self._dec}}")
 
         attributes: dict[str, str] = {
             "excitation_target": "excitation_target",
             "time_domain": "performance_index",
         }
         for key, attr in attributes.items():
-            index = self._widgets[key].findData(getattr(self._vm_pso, attr))
+            index = self._field_widgets[key].findData(getattr(self._vm_pso, attr))
             if index >= 0:
-                self._widgets[key].setCurrentIndex(index)
+                self._field_widgets[key].setCurrentIndex(index)
 
         self._labels["run_pso"].setEnabled(self._vm_plant.is_valid)
 
@@ -300,7 +300,7 @@ class PsoConfigurationView(BaseView, QWidget):
         )
 
     def _on_vm_function_function_changed(self) -> None:
-        self._widgets["function_formula"].set_formula(self._vm_function.selected_function.get_formula())
+        self._field_widgets["function_formula"].set_formula(self._vm_function.selected_function.get_formula())
 
     # -------------------------------------------------
     # UI event handlers

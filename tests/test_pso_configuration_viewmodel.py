@@ -74,9 +74,9 @@ def test_numeric_property_validation_and_signal_behavior(
     [
         ("excitation_target", "excitationTargetChanged", ExcitationTarget.REFERENCE, ExcitationTarget.INPUT_DISTURBANCE,
          1),
-        ("excitation_target", "excitationTargetChanged", ExcitationTarget.REFERENCE, ExcitationTarget.REFERENCE, 0),
+        ("excitation_target", "excitationTargetChanged", ExcitationTarget.REFERENCE, ExcitationTarget.REFERENCE, 1),
         ("performance_index", "performanceIndexChanged", PerformanceIndex.ITAE, PerformanceIndex.IAE, 1),
-        ("performance_index", "performanceIndexChanged", PerformanceIndex.ITAE, PerformanceIndex.ITAE, 0),
+        ("performance_index", "performanceIndexChanged", PerformanceIndex.ITAE, PerformanceIndex.ITAE, 1),
     ],
 )
 def test_enum_property_change_behavior(

@@ -71,7 +71,7 @@ class SimulationView(BaseView, QWidget):
             function_widget = FunctionWidget(self._ui_context, self._vm_functions[key], parent=function_page)
 
             function_page_layout.addWidget(function_widget)
-            self._widgets[key] = function_widget
+            self._field_widgets[key] = function_widget
 
             self._function_tab_pages.setdefault(key, function_page)
             self._function_tab.addTab(function_page, key)
@@ -114,7 +114,7 @@ class SimulationView(BaseView, QWidget):
     # -------------------------------------------------
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
-        for key, widget in self._widgets.items():
+        for key, widget in self._field_widgets.items():
             if isinstance(widget, FunctionWidget):
                 widget.functionChanged.connect(partial(self._on_vm_function_changed, key))
 

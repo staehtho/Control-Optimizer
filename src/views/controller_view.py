@@ -65,7 +65,7 @@ class ControllerView(BaseView, QWidget):
         }
         for key, value in attributes.items():
             attr, vm_attr, value_type = value
-            getattr(self._widgets[key], attr).connect(
+            getattr(self._field_widgets[key], attr).connect(
                 partial(self._on_widget_changed, key, vm_attr, value_type=value_type))
 
     # -------------------------------------------------
@@ -103,18 +103,18 @@ class ControllerView(BaseView, QWidget):
             self._labels[key].setText(labels[key])
 
         translation = Translation()
-        self._cmb_add_item(self._widgets["anti_windup"], translation(AntiWindup))
+        self._cmb_add_item(self._field_widgets["anti_windup"], translation(AntiWindup))
 
     # -------------------------------------------------
     # Apply initial values
     # -------------------------------------------------
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
-        self._widgets["controller_type"].setText(self._vm_controller.controller_type)
+        self._field_widgets["controller_type"].setText(self._vm_controller.controller_type)
 
-        index = self._widgets["anti_windup"].findData(self._vm_controller.anti_windup)
+        index = self._field_widgets["anti_windup"].findData(self._vm_controller.anti_windup)
         if index >= 0:
-            self._widgets["anti_windup"].setCurrentIndex(index)
+            self._field_widgets["anti_windup"].setCurrentIndex(index)
 
-        self._widgets["constraint_min"].setText(f"{self._vm_controller.constraint_min:.{self._dec}}")
-        self._widgets["constraint_max"].setText(f"{self._vm_controller.constraint_max:.{self._dec}}")
+        self._field_widgets["constraint_min"].setText(f"{self._vm_controller.constraint_min:.{self._dec}}")
+        self._field_widgets["constraint_max"].setText(f"{self._vm_controller.constraint_max:.{self._dec}}")

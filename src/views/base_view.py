@@ -67,7 +67,7 @@ class BaseView:
         self._dec = 3
         self._title_size = 16
 
-        self._widgets = {}
+        self._field_widgets = {}
         self._labels = {}
 
         BaseView._instances.add(self)
@@ -116,7 +116,7 @@ class BaseView:
         raise NotImplementedError
 
     def _bind_vm(self) -> None:
-        """Bind ViewModel signals to View updates (model â†’ view)."""
+        """Bind ViewModel signals to View updates (model -> view)."""
         raise NotImplementedError
 
     def _retranslate(self) -> None:
@@ -382,7 +382,7 @@ class BaseView:
         the current value of the attribute in the model or view-model.
 
         Args:
-            key (str): The key identifying the widget in self._widgets.
+            key (str): The key identifying the widget in self._field_widgets.
             attribute (str): The dotted path to the attribute to read
                              (e.g., "_vm_controller.anti_windup").
         """
@@ -395,7 +395,7 @@ class BaseView:
         # Log the update
         self._logger.debug(f"Updating widget '{key}' to value: {value}")
 
-        widget = self._widgets.get(key)
+        widget = self._field_widgets.get(key)
         if widget is None:
             self._logger.warning(f"No widget found for key '{key}'")
             return

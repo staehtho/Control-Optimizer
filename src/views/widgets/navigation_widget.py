@@ -53,7 +53,7 @@ class NavigationWidget(BaseView, QWidget):
             btn.setFixedHeight(self._btn_size)
 
             self._layout.addWidget(btn)
-            self._widgets[item.key] = btn
+            self._field_widgets[item.key] = btn
 
         self._layout.addStretch()
         self._update_toggle_button()
@@ -65,7 +65,7 @@ class NavigationWidget(BaseView, QWidget):
         """Connect UI signals to event handlers."""
         self._toggle_btn.clicked.connect(self._on_toggle)
 
-        for key, btn in self._widgets.items():
+        for key, btn in self._field_widgets.items():
             btn.clicked.connect(partial(self._on_btn_clicked, key=key))
 
     # -------------------------------------------------
@@ -80,7 +80,7 @@ class NavigationWidget(BaseView, QWidget):
     # -------------------------------------------------
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
-        for key, btn in self._widgets.items():
+        for key, btn in self._field_widgets.items():
             btn.setText(self._enum_translation(NavLabels).get(key))
 
     # -------------------------------------------------
@@ -102,12 +102,12 @@ class NavigationWidget(BaseView, QWidget):
 
         if self._collapsed:
             self.setFixedWidth(70)
-            for btn in self._widgets.values():
+            for btn in self._field_widgets.values():
                 btn.setText("")
         else:
             self.setFixedWidth(220)
             for item in self._nav_items:
-                self._widgets[item.key].setText(self._enum_translation(NavLabels).get(item.key))
+                self._field_widgets[item.key].setText(self._enum_translation(NavLabels).get(item.key))
         self._update_toggle_button()
 
     def _update_toggle_button(self) -> None:
@@ -116,19 +116,19 @@ class NavigationWidget(BaseView, QWidget):
                                   Qt.AlignmentFlag.AlignRight if not self._collapsed else Qt.Alignment())
 
     def _on_btn_clicked(self, key: NavLabels):
-        for k, btn in self._widgets.items():
+        for k, btn in self._field_widgets.items():
             btn.setChecked(k == key)
 
         self.viewSelected.emit(key)
 
     def set_nav_item_enabled(self, key: NavLabels, enabled: bool) -> None:
-        btn = self._widgets.get(key)
+        btn = self._field_widgets.get(key)
         if btn is None:
             return
         btn.setEnabled(enabled)
 
     def is_nav_item_enabled(self, key: NavLabels) -> bool:
-        btn = self._widgets.get(key)
+        btn = self._field_widgets.get(key)
         if btn is None:
             return False
         return btn.isEnabled()

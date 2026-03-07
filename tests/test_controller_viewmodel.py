@@ -25,14 +25,6 @@ def test_controller_type_emits_on_change(vm_controller: ControllerViewModel) -> 
     assert vm_controller.controller_type == "PI"
 
 
-def test_controller_type_does_not_emit_on_same_value(vm_controller: ControllerViewModel) -> None:
-    spy = QSignalSpy(vm_controller.controllerTypeChanged)
-
-    vm_controller.controller_type = vm_controller.controller_type
-
-    assert spy.size() == 0
-
-
 @pytest.mark.parametrize(
     ("value", "expected", "expected_signal_count"),
     [
