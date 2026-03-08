@@ -305,17 +305,24 @@ class BaseView:
     def _show_invalid_input(widget: QLineEdit, message: str) -> None:
         """Show a consistent invalid-input state for line edits across all views."""
         if widget.property("_default_tooltip") is None:
-            widget.setProperty("_default_tooltip", widget.toolTip())
+            widget.setProperty("_default_tooltip", str(widget.toolTip() or ""))
+        widget.setProperty("_input_invalid", True)
         widget.setStyleSheet("border: 1px solid #d9534f;")
         widget.setToolTip(message)
         QToolTip.showText(widget.mapToGlobal(QPoint(0, widget.height())), message, widget)
 
     @staticmethod
-    def _clear_input_error(widget: QLineEdit) -> None:
+    def _clear_input_error(widget: QWidget) -> None:
         """Restore a line edit to its normal state after invalid-input handling."""
+        if widget.property("_input_invalid") is not True:
+            return
+
         widget.setStyleSheet("")
         default_tooltip = widget.property("_default_tooltip")
-        widget.setToolTip("" if default_tooltip is None else str(default_tooltip))
+        if isinstance(default_tooltip, str):
+            widget.setToolTip(default_tooltip)
+        QToolTip.hideText()
+        widget.setProperty("_input_invalid", False)
 
     @classmethod
     def set_theme(cls, theme: str) -> None:
@@ -345,6 +352,7 @@ class BaseView:
             return
 
         widget = self._field_widgets[key]
+        self._clear_input_error(widget)
 
         # Determine new value based on widget type
         if isinstance(widget, QComboBox):
@@ -358,7 +366,6 @@ class BaseView:
             try:
                 # Cast text to the specified type
                 value = value_type(text)
-                self._clear_input_error(widget)
 
             except (ValueError, TypeError):
                 # Handle invalid input gracefully
@@ -426,6 +433,10 @@ class BaseView:
         if widget is None:
             self._logger.warning(f"No widget found for key '{key}'")
             return
+
+        # A successful VM update indicates a valid state for this field.
+        # Clear potential stale validation visuals/tooltips.
+        self._clear_input_error(widget)
 
         # Format value if necessary
         formatted_value = self._format_value(value)
