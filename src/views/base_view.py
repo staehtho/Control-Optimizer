@@ -17,14 +17,14 @@ from views.translations import Translation
 
 @dataclass
 class FieldConfig:
-    key: str
+    key: str | FieldType
     widget_type: Type[QWidget] = QLabel
     create_label: bool = True
 
 
 @dataclass
 class SectionConfig:
-    key: str
+    key: str | FieldType
     fields: list[FieldConfig]
 
 class BaseView:
@@ -65,7 +65,6 @@ class BaseView:
 
         # Scale factor for rendering the LaTeX formula
         self._formula_font_size_scale = 1.5
-        self._dec = 3
         self._title_size = 16
 
         self._field_widgets = {}
@@ -75,7 +74,7 @@ class BaseView:
         # -----------------------------
         # Logging setup
         # -----------------------------
-        self._logger = logging.getLogger(f"View.{self.__class__.__name__}.{id(self)}")
+        self._logger = logging.getLogger(f"View.{self.__class__.__name__}")
         self._logger.debug(f"{self.__class__.__name__} initialized")
 
         # -----------------------------
@@ -340,7 +339,7 @@ class BaseView:
         for view in list(cls._instances):
             view.apply_theme()
 
-    def _on_widget_changed(self, key: str, attribute: str, *args, **kwargs) -> None:
+    def _on_widget_changed(self, key: str | FieldType, attribute: str, *args, **kwargs) -> None:
         """Handle changes from various input widgets and update the corresponding attribute.
 
         This method supports QComboBox, QLineEdit, QSpinBox, and similar widgets.
@@ -348,10 +347,11 @@ class BaseView:
         indicated by the dotted path `attribute`.
 
         Args:
-            key (str): The key identifying the widget in self._field_widgets.
+            key (str | FieldType): The key identifying the widget in self._field_widgets.
             attribute (str): The dotted path to the attribute to update
                              (e.g., "_vm_controller.anti_windup").
             *args: Additional arguments passed by the Qt signal (e.g., index for QComboBox).
+            **kwargs: Additional arguments passed by the Qt signal (e.g., value_type for QLineEdit).
         """
         if self._initializing:
             return
@@ -370,10 +370,12 @@ class BaseView:
             try:
                 # Cast text to the specified type
                 value = value_type(text)
+                self._clear_input_error(widget)
+
             except (ValueError, TypeError):
                 # Handle invalid input gracefully
                 self._logger.warning(f"Cannot convert '{text}' to {value_type} for widget '{key}'")
-                widget.setText(f"{text:.{self._dec}}")
+                widget.setText(f"{text}")
                 value = text
 
         elif isinstance(widget, QSpinBox) or isinstance(widget, QDoubleSpinBox):
@@ -399,7 +401,7 @@ class BaseView:
         # Set the final attribute to the new value
         setattr(attr, attrs[-1], value)
 
-    def _on_vm_changed(self, key: str, attribute: str) -> None:
+    def _on_vm_changed(self, key: str | FieldType, attribute: str) -> None:
         """Update a widget to reflect the current value of its corresponding attribute.
 
         This universal method automatically updates widgets of different types
@@ -407,7 +409,7 @@ class BaseView:
         the current value of the attribute in the model or view-model.
 
         Args:
-            key (str): The key identifying the widget in self._field_widgets.
+            key (str | FieldType): The key identifying the widget in self._field_widgets.
             attribute (str): The dotted path to the attribute to read
                              (e.g., "_vm_controller.anti_windup").
         """
@@ -435,8 +437,6 @@ class BaseView:
 
         elif isinstance(widget, QLineEdit):
             if widget.text() != str(value):
-                if isinstance(value, float):
-                    value = round(value, self._dec)
                 widget.setText(str(value))
 
         elif isinstance(widget, (QSpinBox, QDoubleSpinBox)):

@@ -2,7 +2,7 @@ from PySide6.QtCore import QObject, Signal, Slot
 
 from utils import LoggedProperty
 from .base_viewmodel import BaseViewModel
-from .types import PlotData, ValidationResult, PlotField
+from .types import PlotData, PlotField
 
 
 class PlotViewModel(BaseViewModel):
@@ -37,25 +37,18 @@ class PlotViewModel(BaseViewModel):
     # -------------------
     # x min
     # -------------------
-    def validate_x_min(self, value: float) -> ValidationResult:
-        if value >= self._x_max:
-            message = self.tr(
+    def _verify_x_min(self, value: float):
+
+        result = self._validate_relation(
+            value=value,
+            other=self._x_max,
+            relation="<",
+            message=self.tr(
                 "Invalid value: start ({x_min}) must be smaller than end ({x_max})."
             ).format(x_min=value, x_max=self._x_max)
+        )
 
-            return ValidationResult(False, message)
-
-        return ValidationResult(True)
-
-    def _verify_x_min(self, value: float) -> bool:
-        result = self.validate_x_min(value)
-
-        if not result.valid:
-            self.logger.warning(result.message)
-            self.validationFailed.emit(PlotField.X_MIN, result.message)
-            return False
-
-        return True
+        return self._verify(PlotField.X_MIN, result)
 
     x_min = LoggedProperty(
         path="_x_min",
@@ -67,25 +60,18 @@ class PlotViewModel(BaseViewModel):
     # -------------------
     # x max
     # -------------------
-    def validate_x_max(self, value: float) -> ValidationResult:
-        if value <= self._x_min:
-            message = self.tr(
+    def _verify_x_max(self, value: float):
+
+        result = self._validate_relation(
+            value=value,
+            other=self._x_min,
+            relation=">",
+            message=self.tr(
                 "Invalid value: end ({x_max}) must be greater than start ({x_min})."
             ).format(x_min=self._x_min, x_max=value)
+        )
 
-            return ValidationResult(False, message)
-
-        return ValidationResult(True)
-
-    def _verify_x_max(self, value: float) -> bool:
-        result = self.validate_x_max(value)
-
-        if not result.valid:
-            self.logger.warning(result.message)
-            self.validationFailed.emit(PlotField.X_MAX, result.message)
-            return False
-
-        return True
+        return self._verify(PlotField.X_MAX, result)
 
     x_max = LoggedProperty(
         path="_x_max",

@@ -5,37 +5,37 @@ from PySide6.QtCore import QObject, Qt
 
 from app_domain.ui_context import UiContext
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
-from utils import LatexRenderer
 from viewmodels import PlantViewModel, FunctionViewModel, PsoConfigurationViewModel
+from viewmodels.types import PsoField
 from .base_view import BaseView, FieldConfig, SectionConfig
 from views.widgets import ExpandableFrame, FormulaWidget
 
 
 FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
     "excitation_target": [
-        FieldConfig("excitation_target", QComboBox),
-        FieldConfig("function_formula", FormulaWidget),
+        FieldConfig(PsoField.EXCITATION_TARGET, QComboBox),
+        FieldConfig(PsoField.FUNCTION_FORMULA, FormulaWidget),
     ],
     "control": [
-        SectionConfig("simulation_time", [
-            FieldConfig("t0", QLineEdit),
-            FieldConfig("t1", QLineEdit),
+        SectionConfig(PsoField.SIMULATION_TIME, [
+            FieldConfig(PsoField.T0, QLineEdit),
+            FieldConfig(PsoField.T1, QLineEdit),
         ]),
-        SectionConfig("performance_index", [
-            FieldConfig("time_domain", QComboBox),
+        SectionConfig(PsoField.PERFORMANCE_INDEX, [
+            FieldConfig(PsoField.TIME_DOMAIN, QComboBox),
         ]),
 
-        SectionConfig("pso_bounds_kp", [
-            FieldConfig("kp_min", QLineEdit),
-            FieldConfig("kp_max", QLineEdit),
+        SectionConfig(PsoField.KP_BOUNDS, [
+            FieldConfig(PsoField.KP_MIN, QLineEdit),
+            FieldConfig(PsoField.KP_MAX, QLineEdit),
         ]),
-        SectionConfig("pso_bounds_ti", [
-            FieldConfig("ti_min", QLineEdit),
-            FieldConfig("ti_max", QLineEdit),
+        SectionConfig(PsoField.TI_BOUNDS, [
+            FieldConfig(PsoField.TI_MIN, QLineEdit),
+            FieldConfig(PsoField.TI_MAX, QLineEdit),
         ]),
-        SectionConfig("pso_bounds_td", [
-            FieldConfig("td_min", QLineEdit),
-            FieldConfig("td_max", QLineEdit),
+        SectionConfig(PsoField.TD_BOUNDS, [
+            FieldConfig(PsoField.TD_MIN, QLineEdit),
+            FieldConfig(PsoField.TD_MAX, QLineEdit),
         ]),
     ]
 }
@@ -82,15 +82,8 @@ class PsoConfigurationView(BaseView, QWidget):
         frame, frame_layout = self._create_card(self)
 
         # TF
-        self._lbl_tf = QLabel(frame)
-        self._lbl_tf.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        self._lbl_tf.setStyleSheet("background: transparent;")
-
-        self._lbl_tf.setPixmap(
-            LatexRenderer.latex2pixmap(
-                r"G(s) = " + self._vm_plant.get_tf(),
-                font_size_scale=self._formula_font_size_scale
-            )
+        self._lbl_tf = FormulaWidget(
+            r"G(s) = " + self._vm_plant.get_tf(), self._formula_font_size_scale, parent=frame
         )
         self._lbl_tf.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
@@ -104,7 +97,7 @@ class PsoConfigurationView(BaseView, QWidget):
 
         frame_layout.addLayout(self._create_grid(FIELDS["excitation_target"], 4))
 
-        widget: FormulaWidget = self._field_widgets["function_formula"]
+        widget: FormulaWidget = self._field_widgets[PsoField.FUNCTION_FORMULA]
         widget.set_font_size(self._formula_font_size_scale)
         widget.set_formula(self._vm_function.selected_function.get_formula())
 
@@ -134,7 +127,7 @@ class PsoConfigurationView(BaseView, QWidget):
 
         btn_run_pso = QPushButton(frame)
         frame_layout.addWidget(btn_run_pso)
-        self._labels["run_pso"] = btn_run_pso
+        self._labels[PsoField.RUN_PSO] = btn_run_pso
 
         return frame
 
@@ -143,47 +136,48 @@ class PsoConfigurationView(BaseView, QWidget):
     # -------------------------------------------------
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
-        attributes: dict[str, tuple[str, str, object]] = {
-            "t0": ("editingFinished", "_vm_pso.t0", float),
-            "t1": ("editingFinished", "_vm_pso.t1", float),
-            "excitation_target": ("currentIndexChanged", "_vm_pso.excitation_target", ExcitationTarget),
-            "time_domain": ("currentIndexChanged", "_vm_pso.performance_index", PerformanceIndex),
-            "kp_min": ("editingFinished", "_vm_pso.kp_min", float),
-            "kp_max": ("editingFinished", "_vm_pso.kp_max", float),
-            "ti_min": ("editingFinished", "_vm_pso.ti_min", float),
-            "ti_max": ("editingFinished", "_vm_pso.ti_max", float),
-            "td_min": ("editingFinished", "_vm_pso.td_min", float),
-            "td_max": ("editingFinished", "_vm_pso.td_max", float),
+        attributes: dict[PsoField, tuple[str, str, object]] = {
+            PsoField.T0: ("editingFinished", "_vm_pso.t0", float),
+            PsoField.T1: ("editingFinished", "_vm_pso.t1", float),
+            PsoField.EXCITATION_TARGET: ("currentIndexChanged", "_vm_pso.excitation_target", ExcitationTarget),
+            PsoField.TIME_DOMAIN: ("currentIndexChanged", "_vm_pso.performance_index", PerformanceIndex),
+            PsoField.KP_MIN: ("editingFinished", "_vm_pso.kp_min", float),
+            PsoField.KP_MAX: ("editingFinished", "_vm_pso.kp_max", float),
+            PsoField.TI_MIN: ("editingFinished", "_vm_pso.ti_min", float),
+            PsoField.TI_MAX: ("editingFinished", "_vm_pso.ti_max", float),
+            PsoField.TD_MIN: ("editingFinished", "_vm_pso.td_min", float),
+            PsoField.TD_MAX: ("editingFinished", "_vm_pso.td_max", float),
         }
         for key, value in attributes.items():
             attr, vm_attr, value_type = value
             getattr(self._field_widgets[key], attr).connect(
                 partial(self._on_widget_changed, key, vm_attr, value_type=value_type))
 
-        self._labels["run_pso"].clicked.connect(self._on_btn_run_pso)
+        self._labels[PsoField.RUN_PSO].clicked.connect(self._on_btn_run_pso)
 
     # -------------------------------------------------
     # ViewModel bindings (ViewModel → UI)
     # -------------------------------------------------
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
-        # vm plant
+        # Plant ViewModel
         self._vm_plant.tfChanged.connect(self._on_vm_plant_tf_changed)
         self._vm_plant.isValidChanged.connect(self._on_vm_plant_is_valid_changed)
-        # vm function
+        # Function ViewModel
         self._vm_function.functionChanged.connect(self._on_vm_function_function_changed)
-        # vm pso
-        attributes: dict[str, tuple[str, str]] = {
-            "t0": ("t0Changed", "_vm_pso.t0"),
-            "t1": ("t1Changed", "_vm_pso.t1"),
-            "excitation_target": ("excitationTargetChanged", "_vm_pso.excitation_target"),
-            "time_domain": ("performanceIndexChanged", "_vm_pso.performance_index"),
-            "kp_min": ("kpMinChanged", "_vm_pso.kp_min"),
-            "kp_max": ("kpMaxChanged", "_vm_pso.kp_max"),
-            "ti_min": ("tiMinChanged", "_vm_pso.ti_min"),
-            "ti_max": ("tiMaxChanged", "_vm_pso.ti_max"),
-            "td_min": ("tdMinChanged", "_vm_pso.td_min"),
-            "td_max": ("tdMaxChanged", "_vm_pso.td_max"),
+        # PSO Configuration ViewModel
+        self._vm_pso.validationFailed.connect(self._on_validation_failed)
+        attributes: dict[PsoField, tuple[str, str]] = {
+            PsoField.T0: ("t0Changed", "_vm_pso.t0"),
+            PsoField.T1: ("t1Changed", "_vm_pso.t1"),
+            PsoField.EXCITATION_TARGET: ("excitationTargetChanged", "_vm_pso.excitation_target"),
+            PsoField.TIME_DOMAIN: ("performanceIndexChanged", "_vm_pso.performance_index"),
+            PsoField.KP_MIN: ("kpMinChanged", "_vm_pso.kp_min"),
+            PsoField.KP_MAX: ("kpMaxChanged", "_vm_pso.kp_max"),
+            PsoField.TI_MIN: ("tiMinChanged", "_vm_pso.ti_min"),
+            PsoField.TI_MAX: ("tiMaxChanged", "_vm_pso.ti_max"),
+            PsoField.TD_MIN: ("tdMinChanged", "_vm_pso.td_min"),
+            PsoField.TD_MAX: ("tdMaxChanged", "_vm_pso.td_max"),
         }
         for key, value in attributes.items():
             signal, attr = value
@@ -206,31 +200,31 @@ class PsoConfigurationView(BaseView, QWidget):
         self._frm_run_pso.set_title(self.tr("PSO Simulation"))
 
         labels = {
-            "simulation_time": self.tr("Simulation Time"),
-            "t0": self.tr("Start Time"),
-            "t1": self.tr("End Time"),
-            "excitation_target": self.tr("Excitation Target"),
-            "function_formula": self.tr("Function"),
-            "performance_index": self.tr("Performance Index"),
-            "time_domain": self.tr("Time Domain"),
-            "pso_bounds_kp": self.tr("PSO Bounds: Kp"),
-            "kp_min": self.tr("Minimum"),
-            "kp_max": self.tr("Maximum"),
-            "pso_bounds_ti": self.tr("PSO Bounds: Ti"),
-            "ti_min": self.tr("Minimum"),
-            "ti_max": self.tr("Maximum"),
-            "pso_bounds_td": self.tr("PSO Bounds: Td"),
-            "td_min": self.tr("Minimum"),
-            "td_max": self.tr("Maximum"),
-            "run_pso": self.tr("Start PSO Simulation"),
+            PsoField.SIMULATION_TIME: self.tr("Simulation Time"),
+            PsoField.T0: self.tr("Start Time"),
+            PsoField.T1: self.tr("End Time"),
+            PsoField.EXCITATION_TARGET: self.tr("Excitation Target"),
+            PsoField.FUNCTION_FORMULA: self.tr("Function"),
+            PsoField.PERFORMANCE_INDEX: self.tr("Performance Index"),
+            PsoField.TIME_DOMAIN: self.tr("Time Domain"),
+            PsoField.KP_BOUNDS: self.tr("PSO Bounds: Kp"),
+            PsoField.KP_MIN: self.tr("Minimum"),
+            PsoField.KP_MAX: self.tr("Maximum"),
+            PsoField.TI_BOUNDS: self.tr("PSO Bounds: Ti"),
+            PsoField.TI_MIN: self.tr("Minimum"),
+            PsoField.TI_MAX: self.tr("Maximum"),
+            PsoField.TD_BOUNDS: self.tr("PSO Bounds: Td"),
+            PsoField.TD_MIN: self.tr("Minimum"),
+            PsoField.TD_MAX: self.tr("Maximum"),
+            PsoField.RUN_PSO: self.tr("Start PSO Simulation"),
         }
 
         for key in labels.keys():
             self._labels[key].setText(labels[key])
 
         item_enums = {
-            "excitation_target": self._enum_translation(ExcitationTarget),
-            "time_domain": self._enum_translation(PerformanceIndex),
+            PsoField.EXCITATION_TARGET: self._enum_translation(ExcitationTarget),
+            PsoField.TIME_DOMAIN: self._enum_translation(PerformanceIndex),
         }
 
         for key in item_enums:
@@ -263,7 +257,12 @@ class PsoConfigurationView(BaseView, QWidget):
     # -------------------------------------------------
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
-        keys = ["t0", "t1", "kp_min", "kp_max", "ti_min", "ti_max", "td_min", "td_max"]
+        keys = [
+            PsoField.T0, PsoField.T1,
+            PsoField.KP_MIN, PsoField.KP_MAX,
+            PsoField.TI_MIN, PsoField.TI_MAX,
+            PsoField.TD_MIN, PsoField.TD_MAX,
+        ]
         values = [
             self._vm_pso.t0,
             self._vm_pso.t1,
@@ -275,38 +274,33 @@ class PsoConfigurationView(BaseView, QWidget):
             self._vm_pso.td_max,
         ]
         for key, value in zip(keys, values):
-            self._field_widgets[key].setText(f"{round(float(value), self._dec):.{self._dec}}")
+            self._field_widgets[key].setText(f"{value}")
 
-        attributes: dict[str, str] = {
-            "excitation_target": "excitation_target",
-            "time_domain": "performance_index",
+        attributes: dict[PsoField, str] = {
+            PsoField.EXCITATION_TARGET: "excitation_target",
+            PsoField.TIME_DOMAIN: "performance_index",
         }
         for key, attr in attributes.items():
             index = self._field_widgets[key].findData(getattr(self._vm_pso, attr))
             if index >= 0:
                 self._field_widgets[key].setCurrentIndex(index)
 
-        self._labels["run_pso"].setEnabled(self._vm_plant.is_valid)
+        self._labels[PsoField.RUN_PSO].setEnabled(self._vm_plant.is_valid)
 
     # -------------------------------------------------
     # ViewModel change handlers
     # -------------------------------------------------
     def _on_vm_plant_tf_changed(self) -> None:
-        self._lbl_tf.setPixmap(
-            LatexRenderer.latex2pixmap(
-                r"G(s) = " + self._vm_plant.get_tf(),
-                font_size_scale=self._formula_font_size_scale
-            )
-        )
+        self._lbl_tf.set_formula(r"G(s) = " + self._vm_plant.get_tf())
 
     def _on_vm_function_function_changed(self) -> None:
-        self._field_widgets["function_formula"].set_formula(self._vm_function.selected_function.get_formula())
+        self._field_widgets[PsoField.FUNCTION_FORMULA].set_formula(self._vm_function.selected_function.get_formula())
 
     # -------------------------------------------------
     # UI event handlers
     # -------------------------------------------------
     def _on_vm_plant_is_valid_changed(self) -> None:
-        self._labels["run_pso"].setEnabled(self._vm_plant.is_valid)
+        self._labels[PsoField.RUN_PSO].setEnabled(self._vm_plant.is_valid)
 
     def _on_vm_pso_progress_changed(self, iteration: int) -> None:
         percent = int((iteration / self._vm_pso.get_pos_iteration()) * 100)
@@ -316,13 +310,13 @@ class PsoConfigurationView(BaseView, QWidget):
         if not self._vm_plant.is_valid:
             return
 
-        self._labels["run_pso"].setEnabled(False)
+        self._labels[PsoField.RUN_PSO].setEnabled(False)
         self._labels["pso_result"].setText("")
         self._progress_bar.setValue(0)
         self._vm_pso.run_pso_simulation()
 
     def _on_vm_pso_simulation_finished(self) -> None:
-        self._labels["run_pso"].setEnabled(True)
+        self._labels[PsoField.RUN_PSO].setEnabled(True)
 
         result = self._vm_pso.get_pso_result()
         if result is None:

@@ -4,22 +4,22 @@
 <context>
     <name>BodePlotViewModel</name>
     <message>
-        <location filename="../viewmodels/bode_plot_viewmodel.py" line="31"/>
+        <location filename="../viewmodels/bode_plot_viewmodel.py" line="22"/>
         <source>Invalid value: omega min ({x_min}) must be smaller than omega max ({x_max}).</source>
         <translation>Ungültiger Wert: Omega min ({x_min}) muss kleiner als Omega max ({x_max}) sein.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/bode_plot_viewmodel.py" line="38"/>
+        <location filename="../viewmodels/bode_plot_viewmodel.py" line="31"/>
         <source>Invalid value: omega min ({value} must be greater than 0)</source>
         <translation>Ungültiger Wert: Omega min ({value}) muss grösser als 0 sein)</translation>
     </message>
     <message>
-        <location filename="../viewmodels/bode_plot_viewmodel.py" line="51"/>
+        <location filename="../viewmodels/bode_plot_viewmodel.py" line="53"/>
         <source>Invalid value: omega max ({x_max}) must be greater than omega min ({x_min}).</source>
         <translation>Ungültiger Wert: Omega max ({x_max}) muss grösser als Omega min ({x_min}) sein.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/bode_plot_viewmodel.py" line="58"/>
+        <location filename="../viewmodels/bode_plot_viewmodel.py" line="62"/>
         <source>Invalid value: omega max ({value} must be greater than 0)</source>
         <translation>Ungültiger Wert: Omega max ({value}) muss grösser als 0 sein)</translation>
     </message>
@@ -215,39 +215,60 @@
 <context>
     <name>ControllerView</name>
     <message>
-        <location filename="../views/controller_view.py" line="91"/>
+        <location filename="../views/controller_view.py" line="93"/>
         <source>Controller</source>
         <translation>Regler</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="92"/>
+        <location filename="../views/controller_view.py" line="94"/>
         <source>Parameters</source>
         <translation>Parameter</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="95"/>
+        <location filename="../views/controller_view.py" line="97"/>
         <source>Controller Type</source>
         <translation>Reglertyp</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="96"/>
+        <location filename="../views/controller_view.py" line="98"/>
         <source>Anti Windup</source>
         <translation>Windup</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="97"/>
+        <location filename="../views/controller_view.py" line="99"/>
         <source>Constraint</source>
         <translation>Begrenzung</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="98"/>
+        <location filename="../views/controller_view.py" line="100"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="99"/>
+        <location filename="../views/controller_view.py" line="101"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
+    </message>
+</context>
+<context>
+    <name>ControllerViewModel</name>
+    <message>
+        <source>Invalid value: min ({value}) must be smaller than max ({constraint_max}).</source>
+        <translation type="vanished">Ungültiger Wert: min ({x_min}) muss kleiner als max ({x_max}) sein.</translation>
+    </message>
+    <message>
+        <source>Invalid value: max ({value}) must be greater than min ({constraint_min}).</source>
+        <translation type="vanished">Ungültiger Wert: max ({value}) muss grösser als Omega max ({constraint_min}) sein.</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/controller_viewmodel.py" line="54"/>
+        <source>Invalid value: min ({value}) must be smaller than max ({max}).</source>
+        <translation>Ungültiger Wert: min ({value}) muss kleiner als max ({max}) sein.</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/controller_viewmodel.py" line="73"/>
+        <source>Invalid value: max ({value}) must be greater than min ({min}).</source>
+        <translation>Ungültiger Wert: max ({value}) muss grösser als min ({min}) sein.</translation>
     </message>
 </context>
 <context>
@@ -382,43 +403,43 @@
     <name>PlantView</name>
     <message>
         <location filename="../views/plant_view.py" line="69"/>
-        <location filename="../views/plant_view.py" line="164"/>
+        <location filename="../views/plant_view.py" line="165"/>
         <source>plant.num</source>
         <translation>Nenner</translation>
     </message>
     <message>
         <location filename="../views/plant_view.py" line="83"/>
-        <location filename="../views/plant_view.py" line="165"/>
+        <location filename="../views/plant_view.py" line="166"/>
         <source>plant.den</source>
         <translation>Zähler</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="161"/>
+        <location filename="../views/plant_view.py" line="162"/>
         <source>Plant</source>
         <translation>Regelstrecke</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="162"/>
+        <location filename="../views/plant_view.py" line="163"/>
         <source>Transfer function</source>
         <translation>Transferfunction</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="163"/>
+        <location filename="../views/plant_view.py" line="164"/>
         <source>Step Response</source>
         <translation>Sprungantwort</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="166"/>
+        <location filename="../views/plant_view.py" line="167"/>
         <source>e.g. 1  → 1</source>
         <translation>z.B. 1  → 1</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="167"/>
+        <location filename="../views/plant_view.py" line="168"/>
         <source>e.g. 1, 0, 0  → 1*s^2 + 0*s + 0</source>
         <translation>z.B. 1, 0, 0  → 1*s² + 0*s + 0</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="169"/>
+        <location filename="../views/plant_view.py" line="170"/>
         <source>tooltip_num_den</source>
         <translation>Verwenden Sie „.“ als Dezimaltrennzeichen.
 Die erste Zahl entspricht der höchsten Potenz von s.
@@ -437,12 +458,12 @@ Beispiel: 1, 0.5, 2 → 1·s² + 0,5·s + 2</translation>
 <context>
     <name>PlotViewModel</name>
     <message>
-        <location filename="../viewmodels/plot_viewmodel.py" line="43"/>
+        <location filename="../viewmodels/plot_viewmodel.py" line="47"/>
         <source>Invalid value: start ({x_min}) must be smaller than end ({x_max}).</source>
         <translation>Ungültiger Wert: Der Startwert ({x_min}) muss kleiner als der Endwert ({x_max}) sein.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plot_viewmodel.py" line="73"/>
+        <location filename="../viewmodels/plot_viewmodel.py" line="70"/>
         <source>Invalid value: end ({x_max}) must be greater than start ({x_min}).</source>
         <translation>Ungültiger Wert: Der Endwert ({x_max}) muss größer als der Startwert ({x_min}) sein.</translation>
     </message>
@@ -450,29 +471,29 @@ Beispiel: 1, 0.5, 2 → 1·s² + 0,5·s + 2</translation>
 <context>
     <name>PlotWidget</name>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="175"/>
+        <location filename="../views/widgets/plot_widget.py" line="179"/>
         <source>plot.grid</source>
         <translation>Grid</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="176"/>
+        <location filename="../views/widgets/plot_widget.py" line="180"/>
         <source>plot.start</source>
         <translation>Startzeit</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="177"/>
+        <location filename="../views/widgets/plot_widget.py" line="181"/>
         <source>plot.end</source>
         <translation>Endzeit</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="178"/>
+        <location filename="../views/widgets/plot_widget.py" line="182"/>
         <source>plot.start.tooltip</source>
         <translation>Untere Grenze der x-Achse (x_min).
 Legt fest, wo die Zeitachse beginnt.
 Einheit: Sekunden (s).</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="179"/>
+        <location filename="../views/widgets/plot_widget.py" line="183"/>
         <source>plot.end.tooltip</source>
         <translation>Obere Grenze der x-Achse (x_max).
 Legt fest, wo die Zeitachse endet.
@@ -495,42 +516,42 @@ Muss grösser als die Startzeit sein.</translation>
         <translation type="vanished">PSO Grenzen</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="202"/>
+        <location filename="../views/pso_configuration_view.py" line="196"/>
         <source>PSO Parameter</source>
         <translation>PSO Parameter</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="204"/>
+        <location filename="../views/pso_configuration_view.py" line="198"/>
         <source>Excitation Function</source>
         <translation>Anregungsfunktion</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="206"/>
+        <location filename="../views/pso_configuration_view.py" line="200"/>
         <source>PSO Simulation</source>
         <translation>PSO Simulation</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="209"/>
+        <location filename="../views/pso_configuration_view.py" line="203"/>
         <source>Simulation Time</source>
         <translation>Simulationszeit</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="210"/>
+        <location filename="../views/pso_configuration_view.py" line="204"/>
         <source>Start Time</source>
         <translation>Startzeit</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="211"/>
+        <location filename="../views/pso_configuration_view.py" line="205"/>
         <source>End Time</source>
         <translation>Endzeit</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="212"/>
+        <location filename="../views/pso_configuration_view.py" line="206"/>
         <source>Excitation Target</source>
         <translation>Anregungsfunktion</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="213"/>
+        <location filename="../views/pso_configuration_view.py" line="207"/>
         <source>Function</source>
         <translation>Funktion</translation>
     </message>
@@ -539,32 +560,32 @@ Muss grösser als die Startzeit sein.</translation>
         <translation type="vanished">Funktion</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="215"/>
+        <location filename="../views/pso_configuration_view.py" line="209"/>
         <source>Time Domain</source>
         <translation>Zeitbereich</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="216"/>
+        <location filename="../views/pso_configuration_view.py" line="210"/>
         <source>PSO Bounds: Kp</source>
         <translation>PSO Grenze Kp</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="219"/>
+        <location filename="../views/pso_configuration_view.py" line="213"/>
         <source>PSO Bounds: Ti</source>
         <translation>PSO Grenze Ti</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="222"/>
+        <location filename="../views/pso_configuration_view.py" line="216"/>
         <source>PSO Bounds: Td</source>
         <translation>PSO Grenze Td</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="225"/>
+        <location filename="../views/pso_configuration_view.py" line="219"/>
         <source>Start PSO Simulation</source>
         <translation>Starte PSO Simulation</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="240"/>
+        <location filename="../views/pso_configuration_view.py" line="234"/>
         <source>PSO Result:
 Time = %(time).2f s
 Kp   = %(kp).3f
@@ -583,7 +604,7 @@ Tf   = %(tf).3f</translation>
         <translation type="vanished">Anti-Windup</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="214"/>
+        <location filename="../views/pso_configuration_view.py" line="208"/>
         <source>Performance Index</source>
         <translation>Gütekriterium</translation>
     </message>
@@ -592,16 +613,16 @@ Tf   = %(tf).3f</translation>
         <translation type="vanished">Begrenzung</translation>
     </message>
     <message>
+        <location filename="../views/pso_configuration_view.py" line="211"/>
+        <location filename="../views/pso_configuration_view.py" line="214"/>
         <location filename="../views/pso_configuration_view.py" line="217"/>
-        <location filename="../views/pso_configuration_view.py" line="220"/>
-        <location filename="../views/pso_configuration_view.py" line="223"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
+        <location filename="../views/pso_configuration_view.py" line="212"/>
+        <location filename="../views/pso_configuration_view.py" line="215"/>
         <location filename="../views/pso_configuration_view.py" line="218"/>
-        <location filename="../views/pso_configuration_view.py" line="221"/>
-        <location filename="../views/pso_configuration_view.py" line="224"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
@@ -654,12 +675,12 @@ Tf   = %(tf).3f</translation>
         <translation type="vanished">ISE</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="203"/>
+        <location filename="../views/pso_configuration_view.py" line="197"/>
         <source>Plant</source>
         <translation>Regelstrecke</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="205"/>
+        <location filename="../views/pso_configuration_view.py" line="199"/>
         <source>Controller Optimization Parameters</source>
         <translation>Parameter zur Optimierung des Reglers</translation>
     </message>
@@ -701,6 +722,33 @@ Tf   = %(tf).3f</translation>
     </message>
 </context>
 <context>
+    <name>PsoConfigurationViewModel</name>
+    <message>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="66"/>
+        <source>Invalid value: start time ({t0}) must be smaller than end time ({t1}).</source>
+        <translation>Ungültiger Wert: Startzeit ({t0}) muss kleiner als Endzeit ({t1}) sein.</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="89"/>
+        <source>Invalid value: end time ({t1}) must be greater than start time ({t0}).</source>
+        <translation>Ungültiger Wert: Endzeit ({t1}) muss grösser als Startzeit ({t0}) sein.</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="130"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="176"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="222"/>
+        <source>Invalid value: min ({value}) must be smaller than max ({max}).</source>
+        <translation>Ungültiger Wert: min ({value}) muss kleiner als max ({max}) sein.</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="150"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="199"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="242"/>
+        <source>Invalid value: max ({value}) must be greater than min ({min}).</source>
+        <translation>Ungültiger Wert: max ({value}) muss grösser als min ({min}) sein.</translation>
+    </message>
+</context>
+<context>
     <name>SimulationView</name>
     <message>
         <source>Evaluation</source>
@@ -738,17 +786,17 @@ Tf   = %(tf).3f</translation>
 <context>
     <name>plant.view</name>
     <message>
-        <location filename="../views/plant_view.py" line="122"/>
+        <location filename="../views/plant_view.py" line="123"/>
         <source>Step Response</source>
         <translation>Sprungantwort</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="123"/>
+        <location filename="../views/plant_view.py" line="124"/>
         <source>Time [s]</source>
         <translation>Zeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="124"/>
+        <location filename="../views/plant_view.py" line="125"/>
         <source>Output</source>
         <translation>Ausgang</translation>
     </message>

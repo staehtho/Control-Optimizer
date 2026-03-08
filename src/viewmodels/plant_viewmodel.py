@@ -44,6 +44,9 @@ class PlantViewModel(BaseViewModel):
         # No model signals to connect (passive model)
         ...
 
+    # -------------------
+    # num
+    # -------------------
     @Slot(str)
     def update_num(self, value: str) -> None:
         self.logger.debug(f"update_num called (value={value})")

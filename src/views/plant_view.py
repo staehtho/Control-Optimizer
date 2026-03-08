@@ -94,8 +94,9 @@ class PlantView(BaseView, QWidget):
         # -------------------
         # Transfer function formula display
         # -------------------
-        self._lbl_formula = FormulaWidget(r"G(s) = " + self._vm_plant.get_tf(), self._formula_font_size_scale,
-                                          parent=frame)
+        self._lbl_formula = FormulaWidget(
+            r"G(s) = " + self._vm_plant.get_tf(), self._formula_font_size_scale, parent=frame
+        )
 
         # --- Scroll area for label ---
         scroll_formula = QScrollArea(frame)

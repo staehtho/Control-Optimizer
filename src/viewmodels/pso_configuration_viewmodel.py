@@ -14,6 +14,7 @@ from models import (
 )
 from utils import LoggedProperty
 from .base_viewmodel import BaseViewModel
+from .types import PsoField
 
 
 class PsoConfigurationViewModel(BaseViewModel):
@@ -55,11 +56,18 @@ class PsoConfigurationViewModel(BaseViewModel):
     # -------------------
     # start time
     # -------------------
-    def _verify_t0(self, value: float) -> bool:
-        if self._model_pso.t1 <= value:
-            self.logger.debug(f"Skipped 't0' update (value={value} >= t1={self._model_pso.t1})")
-            return False
-        return True
+    def _verify_t0(self, value: float):
+
+        result = self._validate_relation(
+            value=value,
+            other=self._model_pso.t1,
+            relation="<",
+            message=self.tr(
+                "Invalid value: start time ({t0}) must be smaller than end time ({t1})."
+            ).format(t0=value, t1=self._model_pso.t1)
+        )
+
+        return self._verify(PsoField.T0, result)
 
     t0: float = LoggedProperty(
         path="_model_pso.t0",
@@ -71,11 +79,18 @@ class PsoConfigurationViewModel(BaseViewModel):
     # -------------------
     # end time
     # -------------------
-    def _verify_t1(self, value: float) -> bool:
-        if self._model_pso.t0 >= value:
-            self.logger.debug(f"Skipped 't1' update (value={value} <= t0={self._model_pso.t0})")
-            return False
-        return True
+    def _verify_t1(self, value: float):
+
+        result = self._validate_relation(
+            value=value,
+            other=self._model_pso.t0,
+            relation=">",
+            message=self.tr(
+                "Invalid value: end time ({t1}) must be greater than start time ({t0})."
+            ).format(t1=value, t0=self._model_pso.t0)
+        )
+
+        return self._verify(PsoField.T1, result)
 
     t1: float = LoggedProperty(
         path="_model_pso.t1",
@@ -105,11 +120,18 @@ class PsoConfigurationViewModel(BaseViewModel):
     # -------------------
     # kp
     # -------------------
-    def _verify_kp_min(self, value: float) -> bool:
-        if self._model_pso.kp_max <= value:
-            self.logger.debug(f"Skipped 'kp_min' update (value={value} >= kp_min={self._model_pso.kp_min})")
-            return False
-        return True
+    def _verify_kp_min(self, value: float):
+
+        result = self._validate_relation(
+            value=value,
+            other=self._model_pso.kp_max,
+            relation="<",
+            message=self.tr(
+                "Invalid value: min ({value}) must be smaller than max ({max})."
+            ).format(value=value, max=self._model_pso.kp_max)
+        )
+
+        return self._verify(PsoField.KP_MIN, result)
 
     kp_min: float = LoggedProperty(
         path="_model_pso.kp_min",
@@ -118,11 +140,18 @@ class PsoConfigurationViewModel(BaseViewModel):
         custom_setter=_verify_kp_min
     )
 
-    def _verify_kp_max(self, value: float) -> bool:
-        if self._model_pso.kp_min >= value:
-            self.logger.debug(f"Skipped 'kp_max' update (value={value} <= kp_max={self._model_pso.kp_max})")
-            return False
-        return True
+    def _verify_kp_max(self, value: float):
+
+        result = self._validate_relation(
+            value=value,
+            other=self._model_pso.kp_min,
+            relation=">",
+            message=self.tr(
+                "Invalid value: max ({value}) must be greater than min ({min})."
+            ).format(value=value, min=self._model_pso.kp_min)
+        )
+
+        return self._verify(PsoField.KP_MAX, result)
 
     kp_max: float = LoggedProperty(
         path="_model_pso.kp_max",
@@ -134,12 +163,21 @@ class PsoConfigurationViewModel(BaseViewModel):
     # -------------------
     # ti
     # -------------------
-    def _verify_ti_min(self, value: float) -> float | bool:
+    def _verify_ti_min(self, value: float):
+
         if value == 0:
             value = 1e-9
 
-        if self._model_pso.ti_max <= value:
-            self.logger.debug(f"Skipped 'ti_min' update (value={value} >= ti_max={self._model_pso.ti_max})")
+        result = self._validate_relation(
+            value=value,
+            other=self._model_pso.ti_max,
+            relation="<",
+            message=self.tr(
+                "Invalid value: min ({value}) must be smaller than max ({max})."
+            ).format(value=value, max=self._model_pso.ti_max)
+        )
+
+        if not self._verify(PsoField.TI_MIN, result):
             return False
 
         return value
@@ -152,10 +190,17 @@ class PsoConfigurationViewModel(BaseViewModel):
     )
 
     def _verify_ti_max(self, value: float) -> bool:
-        if self._model_pso.ti_min >= value:
-            self.logger.debug(f"Skipped 'ti_max' update (value={value} <= ti_max={self._model_pso.ti_max})")
-            return False
-        return True
+
+        result = self._validate_relation(
+            value=value,
+            other=self._model_pso.ti_min,
+            relation=">",
+            message=self.tr(
+                "Invalid value: max ({value}) must be greater than min ({min})."
+            ).format(value=value, min=self._model_pso.ti_min)
+        )
+
+        return self._verify(PsoField.TI_MAX, result)
 
     ti_max: float = LoggedProperty(
         path="_model_pso.ti_max",
@@ -168,10 +213,17 @@ class PsoConfigurationViewModel(BaseViewModel):
     # td
     # -------------------
     def _verify_td_min(self, value: float) -> bool:
-        if self._model_pso.td_max <= value:
-            self.logger.debug(f"Skipped 'td_min' update (value={value} >= td_min={self._model_pso.td_min})")
-            return False
-        return True
+
+        result = self._validate_relation(
+            value=value,
+            other=self._model_pso.td_max,
+            relation="<",
+            message=self.tr(
+                "Invalid value: min ({value}) must be smaller than max ({max})."
+            ).format(value=value, max=self._model_pso.td_max)
+        )
+
+        return self._verify(PsoField.TD_MIN, result)
 
     td_min: float = LoggedProperty(
         path="_model_pso.td_min",
@@ -181,10 +233,17 @@ class PsoConfigurationViewModel(BaseViewModel):
     )
 
     def _verify_td_max(self, value: float) -> bool:
-        if self._model_pso.td_min >= value:
-            self.logger.debug(f"Skipped 'td_max' update (value={value} <= td_max={self._model_pso.td_max})")
-            return False
-        return True
+
+        result = self._validate_relation(
+            value=value,
+            other=self._model_pso.td_min,
+            relation=">",
+            message=self.tr(
+                "Invalid value: max ({value}) must be greater than min ({min})."
+            ).format(value=value, min=self._model_pso.td_min)
+        )
+
+        return self._verify(PsoField.TD_MAX, result)
 
     td_max: float = LoggedProperty(
         path="_model_pso.td_max",

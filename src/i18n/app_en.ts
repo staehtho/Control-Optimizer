@@ -4,22 +4,22 @@
 <context>
     <name>BodePlotViewModel</name>
     <message>
-        <location filename="../viewmodels/bode_plot_viewmodel.py" line="31"/>
+        <location filename="../viewmodels/bode_plot_viewmodel.py" line="22"/>
         <source>Invalid value: omega min ({x_min}) must be smaller than omega max ({x_max}).</source>
         <translation>Invalid value: omega min ({x_min}) must be smaller than omega max ({x_max}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/bode_plot_viewmodel.py" line="38"/>
+        <location filename="../viewmodels/bode_plot_viewmodel.py" line="31"/>
         <source>Invalid value: omega min ({value} must be greater than 0)</source>
         <translation>Invalid value: omega min ({value} must be greater than 0)</translation>
     </message>
     <message>
-        <location filename="../viewmodels/bode_plot_viewmodel.py" line="51"/>
+        <location filename="../viewmodels/bode_plot_viewmodel.py" line="53"/>
         <source>Invalid value: omega max ({x_max}) must be greater than omega min ({x_min}).</source>
         <translation>Invalid value: omega max ({x_max}) must be greater than omega min ({x_min}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/bode_plot_viewmodel.py" line="58"/>
+        <location filename="../viewmodels/bode_plot_viewmodel.py" line="62"/>
         <source>Invalid value: omega max ({value} must be greater than 0)</source>
         <translation>Invalid value: omega max ({value} must be greater than 0)</translation>
     </message>
@@ -215,39 +215,60 @@
 <context>
     <name>ControllerView</name>
     <message>
-        <location filename="../views/controller_view.py" line="91"/>
+        <location filename="../views/controller_view.py" line="93"/>
         <source>Controller</source>
         <translation>Controller</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="92"/>
+        <location filename="../views/controller_view.py" line="94"/>
         <source>Parameters</source>
         <translation>Parameters</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="95"/>
+        <location filename="../views/controller_view.py" line="97"/>
         <source>Controller Type</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="96"/>
+        <location filename="../views/controller_view.py" line="98"/>
         <source>Anti Windup</source>
         <translation>Anti Windup</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="97"/>
+        <location filename="../views/controller_view.py" line="99"/>
         <source>Constraint</source>
         <translation>Constraint</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="98"/>
+        <location filename="../views/controller_view.py" line="100"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="99"/>
+        <location filename="../views/controller_view.py" line="101"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
+    </message>
+</context>
+<context>
+    <name>ControllerViewModel</name>
+    <message>
+        <source>Invalid value: min ({value}) must be smaller than max ({constraint_max}).</source>
+        <translation type="vanished">Invalid value: min ({value}) must be smaller than max ({constraint_max}).</translation>
+    </message>
+    <message>
+        <source>Invalid value: max ({value}) must be greater than min ({constraint_min}).</source>
+        <translation type="vanished">Invalid value: max ({value}) must be greater than min ({constraint_min}).</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/controller_viewmodel.py" line="54"/>
+        <source>Invalid value: min ({value}) must be smaller than max ({max}).</source>
+        <translation>Invalid value: min ({value}) must be smaller than max ({max}).</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/controller_viewmodel.py" line="73"/>
+        <source>Invalid value: max ({value}) must be greater than min ({min}).</source>
+        <translation>Invalid value: max ({value}) must be greater than min ({min}).</translation>
     </message>
 </context>
 <context>
@@ -382,43 +403,43 @@
     <name>PlantView</name>
     <message>
         <location filename="../views/plant_view.py" line="69"/>
-        <location filename="../views/plant_view.py" line="164"/>
+        <location filename="../views/plant_view.py" line="165"/>
         <source>plant.num</source>
         <translation>Numerator</translation>
     </message>
     <message>
         <location filename="../views/plant_view.py" line="83"/>
-        <location filename="../views/plant_view.py" line="165"/>
+        <location filename="../views/plant_view.py" line="166"/>
         <source>plant.den</source>
         <translation>Denumerator</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="161"/>
+        <location filename="../views/plant_view.py" line="162"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="162"/>
+        <location filename="../views/plant_view.py" line="163"/>
         <source>Transfer function</source>
         <translation>Transfer function</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="163"/>
+        <location filename="../views/plant_view.py" line="164"/>
         <source>Step Response</source>
         <translation>Step Response</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="166"/>
+        <location filename="../views/plant_view.py" line="167"/>
         <source>e.g. 1  → 1</source>
         <translation>e.g. 1  → 1</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="167"/>
+        <location filename="../views/plant_view.py" line="168"/>
         <source>e.g. 1, 0, 0  → 1*s^2 + 0*s + 0</source>
         <translation>e.g. 1, 0, 0  → 1*s² + 0*s + 0</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="169"/>
+        <location filename="../views/plant_view.py" line="170"/>
         <source>tooltip_num_den</source>
         <translation>Enter coefficients separated by commas, spaces, or semicolons.
 Use &apos;.&apos; as the decimal point.
@@ -439,12 +460,12 @@ Example: 1, 0.5, 2 → 1*s^2 + 0.5*s + 2</translation>
 <context>
     <name>PlotViewModel</name>
     <message>
-        <location filename="../viewmodels/plot_viewmodel.py" line="43"/>
+        <location filename="../viewmodels/plot_viewmodel.py" line="47"/>
         <source>Invalid value: start ({x_min}) must be smaller than end ({x_max}).</source>
         <translation>Invalid value: start ({x_min}) must be smaller than end ({x_max}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plot_viewmodel.py" line="73"/>
+        <location filename="../viewmodels/plot_viewmodel.py" line="70"/>
         <source>Invalid value: end ({x_max}) must be greater than start ({x_min}).</source>
         <translation>Invalid value: end ({x_max}) must be greater than start ({x_min}).</translation>
     </message>
@@ -452,29 +473,29 @@ Example: 1, 0.5, 2 → 1*s^2 + 0.5*s + 2</translation>
 <context>
     <name>PlotWidget</name>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="175"/>
+        <location filename="../views/widgets/plot_widget.py" line="179"/>
         <source>plot.grid</source>
         <translation>Grid</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="176"/>
+        <location filename="../views/widgets/plot_widget.py" line="180"/>
         <source>plot.start</source>
         <translation>Start time</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="177"/>
+        <location filename="../views/widgets/plot_widget.py" line="181"/>
         <source>plot.end</source>
         <translation>End time</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="178"/>
+        <location filename="../views/widgets/plot_widget.py" line="182"/>
         <source>plot.start.tooltip</source>
         <translation>Lower x-axis limit (x_min).
 Defines where the time axis begins.
 Unit: seconds (s).</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="179"/>
+        <location filename="../views/widgets/plot_widget.py" line="183"/>
         <source>plot.end.tooltip</source>
         <translation>Upper x-axis limit (x_max).
 Defines where the time axis ends.
@@ -497,42 +518,42 @@ Must be greater than the start time.</translation>
         <translation type="vanished">PSO Bounds</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="202"/>
+        <location filename="../views/pso_configuration_view.py" line="196"/>
         <source>PSO Parameter</source>
         <translation>PSO Parameter</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="204"/>
+        <location filename="../views/pso_configuration_view.py" line="198"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="206"/>
+        <location filename="../views/pso_configuration_view.py" line="200"/>
         <source>PSO Simulation</source>
         <translation>PSO Simulation</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="209"/>
+        <location filename="../views/pso_configuration_view.py" line="203"/>
         <source>Simulation Time</source>
         <translation>Simulation Time</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="210"/>
+        <location filename="../views/pso_configuration_view.py" line="204"/>
         <source>Start Time</source>
         <translation>Start Time</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="211"/>
+        <location filename="../views/pso_configuration_view.py" line="205"/>
         <source>End Time</source>
         <translation>End Time</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="212"/>
+        <location filename="../views/pso_configuration_view.py" line="206"/>
         <source>Excitation Target</source>
         <translation>Excitation Target</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="213"/>
+        <location filename="../views/pso_configuration_view.py" line="207"/>
         <source>Function</source>
         <translation>Function</translation>
     </message>
@@ -541,32 +562,32 @@ Must be greater than the start time.</translation>
         <translation type="vanished">Function Formula</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="215"/>
+        <location filename="../views/pso_configuration_view.py" line="209"/>
         <source>Time Domain</source>
         <translation>Time Domain</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="216"/>
+        <location filename="../views/pso_configuration_view.py" line="210"/>
         <source>PSO Bounds: Kp</source>
         <translation>PSO Bounds: Kp</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="219"/>
+        <location filename="../views/pso_configuration_view.py" line="213"/>
         <source>PSO Bounds: Ti</source>
         <translation>PSO Bounds: Ti</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="222"/>
+        <location filename="../views/pso_configuration_view.py" line="216"/>
         <source>PSO Bounds: Td</source>
         <translation>PSO Bounds: Td</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="225"/>
+        <location filename="../views/pso_configuration_view.py" line="219"/>
         <source>Start PSO Simulation</source>
         <translation>Start PSO Simulation</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="240"/>
+        <location filename="../views/pso_configuration_view.py" line="234"/>
         <source>PSO Result:
 Time = %(time).2f s
 Kp   = %(kp).3f
@@ -585,7 +606,7 @@ Tf   = %(tf).3f</translation>
         <translation type="vanished">Anti-Windup Strategy</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="214"/>
+        <location filename="../views/pso_configuration_view.py" line="208"/>
         <source>Performance Index</source>
         <translation>Performance Index</translation>
     </message>
@@ -594,16 +615,16 @@ Tf   = %(tf).3f</translation>
         <translation type="vanished">Constraint</translation>
     </message>
     <message>
+        <location filename="../views/pso_configuration_view.py" line="211"/>
+        <location filename="../views/pso_configuration_view.py" line="214"/>
         <location filename="../views/pso_configuration_view.py" line="217"/>
-        <location filename="../views/pso_configuration_view.py" line="220"/>
-        <location filename="../views/pso_configuration_view.py" line="223"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
+        <location filename="../views/pso_configuration_view.py" line="212"/>
+        <location filename="../views/pso_configuration_view.py" line="215"/>
         <location filename="../views/pso_configuration_view.py" line="218"/>
-        <location filename="../views/pso_configuration_view.py" line="221"/>
-        <location filename="../views/pso_configuration_view.py" line="224"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
@@ -656,12 +677,12 @@ Tf   = %(tf).3f</translation>
         <translation type="vanished">ISE</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="203"/>
+        <location filename="../views/pso_configuration_view.py" line="197"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="205"/>
+        <location filename="../views/pso_configuration_view.py" line="199"/>
         <source>Controller Optimization Parameters</source>
         <translation>Controller Optimization Parameters</translation>
     </message>
@@ -703,6 +724,33 @@ Tf   = %(tf).3f</translation>
     </message>
 </context>
 <context>
+    <name>PsoConfigurationViewModel</name>
+    <message>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="66"/>
+        <source>Invalid value: start time ({t0}) must be smaller than end time ({t1}).</source>
+        <translation>Invalid value: start time ({t0}) must be smaller than end time ({t1}).</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="89"/>
+        <source>Invalid value: end time ({t1}) must be greater than start time ({t0}).</source>
+        <translation>Invalid value: end time ({t1}) must be greater than start time ({t0}).</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="130"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="176"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="222"/>
+        <source>Invalid value: min ({value}) must be smaller than max ({max}).</source>
+        <translation>Invalid value: min ({value}) must be smaller than max ({max}).</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="150"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="199"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="242"/>
+        <source>Invalid value: max ({value}) must be greater than min ({min}).</source>
+        <translation>Invalid value: max ({value}) must be greater than min ({min}).</translation>
+    </message>
+</context>
+<context>
     <name>SimulationView</name>
     <message>
         <source>Evaluation</source>
@@ -740,17 +788,17 @@ Tf   = %(tf).3f</translation>
 <context>
     <name>plant.view</name>
     <message>
-        <location filename="../views/plant_view.py" line="122"/>
+        <location filename="../views/plant_view.py" line="123"/>
         <source>Step Response</source>
         <translation>Step Response</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="123"/>
+        <location filename="../views/plant_view.py" line="124"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="124"/>
+        <location filename="../views/plant_view.py" line="125"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>

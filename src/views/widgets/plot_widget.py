@@ -50,15 +50,12 @@ class PlotWidget(BaseView, QWidget):
 
     def __init__(self, ui_context: UiContext, vm: PlotViewModel,
                  plot_configuration: PlotWidgetConfiguration,
-                 format_spec: str = ".3f",
                  parent: QObject = None):
         QWidget.__init__(self, parent)
 
         self._vm = vm
         self._cfg = plot_configuration
         self._series_checkboxes: dict[str, QCheckBox] = {}
-
-        self._format_spec = format_spec
 
         BaseView.__init__(self, ui_context)
 
@@ -132,6 +129,7 @@ class PlotWidget(BaseView, QWidget):
         self._chk_grid = QCheckBox("", self)
         self._chk_grid.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         layout.addWidget(self._chk_grid)
+        self._field_widgets.setdefault(PlotField.GRID, self._chk_grid)
 
         layout.addStretch()  # keeps everything left-aligned
         return layout
@@ -151,9 +149,15 @@ class PlotWidget(BaseView, QWidget):
     # -------------------------------------------------
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
-        self._chk_grid.stateChanged.connect(self._on_chk_grid_changed)
-        self._txt_min.editingFinished.connect(self._on_txt_min_changed)
-        self._txt_max.editingFinished.connect(self._on_txt_max_changed)
+        attributes: dict[PlotField, tuple[str, str, object]] = {
+            PlotField.X_MIN: ("editingFinished", "_vm.x_min", float),
+            PlotField.X_MAX: ("editingFinished", "_vm.x_max", float),
+            PlotField.GRID: ("stateChanged", "_vm.grid", bool),
+        }
+        for key, value in attributes.items():
+            attr, vm_attr, value_type = value
+            getattr(self._field_widgets[key], attr).connect(
+                partial(self._on_widget_changed, key, vm_attr, value_type=value_type))
 
     # -------------------------------------------------
     # ViewModel bindings (ViewModel → UI)
@@ -163,9 +167,9 @@ class PlotWidget(BaseView, QWidget):
         # Thread-safe call to update plot
         self._vm.validationFailed.connect(self._on_validation_failed)
         self._vm.gridChanged.connect(self._update_plot)
-        self._vm.xMinChanged.connect(self._on_vm_min_changed)
-        self._vm.xMaxChanged.connect(self._on_vm_max_changed)
         self._vm.dataChanged.connect(self._update_plot)
+        self._vm.xMinChanged.connect(partial(self._on_vm_changed, PlotField.X_MIN, "_vm.x_min"))
+        self._vm.xMaxChanged.connect(partial(self._on_vm_changed, PlotField.X_MAX, "_vm.x_max"))
 
     # -------------------------------------------------
     # Translation
@@ -184,22 +188,9 @@ class PlotWidget(BaseView, QWidget):
     # -------------------------------------------------
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
-        self._txt_min.setText(f"{self._vm.x_min:{self._format_spec}}")
-        self._txt_max.setText(f"{self._vm.x_max:{self._format_spec}}")
+        self._txt_min.setText(f"{self._vm.x_min}")
+        self._txt_max.setText(f"{self._vm.x_max}")
         self._chk_grid.setChecked(self._vm.grid)
-
-    # -------------------------------------------------
-    # ViewModel change handlers
-    # -------------------------------------------------
-    def _on_vm_min_changed(self) -> None:
-        min_text = f"{self._vm.x_min:{self._format_spec}}"
-        if self._txt_min.text() != min_text:
-            self._txt_min.setText(min_text)
-
-    def _on_vm_max_changed(self) -> None:
-        max_text = f"{self._vm.x_max:{self._format_spec}}"
-        if self._txt_max.text() != max_text:
-            self._txt_max.setText(max_text)
 
     # -------------------------------------------------
     # Plot update
@@ -207,7 +198,7 @@ class PlotWidget(BaseView, QWidget):
     def _update_plot(self) -> None:
         """Redraw the plot, including axes, legends, and grid."""
         self._logger.debug(
-            f"Updating plot (grid={self._vm.grid}, xlim=[{self._vm.x_min:.6f}, {self._vm.x_max:.6f}])"
+            f"Updating plot (grid={self._vm.grid}, xlim=[{self._vm.x_min}, {self._vm.x_max}])"
         )
 
         context = self._cfg.context
@@ -356,36 +347,9 @@ class PlotWidget(BaseView, QWidget):
     # -------------------------------------------------
     # UI event handlers
     # -------------------------------------------------
-    def _on_chk_grid_changed(self) -> None:
-        checked = self._chk_grid.isChecked()
-        self._logger.debug(f"UI event: grid changed -> {checked}")
-        self._vm.grid = checked
-
     def _on_series_checkbox_toggled(self, key: str, checked: bool) -> None:
         self._logger.debug(f"UI event: series visibility changed -> {key}={checked}")
         self._vm.set_data_visibility(key, checked)
-
-    def _on_txt_min_changed(self) -> None:
-        try:
-            value = float(self._txt_min.text())
-        except ValueError:
-            self._txt_min.setText(f"{self._vm.x_min:{self._format_spec}}")
-            return
-
-        self._clear_input_error(self._txt_min)
-        self._logger.debug(f"UI event: x_min changed -> {value:.6f}")
-        self._vm.x_min = value
-
-    def _on_txt_max_changed(self) -> None:
-        try:
-            value = float(self._txt_max.text())
-        except ValueError:
-            self._txt_max.setText(f"{self._vm.x_max:{self._format_spec}}")
-            return
-
-        self._clear_input_error(self._txt_max)
-        self._logger.debug(f"UI event: x_max changed -> {value:.6f}")
-        self._vm.x_max = value
 
     def resizeEvent(self, event) -> None:
         """Redraw canvas on widget resize."""
