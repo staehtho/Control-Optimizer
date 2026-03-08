@@ -403,43 +403,43 @@
     <name>PlantView</name>
     <message>
         <location filename="../views/plant_view.py" line="69"/>
-        <location filename="../views/plant_view.py" line="165"/>
+        <location filename="../views/plant_view.py" line="168"/>
         <source>plant.num</source>
         <translation>Numerator</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="83"/>
-        <location filename="../views/plant_view.py" line="166"/>
+        <location filename="../views/plant_view.py" line="84"/>
+        <location filename="../views/plant_view.py" line="169"/>
         <source>plant.den</source>
         <translation>Denumerator</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="162"/>
+        <location filename="../views/plant_view.py" line="165"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="163"/>
+        <location filename="../views/plant_view.py" line="166"/>
         <source>Transfer function</source>
         <translation>Transfer function</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="164"/>
+        <location filename="../views/plant_view.py" line="167"/>
         <source>Step Response</source>
         <translation>Step Response</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="167"/>
+        <location filename="../views/plant_view.py" line="170"/>
         <source>e.g. 1  → 1</source>
         <translation>e.g. 1  → 1</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="168"/>
+        <location filename="../views/plant_view.py" line="171"/>
         <source>e.g. 1, 0, 0  → 1*s^2 + 0*s + 0</source>
         <translation>e.g. 1, 0, 0  → 1*s² + 0*s + 0</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="170"/>
+        <location filename="../views/plant_view.py" line="173"/>
         <source>tooltip_num_den</source>
         <translation>Enter coefficients separated by commas, spaces, or semicolons.
 Use &apos;.&apos; as the decimal point.
@@ -455,6 +455,34 @@ Example: 1, 0.5, 2 → 1*s^2 + 0.5*s + 2</source>
 Use &apos;.&apos; as the decimal point.
 The first number corresponds to the highest power of s.
 Example: 1, 0.5, 2 → 1*s^2 + 0.5*s + 2</translation>
+    </message>
+</context>
+<context>
+    <name>PlantViewModel</name>
+    <message>
+        <location filename="../viewmodels/plant_viewmodel.py" line="69"/>
+        <source>Invalid numerator: enter at least one numeric coefficient.</source>
+        <translation>Invalid numerator: enter at least one numeric coefficient.</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/plant_viewmodel.py" line="129"/>
+        <source>Invalid denominator: enter at least one numeric coefficient.</source>
+        <translation>Invalid denominator: enter at least one numeric coefficient.</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/plant_viewmodel.py" line="282"/>
+        <source>Invalid numerator: first coefficient must be non-zero.</source>
+        <translation>Invalid numerator: first coefficient must be non-zero.</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/plant_viewmodel.py" line="288"/>
+        <source>Invalid denominator: first coefficient must be non-zero.</source>
+        <translation>Invalid denominator: first coefficient must be non-zero.</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/plant_viewmodel.py" line="298"/>
+        <source>Invalid transfer function: denominator order must be greater than or equal to numerator order.</source>
+        <translation>Invalid transfer function: denominator order must be greater than or equal to numerator order.</translation>
     </message>
 </context>
 <context>
@@ -788,17 +816,17 @@ Tf   = %(tf).3f</translation>
 <context>
     <name>plant.view</name>
     <message>
-        <location filename="../views/plant_view.py" line="123"/>
+        <location filename="../views/plant_view.py" line="125"/>
         <source>Step Response</source>
         <translation>Step Response</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="124"/>
+        <location filename="../views/plant_view.py" line="126"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="125"/>
+        <location filename="../views/plant_view.py" line="127"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>

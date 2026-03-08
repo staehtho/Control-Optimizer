@@ -6,7 +6,7 @@ from numpy import ndarray
 
 from app_domain.ui_context import UiContext
 from viewmodels import PlantViewModel, PlotViewModel
-from viewmodels.types import PlotData
+from viewmodels.types import PlotData, PlantField
 from .base_view import BaseView
 from views.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, ExpandableFrame, FormulaWidget
@@ -73,6 +73,7 @@ class PlantView(BaseView, QWidget):
 
         # Set fixed width (height follows style automatically)
         self._txt_num.setFixedWidth(220)
+        self._field_widgets[PlantField.NUM] = self._txt_num
 
         grid_layout.addWidget(self._lbl_num, 0, 0)
         grid_layout.addWidget(self._txt_num, 0, 1)
@@ -87,6 +88,7 @@ class PlantView(BaseView, QWidget):
 
         # Same fixed width for visual consistency
         self._txt_den.setFixedWidth(220)
+        self._field_widgets[PlantField.DEN] = self._txt_den
 
         grid_layout.addWidget(self._lbl_den, 1, 0)
         grid_layout.addWidget(self._txt_den, 1, 1)
@@ -146,6 +148,7 @@ class PlantView(BaseView, QWidget):
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
         # vm plant
+        self._vm_plant.validationFailed.connect(self._on_validation_failed)
         self._vm_plant.numChanged.connect(self._on_vm_num_changed)
         self._vm_plant.denChanged.connect(self._on_vm_den_changed)
         self._vm_plant.tfChanged.connect(self._on_vm_formula_changed)
@@ -176,7 +179,6 @@ class PlantView(BaseView, QWidget):
     # -------------------------------------------------
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
-        # No initial value to apply
         ...
 
     # -------------------------------------------------
@@ -217,11 +219,13 @@ class PlantView(BaseView, QWidget):
     def _on_txt_num_changed(self) -> None:
         """Handle user changes in numerator input field."""
         text = self._txt_num.text()
+        self._clear_input_error(self._txt_num)
         self._logger.debug(f"UI event: txt_num changed (value={text})")
         self._vm_plant.update_num(text)
 
     def _on_txt_den_changed(self) -> None:
         """Handle user changes in denominator input field."""
         text = self._txt_den.text()
+        self._clear_input_error(self._txt_den)
         self._logger.debug(f"UI event: txt_den changed (value={text})")
         self._vm_plant.update_den(text)

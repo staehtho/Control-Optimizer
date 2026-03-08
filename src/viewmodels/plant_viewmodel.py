@@ -8,6 +8,7 @@ from app_domain.engine.types import PlantResponseContext
 from models import ModelContainer, PlantModel, SettingsModel
 from service import SimulationService
 from utils import LatexRenderer, LoggedProperty
+from .types import PlantField, ValidationResult
 from .base_viewmodel import BaseViewModel
 
 
@@ -61,7 +62,18 @@ class PlantViewModel(BaseViewModel):
         arr = self._str2array(value)
 
         if len(arr) == 0:
+            self._verify(
+                PlantField.NUM,
+                self._validate_non_empty_array(
+                    arr=arr,
+                    message=self.tr("Invalid numerator: enter at least one numeric coefficient."),
+                ),
+            )
             self.logger.debug("Skipped 'num' update (string -> array conversion failed)")
+            return
+
+        if not self._validate_num_den_candidate(num=arr, den=self._model_plant.den, field=PlantField.NUM):
+            self.logger.debug("Skipped 'num' update (num/den relation validation failed)")
             return
 
         if self._model_plant.num == arr:
@@ -110,7 +122,18 @@ class PlantViewModel(BaseViewModel):
         arr = self._str2array(value)
 
         if len(arr) == 0:
+            self._verify(
+                PlantField.DEN,
+                self._validate_non_empty_array(
+                    arr=arr,
+                    message=self.tr("Invalid denominator: enter at least one numeric coefficient."),
+                ),
+            )
             self.logger.debug("Skipped 'den' update (string -> array conversion failed)")
+            return
+
+        if not self._validate_num_den_candidate(num=self._model_plant.num, den=arr, field=PlantField.DEN):
+            self.logger.debug("Skipped 'den' update (num/den relation validation failed)")
             return
 
         if self._model_plant.den == arr:
@@ -242,3 +265,37 @@ class PlantViewModel(BaseViewModel):
         except ValueError:
             self.logger.debug(f"Cannot parse '{text}'")
             return []
+
+    @staticmethod
+    def _validate_non_empty_array(*, arr: list[float], message: str) -> ValidationResult:
+        if len(arr) == 0:
+            return ValidationResult(False, message)
+        return ValidationResult(True)
+
+    def _validate_num_den_candidate(self, *, num: list[float], den: list[float], field: PlantField) -> bool:
+        if len(num) == 0 or len(den) == 0:
+            return True
+
+        if num[0] == 0:
+            return self._verify(
+                field,
+                ValidationResult(False, self.tr("Invalid numerator: first coefficient must be non-zero.")),
+            )
+
+        if den[0] == 0:
+            return self._verify(
+                field,
+                ValidationResult(False, self.tr("Invalid denominator: first coefficient must be non-zero.")),
+            )
+
+        return self._verify(
+            field,
+            self._validate_relation(
+                value=len(num),
+                other=len(den),
+                relation="<=",
+                message=self.tr(
+                    "Invalid transfer function: denominator order must be greater than or equal to numerator order."
+                ),
+            ),
+        )
