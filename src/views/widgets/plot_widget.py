@@ -188,8 +188,8 @@ class PlotWidget(BaseView, QWidget):
     # -------------------------------------------------
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
-        self._txt_min.setText(f"{self._vm.x_min}")
-        self._txt_max.setText(f"{self._vm.x_max}")
+        self._txt_min.setText(self._format_value(self._vm.x_min))
+        self._txt_max.setText(self._format_value(self._vm.x_max))
         self._chk_grid.setChecked(self._vm.grid)
 
     # -------------------------------------------------

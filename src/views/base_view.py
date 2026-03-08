@@ -4,8 +4,7 @@ from PySide6.QtWidgets import (
     QWidget, QLayout, QLabel, QComboBox, QGridLayout, QFrame, QVBoxLayout, QLineEdit, QCheckBox, QSpinBox,
     QDoubleSpinBox, QScrollArea, QApplication, QToolTip
 )
-from PySide6.QtGui import QFont
-from PySide6.QtCore import Qt, QPoint
+from PySide6.QtCore import QPoint
 from PySide6.QtGui import QDoubleValidator
 from dataclasses import dataclass
 from typing import Type, ClassVar, Optional
@@ -138,17 +137,6 @@ class BaseView:
                 elif item.layout() is not None:
                     self._clear_layout(item.layout())
 
-    def _apply_title_property(self, lbl: QLabel, font_size: int = 0) -> None:
-        font = QFont()
-        font.setPointSize(self._title_size if font_size == 0 else font_size)  # size in pt
-        font.setBold(True)
-        lbl.setFont(font)
-        lbl.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        if font_size == 0:
-            lbl.setObjectName("viewTitle")
-        else:
-            lbl.setObjectName("sectionTitle")
-
     @staticmethod
     def _cmb_add_item(cmb: QComboBox, data: dict) -> None:
         current_data = cmb.currentData()
@@ -183,7 +171,7 @@ class BaseView:
 
                 frame_layout = QVBoxLayout(frame)
                 label = QLabel(frame)
-                self._apply_title_property(label, int(self._title_size * 0.75))
+                label.setObjectName("sectionTitle")
                 frame_layout.addWidget(label)
                 self._labels[field.key] = label
 
@@ -401,6 +389,17 @@ class BaseView:
         # Set the final attribute to the new value
         setattr(attr, attrs[-1], value)
 
+    @staticmethod
+    def _format_value(value):
+        """Format floats for display using scientific notation for very large or small values."""
+        if isinstance(value, float):
+            if value == 0.0:
+                return "0.0"
+            if abs(value) >= 1e4 or abs(value) < 1e-3:
+                return f"{value:.1e}"
+
+        return str(value)
+
     def _on_vm_changed(self, key: str | FieldType, attribute: str) -> None:
         """Update a widget to reflect the current value of its corresponding attribute.
 
@@ -409,11 +408,12 @@ class BaseView:
         the current value of the attribute in the model or view-model.
 
         Args:
-            key (str | FieldType): The key identifying the widget in self._field_widgets.
-            attribute (str): The dotted path to the attribute to read
-                             (e.g., "_vm_controller.anti_windup").
+            key: Key identifying the widget in ``self._field_widgets``.
+            attribute: Dotted path to the attribute to read
+                       (e.g., "_vm_controller.anti_windup").
         """
-        # Traverse the dotted attribute path to get the current value
+
+        # Traverse dotted attribute path
         attr = self
         for attr_name in attribute.split("."):
             attr = getattr(attr, attr_name)
@@ -427,6 +427,9 @@ class BaseView:
             self._logger.warning(f"No widget found for key '{key}'")
             return
 
+        # Format value if necessary
+        formatted_value = self._format_value(value)
+
         # Update based on widget type
         if isinstance(widget, QComboBox):
             current_value = widget.currentData()
@@ -436,8 +439,9 @@ class BaseView:
                     widget.setCurrentIndex(index)
 
         elif isinstance(widget, QLineEdit):
-            if widget.text() != str(value):
-                widget.setText(str(value))
+            text_value = str(formatted_value)
+            if widget.text() != text_value:
+                widget.setText(text_value)
 
         elif isinstance(widget, (QSpinBox, QDoubleSpinBox)):
             if widget.value() != value:
@@ -448,5 +452,6 @@ class BaseView:
                 widget.setChecked(bool(value))
 
         else:
-            self._logger.warning(f"Widget type '{type(widget)}' not handled for key '{key}'")
-
+            self._logger.warning(
+                f"Widget type '{type(widget)}' not handled for key '{key}'"
+            )

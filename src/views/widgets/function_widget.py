@@ -98,7 +98,7 @@ class FunctionWidget(BaseView, QWidget):
             txt_param = QLineEdit(self._param_widget)
             txt_param.setValidator(QDoubleValidator())
             txt_param.setFixedWidth(80)
-            txt_param.setText(f"{value}")
+            txt_param.setText(self._format_value(value))
 
             self._txt_function_params[label] = txt_param
             grid.addWidget(txt_param, row, col + 1)
@@ -207,10 +207,15 @@ class FunctionWidget(BaseView, QWidget):
         This prevents feedback loops.
         """
         txt = self._txt_function_params.get(key)
-        value = self._vm_function.selected_function.get_param_value(key)
-        txt.setText(f"{value}")
+        if txt is None:
+            return
 
-        self.functionChanged.emit()
+        value = self._vm_function.selected_function.get_param_value(key)
+        formatted_value = self._format_value(value)
+
+        if txt.text() != formatted_value:
+            txt.setText(formatted_value)
+            self.functionChanged.emit()
 
     # -------------------------------------------------
     # UI event handlers
@@ -242,7 +247,8 @@ class FunctionWidget(BaseView, QWidget):
         except ValueError:
             # Invalid input → restore ViewModel value
             value = self._vm_function.selected_function.get_param_value(key)
-            txt.setText(f"{value}")
+            txt.setText(self._format_value(value))
             return
 
+        txt.setText(self._format_value(value))
         self._vm_function.update_param_value(key, value)

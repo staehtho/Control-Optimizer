@@ -101,7 +101,6 @@ if __name__ == '__main__':
             parent=parent
         )
     }
-    # TODO: format exponential for x_min and x_max
 
     main_view = MainView(ui_context, items, view_factories, engine.vm_pso)
     main_view.show()
