@@ -114,9 +114,7 @@ class SimulationView(BaseView, QWidget):
     # -------------------------------------------------
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
-        for key, widget in self._field_widgets.items():
-            if isinstance(widget, FunctionWidget):
-                widget.functionChanged.connect(partial(self._on_vm_function_changed, key))
+        ...
 
     # -------------------------------------------------
     # ViewModel bindings (ViewModel -> UI)
@@ -135,6 +133,10 @@ class SimulationView(BaseView, QWidget):
         # Plot ViewModel -> Function recomputation
         self._vm_plot.xMinChanged.connect(self._on_vm_time_changed)
         self._vm_plot.xMaxChanged.connect(self._on_vm_time_changed)
+
+        # Function ViewModels
+        for key, vm in self._vm_functions.items():
+            vm.functionChanged.connect(partial(self._on_vm_function_changed, key))
 
     # -------------------------------------------------
     # Translation

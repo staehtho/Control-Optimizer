@@ -107,3 +107,4 @@ class FunctionViewModel(BaseViewModel):
                 self.logger.info(f"Parameter '{key}' updated from {old_value:.6f} to {value:.6f}")
                 self._recalc_timer.start(100)  # 100 ms wait before recompute
                 self.parameterChanged.emit(key)
+                self.functionChanged.emit()

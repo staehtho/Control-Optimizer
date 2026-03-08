@@ -770,17 +770,17 @@ Tf   = %(tf).3f</translation>
     </message>
     <message>
         <location filename="../views/simulation_view.py" line="100"/>
-        <location filename="../views/simulation_view.py" line="146"/>
+        <location filename="../views/simulation_view.py" line="148"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/simulation_view.py" line="144"/>
+        <location filename="../views/simulation_view.py" line="146"/>
         <source>Simulation</source>
         <translation>Simulation</translation>
     </message>
     <message>
-        <location filename="../views/simulation_view.py" line="145"/>
+        <location filename="../views/simulation_view.py" line="147"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
     </message>
