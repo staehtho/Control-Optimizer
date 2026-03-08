@@ -38,28 +38,30 @@ def create_interactive_particle_plot(csv_path, run_id=None, out_html="particle_3
     init_df = by_call[init_cid]
     init_colors = colors_from_v(init_df["V"])
 
-    # Nur Punkte (keine Trails)
     traces = []
+    for pid in particle_ids:
+        g2 = by_particle[pid][by_particle[pid]["call_id"] <= init_cid]
+        traces.append(go.Scatter3d(
+            x=g2["Kp"], y=g2["Ti"], z=g2["Td"],
+            mode="lines", line=dict(width=3), opacity=0.35,
+            showlegend=False, hoverinfo="skip"
+        ))
 
-    # Current particle positions (initial frame)
     traces.append(go.Scatter3d(
         x=init_df["Kp"], y=init_df["Ti"], z=init_df["Td"],
         mode="markers",
         marker=dict(size=5, color=init_colors, line=dict(width=1, color="black")),
         text=[f"particle={int(p)}<br>V={v}<br>Kp={kp:.3f}<br>Ti={ti:.3f}<br>Td={td:.3f}"
-              for p, v, kp, ti, td in
-              zip(init_df["particle_idx"], init_df["V"], init_df["Kp"], init_df["Ti"], init_df["Td"])],
+              for p, v, kp, ti, td in zip(init_df["particle_idx"], init_df["V"], init_df["Kp"], init_df["Ti"], init_df["Td"])],
         hovertemplate="%{text}<extra></extra>",
         name="Partikel"
     ))
 
-    # Global best point (always visible)
     traces.append(go.Scatter3d(
         x=[best_xyz[0]], y=[best_xyz[1]], z=[best_xyz[2]],
         mode="markers",
         marker=dict(size=9, symbol="diamond", color="gold", line=dict(width=2, color="black")),
-        text=[
-            f"Globales Minimum ({cost_col})<br>{cost_col}={best_row[cost_col]:.6g}<br>Kp={best_xyz[0]:.3f}<br>Ti={best_xyz[1]:.3f}<br>Td={best_xyz[2]:.3f}"],
+        text=[f"Globales Minimum ({cost_col})<br>{cost_col}={best_row[cost_col]:.6g}<br>Kp={best_xyz[0]:.3f}<br>Ti={best_xyz[1]:.3f}<br>Td={best_xyz[2]:.3f}"],
         hovertemplate="%{text}<extra></extra>",
         name="Globales Minimum"
     ))
@@ -70,8 +72,14 @@ def create_interactive_particle_plot(csv_path, run_id=None, out_html="particle_3
         cur_colors = colors_from_v(cur["V"])
 
         frame_traces = []
+        for pid in particle_ids:
+            g2 = by_particle[pid][by_particle[pid]["call_id"] <= cid]
+            frame_traces.append(go.Scatter3d(
+                x=g2["Kp"], y=g2["Ti"], z=g2["Td"],
+                mode="lines", line=dict(width=3), opacity=0.35,
+                showlegend=False, hoverinfo="skip"
+            ))
 
-        # Nur aktuelle Partikelpositionen (keine Linien)
         frame_traces.append(go.Scatter3d(
             x=cur["Kp"], y=cur["Ti"], z=cur["Td"],
             mode="markers",
@@ -82,13 +90,11 @@ def create_interactive_particle_plot(csv_path, run_id=None, out_html="particle_3
             name="Partikel"
         ))
 
-        # Global best point bleibt sichtbar
         frame_traces.append(go.Scatter3d(
             x=[best_xyz[0]], y=[best_xyz[1]], z=[best_xyz[2]],
             mode="markers",
             marker=dict(size=9, symbol="diamond", color="gold", line=dict(width=2, color="black")),
-            text=[
-                f"Globales Minimum ({cost_col})<br>{cost_col}={best_row[cost_col]:.6g}<br>Kp={best_xyz[0]:.3f}<br>Ti={best_xyz[1]:.3f}<br>Td={best_xyz[2]:.3f}"],
+            text=[f"Globales Minimum ({cost_col})<br>{cost_col}={best_row[cost_col]:.6g}<br>Kp={best_xyz[0]:.3f}<br>Ti={best_xyz[1]:.3f}<br>Td={best_xyz[2]:.3f}"],
             hovertemplate="%{text}<extra></extra>",
             name="Globales Minimum"
         ))
