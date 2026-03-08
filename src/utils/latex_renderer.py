@@ -3,7 +3,7 @@ import logging
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
-from PySide6.QtGui import QPixmap, QPalette
+from PySide6.QtGui import QPixmap, QPalette, QColor
 from PySide6.QtWidgets import QApplication
 
 
@@ -17,19 +17,15 @@ class LatexRenderer:
 
         app = QApplication.instance()
 
-        # --- Color from active app theme ---
-        app_theme = app.property("appTheme")
-        if app_theme == "light":
-            color = (0.09, 0.13, 0.17)
-        elif app_theme == "dark":
-            color = (0.90, 0.93, 0.96)
-        else:
-            qt_color = app.palette().color(QPalette.Text)
-            color = (
-                qt_color.redF(),
-                qt_color.greenF(),
-                qt_color.blueF(),
-            )
+        # --- Color from active app theme (derived from QSS) ---
+        theme_text_color = app.property("themeTextColor")
+        if not isinstance(theme_text_color, QColor) or not theme_text_color.isValid():
+            theme_text_color = app.palette().color(QPalette.Text)
+        color = (
+            theme_text_color.redF(),
+            theme_text_color.greenF(),
+            theme_text_color.blueF(),
+        )
 
         # --- Qt Font & DPI ---
         font = app.font()

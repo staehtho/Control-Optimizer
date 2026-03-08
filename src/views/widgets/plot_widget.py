@@ -367,8 +367,10 @@ class PlotWidget(BaseView, QWidget):
         if not hasattr(self, "_toolbar"):
             return
 
-        app_theme = QCoreApplication.instance().property("appTheme")
-        icon_color = QColor("#17212b") if app_theme == "light" else QColor("#e2e8f0")
+        app = QCoreApplication.instance()
+        icon_color = app.property("themeTextColor")
+        if not isinstance(icon_color, QColor) or not icon_color.isValid():
+            icon_color = self.palette().color(self.foregroundRole())
 
         image_keys = {}
         for item in getattr(self._toolbar, "toolitems", []):

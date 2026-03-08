@@ -1,16 +1,17 @@
 import logging
+import re
 from weakref import WeakSet
 from PySide6.QtWidgets import (
     QWidget, QLayout, QLabel, QComboBox, QGridLayout, QFrame, QVBoxLayout, QLineEdit, QCheckBox, QSpinBox,
     QDoubleSpinBox, QScrollArea, QApplication, QToolTip
 )
 from PySide6.QtCore import QPoint
-from PySide6.QtGui import QDoubleValidator
+from PySide6.QtGui import QDoubleValidator, QColor
 from dataclasses import dataclass
 from typing import Type, ClassVar, Optional
 
 from app_domain.ui_context import UiContext
-from viewmodels.types import FieldType
+from viewmodels.types import FieldType, ThemeType
 from views.translations import Translation
 
 
@@ -38,16 +39,28 @@ class BaseView:
     """
 
     _instances: ClassVar[WeakSet] = WeakSet()
-    _active_theme: ClassVar[str] = "dark"
-    _themes: ClassVar[dict[str, str]] = {}
+    _active_theme: ClassVar[ThemeType] = ThemeType.DARK
+    _themes: ClassVar[dict[ThemeType, str]] = {}
+    _theme_text_colors: ClassVar[dict[ThemeType, QColor]] = {}
 
     @classmethod
-    def load_themes(cls, themes: dict[str, str], active_theme: str) -> None:
-        cls._themes = dict(themes)
+    def load_themes(cls, themes: dict[ThemeType | str, str], active_theme: ThemeType | str) -> None:
+        normalized_themes: dict[ThemeType, str] = {}
+        text_colors: dict[ThemeType, QColor] = {}
+        for key, value in themes.items():
+            theme_key = key if isinstance(key, ThemeType) else ThemeType(key)
+            normalized_themes[theme_key] = value
+            extracted = cls._extract_qwidget_text_color(value)
+            if extracted is not None:
+                text_colors[theme_key] = extracted
+
+        cls._themes = normalized_themes
+        cls._theme_text_colors = text_colors
         if not cls._themes:
             raise ValueError("No themes provided")
 
-        cls._active_theme = active_theme if active_theme in cls._themes else next(iter(cls._themes))
+        active = active_theme if isinstance(active_theme, ThemeType) else ThemeType(active_theme)
+        cls._active_theme = active if active in cls._themes else next(iter(cls._themes))
 
     def __init__(self, ui_context: "UiContext"):
         self._ui_context = ui_context
@@ -286,8 +299,19 @@ class BaseView:
         app = QApplication.instance()
         if app is not None:
             app.setProperty("appTheme", BaseView._active_theme)
+            text_color = BaseView._theme_text_colors.get(BaseView._active_theme)
+            if text_color is not None:
+                app.setProperty("themeTextColor", text_color)
 
         self._on_theme_applied()
+
+    @staticmethod
+    def _extract_qwidget_text_color(stylesheet: str) -> QColor | None:
+        match = re.search(r"QWidget\s*\{[^}]*\bcolor\s*:\s*([^;]+);", stylesheet, flags=re.IGNORECASE | re.DOTALL)
+        if match is None:
+            return None
+        color = QColor(match.group(1).strip())
+        return color if color.isValid() else None
 
     def _on_theme_applied(self) -> None:
         """Hook for subclasses that need non-QSS theme updates."""
@@ -325,11 +349,13 @@ class BaseView:
         widget.setProperty("_input_invalid", False)
 
     @classmethod
-    def set_theme(cls, theme: str) -> None:
-        if theme not in cls._themes:
-            raise ValueError(f"Unknown theme '{theme}'. Valid themes: {', '.join(cls._themes.keys())}")
+    def set_theme(cls, theme: ThemeType | str) -> None:
+        theme_type = theme if isinstance(theme, ThemeType) else ThemeType(theme)
+        if theme_type not in cls._themes:
+            valid = ", ".join(theme_type.value for theme_type in cls._themes.keys())
+            raise ValueError(f"Unknown theme '{theme}'. Valid themes: {valid}")
 
-        cls._active_theme = theme
+        cls._active_theme = theme_type
 
         for view in list(cls._instances):
             view.apply_theme()

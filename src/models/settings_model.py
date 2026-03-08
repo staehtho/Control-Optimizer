@@ -37,13 +37,11 @@ class SettingsModel:
         # Initialize QSettings with the INI file path
         self._settings = QSettings(
             str(self._config_base_dir / settings_file),
-            QSettings.IniFormat
+            QSettings.Format.IniFormat
         )
 
-        # Load language configuration JSON
-        self._lang_cfg: dict = self._load_json(
-            self._config_base_dir / "languages.json"
-        ).get("languages", {})
+        # Load available language .qm from i18n/*.qm
+        self._lang_cfg: dict[str, str] = self._load_language()
 
         # Load available theme stylesheets from config/themes/*.qss
         self._theme_cfg: dict[str, str] = self._load_themes()
@@ -55,13 +53,6 @@ class SettingsModel:
             list(self._lang_cfg.keys()),
             list(self._theme_cfg.keys()),
         )
-
-    # -------------------
-    # language config accessors
-    # -------------------
-    def get_languages_cfg(self) -> dict:
-        """Returns the dictionary of available language configurations."""
-        return self._lang_cfg
 
     # -------------------
     # UI language
@@ -215,12 +206,12 @@ class SettingsModel:
     # -------------------
     # QM-File loader
     # -------------------
-    def get_qm_file(self, lang: str) -> Path:
+    def get_qm_file(self, lang_key: str) -> Path:
         """Returns the path to the QM file.
         Args:
-            lang (str): Language of the QM file.
+            lang_key (str): Language of the QM file.
         """
-        return self._i18n_base_dir / self._lang_cfg[lang]["qm"]
+        return self._i18n_base_dir / (self._lang_cfg.get(lang_key) + ".qm")
 
     # -------------------
     # JSON loader helper
@@ -248,6 +239,17 @@ class SettingsModel:
         with open(path, "r", encoding="utf-8") as f:
             self._logger.debug(f"Loaded JSON from {path}")
             return json.load(f)
+
+    def _load_language(self) -> dict[str, str]:
+        lang_json = self._load_json(self._config_base_dir / "languages.json")
+        languages: dict[str, str] = {}
+
+        base_file_name = lang_json.get("base_file_name", "")
+        for lang in lang_json.get("languages", []):
+            languages.setdefault(lang, base_file_name + lang)
+
+        self._logger.debug(f"Loaded languages from {lang_json}")
+        return languages
 
     def _load_themes(self) -> dict[str, str]:
         """Loads all theme stylesheets from config/themes/*.qss."""
