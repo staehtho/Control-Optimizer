@@ -1,7 +1,7 @@
 # src/services/controlsys/freq_metrics.py
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import numpy as np
 
@@ -13,7 +13,7 @@ def pid_controller_freq_response(
     Tf: np.ndarray,
     s: np.ndarray,
 ) -> np.ndarray:
-    """Computes the frequency response of a PID controller with derivative filter.
+    """Compute the frequency response of a PID controller with derivative filter.
 
     The controller transfer function is:
 
@@ -22,64 +22,148 @@ def pid_controller_freq_response(
     This function is vectorized and supports broadcasting. Typical usage within
     batch evaluation:
 
-        C = pid_controller_freq_response(Kp[:, None], Ti[:, None], Td[:, None],
-                                         Tf[:, None], s[None, :])
+        C = pid_controller_freq_response(
+            Kp[:, None],
+            Ti[:, None],
+            Td[:, None],
+            Tf[:, None],
+            s[None, :],
+        )
 
     Args:
-        Kp: Proportional gain(s). Shape must be broadcastable to `s`.
-        Ti: Integral time constant(s). Shape must be broadcastable to `s`.
-        Td: Derivative time constant(s). Shape must be broadcastable to `s`.
-        Tf: Derivative filter time constant(s). Shape must be broadcastable to `s`.
-        s: Complex frequency points (e.g., 1j * omega). Typically shape (N,).
+        Kp: Proportional gain(s). Shape must be broadcastable to ``s``.
+        Ti: Integral time constant(s). Shape must be broadcastable to ``s``.
+        Td: Derivative time constant(s). Shape must be broadcastable to ``s``.
+        Tf: Derivative filter time constant(s). Shape must be broadcastable to ``s``.
+        s: Complex frequency points (for example ``1j * omega``).
 
     Returns:
-        Complex frequency response C(s) evaluated at `s` with broadcasted shape.
-
-    Notes:
-        - Ti must be > 0 for physical PID behavior. If Ti is extremely small,
-          numerical overflow may occur; higher-level bounds should prevent that.
+        Complex controller response ``C(s)`` with broadcasted shape.
     """
     return Kp * (1.0 + 1.0 / (Ti * s) + (Td * s) / (Tf * s + 1.0))
 
 
 def _interp_x_at_y(x0: float, y0: float, x1: float, y1: float, y_target: float) -> float:
-    """Linearly interpolates the x-location where y crosses a target value.
-
-    Args:
-        x0: First x-coordinate.
-        y0: First y-coordinate.
-        x1: Second x-coordinate.
-        y1: Second y-coordinate.
-        y_target: Target y-value.
-
-    Returns:
-        Interpolated x-value where y equals y_target. If y0 == y1, returns the midpoint.
-    """
+    """Linearly interpolate the x-location where y crosses a target value."""
     if y1 == y0:
         return 0.5 * (x0 + x1)
     return x0 + (y_target - y0) * (x1 - x0) / (y1 - y0)
 
 
-def _finite_guard_mask(L: np.ndarray, S: np.ndarray) -> np.ndarray:
-    """Builds a per-candidate validity mask based on finiteness of L and S.
+def _outermost_crossing_batch_x(
+    x: np.ndarray,
+    y: np.ndarray,
+    target: float,
+    *,
+    atol: float = 1e-12,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Find the outermost / highest-frequency crossing for each row of ``y``.
+
+    A near-exact sample hit counts as a valid crossing. When multiple crossings
+    exist, the highest-frequency valid one is returned. On a target plateau,
+    the rightmost sample on that plateau wins.
 
     Args:
-        L: Open-loop frequency response, shape (P, N).
-        S: Sensitivity frequency response, shape (P, N).
+        x: Sample locations of shape ``(N,)``, ordered from low to high frequency.
+        y: Sample values of shape ``(P, N)``.
+        target: Target value to cross.
+        atol: Absolute tolerance for direct sample hits.
 
     Returns:
-        Boolean mask `ok_particles` of shape (P,) where True indicates that all
-        frequencies for that candidate are finite (no NaN/Inf) in both L and S.
-
-    Rationale:
-        Plants with poles on the imaginary axis (or other numerical pathologies)
-        can produce Inf/NaN at some frequencies. For robust optimization, those
-        candidates should be treated as invalid/infeasible and must not enter
-        phase unwrap or crossing detection logic.
+        Tuple ``(found, x_cross, k_left)`` with shape ``(P,)`` each, where
+        ``k_left`` is the left interval index used for interpolation or
+        bracketing. Undefined rows use ``found=False``, ``x_cross=NaN``,
+        ``k_left=-1``.
     """
-    finite_L = np.isfinite(L.real) & np.isfinite(L.imag)
-    finite_S = np.isfinite(S.real) & np.isfinite(S.imag)
-    return np.all(finite_L, axis=1) & np.all(finite_S, axis=1)
+    x = np.asarray(x, dtype=np.float64).reshape(-1)
+    y = np.asarray(y, dtype=np.float64)
+    if y.ndim == 1:
+        y = y[None, :]
+
+    if x.shape[0] != y.shape[1]:
+        raise ValueError("x length must match the last dimension of y.")
+    if x.shape[0] < 2:
+        P = y.shape[0]
+        return (
+            np.zeros(P, dtype=np.bool_),
+            np.full(P, np.nan, dtype=np.float64),
+            np.full(P, -1, dtype=np.int64),
+        )
+
+    target = float(target)
+
+    y0 = y[:, :-1]
+    y1 = y[:, 1:]
+
+    hit0 = np.isclose(y0, target, atol=atol, rtol=0.0)
+    hit1 = np.isclose(y1, target, atol=atol, rtol=0.0)
+
+    d0 = y0 - target
+    d1 = y1 - target
+    sign_change = (d0 * d1) < 0.0
+
+    candidates = hit0 | hit1 | sign_change
+    found = np.any(candidates, axis=1)
+
+    P, M = candidates.shape
+    last_from_right = np.argmax(candidates[:, ::-1], axis=1)
+    k_left = (M - 1) - last_from_right
+    k_left = np.where(found, k_left, -1).astype(np.int64, copy=False)
+
+    x_cross = np.full(P, np.nan, dtype=np.float64)
+    if not np.any(found):
+        return found, x_cross, k_left
+
+    rows = np.where(found)[0]
+    k = k_left[rows]
+
+    y0_sel = y0[rows, k]
+    y1_sel = y1[rows, k]
+    hit0_sel = hit0[rows, k]
+    hit1_sel = hit1[rows, k]
+
+    x0_sel = x[k]
+    x1_sel = x[k + 1]
+
+    interp_sel = np.where(
+        y1_sel == y0_sel,
+        0.5 * (x0_sel + x1_sel),
+        x0_sel + (target - y0_sel) * (x1_sel - x0_sel) / (y1_sel - y0_sel),
+    )
+
+    x_cross_sel = np.where(
+        hit1_sel,
+        x1_sel,
+        np.where(hit0_sel, x0_sel, interp_sel),
+    )
+    x_cross[rows] = x_cross_sel
+
+    return found, x_cross, k_left
+
+
+def _finite_complex_mask(z: np.ndarray) -> np.ndarray:
+    """Return per-entry finiteness mask for a complex array."""
+    return np.isfinite(z.real) & np.isfinite(z.imag)
+
+
+def _normalize_pid_params(
+    Kp: np.ndarray,
+    Ti: np.ndarray,
+    Td: np.ndarray,
+    Tf: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Normalize PID parameter arrays to shape (P,) and dtype float64."""
+    Kp = np.asarray(Kp, dtype=np.float64).reshape(-1)
+    Ti = np.asarray(Ti, dtype=np.float64).reshape(-1)
+    Td = np.asarray(Td, dtype=np.float64).reshape(-1)
+    Tf = np.asarray(Tf, dtype=np.float64).reshape(-1)
+
+    P = Kp.shape[0]
+    if not (Ti.shape[0] == P and Td.shape[0] == P and Tf.shape[0] == P):
+        raise ValueError("Kp, Ti, Td, and Tf must all have the same batch length.")
+
+    return Kp, Ti, Td, Tf
+
 
 def compute_loop_metrics_batch_from_frf(
     G: np.ndarray,
@@ -89,166 +173,47 @@ def compute_loop_metrics_batch_from_frf(
     Td: np.ndarray,
     Tf: np.ndarray,
 ) -> dict[str, np.ndarray]:
-    """
-    Compute PM/GM/Ms for a batch of PID candidates given a precomputed plant FRF.
+    """Compute PM, GM, and Ms for a batch of PID candidates on a fixed grid.
 
-    Args:
-        G: Plant frequency response G(jw), shape (N,), complex.
-        w: Frequency grid in rad/s, shape (N,), float.
-        Kp, Ti, Td, Tf: PID parameters, shape (P,), float.
-
-    Returns:
-        Metrics dict with keys: pm_deg, gm_db, ms, has_wc, has_w180, wc, w180,
-        plus debug keys: absL, phase_rad.
-    """
-    w = np.asarray(w, dtype=np.float64)
-    G = np.asarray(G, dtype=np.complex128)
-
-    Kp = np.asarray(Kp, dtype=np.float64).reshape(-1)
-    Ti = np.asarray(Ti, dtype=np.float64).reshape(-1)
-    Td = np.asarray(Td, dtype=np.float64).reshape(-1)
-    Tf = np.asarray(Tf, dtype=np.float64).reshape(-1)
-    P = Kp.shape[0]
-
-    s = 1j * w  # (N,)
-
-    # Controller FRF for all candidates: (P,N)
-    C = pid_controller_freq_response(Kp[:, None], Ti[:, None], Td[:, None], Tf[:, None], s[None, :])
-
-    # Open loop and sensitivity
-    L = C * G[None, :]
-    S = 1.0 / (1.0 + L)
-
-    ms = np.max(np.abs(S), axis=1)
-
-    mag_db = 20.0 * np.log10(np.maximum(np.abs(L), 1e-300))
-    phase = np.unwrap(np.angle(L), axis=1)
-
-    pm_deg = np.full(P, np.nan, dtype=np.float64)
-    gm_db = np.full(P, np.inf, dtype=np.float64)
-    wc = np.full(P, np.nan, dtype=np.float64)
-    w180 = np.full(P, np.nan, dtype=np.float64)
-    has_wc = np.zeros(P, dtype=np.bool_)
-    has_w180 = np.zeros(P, dtype=np.bool_)
-
-    # ---- PM: 0 dB crossover ----
-    target_mag_db = 0.0
-    for i in range(P):
-        y = mag_db[i]
-        sign = np.sign(y - target_mag_db)
-        idx = np.where(sign[:-1] * sign[1:] < 0)[0]
-        if idx.size == 0:
-            continue
-
-        k = idx[0]
-        wc_i = _interp_x_at_y(w[k], y[k], w[k + 1], y[k + 1], target_mag_db)
-
-        ph0, ph1 = phase[i, k], phase[i, k + 1]
-        if w[k + 1] != w[k]:
-            ph_wc = ph0 + (wc_i - w[k]) * (ph1 - ph0) / (w[k + 1] - w[k])
-        else:
-            ph_wc = 0.5 * (ph0 + ph1)
-
-        pm_deg[i] = 180.0 + np.degrees(ph_wc)
-        wc[i] = wc_i
-        has_wc[i] = True
-
-    # ---- GM: -180° crossover ----
-    target_phase = -np.pi
-    for i in range(P):
-        ph = phase[i]
-        signp = np.sign(ph - target_phase)
-        idxp = np.where(signp[:-1] * signp[1:] < 0)[0]
-        if idxp.size == 0:
-            continue  # GM missing => +inf (OK for GM_min)
-
-        k = idxp[0]
-        w180_i = _interp_x_at_y(w[k], ph[k], w[k + 1], ph[k + 1], target_phase)
-
-        m0, m1 = np.abs(L[i, k]), np.abs(L[i, k + 1])
-        if w[k + 1] != w[k]:
-            m_w180 = m0 + (w180_i - w[k]) * (m1 - m0) / (w[k + 1] - w[k])
-        else:
-            m_w180 = 0.5 * (m0 + m1)
-
-        gm = 1.0 / max(float(m_w180), 1e-300)
-        gm_db[i] = 20.0 * np.log10(gm)
-        w180[i] = w180_i
-        has_w180[i] = True
-
-    # Optional: ok_particles (guards) – set True here; you can extend later
-    ok_particles = np.isfinite(ms)  # minimal guard
-
-    return {
-        "pm_deg": pm_deg,
-        "gm_db": gm_db,
-        "ms": ms,
-        "has_wc": has_wc,
-        "has_w180": has_w180,
-        "wc": wc,
-        "w180": w180,
-        "absL": np.abs(L),
-        "phase_rad": phase,
-        "ok_particles": ok_particles,
-    }
-
-def _compute_metrics_on_grid(
-    plant: Any,
-    Kp: np.ndarray,
-    Ti: np.ndarray,
-    Td: np.ndarray,
-    Tf: np.ndarray,
-    w: np.ndarray,
-) -> Dict[str, np.ndarray]:
-    """Computes PM/GM/Ms on a fixed frequency grid for a batch of PID candidates.
-
-    This function does not perform adaptive range expansion. It evaluates:
-
-      - Open-loop: L(jw) = C(jw) * G(jw)
-      - Sensitivity: S(jw) = 1 / (1 + L(jw))
-      - Phase margin PM at the first |L|=1 (0 dB) crossover.
-      - Gain margin GM at the first phase=-180° crossover.
-      - Robustness Ms = max_w |S(jw)| (linear).
+    This is the single active implementation used by the optimizer. It expects
+    the plant frequency response ``G(jw)`` on a predefined frequency grid and
+    evaluates all PID candidates against that same grid.
 
     Policies:
-      - PM missing (no 0 dB crossover): has_wc=False, pm_deg=NaN  (=> infeasible upstream)
-      - GM missing (no -180° crossing): gm_db=+inf              (=> OK for GM_min checks)
-      - Non-finite anywhere (L or S has NaN/Inf): mark candidate invalid:
-            ok_particles=False, has_wc=False, pm_deg=NaN, ms=+inf, gm_db=+inf
+      - Missing 0 dB crossover: ``has_wc=False``, ``pm_deg=NaN``.
+      - Missing -180° crossover: ``has_w180=False``, ``gm_db=+inf``.
+      - Any non-finite value in ``L`` or ``S`` anywhere on the grid:
+            candidate is invalid, ``numerically_valid_particles=False``, ``has_wc=False``,
+            ``has_w180=False``, ``pm_deg=NaN``, ``gm_db=+inf``, ``ms=+inf``.
+      - When multiple crossings exist, the outermost / highest-frequency
+        valid crossing is used.
 
     Args:
-        plant: Plant instance with `plant.system(s)` vectorized over complex s.
-        Kp: Proportional gains, shape (P,).
-        Ti: Integral time constants, shape (P,).
-        Td: Derivative time constants, shape (P,).
-        Tf: Derivative filter time constants, shape (P,).
-        w: Frequency grid (rad/s), shape (N,).
+        G: Plant frequency response ``G(jw)``, shape ``(N,)``.
+        w: Frequency grid in rad/s, shape ``(N,)``.
+        Kp, Ti, Td, Tf: PID parameters, shape ``(P,)``.
 
     Returns:
-        Dictionary containing metrics arrays of length P, plus optional debug arrays:
-          - pm_deg, gm_db, ms
-          - has_wc, has_w180
-          - wc, w180
-          - w, mag_db, phase_rad, absL
-          - ok_particles
+        Dictionary containing only the metrics used by the optimizer / callers:
+          - ``pm_deg``, ``gm_db``, ``ms``
+          - ``has_wc``, ``has_w180``
+          - ``wc``, ``w180``
+          - ``numerically_valid_particles``
     """
-    w = np.asarray(w, dtype=float)
-    s = 1j * w  # (N,)
+    w = np.asarray(w, dtype=np.float64).reshape(-1)
+    G = np.asarray(G, dtype=np.complex128).reshape(-1)
 
-    # Normalize parameter arrays to shape (P,)
-    Kp = np.asarray(Kp, dtype=float).reshape(-1)
-    Ti = np.asarray(Ti, dtype=float).reshape(-1)
-    Td = np.asarray(Td, dtype=float).reshape(-1)
-    Tf = np.asarray(Tf, dtype=float).reshape(-1)
+    if w.ndim != 1 or G.ndim != 1:
+        raise ValueError("w and G must be one-dimensional arrays.")
+    if w.shape[0] != G.shape[0]:
+        raise ValueError("w and G must have the same length.")
+
+    Kp, Ti, Td, Tf = _normalize_pid_params(Kp, Ti, Td, Tf)
 
     P = Kp.shape[0]
-    N = w.shape[0]
+    s = 1j * w
 
-    # Evaluate plant once on the grid; allow Inf/NaN to appear, we'll guard downstream.
     with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
-        G = plant.system(s)  # (N,)
-
-        # Controller response for all candidates: (P, N)
         C = pid_controller_freq_response(
             Kp[:, None],
             Ti[:, None],
@@ -256,28 +221,24 @@ def _compute_metrics_on_grid(
             Tf[:, None],
             s[None, :],
         )
-
-        # Open-loop and sensitivity: (P, N)
         L = C * G[None, :]
         S = 1.0 / (1.0 + L)
 
-    ok_particles = _finite_guard_mask(L, S)
-    good_idx = np.where(ok_particles)[0]
+    finite_L = _finite_complex_mask(L)
+    finite_S = _finite_complex_mask(S)
 
-    # Allocate outputs with "invalid/infeasible" defaults.
-    pm_deg = np.full(P, np.nan, dtype=float)
-    gm_db = np.full(P, np.inf, dtype=float)
-    ms = np.full(P, np.inf, dtype=float)
+    numerically_valid_particles = np.all(finite_L, axis=1) & np.all(finite_S, axis=1)
+    good_idx = np.where(numerically_valid_particles)[0]
 
-    wc = np.full(P, np.nan, dtype=float)
-    w180 = np.full(P, np.nan, dtype=float)
-    has_wc = np.zeros(P, dtype=bool)
-    has_w180 = np.zeros(P, dtype=bool)
+    # Default outputs correspond to invalid / infeasible candidates.
+    pm_deg = np.full(P, np.nan, dtype=np.float64)
+    gm_db = np.full(P, np.inf, dtype=np.float64)
+    ms = np.full(P, np.inf, dtype=np.float64)
 
-    # Debug arrays (keep stable shapes for diagnostics)
-    absL = np.full((P, N), np.nan, dtype=float)
-    mag_db = np.full((P, N), np.nan, dtype=float)
-    phase_rad = np.full((P, N), np.nan, dtype=float)
+    wc = np.full(P, np.nan, dtype=np.float64)
+    w180 = np.full(P, np.nan, dtype=np.float64)
+    has_wc = np.zeros(P, dtype=np.bool_)
+    has_w180 = np.zeros(P, dtype=np.bool_)
 
     if good_idx.size == 0:
         return {
@@ -288,76 +249,77 @@ def _compute_metrics_on_grid(
             "has_w180": has_w180,
             "wc": wc,
             "w180": w180,
-            "w": w,
-            "mag_db": mag_db,
-            "phase_rad": phase_rad,
-            "absL": absL,
-            "ok_particles": ok_particles,
+            "numerically_valid_particles": numerically_valid_particles,
         }
 
-    # Work only on finite candidates.
-    Lg = L[good_idx]  # (Pg, N)
-    Sg = S[good_idx]  # (Pg, N)
+    Lg = L[good_idx]
+    Sg = S[good_idx]
 
-    absLg = np.abs(Lg)
-    absL[good_idx] = absLg
-
-    # Ms: peak sensitivity (linear)
-    ms_good = np.max(np.abs(Sg), axis=1)
-    ms[good_idx] = ms_good
-
-    # Magnitude/phase
-    mag_db_good = 20.0 * np.log10(np.maximum(absLg, 1e-300))
-    mag_db[good_idx] = mag_db_good
+    with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
+        ms_good = np.max(np.abs(Sg), axis=1)
+        absLg = np.abs(Lg)
+        mag_db_good = 20.0 * np.log10(np.maximum(absLg, 1e-300))
 
     phase_good = np.unwrap(np.angle(Lg), axis=1)
-    phase_rad[good_idx] = phase_good
 
-    # ---- Phase Margin (PM) at first 0 dB crossover ----
-    target_mag_db = 0.0
-    for local_i, i in enumerate(good_idx):
-        y = mag_db_good[local_i]  # (N,)
-        sign = np.sign(y - target_mag_db)
-        idx = np.where(sign[:-1] * sign[1:] < 0)[0]
-        if idx.size == 0:
-            continue
+    ms[good_idx] = ms_good
 
-        k = int(idx[0])
-        wc_i = _interp_x_at_y(w[k], float(y[k]), w[k + 1], float(y[k + 1]), target_mag_db)
+    # ---- PM: outermost / highest-frequency 0 dB crossover ----
+    found_wc_local, wc_local, k_wc_local = _outermost_crossing_batch_x(
+        w,
+        mag_db_good,
+        0.0,
+        atol=1e-12,
+    )
+    pm_rows = np.where(found_wc_local)[0]
+    if pm_rows.size:
+        k = k_wc_local[pm_rows]
+        wc_rows = wc_local[pm_rows]
 
-        ph0, ph1 = float(phase_good[local_i, k]), float(phase_good[local_i, k + 1])
-        if w[k + 1] != w[k]:
-            ph_wc = ph0 + (wc_i - w[k]) * (ph1 - ph0) / (w[k + 1] - w[k])
-        else:
-            ph_wc = 0.5 * (ph0 + ph1)
+        w0 = w[k]
+        w1 = w[k + 1]
+        ph0 = phase_good[pm_rows, k]
+        ph1 = phase_good[pm_rows, k + 1]
 
-        pm_deg[i] = 180.0 + np.degrees(ph_wc)
-        wc[i] = wc_i
-        has_wc[i] = True
+        ph_wc = np.where(
+            w1 != w0,
+            ph0 + (wc_rows - w0) * (ph1 - ph0) / (w1 - w0),
+            0.5 * (ph0 + ph1),
+        )
 
-    # ---- Gain Margin (GM) at first -180° phase crossover ----
-    target_phase = -np.pi
-    for local_i, i in enumerate(good_idx):
-        ph = phase_good[local_i]  # (N,)
-        signp = np.sign(ph - target_phase)
-        idxp = np.where(signp[:-1] * signp[1:] < 0)[0]
-        if idxp.size == 0:
-            # Policy: GM missing => +inf
-            continue
+        global_rows = good_idx[pm_rows]
+        pm_deg[global_rows] = 180.0 + np.degrees(ph_wc)
+        wc[global_rows] = wc_rows
+        has_wc[global_rows] = True
 
-        k = int(idxp[0])
-        w180_i = _interp_x_at_y(w[k], float(ph[k]), w[k + 1], float(ph[k + 1]), target_phase)
+    # ---- GM: outermost / highest-frequency -180° crossover ----
+    found_w180_local, w180_local, k_w180_local = _outermost_crossing_batch_x(
+        w,
+        phase_good,
+        -np.pi,
+        atol=1e-9,
+    )
+    gm_rows = np.where(found_w180_local)[0]
+    if gm_rows.size:
+        k = k_w180_local[gm_rows]
+        w180_rows = w180_local[gm_rows]
 
-        m0, m1 = float(absLg[local_i, k]), float(absLg[local_i, k + 1])
-        if w[k + 1] != w[k]:
-            m_w180 = m0 + (w180_i - w[k]) * (m1 - m0) / (w[k + 1] - w[k])
-        else:
-            m_w180 = 0.5 * (m0 + m1)
+        w0 = w[k]
+        w1 = w[k + 1]
+        m0 = absLg[gm_rows, k]
+        m1 = absLg[gm_rows, k + 1]
 
-        gm = 1.0 / max(m_w180, 1e-300)
-        gm_db[i] = 20.0 * np.log10(gm)
-        w180[i] = w180_i
-        has_w180[i] = True
+        m_w180 = np.where(
+            w1 != w0,
+            m0 + (w180_rows - w0) * (m1 - m0) / (w1 - w0),
+            0.5 * (m0 + m1),
+        )
+
+        gm = 1.0 / np.maximum(m_w180, 1e-300)
+        global_rows = good_idx[gm_rows]
+        gm_db[global_rows] = 20.0 * np.log10(gm)
+        w180[global_rows] = w180_rows
+        has_w180[global_rows] = True
 
     return {
         "pm_deg": pm_deg,
@@ -367,31 +329,24 @@ def _compute_metrics_on_grid(
         "has_w180": has_w180,
         "wc": wc,
         "w180": w180,
-        "w": w,
-        "mag_db": mag_db,
-        "phase_rad": phase_rad,
-        "absL": absL,
-        "ok_particles": ok_particles,
+        "numerically_valid_particles": numerically_valid_particles,
     }
 
 
 def compute_loop_metrics_batch(
-    plant,
-    Kp,
-    Ti,
-    Td,
-    Tf,
+    plant: Any,
+    Kp: np.ndarray,
+    Ti: np.ndarray,
+    Td: np.ndarray,
+    Tf: np.ndarray,
     w: np.ndarray,
 ) -> dict[str, np.ndarray]:
-    """
-    Convenience wrapper around compute_loop_metrics_batch_from_frf.
-
-    Computes plant frequency response internally, then delegates
-    to the FRF-based core implementation.
-    """
-    w = np.asarray(w, dtype=np.float64)
+    """Convenience wrapper that evaluates the plant FRF internally."""
+    w = np.asarray(w, dtype=np.float64).reshape(-1)
     s = 1j * w
-    G = plant.system(s)
+
+    with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
+        G = plant.system(s)
 
     return compute_loop_metrics_batch_from_frf(
         G=G,

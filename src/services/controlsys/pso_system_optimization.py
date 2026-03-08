@@ -261,12 +261,12 @@ class PsoFunc:
         gm = metrics["gm_db"]
         ms = metrics["ms"]
         has_wc = metrics["has_wc"]
-        okp = metrics.get("ok_particles", np.ones_like(pm, dtype=bool))
+        numerically_valid = metrics["numerically_valid_particles"]
 
         P = pm.shape[0]
 
         # --- hard fail mask (PM missing / non-finite / finite-guarded / Ms non-finite) ---
-        hard_fail = (~okp) | (~has_wc) | (~np.isfinite(pm)) | (~np.isfinite(ms))
+        hard_fail = (~numerically_valid) | (~has_wc) | (~np.isfinite(pm)) | (~np.isfinite(ms))
 
         v_pm = np.zeros(P, dtype=np.float64)
         v_gm = np.zeros(P, dtype=np.float64)
