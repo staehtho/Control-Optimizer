@@ -111,6 +111,7 @@ class Translation:
             FunctionTypes.STEP: QCoreApplication.translate("ControlEnums", "step"),
             FunctionTypes.SINE: QCoreApplication.translate("ControlEnums", "sine"),
             FunctionTypes.COSINE: QCoreApplication.translate("ControlEnums", "cosine"),
+            FunctionTypes.RECTANGULAR: QCoreApplication.translate("ControlEnums", "rectangle"),
         }
 
     @staticmethod

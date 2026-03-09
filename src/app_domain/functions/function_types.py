@@ -1,6 +1,7 @@
 from enum import Enum
 
-from app_domain.functions import BaseFunction, StepFunction, SineFunction, CosineFunction, NullFunction
+from app_domain.functions import BaseFunction, StepFunction, SineFunction, CosineFunction, NullFunction, \
+    RectangularFunction
 
 
 class FunctionTypes(Enum):
@@ -8,6 +9,7 @@ class FunctionTypes(Enum):
     STEP = StepFunction
     SINE = SineFunction
     COSINE = CosineFunction
+    RECTANGULAR = RectangularFunction
 
 
 # ------------------------------------------------------------------
