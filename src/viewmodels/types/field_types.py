@@ -29,7 +29,7 @@ class ControllerField(FieldType):
     ANTI_WINDUP = "anti_wind"
 
 
-# PsoConfigurationViewModel / PsoConfigurationViewModel
+# PsoConfigurationViewModel / PsoConfigurationView
 class PsoField(FieldType):
     EXCITATION_TARGET = "excitation_target"
     FUNCTION_FORMULA = "function_formula"
@@ -54,3 +54,17 @@ class PsoField(FieldType):
     TD_MAX = "td_max"
 
     RUN_PSO = "run_pso"
+
+
+# SettingsViewModle / SettingsView
+class SettingsField(FieldType):
+    LANGUAGE = "language"
+    THEME = "theme"
+
+    PSO = "pso"
+    PSO_ITERATIONS = "pso_iterations"
+    PSO_PARTICLES = "pso_particles"
+
+    SOLVER = "solver"
+    SOLVER_TYPE = "solver_type"
+    SOLVER_TIME_STEP = "solver_time_step"

@@ -20,6 +20,7 @@ class FieldConfig:
     key: str | FieldType
     widget_type: Type[QWidget] = QLabel
     create_label: bool = True
+    validator: object = QDoubleValidator
 
 
 @dataclass
@@ -62,7 +63,7 @@ class BaseView:
         active = active_theme if isinstance(active_theme, ThemeType) else ThemeType(active_theme)
         cls._active_theme = active if active in cls._themes else next(iter(cls._themes))
 
-    def __init__(self, ui_context: "UiContext"):
+    def __init__(self, ui_context: UiContext):
         self._ui_context = ui_context
 
         self._initializing = True
@@ -162,10 +163,12 @@ class BaseView:
             cmb.addItem(text, enum_key)
 
         # alten Wert wieder auswählen, falls noch gültig
+        cmb.blockSignals(True)
         if current_data in data:
             index = cmb.findData(current_data)
             if index >= 0:
                 cmb.setCurrentIndex(index)
+        cmb.blockSignals(False)
 
     def _create_grid(self, fields: list[FieldConfig | SectionConfig], columns: int = 4) -> QGridLayout:
         layout = QGridLayout()
@@ -222,7 +225,7 @@ class BaseView:
                     if parent_widget is not None and widget.parent() is None:
                         widget.setParent(parent_widget)
                 if isinstance(widget, QLineEdit):
-                    widget.setValidator(QDoubleValidator())
+                    widget.setValidator(field.validator())
 
                 self._field_widgets[field.key] = widget
 

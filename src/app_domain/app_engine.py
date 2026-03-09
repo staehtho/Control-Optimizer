@@ -7,7 +7,7 @@ from models import ModelContainer
 from service import SimulationService
 from .ui_context import UiContext
 from viewmodels import (
-    PlantViewModel, LanguageViewModel, ThemeViewModel, PlotViewModel, FunctionViewModel,
+    PlantViewModel, LanguageViewModel, ThemeViewModel, PlotViewModel, FunctionViewModel, SettingsViewModel,
     ControllerViewModel, PsoConfigurationViewModel, EvaluationViewModel, SimulationViewModel, BodePlotViewModel
 )
 
@@ -80,8 +80,10 @@ class AppEngine:
             model_functions, self.model_container.model_settings, self.vm_pso, self.simulation_service
         )
 
+        self.vm_settings = SettingsViewModel(self.model_container.model_settings)
+
         self.ui_context = UiContext(
-            settings=self.model_container.model_settings,
+            settings=self.vm_settings,
             vm_lang=self.vm_lang,
             vm_theme=self.vm_theme,
         )

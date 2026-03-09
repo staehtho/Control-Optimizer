@@ -1,11 +1,10 @@
 from dataclasses import dataclass
 
-from models import SettingsModel
-from viewmodels import LanguageViewModel, ThemeViewModel
+from viewmodels import LanguageViewModel, ThemeViewModel, SettingsViewModel
 
 
 @dataclass(frozen=True)
 class UiContext:
-    settings: SettingsModel
+    settings: SettingsViewModel
     vm_lang: LanguageViewModel
     vm_theme: ThemeViewModel

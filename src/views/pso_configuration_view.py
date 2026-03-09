@@ -257,23 +257,18 @@ class PsoConfigurationView(BaseView, QWidget):
     # -------------------------------------------------
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
-        keys = [
-            PsoField.T0, PsoField.T1,
-            PsoField.KP_MIN, PsoField.KP_MAX,
-            PsoField.TI_MIN, PsoField.TI_MAX,
-            PsoField.TD_MIN, PsoField.TD_MAX,
-        ]
-        values = [
-            self._vm_pso.t0,
-            self._vm_pso.t1,
-            self._vm_pso.kp_min,
-            self._vm_pso.kp_max,
-            self._vm_pso.ti_min,
-            self._vm_pso.ti_max,
-            self._vm_pso.td_min,
-            self._vm_pso.td_max,
-        ]
-        for key, value in zip(keys, values):
+        init_value = {
+            PsoField.T0: self._vm_pso.t0,
+            PsoField.T1: self._vm_pso.t1,
+            PsoField.KP_MIN: self._vm_pso.kp_min,
+            PsoField.KP_MAX: self._vm_pso.kp_max,
+            PsoField.TI_MIN: self._vm_pso.ti_min,
+            PsoField.TI_MAX: self._vm_pso.ti_max,
+            PsoField.TD_MIN: self._vm_pso.td_min,
+            PsoField.TD_MAX: self._vm_pso.td_max,
+
+        }
+        for key, value in init_value.items():
             self._field_widgets[key].setText(f"{value}")
 
         attributes: dict[PsoField, str] = {

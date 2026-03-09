@@ -2,9 +2,9 @@ from typing import Callable, Type, Any
 from PySide6.QtCore import QCoreApplication
 from enum import Enum
 
-
-from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex
+from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex, MySolver
 from app_domain.functions import FunctionTypes
+from viewmodels.types import LanguageType, ThemeType
 
 
 class NavLabels(Enum):
@@ -14,6 +14,7 @@ class NavLabels(Enum):
     PSO_PARAMETER = "PSO Parameter"
     EVALUATION = "Evaluation"
     SIMULATION = "Simulation"
+    SETTINGS = "Settings"
 
 
 class PlotLabels(Enum):
@@ -51,6 +52,9 @@ class Translation:
             PerformanceIndex: self._performance_index_label,
             NavLabels: self._nav_label,
             PlotLabels: self._plot_labels,
+            MySolver: self._solver_label,
+            LanguageType: self._language_type_label,
+            ThemeType: self._theme_type_label
         }
 
     def __call__(self, enum_type: Type[Any]) -> dict[Any, str]:
@@ -124,6 +128,7 @@ class Translation:
             NavLabels.PSO_PARAMETER: QCoreApplication.translate("ControlEnums", "PSO Parameter"),
             NavLabels.EVALUATION: QCoreApplication.translate("ControlEnums", "Evaluation"),
             NavLabels.SIMULATION: QCoreApplication.translate("ControlEnums", "Simulation"),
+            NavLabels.SETTINGS: QCoreApplication.translate("ControlEnums", "Settings"),
         }
 
     @staticmethod
@@ -142,4 +147,27 @@ class Translation:
             PlotLabels.L: QCoreApplication.translate("ControlEnums", "L_open_loop"),
             PlotLabels.S: QCoreApplication.translate("ControlEnums", "S_sensitivity"),
             PlotLabels.T: QCoreApplication.translate("ControlEnums", "T_complement_sensitivity"),
+        }
+
+    @staticmethod
+    def _solver_label() -> dict[MySolver, str]:
+        """Return translated labels for MySolver enum."""
+        return {
+            MySolver.RK4: QCoreApplication.translate("ControlEnums", "RK4"),
+        }
+
+    @staticmethod
+    def _language_type_label() -> dict[LanguageType, str]:
+        """Return translated labels for LanguageType enum."""
+        return {
+            LanguageType.ENGLISH: QCoreApplication.translate("ControlEnums", "English"),
+            LanguageType.GERMAN: QCoreApplication.translate("ControlEnums", "German"),
+        }
+
+    @staticmethod
+    def _theme_type_label() -> dict[ThemeType, str]:
+        """Return translated labels for ThemeType enum."""
+        return {
+            ThemeType.LIGHT: QCoreApplication.translate("ControlEnums", "Light"),
+            ThemeType.DARK: QCoreApplication.translate("ControlEnums", "Dark"),
         }

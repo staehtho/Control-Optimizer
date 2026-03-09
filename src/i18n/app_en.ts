@@ -51,133 +51,168 @@
 <context>
     <name>ControlEnums</name>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="82"/>
+        <location filename="../views/translations/enum_translations.py" line="86"/>
         <source>Clamping</source>
         <translation>Clamping</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="83"/>
+        <location filename="../views/translations/enum_translations.py" line="87"/>
         <source>Conditional</source>
         <translation>Conditional</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="90"/>
-        <location filename="../views/translations/enum_translations.py" line="136"/>
+        <location filename="../views/translations/enum_translations.py" line="94"/>
+        <location filename="../views/translations/enum_translations.py" line="142"/>
         <source>Reference</source>
         <translation>Reference</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="91"/>
-        <location filename="../views/translations/enum_translations.py" line="137"/>
+        <location filename="../views/translations/enum_translations.py" line="95"/>
+        <location filename="../views/translations/enum_translations.py" line="143"/>
         <source>Input Disturbance</source>
         <translation>Input Disturbance</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="92"/>
-        <location filename="../views/translations/enum_translations.py" line="138"/>
+        <location filename="../views/translations/enum_translations.py" line="96"/>
+        <location filename="../views/translations/enum_translations.py" line="144"/>
         <source>Measurement Disturbance</source>
         <translation>Measurement Disturbance</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="100"/>
+        <location filename="../views/translations/enum_translations.py" line="104"/>
         <source>ITAE</source>
         <translation>ITAE</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="101"/>
+        <location filename="../views/translations/enum_translations.py" line="105"/>
         <source>IAE</source>
         <translation>IAE</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="102"/>
+        <location filename="../views/translations/enum_translations.py" line="106"/>
         <source>ITSE</source>
         <translation>ITSE</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="103"/>
+        <location filename="../views/translations/enum_translations.py" line="107"/>
         <source>ISE</source>
         <translation>ISE</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="110"/>
+        <location filename="../views/translations/enum_translations.py" line="114"/>
         <source>Null</source>
         <translation>No function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="111"/>
+        <location filename="../views/translations/enum_translations.py" line="115"/>
         <source>step</source>
         <translation>Step function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="112"/>
+        <location filename="../views/translations/enum_translations.py" line="116"/>
         <source>sine</source>
         <translation>Sine function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="113"/>
+        <location filename="../views/translations/enum_translations.py" line="117"/>
         <source>cosine</source>
         <translation>Cosine function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="120"/>
-        <location filename="../views/translations/enum_translations.py" line="132"/>
+        <location filename="../views/translations/enum_translations.py" line="118"/>
+        <source>rectangle</source>
+        <translation>Rectangular function</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="125"/>
+        <location filename="../views/translations/enum_translations.py" line="138"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="121"/>
+        <location filename="../views/translations/enum_translations.py" line="126"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="122"/>
+        <location filename="../views/translations/enum_translations.py" line="127"/>
         <source>Controller</source>
         <translation>Controller</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="123"/>
+        <location filename="../views/translations/enum_translations.py" line="128"/>
         <source>PSO Parameter</source>
         <translation>PSO Parameter</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="124"/>
+        <location filename="../views/translations/enum_translations.py" line="129"/>
         <source>Evaluation</source>
         <translation>Evaluation</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="125"/>
+        <location filename="../views/translations/enum_translations.py" line="130"/>
         <source>Simulation</source>
         <translation>Simulation</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="133"/>
+        <location filename="../views/translations/enum_translations.py" line="131"/>
+        <source>Settings</source>
+        <translation>Settings</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="139"/>
         <source>Function</source>
         <translation>Function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="139"/>
+        <location filename="../views/translations/enum_translations.py" line="145"/>
         <source>G_plant</source>
         <translation>G Plant</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="140"/>
+        <location filename="../views/translations/enum_translations.py" line="146"/>
         <source>C_controller</source>
         <translation>C controller</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="141"/>
+        <location filename="../views/translations/enum_translations.py" line="147"/>
         <source>L_open_loop</source>
         <translation>L open loop</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="142"/>
+        <location filename="../views/translations/enum_translations.py" line="148"/>
         <source>S_sensitivity</source>
         <translation>S sensitivity</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="143"/>
+        <location filename="../views/translations/enum_translations.py" line="149"/>
         <source>T_complement_sensitivity</source>
         <translation>T complement sensitivity</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="156"/>
+        <source>RK4</source>
+        <translation>RK4</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="163"/>
+        <source>English</source>
+        <translation>English</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="164"/>
+        <source>German</source>
+        <translation>German</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="171"/>
+        <source>Light</source>
+        <translation>Light</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="172"/>
+        <source>Dark</source>
+        <translation>Dark</translation>
     </message>
     <message>
         <source>Plant Step Response</source>
@@ -188,7 +223,7 @@
         <translation type="vanished">Response</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="135"/>
+        <location filename="../views/translations/enum_translations.py" line="141"/>
         <source>Control Signal</source>
         <translation>Control Signal</translation>
     </message>
@@ -197,7 +232,7 @@
         <translation type="vanished">Excitation Function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="134"/>
+        <location filename="../views/translations/enum_translations.py" line="140"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
@@ -776,6 +811,54 @@ Tf   = %(tf).3f</translation>
         <location filename="../viewmodels/pso_configuration_viewmodel.py" line="242"/>
         <source>Invalid value: max ({value}) must be greater than min ({min}).</source>
         <translation>Invalid value: max ({value}) must be greater than min ({min}).</translation>
+    </message>
+</context>
+<context>
+    <name>SettingsView</name>
+    <message>
+        <location filename="../views/settings_view.py" line="115"/>
+        <source>Settings</source>
+        <translation>Settings</translation>
+    </message>
+    <message>
+        <location filename="../views/settings_view.py" line="118"/>
+        <source>Language</source>
+        <translation>Language</translation>
+    </message>
+    <message>
+        <location filename="../views/settings_view.py" line="119"/>
+        <source>Theme</source>
+        <translation>Theme</translation>
+    </message>
+    <message>
+        <location filename="../views/settings_view.py" line="120"/>
+        <source>Solver</source>
+        <translation>Solver</translation>
+    </message>
+    <message>
+        <location filename="../views/settings_view.py" line="121"/>
+        <source>Type</source>
+        <translation>Type</translation>
+    </message>
+    <message>
+        <location filename="../views/settings_view.py" line="122"/>
+        <source>Time Step</source>
+        <translation>Time Step</translation>
+    </message>
+    <message>
+        <location filename="../views/settings_view.py" line="123"/>
+        <source>PSO</source>
+        <translation>PSO</translation>
+    </message>
+    <message>
+        <location filename="../views/settings_view.py" line="124"/>
+        <source>Iterations</source>
+        <translation>Iterations</translation>
+    </message>
+    <message>
+        <location filename="../views/settings_view.py" line="125"/>
+        <source>Particles</source>
+        <translation>Particles</translation>
     </message>
 </context>
 <context>
