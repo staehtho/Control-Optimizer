@@ -8,8 +8,8 @@
 #
 # Authors:       Florin Büchi, Thomas Stähli
 # Created:       01.12.2025
-# Modified:      02.03.2026
-# Version:       1.1
+# Modified:      09.03.2026
+# Version:       1.2
 #
 # License:       ZHAW Zürcher Hochschule für angewandte Wissenschaften (or internal use only)
 # ──────────────────────────────────────────────────────────────────────────────
@@ -35,6 +35,11 @@ class PsoFunc:
       - Compute normalized violation V.
       - If V > 0: return BIG_M * V (no time simulation).
       - Else: compute time-domain performance index (e.g., ITAE).
+
+    Optional time-domain overshoot control (step references only):
+      - Allowed overshoot is measured relative to the step height.
+      - allowed_overshoot_pct = 0 means strict no-overshoot.
+      - Positive and negative steps are handled with one signed formula.
 
     Constraints (policies):
       - PM is minimum only: PM >= PM_min_deg
@@ -72,7 +77,9 @@ class PsoFunc:
         pm_min_deg: float = 60.0,
         gm_min_db: float = 5.0,
         ms_max: float = 2.0,
-        big_m: float = 1e6,
+        big_m: float = 1e10,
+        use_overshoot_control: bool = False,
+        allowed_overshoot_pct: float = 0.0,
         log_path: str | None = None, # TODO FLO rückgängig logging
         enable_logging: bool = False, # TODO FLO rückgängig logging
     ) -> None:
@@ -98,7 +105,7 @@ class PsoFunc:
             pm_min_deg: Phase margin minimum in degrees (PM >= pm_min_deg). PM missing => infeasible.
             gm_min_db: Gain margin minimum in dB (GM >= gm_min_db). GM missing => treated as +inf => OK.
             ms_max: Sensitivity peak maximum (Ms <= ms_max).
-            big_m: BIG-M multiplier for infeasible candidates (cost = big_m * V).
+            big_m: BIG-M multiplier for infeasible candidates. Defaults to 1e10.
         """
         self.controller = controller
 
@@ -163,6 +170,15 @@ class PsoFunc:
         self.ms_max = float(ms_max)
         self.big_m = float(big_m)
 
+        self.use_overshoot_control = bool(use_overshoot_control)
+        self.allowed_overshoot_pct = float(allowed_overshoot_pct)
+        self._overshoot_step_amplitude_abs = 0.0
+        self._overshoot_reference_activation_eps = 0.0
+        self._overshoot_arm_immediately = False
+        self._overshoot_step_sign = 0.0
+        self._overshoot_r_final = 0.0
+        self._update_overshoot_control_cache()
+
         # Pre-compile Numba functions
         if self._pre_compiling:
             start = time.time()
@@ -188,7 +204,7 @@ class PsoFunc:
             "run_id,call_id,particle_idx,"
             "Kp,Ti,Td,"
             "pm_deg,gm_db,ms,wc,w180,"
-            "V,time_simulated,"
+            "V,time_simulated,overshoot_pct,"
             "time_cost,total_cost\n"
         )
 
@@ -208,6 +224,7 @@ class PsoFunc:
             wc: np.ndarray, w180: np.ndarray,
             V: np.ndarray,
             time_sim: np.ndarray,
+            overshoot_pct: np.ndarray,
             time_cost: np.ndarray,
             total_cost: np.ndarray,
     ) -> None:
@@ -225,7 +242,7 @@ class PsoFunc:
                 f"{run_id},{call_id},{i},"
                 f"{Kp[i]},{Ti[i]},{Td[i]},"
                 f"{pm[i]},{gm[i]},{ms[i]},{wc[i]},{w180[i]},"
-                f"{V[i]},{int(time_sim[i])},"
+                f"{V[i]},{int(time_sim[i])},{overshoot_pct[i]},"
                 f"{time_cost[i]},{total_cost[i]}\n"
             )
 
@@ -239,7 +256,8 @@ class PsoFunc:
         pm_min_deg: float | None = None,
         gm_min_db: float | None = None,
         ms_max: float | None = None,
-        big_m: float | None = None,
+        use_overshoot_control: bool | None = None,
+        allowed_overshoot_pct: float | None = None,
     ) -> None:
         """Update constraints dynamically (e.g., from config/UI)."""
         if pm_min_deg is not None:
@@ -248,8 +266,69 @@ class PsoFunc:
             self.gm_min_db = float(gm_min_db)
         if ms_max is not None:
             self.ms_max = float(ms_max)
-        if big_m is not None:
-            self.big_m = float(big_m)
+        if use_overshoot_control is not None:
+            self.use_overshoot_control = bool(use_overshoot_control)
+        if allowed_overshoot_pct is not None:
+            self.allowed_overshoot_pct = float(allowed_overshoot_pct)
+
+        self._update_overshoot_control_cache()
+
+    def _update_overshoot_control_cache(self) -> None:
+        """Precompute scalar overshoot-control helpers from the fixed reference trace."""
+        eps = 1e-15
+        self._overshoot_step_amplitude_abs = 0.0
+        self._overshoot_reference_activation_eps = 0.0
+        self._overshoot_arm_immediately = False
+        self._overshoot_step_sign = 0.0
+        self._overshoot_r_final = float(self.r_eval[-1])
+
+        if not self.use_overshoot_control:
+            return
+
+        if self.allowed_overshoot_pct < 0.0:
+            raise ValueError("allowed_overshoot_pct must be >= 0 when use_overshoot_control=True.")
+
+        r0 = float(self.r_eval[0])
+        rf = float(self.r_eval[-1])
+        dr = rf - r0
+
+        if abs(dr) > eps:
+            tol = max(1e-12, 1e-9 * abs(dr))
+            is_r0 = np.isclose(self.r_eval, r0, atol=tol, rtol=0.0)
+            is_rf = np.isclose(self.r_eval, rf, atol=tol, rtol=0.0)
+
+            if not np.all(is_r0 | is_rf):
+                raise ValueError("overshoot_control requires a single step reference with exactly two levels.")
+
+            change_idx = np.where(~is_r0)[0]
+            if change_idx.size == 0:
+                raise ValueError("overshoot_control could not detect a valid step transition.")
+
+            k = int(change_idx[0])
+            if (not np.all(is_r0[:k])) or (not np.all(is_rf[k:])):
+                raise ValueError("overshoot_control requires one monotonic transition from initial to final level.")
+
+            self._overshoot_step_amplitude_abs = abs(dr)
+            self._overshoot_reference_activation_eps = max(1e-12, 1e-9 * abs(dr))
+            self._overshoot_arm_immediately = False
+            self._overshoot_step_sign = float(np.sign(dr))
+            self._overshoot_r_final = rf
+            return
+
+        if abs(rf) > eps:
+            tol = max(1e-12, 1e-9 * abs(rf))
+            if not np.all(np.isclose(self.r_eval, rf, atol=tol, rtol=0.0)):
+                raise ValueError("overshoot_control requires a step reference. Non-step trajectory detected.")
+
+            # Immediate step at t0 represented as constant non-zero level in sampled r_eval.
+            self._overshoot_step_amplitude_abs = abs(rf)
+            self._overshoot_reference_activation_eps = 0.0
+            self._overshoot_arm_immediately = True
+            self._overshoot_step_sign = float(np.sign(rf))
+            self._overshoot_r_final = rf
+            return
+
+        raise ValueError("overshoot_control requires a non-zero step amplitude.")
 
     def _compute_violation_batch(self, metrics: dict[str, np.ndarray]) -> np.ndarray:
         """Compute normalized constraint violation V for a batch.
@@ -363,6 +442,7 @@ class PsoFunc:
             w180 = metrics.get("w180", w180)
 
         time_sim = np.zeros(P, dtype=np.bool_)  # will be set after feasible mask
+        overshoot_pct = np.full(P, np.nan, dtype=np.float64)
         time_cost = np.full(P, np.nan, dtype=np.float64)  # ITAE/IAE/ISE/ITSE for simulated ones
 
         cost = np.full(P, np.nan, dtype=np.float64)
@@ -384,7 +464,7 @@ class PsoFunc:
             Xf = X[feasible]
             Pf = int(Xf.shape[0])
 
-            itae_vals = _pid_pso_func(
+            perf_vals, overshoot_vals = _pid_pso_func(
                 Xf,
                 self.t_eval,
                 self.dt,
@@ -401,12 +481,31 @@ class PsoFunc:
                 self.anti_windup_method,
                 self.solver,
                 self.performance_index,
+                1 if self.use_overshoot_control else 0,
+                self._overshoot_step_amplitude_abs,
+                self._overshoot_step_sign,
+                self._overshoot_r_final,
+                self._overshoot_reference_activation_eps,
+                1 if self._overshoot_arm_immediately else 0,
                 Pf,  # IMPORTANT: swarm_size = number of feasible particles
             )
-            cost[feasible] = itae_vals
+            time_cost[feasible] = perf_vals
+            overshoot_pct[feasible] = overshoot_vals
 
-            ## TODO FLO rückgängig logging
-            time_cost[feasible] = itae_vals
+            if self.use_overshoot_control:
+                overshoot_violation = np.maximum(
+                    0.0,
+                    (overshoot_vals - self.allowed_overshoot_pct) / 100.0,
+                )
+                overshoot_violation = np.nan_to_num(overshoot_violation, nan=1.0, posinf=1.0, neginf=0.0)
+
+                feasible_cost = perf_vals.copy()
+                bad_overshoot = overshoot_violation > 0.0
+                if np.any(bad_overshoot):
+                    feasible_cost[bad_overshoot] = self.big_m * (1.0 + overshoot_violation[bad_overshoot])
+                cost[feasible] = feasible_cost
+            else:
+                cost[feasible] = perf_vals
 
         # --------------------------------------------------
         # TODO FLO rückgängig logging
@@ -423,6 +522,7 @@ class PsoFunc:
                 w180=w180,
                 V=V,
                 time_sim=time_sim,
+                overshoot_pct=overshoot_pct,
                 time_cost=time_cost,
                 total_cost=cost,
             )
@@ -690,6 +790,105 @@ def pid_system_response(Kp: float, Ti: float, Td: float, Tf: float,
     return y_hist
 
 
+@njit(cache=True, inline="always")
+def pid_simulate_metrics(
+    Kp: float,
+    Ti: float,
+    Td: float,
+    Tf: float,
+    t_eval: np.ndarray,
+    dt: float,
+    r_eval: np.ndarray,
+    l_eval: np.ndarray,
+    n_eval: np.ndarray,
+    x: np.ndarray,
+    control_constraint: np.ndarray,
+    anti_windup_method: int,
+    A: np.ndarray,
+    B: np.ndarray,
+    C: np.ndarray,
+    D: float,
+    solver: int,
+    performance_index: int,
+    use_overshoot_control: int,
+    overshoot_step_amplitude_abs: float,
+    overshoot_step_sign: float,
+    overshoot_r_final: float,
+    overshoot_reference_activation_eps: float,
+    overshoot_arm_immediately: int,
+) -> tuple[float, float]:
+    """Simulate one PID candidate and return (performance_index_value, overshoot_pct)."""
+    e_prev = 0.0
+    filtered_prev = 0.0
+    integral = 0.0
+
+    u_min = float(control_constraint[0])
+    u_max = float(control_constraint[1])
+
+    y = dot1D(C, x)
+    perf = 0.0
+
+    r0 = float(r_eval[0])
+    armed = overshoot_arm_immediately != 0
+    max_overshoot = 0.0
+    use_ov = use_overshoot_control != 0
+
+    n_steps = len(t_eval)
+    for i in range(n_steps):
+        r = float(r_eval[i])
+        l = float(l_eval[i])
+        n = float(n_eval[i])
+
+        e = r - (y + n)
+
+        u, integral, filtered_prev = pid_update(
+            e, e_prev, filtered_prev, integral, Kp, Ti, Td, Tf,
+            dt, u_min, u_max, anti_windup_method
+        )
+
+        if solver == MySolverInt.RK4:
+            x = rk4(A, B, x, u + l, dt)
+
+        y = dot1D(C, x)
+        y_out = y + n + D * (u + l)
+
+        if i > 0:
+            err = r - y_out
+            if performance_index == PerformanceIndexInt.IAE:
+                perf += abs(err) * dt
+            elif performance_index == PerformanceIndexInt.ISE:
+                perf += err * err * dt
+            elif performance_index == PerformanceIndexInt.ITAE:
+                perf += t_eval[i] * abs(err) * dt
+            elif performance_index == PerformanceIndexInt.ITSE:
+                perf += t_eval[i] * err * err * dt
+
+        if use_ov and overshoot_step_amplitude_abs > 0.0:
+            if not armed:
+                if abs(r - r0) > overshoot_reference_activation_eps:
+                    armed = True
+
+            if armed:
+                signed_overshoot = overshoot_step_sign * (y_out - overshoot_r_final)
+                if signed_overshoot > max_overshoot:
+                    max_overshoot = signed_overshoot
+
+        e_prev = e
+
+    if (not use_ov) or overshoot_step_amplitude_abs <= 0.0:
+        overshoot_pct = 0.0
+    else:
+        if armed:
+            if max_overshoot > 0.0:
+                overshoot_pct = 100.0 * max_overshoot / overshoot_step_amplitude_abs
+            else:
+                overshoot_pct = 0.0
+        else:
+            overshoot_pct = np.inf
+
+    return perf, overshoot_pct
+
+
 # =============================================================================
 # PSO Function
 # =============================================================================
@@ -697,8 +896,13 @@ def pid_system_response(Kp: float, Ti: float, Td: float, Tf: float,
 def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarray, l_eval: np.ndarray,
                   n_eval: np.ndarray, A: np.ndarray, B: np.ndarray, C: np.ndarray, D: float,
                   system_order: int, Tf: float, control_constraint: np.ndarray, anti_windup_method: int,
-                  solver: int, performance_index: int, swarm_size: int) -> np.ndarray:
+                  solver: int, performance_index: int,
+                  use_overshoot_control: int, overshoot_step_amplitude_abs: float,
+                  overshoot_step_sign: float, overshoot_r_final: float,
+                  overshoot_reference_activation_eps: float,
+                  overshoot_arm_immediately: int, swarm_size: int) -> tuple[np.ndarray, np.ndarray]:
     performance_index_val = np.zeros(swarm_size)
+    overshoot_pct = np.zeros(swarm_size)
 
     for i in prange(swarm_size):
         Kp = float(X[i, 0])
@@ -707,20 +911,21 @@ def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarr
 
         x = np.zeros(system_order, dtype=np.float64)
 
-        y = pid_system_response(Kp, Ti, Td, Tf, t_eval, dt, r_eval, l_eval, n_eval, x, control_constraint,
-                                anti_windup_method, A, B, C, D, solver)
+        perf_i, overshoot_i = pid_simulate_metrics(
+            Kp, Ti, Td, Tf,
+            t_eval, dt,
+            r_eval, l_eval, n_eval,
+            x, control_constraint,
+            anti_windup_method, A, B, C, D, solver,
+            performance_index,
+            use_overshoot_control,
+            overshoot_step_amplitude_abs,
+            overshoot_step_sign,
+            overshoot_r_final,
+            overshoot_reference_activation_eps,
+            overshoot_arm_immediately,
+        )
+        performance_index_val[i] = perf_i
+        overshoot_pct[i] = overshoot_i
 
-        match performance_index:
-            case PerformanceIndexInt.IAE:
-                performance_index_val[i] = iae(t_eval, y, r_eval)
-
-            case PerformanceIndexInt.ISE:
-                performance_index_val[i] = ise(t_eval, y, r_eval)
-
-            case PerformanceIndexInt.ITAE:
-                performance_index_val[i] = itae(t_eval, y, r_eval)
-
-            case PerformanceIndexInt.ITSE:
-                performance_index_val[i] = itse(t_eval, y, r_eval)
-
-    return performance_index_val
+    return performance_index_val, overshoot_pct

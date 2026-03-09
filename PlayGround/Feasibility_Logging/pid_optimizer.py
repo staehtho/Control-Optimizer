@@ -77,7 +77,6 @@ def main():
     pm_min_deg = 60
     gm_min_db = 0
     ms_max = 20
-    big_m = 10e9
 
     sim_mode = "fixed"
     start_time = 0
@@ -150,7 +149,6 @@ def main():
         pm_min_deg=pm_min_deg,
         gm_min_db=gm_min_db,
         ms_max=ms_max,
-        big_m=big_m,
         performance_index=performance_index,
         swarm_size=swarm_size,
         enable_logging=True,    # TODO FLO Rückgängig logging

@@ -71,25 +71,27 @@ def main():
     td_max = config["pso"]["bounds"]["td_max"]'''
 
     plant_num = [1]
-    plant_den = [1, 2, 1]
+    plant_den = [1, 0.1, 1]
 
     use_freq_metrics = False
-    pm_min_deg = 100
+    pm_min_deg = 90
     gm_min_db = 10
-    ms_max = 20
-    big_m = 10e9
+    ms_max = 2
+
+    use_overshoot_control = True
+    allowed_overshoot_pct = 1
 
     sim_mode = "fixed"
     start_time = 0
-    end_time = 20
+    end_time = 10
     time_step = 1e-4
 
     anti_windup = AntiWindup.CLAMPING
 
     excitation_target = "reference"
 
-    constraint_min = -2
-    constraint_max = 2
+    constraint_min = -100
+    constraint_max = 100
 
     performance_index = PerformanceIndex.ITAE
 
@@ -138,19 +140,19 @@ def main():
         t_set, y_set = plant.system_response(u=r, t0=start_time, t1=end_time, dt=time_step)
         end_time = settling_time(t=t_set, y=y_set, r=r, tolerance=0.05, max_allowed_time=end_time)
 
-    # generate function to be optimized
     obj_func = PsoFunc(
         pid,
         start_time, end_time, time_step,
         r=r, l=l, n=n,
         use_freq_metrics=use_freq_metrics,
-        freq_low_exp=-5,
+        freq_low_exp=-2,
         freq_high_exp=5,
-        freq_points=450,
+        freq_points=600,
         pm_min_deg=pm_min_deg,
         gm_min_db=gm_min_db,
         ms_max=ms_max,
-        big_m=big_m,
+        use_overshoot_control=use_overshoot_control,
+        allowed_overshoot_pct=allowed_overshoot_pct,
         performance_index=performance_index,
         swarm_size=swarm_size,
     )
@@ -212,7 +214,7 @@ def main():
     # --------------------------------------------------
     # Frequency metrics for best solution (DEBUG)
     # --------------------------------------------------
-    w_dbg = np.logspace(-5, 5, 600)
+    w_dbg = np.logspace(-2, 5, 600)
     s_dbg = 1j * w_dbg
     G_dbg = plant.system(s_dbg)
 

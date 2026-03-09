@@ -91,7 +91,7 @@ def load_cases_from_excel(xlsx_path: str):
 def run_one_case(case, *, swarm_size=40, iterations=14,
                  sim_mode="fixed", start_time=0.0, end_time=20.0, time_step=1e-4,
                  kp_min=0, kp_max=10, ti_min=0.1, ti_max=10, td_min=0, td_max=10,
-                 pm_min_deg=0, gm_min_db=0, ms_max=20, big_m=10e9,
+                 pm_min_deg=0, gm_min_db=0, ms_max=20,
                  anti_windup=AntiWindup.CLAMPING,
                  excitation_target="reference",
                  performance_index=PerformanceIndex.ITAE):
@@ -130,7 +130,6 @@ def run_one_case(case, *, swarm_size=40, iterations=14,
         pm_min_deg=pm_min_deg,
         gm_min_db=gm_min_db,
         ms_max=ms_max,
-        big_m=big_m,
         performance_index=performance_index,
         swarm_size=swarm_size,
     )
