@@ -56,7 +56,15 @@ if __name__ == '__main__':
         "frequency_domain": engine.ensure_bode_plot_viewmodel("frequency_domain_evaluation")
     }
 
-    items = [NavItem(key, "") for key in NavLabels]
+    items = [
+        NavItem(NavLabels.PLANT, "plant.svg"),
+        NavItem(NavLabels.EXCITATION_FUNCTION, ""),
+        NavItem(NavLabels.CONTROLLER, ""),
+        NavItem(NavLabels.PSO_PARAMETER, ""),
+        NavItem(NavLabels.EVALUATION, ""),
+        NavItem(NavLabels.SIMULATION, ""),
+        NavItem(NavLabels.SETTINGS, "settings.svg"),
+    ]
 
     view_factories = {
         NavLabels.PLANT: lambda parent=None: PlantView(

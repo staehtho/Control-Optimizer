@@ -1,8 +1,17 @@
 from dataclasses import dataclass
 from functools import partial
+from pathlib import Path
 
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QSizePolicy
+from PySide6.QtCore import Qt, Signal, QSize, QPropertyAnimation
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QToolButton,
+    QSizePolicy,
+    QFrame,
+)
 
 from app_domain.ui_context import UiContext
 from views import BaseView
@@ -18,11 +27,23 @@ class NavItem:
 class NavigationWidget(BaseView, QWidget):
     viewSelected = Signal(NavLabels)
 
-    def __init__(self, ui_context: UiContext, nav_items: list[NavItem], parent: QWidget = None):
+    COLLAPSED_WIDTH = 70
+    EXPANDED_WIDTH = 220
+    BTN_SIZE = 30
+    ICON_SIZE = 20
+    ACTIVE_BAR_WIDTH = 4
+
+    def __init__(self, ui_context: UiContext, nav_items: list[NavItem], init_item: NavLabels,
+                 parent: QWidget | None = None):
         QWidget.__init__(self, parent)
 
+        self._vm_theme = ui_context.vm_theme
         self._nav_items = nav_items
+        self._init_item = init_item
+
         self._collapsed = False
+        self._field_widgets: dict[NavLabels, QToolButton] = {}
+        self._active_bar_frames: dict[NavLabels, QFrame] = {}
 
         BaseView.__init__(self, ui_context)
 
@@ -30,105 +51,148 @@ class NavigationWidget(BaseView, QWidget):
     # UI Initialization
     # -------------------------------------------------
     def _init_ui(self) -> None:
-        """Create and configure all UI components."""
-        self.setFixedWidth(220)
+        self.setFixedWidth(self.EXPANDED_WIDTH)
         self.setObjectName("card")
-        self._btn_size = 30
 
         self._layout = QVBoxLayout(self)
-        self._layout.setContentsMargins(12, 14, 12, 14)
-        self._layout.setSpacing(8)
-        self.setLayout(self._layout)
-        self._toggle_btn = QPushButton(self)
-        self._toggle_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self._toggle_btn.setCheckable(False)
-        self._toggle_btn.setFixedSize(self._btn_size, self._btn_size)
-        self._layout.insertWidget(0, self._toggle_btn)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout.setSpacing(0)
 
+        # Toggle button row
+        toggle_row = QHBoxLayout()
+        toggle_row.setContentsMargins(self.ACTIVE_BAR_WIDTH, 5, 0, 0)
+        toggle_row.setSpacing(0)
+
+        self._toggle_btn = QToolButton(self)
+        self._toggle_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._toggle_btn.setFixedSize(self.BTN_SIZE, self.BTN_SIZE)
+        self._toggle_btn.setIcon(self._load_icon("menu.svg"))
+        self._toggle_btn.setIconSize(QSize(18, 18))
+        self._toggle_btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
+        self._toggle_btn.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self._toggle_btn.setObjectName("toggleBtn")
+
+        toggle_row.addWidget(self._toggle_btn)
+        toggle_row.addStretch()
+        self._layout.addLayout(toggle_row)
+
+        # Navigation buttons
         for item in self._nav_items:
-            btn = QPushButton(self)
+            row = QHBoxLayout()
+            row.setContentsMargins(0, 5, 0, 0)
+            row.setSpacing(0)
+
+            # Active page bar
+            bar = QFrame(self)
+            bar.setFixedWidth(self.ACTIVE_BAR_WIDTH)
+            bar.setStyleSheet("background-color: transparent;")
+            row.addWidget(bar)
+            self._active_bar_frames[item.key] = bar
+
+            # Nav button
+            btn = QToolButton(self)
             btn.setCheckable(True)
             btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            btn.setFixedHeight(self.BTN_SIZE)
+            btn.setIcon(self._load_icon(item.icon))
+            btn.setIconSize(QSize(self.ICON_SIZE, self.ICON_SIZE))
+            btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
             btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-            btn.setFixedHeight(self._btn_size)
+            btn.setStyleSheet("text-align:left; padding-left:6px;")
+            btn.setObjectName(f"navBtn_{item.key}")
 
-            self._layout.addWidget(btn)
+            row.addWidget(btn)
+            self._layout.addLayout(row)
+
             self._field_widgets[item.key] = btn
+            self._on_btn_clicked(self._init_item)
 
         self._layout.addStretch()
-        self._update_toggle_button()
 
     # -------------------------------------------------
     # Signal / ViewModel Binding
     # -------------------------------------------------
     def _connect_signals(self) -> None:
-        """Connect UI signals to event handlers."""
         self._toggle_btn.clicked.connect(self._on_toggle)
-
         for key, btn in self._field_widgets.items():
             btn.clicked.connect(partial(self._on_btn_clicked, key=key))
 
     # -------------------------------------------------
-    # ViewModel bindings (ViewModel -> UI)
+    # ViewModel bindings (ViewModel → UI)
     # -------------------------------------------------
-    def _bind_vm(self) -> None:
-        """Bind ViewModel signals to View update handlers."""
-        ...
+    def _bind_vm(self):
+        self._vm_theme.themeChanged.connect(self._on_vm_theme_changed)
 
     # -------------------------------------------------
     # Translation
     # -------------------------------------------------
     def _retranslate(self) -> None:
-        """Update all UI texts after a language change."""
+        translations = self._enum_translation(NavLabels)
         for key, btn in self._field_widgets.items():
-            btn.setText(self._enum_translation(NavLabels).get(key))
+            text = translations.get(key)
+            if self._collapsed:
+                btn.setText("")
+                btn.setToolTip(text)
+                btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
+            else:
+                btn.setText(text)
+                btn.setToolTip("")
+                btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
 
     # -------------------------------------------------
-    # Apply initial values
+    # Animation
     # -------------------------------------------------
-    def _apply_init_value(self) -> None:
-        """Apply initial values to all UI elements."""
-        ...
+    def _animate_sidebar(self, target_width: int) -> None:
+        self._animation = QPropertyAnimation(self, b"minimumWidth")
+        self._animation.setDuration(150)
+        self._animation.setStartValue(self.width())
+        self._animation.setEndValue(target_width)
+        self._animation.start()
+        self.setMaximumWidth(target_width)
 
     # -------------------------------------------------
     # ViewModel change handlers
     # -------------------------------------------------
+    def _on_vm_theme_changed(self) -> None:
+        self._toggle_btn.setIcon(self._load_icon("menu.svg"))
+
+        for item in self._nav_items:
+            btn = self._field_widgets[item.key]
+            btn.setIcon(self._load_icon(item.icon))
 
     # -------------------------------------------------
-    # UI event handlers
+    # Event Handlers
     # -------------------------------------------------
     def _on_toggle(self) -> None:
         self._collapsed = not self._collapsed
+        width = self.COLLAPSED_WIDTH if self._collapsed else self.EXPANDED_WIDTH
+        self._animate_sidebar(width)
+        self._retranslate()
 
-        if self._collapsed:
-            self.setFixedWidth(70)
-            for btn in self._field_widgets.values():
-                btn.setText("")
-        else:
-            self.setFixedWidth(220)
-            for item in self._nav_items:
-                self._field_widgets[item.key].setText(self._enum_translation(NavLabels).get(item.key))
-        self._update_toggle_button()
-
-    def _update_toggle_button(self) -> None:
-        self._toggle_btn.setText(">" if self._collapsed else "<")
-        self._layout.setAlignment(self._toggle_btn,
-                                  Qt.AlignmentFlag.AlignRight if not self._collapsed else Qt.Alignment())
-
-    def _on_btn_clicked(self, key: NavLabels):
+    def _on_btn_clicked(self, key: NavLabels) -> None:
         for k, btn in self._field_widgets.items():
-            btn.setChecked(k == key)
-
+            checked = k == key
+            btn.setChecked(checked)
+            self._active_bar_frames[k].setStyleSheet(
+                f"background-color: {'#2563eb' if checked else 'transparent'};"
+            )
         self.viewSelected.emit(key)
 
+    # -------------------------------------------------
+    # Helpers
+    # -------------------------------------------------
     def set_nav_item_enabled(self, key: NavLabels, enabled: bool) -> None:
         btn = self._field_widgets.get(key)
-        if btn is None:
-            return
-        btn.setEnabled(enabled)
+        if btn:
+            btn.setEnabled(enabled)
 
     def is_nav_item_enabled(self, key: NavLabels) -> bool:
         btn = self._field_widgets.get(key)
-        if btn is None:
-            return False
-        return btn.isEnabled()
+        return btn.isEnabled() if btn else False
+
+    # -------------------------------------------------
+    # Internal helpers
+    # -------------------------------------------------
+    def _load_icon(self, icon: str) -> QIcon:
+        icon_path = Path("icons") / self._vm_theme.current_theme.value / icon
+        return QIcon(str(icon_path.resolve()))

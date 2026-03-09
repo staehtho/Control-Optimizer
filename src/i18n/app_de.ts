@@ -814,47 +814,47 @@ Tf   = %(tf).3f</translation>
 <context>
     <name>SettingsView</name>
     <message>
-        <location filename="../views/settings_view.py" line="115"/>
+        <location filename="../views/settings_view.py" line="116"/>
         <source>Settings</source>
         <translation>Einstellungen</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="118"/>
+        <location filename="../views/settings_view.py" line="119"/>
         <source>Language</source>
         <translation>Sprache</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="119"/>
+        <location filename="../views/settings_view.py" line="120"/>
         <source>Theme</source>
         <translation>Design</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="120"/>
+        <location filename="../views/settings_view.py" line="121"/>
         <source>Solver</source>
         <translation>Solver</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="121"/>
+        <location filename="../views/settings_view.py" line="122"/>
         <source>Type</source>
         <translation>Typ</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="122"/>
+        <location filename="../views/settings_view.py" line="123"/>
         <source>Time Step</source>
         <translation>Zeitschritt</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="123"/>
+        <location filename="../views/settings_view.py" line="124"/>
         <source>PSO</source>
         <translation>PSO</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="124"/>
+        <location filename="../views/settings_view.py" line="125"/>
         <source>Iterations</source>
         <translation>Durchläufe</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="125"/>
+        <location filename="../views/settings_view.py" line="126"/>
         <source>Particles</source>
         <translation>Partikel</translation>
     </message>

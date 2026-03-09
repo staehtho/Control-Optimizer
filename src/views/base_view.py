@@ -122,23 +122,23 @@ class BaseView:
 
     def _init_ui(self) -> None:
         """Create and configure UI elements (widgets, layouts, etc.)."""
-        raise NotImplementedError
+        ...
 
     def _connect_signals(self) -> None:
         """Connect UI signals (buttons, input fields, etc.) to handlers."""
-        raise NotImplementedError
+        ...
 
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View updates (model -> view)."""
-        raise NotImplementedError
+        ...
 
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
-        raise NotImplementedError
+        ...
 
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
-        raise NotImplementedError
+        ...
 
     def _clear_layout(self, layout: QLayout) -> None:
         if layout is not None:

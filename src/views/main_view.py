@@ -38,7 +38,7 @@ class MainView(BaseView, QMainWindow):
         layout.setContentsMargins(16, 16, 16, 16)
         layout.setSpacing(12)
 
-        self._nav = NavigationWidget(self._ui_context, self._nav_items, self)
+        self._nav = NavigationWidget(self._ui_context, self._nav_items, NavLabels.PLANT, self)
         stack_frame, stack_layout = self._create_plain_card(central)
         self._stack = QStackedWidget(stack_frame)
         stack_layout.addWidget(self._stack)
