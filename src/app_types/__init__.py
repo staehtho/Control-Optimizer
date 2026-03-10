@@ -1,6 +1,6 @@
 from .closed_loop_context import ClosedLoopResponseContext
 
-from .field_types import (
+from .field import (
     FieldType,
     PlotField,
     PlantField,
@@ -15,7 +15,7 @@ from .frequency_domain import (
     FrequencyResponse,
 )
 
-from .nav_labels import (
+from .navigation import (
     NavLabels,
     NavItem
 )
@@ -33,7 +33,7 @@ from .pso_simulation import (
     PsoResult
 )
 
-from .settings_type import LanguageType, ThemeType
+from .settings import LanguageType, ThemeType
 
 from .validation_result import ValidationResult
 
