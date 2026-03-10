@@ -174,6 +174,8 @@ class PlantView(BaseView, QWidget):
         self._txt_num.setToolTip(tooltip_text)
         self._txt_den.setToolTip(tooltip_text)
 
+        self._vm_plot.update_data_label(PlotLabels.PLANT.value, self._enum_translation(PlotLabels.PLANT))
+
     # -------------------------------------------------
     # Apply initial values
     # -------------------------------------------------
@@ -206,7 +208,7 @@ class PlantView(BaseView, QWidget):
         self._vm_plot.update_data(
             PlotData(
                 key=PlotLabels.PLANT.value,
-                label=self._enum_translation(PlotLabels).get(PlotLabels.PLANT),
+                label=self._enum_translation(PlotLabels.PLANT),
                 x=t,
                 y=y,
                 plot_style=PLOT_STYLE.get(PlotLabels.PLANT),

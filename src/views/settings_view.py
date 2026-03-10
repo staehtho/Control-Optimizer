@@ -129,14 +129,14 @@ class SettingsView(BaseView, QWidget):
         for key in labels.keys():
             self._labels[key].setText(labels[key])
 
-        item_enums = {
-            SettingsField.LANGUAGE: self._enum_translation(LanguageType),
-            SettingsField.THEME: self._enum_translation(ThemeType),
-            SettingsField.SOLVER_TYPE: self._enum_translation(MySolver)
+        enums = {
+            SettingsField.LANGUAGE: LanguageType,
+            SettingsField.THEME: ThemeType,
+            SettingsField.SOLVER_TYPE: MySolver
         }
-
-        for key in item_enums:
-            self._cmb_add_item(self._field_widgets[key], item_enums[key])
+        for key, value in enums.items():
+            data = {k: self._enum_translation(k) for k in value}
+            self._cmb_add_item(self._field_widgets[key], data)
 
     # -------------------------------------------------
     # Apply initial values

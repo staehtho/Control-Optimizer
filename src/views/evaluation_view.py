@@ -182,7 +182,7 @@ class EvaluationView(BaseView, QWidget):
         self._vm_plots.get("time_domain").update_data(
             PlotData(
                 key=PlotLabels[key].value,
-                label=self._enum_translation(PlotLabels).get(PlotLabels[key]),
+                label=self._enum_translation(PlotLabels[key]),
                 x=t,
                 y=y,
                 plot_style=PLOT_STYLE.get(PlotLabels[key]),
@@ -198,7 +198,7 @@ class EvaluationView(BaseView, QWidget):
         self._vm_plots.get("time_domain").update_data(
             PlotData(
                 key=PlotLabels.CLOSED_LOOP.value,
-                label=self._enum_translation(PlotLabels).get(PlotLabels.CLOSED_LOOP),
+                label=self._enum_translation(PlotLabels.CLOSED_LOOP),
                 x=t,
                 y=y,
                 plot_style=PLOT_STYLE.get(PlotLabels.CLOSED_LOOP),
@@ -209,7 +209,7 @@ class EvaluationView(BaseView, QWidget):
         self._vm_plots.get("time_domain").update_data(
             PlotData(
                 key=PlotLabels.CONTROL_SIGNAL.value,
-                label=self._enum_translation(PlotLabels).get(PlotLabels.CONTROL_SIGNAL),
+                label=self._enum_translation(PlotLabels.CONTROL_SIGNAL),
                 x=t,
                 y=u,
                 plot_style=PLOT_STYLE.get(PlotLabels.CONTROL_SIGNAL),
@@ -225,7 +225,7 @@ class EvaluationView(BaseView, QWidget):
         self._vm_plots.get("time_domain").update_data(
             PlotData(
                 key=PlotLabels.PLANT.value,
-                label=self._enum_translation(PlotLabels).get(PlotLabels.PLANT),
+                label=self._enum_translation(PlotLabels.PLANT),
                 x=t,
                 y=y,
                 plot_style=PLOT_STYLE.get(PlotLabels.PLANT),
@@ -242,14 +242,18 @@ class EvaluationView(BaseView, QWidget):
         keys = set(result.margin.keys()) | set(result.phase.keys())
 
         for key in keys:
+            if key in PlotLabels.__members__:
+                label_enum = PlotLabels[key]
+            else:
+                label_enum = PlotLabels(key)
             self._vm_plots.get("frequency_domain").update_data(
                 BodePlotData(
-                    key=PlotLabels[key].value,
-                    label=self._enum_translation(PlotLabels).get(PlotLabels[key]),
+                    key=label_enum.value,
+                    label=self._enum_translation(label_enum),
                     omega=result.omega,
                     margin=result.margin.get(key),
                     phase=result.phase.get(key),
-                    plot_style=PLOT_STYLE.get(PlotLabels[key]),
+                    plot_style=PLOT_STYLE.get(label_enum),
                 )
             )
 

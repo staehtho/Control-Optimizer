@@ -68,10 +68,9 @@ class FunctionView(BaseView, QWidget):
         frame, frame_layout = self._create_card(self, True)
 
         function_type = resolve_function_type(self._vm_function.selected_function)
-        title = self._enum_translation(FunctionTypes).get(function_type)
         self._plot_cfg = PlotWidgetConfiguration(
             context="ControlEnums",
-            title=title,
+            title=self._enum_translation(function_type),
             x_label=str(QT_TRANSLATE_NOOP("ControlEnums", "Time [s]")),
             y_label=str(QT_TRANSLATE_NOOP("ControlEnums", "Output")),
         )
@@ -129,7 +128,7 @@ class FunctionView(BaseView, QWidget):
         self._logger.info(f"Function changed to: {self._vm_function.selected_function.__class__.__name__}")
 
         function_type = resolve_function_type(self._vm_function.selected_function)
-        self._plot_cfg.title = self._enum_translation(FunctionTypes).get(function_type)
+        self._plot_cfg.title = self._enum_translation(function_type)
 
         t0 = self._vm_plot.x_min
         t1 = self._vm_plot.x_max
@@ -141,7 +140,7 @@ class FunctionView(BaseView, QWidget):
         self._vm_plot.update_data(
             PlotData(
                 key=PlotLabels.FUNCTION.value,
-                label=self._enum_translation(PlotLabels).get(PlotLabels.FUNCTION),
+                label=self._enum_translation(PlotLabels.FUNCTION),
                 x=t,
                 y=y,
                 plot_style=PLOT_STYLE.get(PlotLabels.FUNCTION),

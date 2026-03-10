@@ -8,7 +8,6 @@ from viewmodels import ControllerViewModel
 from viewmodels.types import ControllerField
 from .base_view import BaseView, FieldConfig, SectionConfig
 from views.widgets import ExpandableFrame
-from views.translations import Translation
 
 FIELDS: list[FieldConfig] = [
     SectionConfig(ControllerField.CONSTRAINT, [
@@ -104,8 +103,10 @@ class ControllerView(BaseView, QWidget):
         for key in labels.keys():
             self._labels[key].setText(labels[key])
 
-        translation = Translation()
-        self._cmb_add_item(self._field_widgets[ControllerField.ANTI_WINDUP], translation(AntiWindup))
+        enums = {ControllerField.ANTI_WINDUP: AntiWindup}
+        for key, value in enums.items():
+            data = {k: self._enum_translation(k) for k in value}
+            self._cmb_add_item(self._field_widgets[key], data)
 
     # -------------------------------------------------
     # Apply initial values

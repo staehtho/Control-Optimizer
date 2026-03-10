@@ -222,13 +222,10 @@ class PsoConfigurationView(BaseView, QWidget):
         for key in labels.keys():
             self._labels[key].setText(labels[key])
 
-        item_enums = {
-            PsoField.EXCITATION_TARGET: self._enum_translation(ExcitationTarget),
-            PsoField.TIME_DOMAIN: self._enum_translation(PerformanceIndex),
-        }
-
-        for key in item_enums:
-            self._cmb_add_item(self._field_widgets[key], item_enums[key])
+        enums = {PsoField.EXCITATION_TARGET: ExcitationTarget, PsoField.TIME_DOMAIN: PerformanceIndex}
+        for key, value in enums.items():
+            data = {k: self._enum_translation(k) for k in value}
+            self._cmb_add_item(self._field_widgets[key], data)
 
         self._lbl_pso_result_template = self.tr(
             "PSO Result:\n"

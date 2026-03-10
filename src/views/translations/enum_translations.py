@@ -18,21 +18,18 @@ class NavLabels(Enum):
 
 
 class PlotLabels(Enum):
-    PLANT = "Plant"
-    FUNCTION = "Function"
-    CLOSED_LOOP = "Closed Loop"
-    CONTROL_SIGNAL = "Control Signal"
-    REFERENCE = "Reference"
-    INPUT_DISTURBANCE = "Input Disturbance"
-    MEASUREMENT_DISTURBANCE = "Measurement Disturbance"
-    G = "G"
-    C = "C"
-    L = "L"
-    S = "S"
-    T = "T"
-
-
-assert len(set(e.value for e in PlotLabels)) == len(PlotLabels), "Duplicate values in PlotLabels!"
+    PLANT = "plant"
+    FUNCTION = "function"
+    CLOSED_LOOP = "closed_loop"
+    CONTROL_SIGNAL = "control_signal"
+    REFERENCE = "reference"
+    INPUT_DISTURBANCE = "input_disturbance"
+    MEASUREMENT_DISTURBANCE = "measurement_disturbance"
+    G = "g"
+    C = "c"
+    L = "l"
+    S = "s"
+    T = "t"
 
 
 class Translation:
@@ -45,7 +42,7 @@ class Translation:
     def __init__(self) -> None:
 
         # Central registry of enum type -> translation method
-        self._registry: dict[Type[Any], Callable[[], dict[Any, str]]] = {
+        self._registry: dict[Type[Any], Callable[[Enum], str]] = {
             AntiWindup: self._anti_windup_label,
             ExcitationTarget: self._excitation_target_label,
             FunctionTypes: self._function_type_label,
@@ -57,117 +54,162 @@ class Translation:
             ThemeType: self._theme_type_label
         }
 
-    def __call__(self, enum_type: Type[Any]) -> dict[Any, str]:
-        """Return the translation dictionary for a given enum type.
+    def __call__(self, value: Enum) -> str:
+        """Return the translated string for a given enum value.
 
         Args:
-            enum_type: Enum class (not enum instance).
+            value: Enum member to translate.
 
         Returns:
-            Dictionary mapping enum members to translated strings.
+            The translated string corresponding to the given enum value.
 
         Raises:
-            NotImplementedError: If enum type is not registered.
+            NotImplementedError: If no translation function is registered
+                for the enum type of the given value.
         """
         try:
-            return self._registry[enum_type]().copy()
+            return self._registry[type(value)](value)
         except KeyError:
-            raise NotImplementedError(
-                f"No translation registered for enum type: {enum_type}"
-            ) from None
+            raise NotImplementedError(f"No translation registered for enum type: {type(value).__name__}")
 
     # ------------------------------------------------------------------
     # Individual enum translation mappings
     # ------------------------------------------------------------------
     @staticmethod
-    def _anti_windup_label() -> dict[AntiWindup, str]:
-        """Return translated labels for AntiWindup enum."""
-        return {
-            AntiWindup.CLAMPING: QCoreApplication.translate("ControlEnums", "Clamping"),
-            AntiWindup.CONDITIONAL: QCoreApplication.translate("ControlEnums", "Conditional"),
-        }
+    def _anti_windup_label(value: Enum) -> str:
+        """Return translated label for AntiWindup enum."""
+        match value:
+            case AntiWindup.CLAMPING:
+                return QCoreApplication.translate("ControlEnums", "Clamping")
+            case AntiWindup.CONDITIONAL:
+                return QCoreApplication.translate("ControlEnums", "Conditional")
+            case _:
+                raise NotImplementedError(f"No translation registered for enum type: {value}")
 
     @staticmethod
-    def _excitation_target_label() -> dict[ExcitationTarget, str]:
-        """Return translated labels for ExcitationTarget enum."""
-        return {
-            ExcitationTarget.REFERENCE: QCoreApplication.translate("ControlEnums", "Reference"),
-            ExcitationTarget.INPUT_DISTURBANCE: QCoreApplication.translate("ControlEnums", "Input Disturbance"),
-            ExcitationTarget.MEASUREMENT_DISTURBANCE: QCoreApplication.translate("ControlEnums",
-                                                                                 "Measurement Disturbance"),
-        }
+    def _excitation_target_label(value: Enum) -> str:
+        """Return translated label for ExcitationTarget enum."""
+        match value:
+            case ExcitationTarget.REFERENCE:
+                return QCoreApplication.translate("ControlEnums", "Reference")
+            case ExcitationTarget.INPUT_DISTURBANCE:
+                return QCoreApplication.translate("ControlEnums", "Input Disturbance")
+            case ExcitationTarget.MEASUREMENT_DISTURBANCE:
+                return QCoreApplication.translate("ControlEnums", "Measurement Disturbance")
+            case _:
+                raise NotImplementedError(f"No translation registered for enum type: {value}")
 
     @staticmethod
-    def _performance_index_label() -> dict[PerformanceIndex, str]:
-        """Return translated labels for PerformanceIndex enum."""
-        return {
-            PerformanceIndex.ITAE: QCoreApplication.translate("ControlEnums", "ITAE"),
-            PerformanceIndex.IAE: QCoreApplication.translate("ControlEnums", "IAE"),
-            PerformanceIndex.ITSE: QCoreApplication.translate("ControlEnums", "ITSE"),
-            PerformanceIndex.ISE: QCoreApplication.translate("ControlEnums", "ISE"),
-        }
+    def _performance_index_label(value: Enum) -> str:
+        """Return translated label for PerformanceIndex enum."""
+        match value:
+            case PerformanceIndex.ITAE:
+                return QCoreApplication.translate("ControlEnums", "ITAE")
+            case PerformanceIndex.IAE:
+                return QCoreApplication.translate("ControlEnums", "IAE")
+            case PerformanceIndex.ITSE:
+                return QCoreApplication.translate("ControlEnums", "ITSE")
+            case PerformanceIndex.ISE:
+                return QCoreApplication.translate("ControlEnums", "ISE")
+            case _:
+                raise NotImplementedError(f"No translation registered for enum type: {value}")
 
     @staticmethod
-    def _function_type_label() -> dict[FunctionTypes, str]:
-        """Return translated labels for FunctionTypes enum."""
-        return {
-            FunctionTypes.NULL: QCoreApplication.translate("ControlEnums", "Null"),
-            FunctionTypes.STEP: QCoreApplication.translate("ControlEnums", "step"),
-            FunctionTypes.SINE: QCoreApplication.translate("ControlEnums", "sine"),
-            FunctionTypes.COSINE: QCoreApplication.translate("ControlEnums", "cosine"),
-            FunctionTypes.RECTANGULAR: QCoreApplication.translate("ControlEnums", "rectangle"),
-        }
+    def _function_type_label(value: Enum) -> str:
+        """Return translated label for FunctionTypes enum."""
+        match value:
+            case FunctionTypes.NULL:
+                return QCoreApplication.translate("ControlEnums", "Null")
+            case FunctionTypes.STEP:
+                return QCoreApplication.translate("ControlEnums", "Step")
+            case FunctionTypes.SINE:
+                return QCoreApplication.translate("ControlEnums", "Sine")
+            case FunctionTypes.COSINE:
+                return QCoreApplication.translate("ControlEnums", "Cosine")
+            case FunctionTypes.RECTANGULAR:
+                return QCoreApplication.translate("ControlEnums", "Rectangle")
+            case _:
+                raise NotImplementedError(f"No translation registered for enum value: {value}")
 
     @staticmethod
-    def _nav_label() -> dict[NavLabels, str]:
-        """Return translated labels for NavLabel enum."""
-        return {
-            NavLabels.PLANT: QCoreApplication.translate("ControlEnums", "Plant"),
-            NavLabels.EXCITATION_FUNCTION: QCoreApplication.translate("ControlEnums", "Excitation Function"),
-            NavLabels.CONTROLLER: QCoreApplication.translate("ControlEnums", "Controller"),
-            NavLabels.PSO_PARAMETER: QCoreApplication.translate("ControlEnums", "PSO Parameter"),
-            NavLabels.EVALUATION: QCoreApplication.translate("ControlEnums", "Evaluation"),
-            NavLabels.SIMULATION: QCoreApplication.translate("ControlEnums", "Simulation"),
-            NavLabels.SETTINGS: QCoreApplication.translate("ControlEnums", "Settings"),
-        }
+    def _nav_label(value: Enum) -> str:
+        """Return translated label for NavLabels enum."""
+        match value:
+            case NavLabels.PLANT:
+                return QCoreApplication.translate("ControlEnums", "Plant")
+            case NavLabels.EXCITATION_FUNCTION:
+                return QCoreApplication.translate("ControlEnums", "Excitation Function")
+            case NavLabels.CONTROLLER:
+                return QCoreApplication.translate("ControlEnums", "Controller")
+            case NavLabels.PSO_PARAMETER:
+                return QCoreApplication.translate("ControlEnums", "PSO Parameter")
+            case NavLabels.EVALUATION:
+                return QCoreApplication.translate("ControlEnums", "Evaluation")
+            case NavLabels.SIMULATION:
+                return QCoreApplication.translate("ControlEnums", "Simulation")
+            case NavLabels.SETTINGS:
+                return QCoreApplication.translate("ControlEnums", "Settings")
+            case _:
+                raise NotImplementedError(f"No translation registered for enum value: {value}")
 
     @staticmethod
-    def _plot_labels() -> dict[PlotLabels, str]:
-        """Return translated labels for PlotLabels enum."""
-        return {
-            PlotLabels.PLANT: QCoreApplication.translate("ControlEnums", "Plant"),
-            PlotLabels.FUNCTION: QCoreApplication.translate("ControlEnums", "Function"),
-            PlotLabels.CLOSED_LOOP: QCoreApplication.translate("ControlEnums", "Closed Loop"),
-            PlotLabels.CONTROL_SIGNAL: QCoreApplication.translate("ControlEnums", "Control Signal"),
-            PlotLabels.REFERENCE: QCoreApplication.translate("ControlEnums", "Reference"),
-            PlotLabels.INPUT_DISTURBANCE: QCoreApplication.translate("ControlEnums", "Input Disturbance"),
-            PlotLabels.MEASUREMENT_DISTURBANCE: QCoreApplication.translate("ControlEnums", "Measurement Disturbance"),
-            PlotLabels.G: QCoreApplication.translate("ControlEnums", "G_plant"),
-            PlotLabels.C: QCoreApplication.translate("ControlEnums", "C_controller"),
-            PlotLabels.L: QCoreApplication.translate("ControlEnums", "L_open_loop"),
-            PlotLabels.S: QCoreApplication.translate("ControlEnums", "S_sensitivity"),
-            PlotLabels.T: QCoreApplication.translate("ControlEnums", "T_complement_sensitivity"),
-        }
+    def _plot_labels(value: Enum) -> str:
+        """Return translated label for PlotLabels enum."""
+        match value:
+            case PlotLabels.PLANT:
+                return QCoreApplication.translate("ControlEnums", "Plant")
+            case PlotLabels.FUNCTION:
+                return QCoreApplication.translate("ControlEnums", "Function")
+            case PlotLabels.CLOSED_LOOP:
+                return QCoreApplication.translate("ControlEnums", "Closed Loop")
+            case PlotLabels.CONTROL_SIGNAL:
+                return QCoreApplication.translate("ControlEnums", "Control Signal")
+            case PlotLabels.REFERENCE:
+                return QCoreApplication.translate("ControlEnums", "Reference")
+            case PlotLabels.INPUT_DISTURBANCE:
+                return QCoreApplication.translate("ControlEnums", "Input Disturbance")
+            case PlotLabels.MEASUREMENT_DISTURBANCE:
+                return QCoreApplication.translate("ControlEnums", "Measurement Disturbance")
+            case PlotLabels.G:
+                return QCoreApplication.translate("ControlEnums", "G_plant")
+            case PlotLabels.C:
+                return QCoreApplication.translate("ControlEnums", "C_controller")
+            case PlotLabels.L:
+                return QCoreApplication.translate("ControlEnums", "L_open_loop")
+            case PlotLabels.S:
+                return QCoreApplication.translate("ControlEnums", "S_sensitivity")
+            case PlotLabels.T:
+                return QCoreApplication.translate("ControlEnums", "T_complement_sensitivity")
+            case _:
+                raise NotImplementedError(f"No translation registered for enum value: {value}")
 
     @staticmethod
-    def _solver_label() -> dict[MySolver, str]:
-        """Return translated labels for MySolver enum."""
-        return {
-            MySolver.RK4: QCoreApplication.translate("ControlEnums", "RK4"),
-        }
+    def _solver_label(value: Enum) -> str:
+        """Return translated label for MySolver enum."""
+        match value:
+            case MySolver.RK4:
+                return QCoreApplication.translate("ControlEnums", "RK4")
+            case _:
+                raise NotImplementedError(f"No translation registered for enum value: {value}")
 
     @staticmethod
-    def _language_type_label() -> dict[LanguageType, str]:
-        """Return translated labels for LanguageType enum."""
-        return {
-            LanguageType.ENGLISH: QCoreApplication.translate("ControlEnums", "English"),
-            LanguageType.GERMAN: QCoreApplication.translate("ControlEnums", "German"),
-        }
+    def _language_type_label(value: Enum) -> str:
+        """Return translated label for LanguageType enum."""
+        match value:
+            case LanguageType.ENGLISH:
+                return QCoreApplication.translate("ControlEnums", "English")
+            case LanguageType.GERMAN:
+                return QCoreApplication.translate("ControlEnums", "German")
+            case _:
+                raise NotImplementedError(f"No translation registered for enum value: {value}")
 
     @staticmethod
-    def _theme_type_label() -> dict[ThemeType, str]:
-        """Return translated labels for ThemeType enum."""
-        return {
-            ThemeType.LIGHT: QCoreApplication.translate("ControlEnums", "Light"),
-            ThemeType.DARK: QCoreApplication.translate("ControlEnums", "Dark"),
-        }
+    def _theme_type_label(value: Enum) -> str:
+        """Return translated label for ThemeType enum."""
+        match value:
+            case ThemeType.LIGHT:
+                return QCoreApplication.translate("ControlEnums", "Light")
+            case ThemeType.DARK:
+                return QCoreApplication.translate("ControlEnums", "Dark")
+            case _:
+                raise NotImplementedError(f"No translation registered for enum value: {value}")

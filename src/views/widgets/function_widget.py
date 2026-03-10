@@ -139,7 +139,7 @@ class FunctionWidget(BaseView, QWidget):
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         function_labels = {
-            key: value for key, value in self._enum_translation(FunctionTypes).items()
+            key: self._enum_translation(key) for key in FunctionTypes
             if key not in self._excluded_function_types
         }
 

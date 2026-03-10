@@ -127,9 +127,8 @@ class NavigationWidget(BaseView, QWidget):
     # Translation
     # -------------------------------------------------
     def _retranslate(self) -> None:
-        translations = self._enum_translation(NavLabels)
         for key, btn in self._field_widgets.items():
-            text = translations.get(key)
+            text = self._enum_translation(key)
             if self._collapsed:
                 btn.setText("")
                 btn.setToolTip(text)

@@ -149,7 +149,7 @@ class SimulationView(BaseView, QWidget):
 
         # translate pages
         for text, i in zip(ExcitationTarget, range(self._function_tab.count())):
-            new_label = self._enum_translation(ExcitationTarget).get(text)
+            new_label = self._enum_translation(text)
             self._function_tab.setTabText(i, new_label)
 
     # -------------------------------------------------
@@ -175,7 +175,7 @@ class SimulationView(BaseView, QWidget):
         self._vm_plot.update_data(
             PlotData(
                 key=PlotLabels[key].value,
-                label=self._enum_translation(PlotLabels).get(PlotLabels[key]),
+                label=self._enum_translation(PlotLabels[key]),
                 x=t,
                 y=y,
                 plot_style=PLOT_STYLE.get(PlotLabels[key]),
@@ -192,7 +192,7 @@ class SimulationView(BaseView, QWidget):
         self._vm_plot.update_data(
             PlotData(
                 key=PlotLabels.CLOSED_LOOP.value,
-                label=self._enum_translation(PlotLabels).get(PlotLabels.CLOSED_LOOP),
+                label=self._enum_translation(PlotLabels.CLOSED_LOOP),
                 x=t,
                 y=y,
                 plot_style=PLOT_STYLE.get(PlotLabels.CLOSED_LOOP),
@@ -203,7 +203,7 @@ class SimulationView(BaseView, QWidget):
         self._vm_plot.update_data(
             PlotData(
                 key=PlotLabels.CONTROL_SIGNAL.value,
-                label=self._enum_translation(PlotLabels).get(PlotLabels.CONTROL_SIGNAL),
+                label=self._enum_translation(PlotLabels.CONTROL_SIGNAL),
                 x=t,
                 y=u,
                 plot_style=PLOT_STYLE.get(PlotLabels.CONTROL_SIGNAL),
@@ -219,7 +219,7 @@ class SimulationView(BaseView, QWidget):
         self._vm_plot.update_data(
             PlotData(
                 key=PlotLabels.PLANT.value,
-                label=self._enum_translation(PlotLabels).get(PlotLabels.PLANT),
+                label=self._enum_translation(PlotLabels.PLANT),
                 x=t,
                 y=y,
                 plot_style=PLOT_STYLE.get(PlotLabels.PLANT),
