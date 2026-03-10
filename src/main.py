@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
     items = [
         NavItem(NavLabels.PLANT, "plant.svg"),
-        NavItem(NavLabels.EXCITATION_FUNCTION, ""),
+        NavItem(NavLabels.EXCITATION_FUNCTION, "excitation_function.svg"),
         NavItem(NavLabels.CONTROLLER, ""),
         NavItem(NavLabels.PSO_PARAMETER, ""),
         NavItem(NavLabels.EVALUATION, ""),
@@ -90,6 +90,8 @@ if __name__ == '__main__':
         ),
         NavLabels.SETTINGS: lambda parent=None: SettingsView(ui_context, parent=parent),
     }
+
+    view_factories.get(NavLabels.SETTINGS)().show()
 
     main_view = MainView(ui_context, items, view_factories, engine.vm_pso)
     main_view.show()
