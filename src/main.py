@@ -78,7 +78,7 @@ if __name__ == '__main__':
         }),
         NavItem(NavLabels.SETTINGS, {
             ThemeType.DARK: "settings_dark.svg", ThemeType.LIGHT: "settings_light.svg"
-        }),
+        }, bottom=True),
     ]
 
     view_factories = {

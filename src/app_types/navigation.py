@@ -17,3 +17,4 @@ class NavLabels(Enum):
 class NavItem:
     key: NavLabels
     icons: dict[ThemeType, str]
+    bottom: bool = False

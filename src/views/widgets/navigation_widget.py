@@ -23,8 +23,8 @@ class NavigationWidget(BaseView, QWidget):
 
     COLLAPSED_WIDTH = 70
     EXPANDED_WIDTH = 220
-    BTN_SIZE = 30
-    ICON_SIZE = 20
+    BTN_SIZE = 40
+    ICON_SIZE = int(BTN_SIZE * 0.8)
     ACTIVE_BAR_WIDTH = 4
 
     def __init__(self, ui_context: UiContext, nav_items: list[NavItem], init_item: NavLabels,
@@ -61,7 +61,7 @@ class NavigationWidget(BaseView, QWidget):
         self._toggle_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self._toggle_btn.setFixedSize(self.BTN_SIZE, self.BTN_SIZE)
         self._toggle_btn.setIcon(self._load_icon(MENU_ICONS))
-        self._toggle_btn.setIconSize(QSize(18, 18))
+        self._toggle_btn.setIconSize(QSize(self.ICON_SIZE, self.ICON_SIZE))
         self._toggle_btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
         self._toggle_btn.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self._toggle_btn.setObjectName("toggleBtn")
@@ -70,7 +70,15 @@ class NavigationWidget(BaseView, QWidget):
         toggle_row.addStretch()
         self._layout.addLayout(toggle_row)
 
-        # Navigation buttons
+        # Separate layouts for normal and bottom nav items
+        top_layout = QVBoxLayout()
+        top_layout.setSpacing(0)
+        top_layout.setContentsMargins(0, 0, 0, 0)
+
+        bottom_layout = QVBoxLayout()
+        bottom_layout.setSpacing(0)
+        bottom_layout.setContentsMargins(0, 0, 0, 0)
+
         for item in self._nav_items:
             row = QHBoxLayout()
             row.setContentsMargins(0, 5, 0, 0)
@@ -96,12 +104,21 @@ class NavigationWidget(BaseView, QWidget):
             btn.setObjectName(f"navBtn_{item.key}")
 
             row.addWidget(btn)
-            self._layout.addLayout(row)
 
             self._field_widgets[item.key] = btn
             self._on_btn_clicked(self._init_item)
 
-        self._layout.addStretch()
+            # Add to top or bottom layout
+            if getattr(item, "bottom", False):
+                bottom_layout.addLayout(row)
+            else:
+                top_layout.addLayout(row)
+
+        # Add top items
+        self._layout.addLayout(top_layout)
+        self._layout.addStretch()  # stretch pushes bottom items to the bottom
+        # Add bottom items
+        self._layout.addLayout(bottom_layout)
 
     # -------------------------------------------------
     # Signal / ViewModel Binding
