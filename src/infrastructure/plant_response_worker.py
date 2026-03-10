@@ -4,7 +4,7 @@ from numpy import ndarray
 from PySide6.QtCore import QThread, Signal
 
 from app_domain.engine import PlantResponseEngine
-from app_domain.engine.types import PlantResponseContext
+from app_types import PlantResponseContext
 
 
 class PlantResponseWorker(QThread):
@@ -34,3 +34,4 @@ class PlantResponseWorker(QThread):
 
         self._logger.info("Step-response worker finished (t.size=%d, y.size=%d).", t.size, y.size)
         self.resultReady.emit(t, y)
+

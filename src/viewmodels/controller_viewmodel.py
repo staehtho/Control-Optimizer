@@ -3,7 +3,7 @@ from PySide6.QtCore import QObject, Signal
 from app_domain.controlsys import AntiWindup
 from models import ControllerModel
 from .base_viewmodel import BaseViewModel
-from .types import ControllerField
+from app_types import ControllerField
 from utils import LoggedProperty
 
 
@@ -82,3 +82,4 @@ class ControllerViewModel(BaseViewModel):
         typ=float,
         custom_setter=_verify_constraint_max
     )
+

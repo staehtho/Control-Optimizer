@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from collections.abc import Mapping
 
-from views.translations import PlotLabels
+from app_types import PlotLabels
 
 
 @dataclass(frozen=True)
@@ -37,3 +37,4 @@ PLOT_STYLE: Mapping[PlotLabels, PlotStyle] = {
     PlotLabels.S: PlotStyle("#d62728", 11, z_order=14),
     PlotLabels.T: PlotStyle("#9467bd", 12, z_order=15),
 }
+

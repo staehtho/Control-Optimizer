@@ -7,7 +7,7 @@ from app_domain.engine import (
     PlantResponseEngine, FunctionEngine, PsoSimulationEngine, ClosedLoopResponseEngine, PlantTransferEngine,
     ControllerTransferEngine, FrequencyGridEngine, FrequencyResponseEngine
 )
-from app_domain.engine.types import (
+from app_types import (
     PlantResponseContext, PsoSimulationParam, PsoResult, ClosedLoopResponseContext, PlantTransferContext,
     FrequencyResponse, ControllerTransferContext
 )
@@ -274,3 +274,4 @@ class SimulationService:
         )
         self._closed_loop_frequency_worker.resultReady.connect(callback)
         self._closed_loop_frequency_worker.start()
+

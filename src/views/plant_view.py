@@ -6,11 +6,10 @@ from numpy import ndarray
 
 from app_domain.ui_context import UiContext
 from viewmodels import PlantViewModel, PlotViewModel
-from viewmodels.types import PlotData, PlantField
+from app_types import PlotData, PlantField, PlotLabels
 from .base_view import BaseView
 from views.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, ExpandableFrame, FormulaWidget
-from views.translations import PlotLabels
 
 
 class PlantView(BaseView, QWidget):
@@ -121,10 +120,10 @@ class PlantView(BaseView, QWidget):
         frame: ExpandableFrame
         frame, frame_layout = self._create_card(self, True)
         plot_cfg = PlotWidgetConfiguration(
-            context="plant.view",
-            title=str(QT_TRANSLATE_NOOP("plant.view", "Step Response")),
-            x_label=str(QT_TRANSLATE_NOOP("plant.view", "Time [s]")),
-            y_label=str(QT_TRANSLATE_NOOP("plant.view", "Output")),
+            context="PlantView",
+            title=str(QT_TRANSLATE_NOOP("PlantView", "Step Response")),
+            x_label=str(QT_TRANSLATE_NOOP("PlantView", "Time [s]")),
+            y_label=str(QT_TRANSLATE_NOOP("PlantView", "Output")),
         )
 
         plot_view = PlotWidget(self._ui_context, self._vm_plot, plot_cfg, parent=self)
@@ -173,8 +172,6 @@ class PlantView(BaseView, QWidget):
         tooltip_text = self.tr("tooltip_num_den")
         self._txt_num.setToolTip(tooltip_text)
         self._txt_den.setToolTip(tooltip_text)
-
-        self._vm_plot.update_data_label(PlotLabels.PLANT.value, self._enum_translation(PlotLabels.PLANT))
 
     # -------------------------------------------------
     # Apply initial values
@@ -231,3 +228,4 @@ class PlantView(BaseView, QWidget):
         self._clear_input_error(self._txt_den)
         self._logger.debug(f"UI event: txt_den changed (value={text})")
         self._vm_plant.update_den(text)
+

@@ -4,7 +4,7 @@ from typing import Iterator
 
 from PySide6.QtCore import QObject, Signal
 
-from .types import FieldType, ValidationResult
+from app_types import FieldType, ValidationResult
 
 
 class BaseViewModel(QObject):
@@ -152,3 +152,4 @@ class BaseViewModel(QObject):
             return False
 
         return True
+

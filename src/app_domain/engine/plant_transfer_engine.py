@@ -2,7 +2,7 @@ import logging
 from numpy import ndarray
 
 from app_domain.controlsys import Plant
-from .types import PlantTransferContext
+from app_types import PlantTransferContext
 
 
 class PlantTransferEngine:
@@ -52,3 +52,4 @@ class PlantTransferEngine:
         )
 
         return G
+

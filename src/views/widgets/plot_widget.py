@@ -13,7 +13,7 @@ from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as Navigation
 from matplotlib import cbook
 
 from app_domain.ui_context import UiContext
-from viewmodels.types import PlotField
+from app_types import PlotField
 from viewmodels import PlotViewModel
 from views import BaseView
 
@@ -181,6 +181,8 @@ class PlotWidget(BaseView, QWidget):
         self._lbl_max.setText(self.tr("plot.end"))
         self._txt_min.setToolTip(self.tr("plot.start.tooltip"))
         self._txt_max.setToolTip(self.tr("plot.end.tooltip"))
+
+        self._vm.retranslate_labels(self._enum_translation)
         self._update_plot()
 
     # -------------------------------------------------
@@ -202,6 +204,7 @@ class PlotWidget(BaseView, QWidget):
         )
 
         context = self._cfg.context
+        tr = lambda text: QCoreApplication.translate(context, text) if text else text
 
         self._figure.clear()
         subplot = self._cfg.subplot
@@ -231,10 +234,10 @@ class PlotWidget(BaseView, QWidget):
                 x_label = subplot_cfg.x_label or self._cfg.x_label
                 y_label = subplot_cfg.y_label or self._cfg.y_label
 
-                axs[i].set_title(QCoreApplication.translate(context, subplot_cfg.title))
+                axs[i].set_title(tr(subplot_cfg.title))
 
-            translated_x = QCoreApplication.translate(context, x_label)
-            translated_y = QCoreApplication.translate(context, y_label)
+            translated_x = tr(x_label)
+            translated_y = tr(y_label)
             translated_x_labels.append(translated_x)
             axs[i].set_xlabel(translated_x)
             axs[i].set_ylabel(translated_y)
@@ -410,3 +413,4 @@ class PlotWidget(BaseView, QWidget):
         painter.fillRect(tinted.rect(), color)
         painter.end()
         return QIcon(tinted)
+

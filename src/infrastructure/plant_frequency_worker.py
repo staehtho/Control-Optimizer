@@ -3,8 +3,7 @@ from PySide6.QtCore import QThread, Signal
 from numpy import ndarray
 
 from app_domain.engine import PlantTransferEngine, FrequencyGridEngine
-from app_domain.engine.types import PlantTransferContext, FrequencyResponse
-
+from app_types import PlantTransferContext, FrequencyResponse, PlotLabels
 
 class PlantFrequencyWorker(QThread):
     """Worker thread to compute the plant frequency response in a separate thread.
@@ -81,7 +80,6 @@ class PlantFrequencyWorker(QThread):
         )
 
         # Prepare response dataclass
-        from views.translations import PlotLabels
         result = FrequencyResponse(
             omega=omega,
             margin={PlotLabels.G.value: mag_G},
@@ -90,3 +88,4 @@ class PlantFrequencyWorker(QThread):
 
         self._logger.info("Plant frequency computation finished, emitting result")
         self.resultReady.emit(result)
+

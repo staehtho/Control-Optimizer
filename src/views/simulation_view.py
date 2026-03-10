@@ -1,4 +1,4 @@
-﻿from functools import partial
+from functools import partial
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QTabWidget, QSizePolicy
 from PySide6.QtCore import QT_TRANSLATE_NOOP
@@ -8,11 +8,10 @@ from app_domain.functions import resolve_function_type, FunctionTypes
 from app_domain.ui_context import UiContext
 from app_domain.controlsys import ExcitationTarget
 from viewmodels import FunctionViewModel, PlotViewModel, SimulationViewModel
-from viewmodels.types import PlotData
+from app_types import PlotData, PlotLabels
 from views import BaseView
 from views.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, ExpandableFrame, FunctionWidget
-from views.translations import PlotLabels
 
 
 class SimulationView(BaseView, QWidget):
@@ -284,4 +283,5 @@ class SimulationView(BaseView, QWidget):
         """Sync plot time range from persisted evaluator state via evaluator VM."""
         self._vm_plot.x_min = self._vm_simulation.t0
         self._vm_plot.x_max = self._vm_simulation.t1
+
 

@@ -5,11 +5,10 @@ from numpy import ndarray
 from app_domain.ui_context import UiContext
 from app_domain.functions import FunctionTypes, resolve_function_type
 from viewmodels import FunctionViewModel, PlotViewModel
-from viewmodels.types import PlotData
+from app_types import PlotData, PlotLabels
 from views import BaseView
 from views.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, FunctionWidget, ExpandableFrame
-from views.translations import PlotLabels
 
 
 class FunctionView(BaseView, QWidget):
@@ -69,10 +68,10 @@ class FunctionView(BaseView, QWidget):
 
         function_type = resolve_function_type(self._vm_function.selected_function)
         self._plot_cfg = PlotWidgetConfiguration(
-            context="ControlEnums",
-            title=self._enum_translation(function_type),
-            x_label=str(QT_TRANSLATE_NOOP("ControlEnums", "Time [s]")),
-            y_label=str(QT_TRANSLATE_NOOP("ControlEnums", "Output")),
+            context="FunctionView",
+            title=str(QT_TRANSLATE_NOOP("FunctionView", "Excitation Function")),
+            x_label=str(QT_TRANSLATE_NOOP("FunctionView", "Time [s]")),
+            y_label=str(QT_TRANSLATE_NOOP("FunctionView", "Output")),
         )
 
         plot_view = PlotWidget(self._ui_context, self._vm_plot, self._plot_cfg, parent=self)
@@ -157,3 +156,4 @@ class FunctionView(BaseView, QWidget):
     # -------------------------------------------------
     # UI event handlers
     # -------------------------------------------------
+

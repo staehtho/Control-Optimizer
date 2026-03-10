@@ -6,7 +6,7 @@ from PySide6.QtCore import QObject, Qt
 from app_domain.ui_context import UiContext
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
 from viewmodels import PlantViewModel, FunctionViewModel, PsoConfigurationViewModel
-from viewmodels.types import PsoField
+from app_types import PsoField
 from .base_view import BaseView, FieldConfig, SectionConfig
 from views.widgets import ExpandableFrame, FormulaWidget
 
@@ -322,3 +322,4 @@ class PsoConfigurationView(BaseView, QWidget):
             "td": result.td,
             "tf": result.tf
         })
+

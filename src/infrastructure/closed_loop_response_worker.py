@@ -4,7 +4,7 @@ from numpy import ndarray
 from PySide6.QtCore import QThread, Signal
 
 from app_domain.engine import ClosedLoopResponseEngine
-from app_domain.engine.types import ClosedLoopResponseContext
+from app_types import ClosedLoopResponseContext
 
 
 class ClosedLoopResponseWorker(QThread):
@@ -31,3 +31,4 @@ class ClosedLoopResponseWorker(QThread):
 
         self._logger.info("Closed-loop response worker finished (size=%d).", t.size)
         self.resultReady.emit(t, u, y)
+

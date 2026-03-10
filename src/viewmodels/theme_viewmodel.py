@@ -2,7 +2,7 @@ from PySide6.QtCore import QObject, Signal, Slot
 
 from models import SettingsModel
 from utils import LoggedProperty
-from viewmodels.types import ThemeType
+from app_types import ThemeType
 from .base_viewmodel import BaseViewModel
 
 
@@ -53,3 +53,4 @@ class ThemeViewModel(BaseViewModel):
 
     def get_theme_cfg(self) -> dict[ThemeType, str]:
         return dict(self._theme_cfg)
+

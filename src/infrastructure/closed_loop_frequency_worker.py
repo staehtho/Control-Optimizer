@@ -4,8 +4,8 @@ from numpy import ndarray
 
 from app_domain.engine import ControllerTransferEngine, FrequencyResponseEngine, FrequencyGridEngine, \
     PlantTransferEngine
-from app_domain.engine.types import PlantTransferContext, ControllerTransferContext, FrequencyResponse
-
+from app_types import PlantTransferContext, ControllerTransferContext, FrequencyResponse
+from app_types import PlotLabels
 
 class ClosedLoopFrequencyWorker(QThread):
     """Worker thread to compute frequency-domain responses of a closed-loop system.
@@ -94,7 +94,6 @@ class ClosedLoopFrequencyWorker(QThread):
         mag: dict[str, ndarray] = {}
         phase: dict[str, ndarray] = {}
 
-        from views.translations import PlotLabels
         keys = [
             PlotLabels.C.value,
             PlotLabels.L.value,
@@ -114,3 +113,4 @@ class ClosedLoopFrequencyWorker(QThread):
 
         self._logger.info("Closed-loop frequency-domain computation finished, emitting result")
         self.resultReady.emit(result)
+

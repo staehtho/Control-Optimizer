@@ -3,7 +3,7 @@ import numpy as np
 
 from app_domain.ui_context import UiContext
 from viewmodels import PlotViewModel
-from viewmodels.types import BodePlotData
+from app_types import BodePlotData
 from .plot_widget import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration
 
 
@@ -153,4 +153,5 @@ class BodePlotWidget(PlotWidget):
 
         # Standard phase tick spacing for Bode plots
         ax_phase.set_yticks(np.arange(-180, 181, 45))
+
 

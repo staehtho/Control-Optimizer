@@ -3,7 +3,7 @@ import logging
 from PySide6.QtCore import QThread, Signal
 
 from app_domain.engine import PsoSimulationEngine
-from app_domain.engine.types import PsoSimulationParam, PsoResult
+from app_types import PsoSimulationParam, PsoResult
 
 
 class PsoSimulationWorker(QThread):
@@ -35,3 +35,4 @@ class PsoSimulationWorker(QThread):
     def _on_iteration_progress(self, iteration: int) -> None:
         """Forward iteration progress from engine callback to Qt signal."""
         self.progressChanged.emit(iteration)
+

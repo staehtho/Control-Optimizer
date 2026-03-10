@@ -1,8 +1,10 @@
+from typing import Callable
+
 from PySide6.QtCore import QObject, Signal, Slot
 
 from utils import LoggedProperty
 from .base_viewmodel import BaseViewModel
-from .types import PlotData, PlotField
+from app_types import PlotData, PlotField, PlotLabels
 
 
 class PlotViewModel(BaseViewModel):
@@ -99,6 +101,18 @@ class PlotViewModel(BaseViewModel):
             self.logger.debug(f"Data updated for key '{data.key}'")
             self.dataChanged.emit()
 
+    def retranslate_labels(self, translator: Callable[[PlotLabels], str]) -> None:
+        """Update labels of all stored plot data."""
+        for data in self._data.values():
+            try:
+                label_enum = PlotLabels(data.key)
+            except ValueError:
+                continue
+
+            data.label = translator(label_enum)
+
+        self.dataChanged.emit()
+
     @Slot(str, bool)
     def set_data_visibility(self, key: str, show: bool) -> None:
         data = self._data.get(key)
@@ -121,3 +135,4 @@ class PlotViewModel(BaseViewModel):
             self._data.clear()
             self.logger.debug("All plot data cleared")
             self.dataChanged.emit()
+

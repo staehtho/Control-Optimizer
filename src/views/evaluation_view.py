@@ -1,15 +1,14 @@
-﻿from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QTabWidget
+from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QTabWidget
 from PySide6.QtCore import QT_TRANSLATE_NOOP
 from numpy import ndarray
 
-from app_domain.engine.types import FrequencyResponse
+from app_types import FrequencyResponse
 from app_domain.ui_context import UiContext
 from viewmodels import EvaluationViewModel, PlotViewModel
-from viewmodels.types import PlotData, BodePlotData
+from app_types import PlotData, BodePlotData, PlotLabels
 from views import BaseView
 from views.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, ExpandableFrame, FormulaWidget, BodePlotWidget
-from views.translations import PlotLabels
 
 
 class EvaluationView(BaseView, QWidget):
@@ -158,6 +157,7 @@ class EvaluationView(BaseView, QWidget):
         # translate pages
         self._plot_tab.setTabText(0, self.tr("Time Domain"))
         self._plot_tab.setTabText(1, self.tr("Frequency Domain"))
+
     # -------------------------------------------------
     # Apply initial values
     # -------------------------------------------------
@@ -308,3 +308,4 @@ class EvaluationView(BaseView, QWidget):
 
         self._vm_evaluator.compute_plant_frequency_response(omega_min, omega_max)
         self._vm_evaluator.compute_closed_loop_frequency_response(omega_max, omega_min)
+

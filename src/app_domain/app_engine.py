@@ -1,6 +1,6 @@
 import logging
 
-from app_domain.engine.types import PlantResponseContext, PsoSimulationParam
+from app_types import PlantResponseContext, PsoSimulationParam
 from app_domain.controlsys import MySolver, AntiWindup, ExcitationTarget, PerformanceIndex
 from app_domain.functions import StepFunction
 from models import ModelContainer
@@ -210,3 +210,4 @@ class AppEngine:
         """Stop background workers before the application exits."""
         self.logger.info("Shutting down AppEngine.")
         self.simulation_service.shutdown()
+

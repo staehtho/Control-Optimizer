@@ -2,7 +2,7 @@ import logging
 from numpy import ndarray
 
 from app_domain.controlsys import Plant, PIDClosedLoop
-from .types import ControllerTransferContext
+from app_types import ControllerTransferContext
 
 
 class ControllerTransferEngine:
@@ -66,3 +66,4 @@ class ControllerTransferEngine:
         )
 
         return C
+

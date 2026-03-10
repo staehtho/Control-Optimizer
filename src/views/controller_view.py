@@ -5,7 +5,7 @@ from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit
 from app_domain.ui_context import UiContext
 from app_domain.controlsys import AntiWindup
 from viewmodels import ControllerViewModel
-from viewmodels.types import ControllerField
+from app_types import ControllerField
 from .base_view import BaseView, FieldConfig, SectionConfig
 from views.widgets import ExpandableFrame
 
@@ -121,3 +121,4 @@ class ControllerView(BaseView, QWidget):
 
         self._field_widgets[ControllerField.CONSTRAINT_MIN].setText(f"{self._vm_controller.constraint_min}")
         self._field_widgets[ControllerField.CONSTRAINT_MAX].setText(f"{self._vm_controller.constraint_max}")
+

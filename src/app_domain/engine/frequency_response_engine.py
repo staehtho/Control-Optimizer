@@ -57,3 +57,4 @@ class FrequencyResponseEngine:
         T = L / (1 + L)
         self._logger.info("Complementary sensitivity computation finished")
         return T
+

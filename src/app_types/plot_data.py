@@ -1,7 +1,23 @@
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any
 
 from numpy import ndarray, array_equal
+
+
+class PlotLabels(Enum):
+    PLANT = "plant"
+    FUNCTION = "function"
+    CLOSED_LOOP = "closed_loop"
+    CONTROL_SIGNAL = "control_signal"
+    REFERENCE = "reference"
+    INPUT_DISTURBANCE = "input_disturbance"
+    MEASUREMENT_DISTURBANCE = "measurement_disturbance"
+    G = "g"
+    C = "c"
+    L = "l"
+    S = "s"
+    T = "t"
 
 
 @dataclass
@@ -25,7 +41,6 @@ class PlotData:
             return True
 
         raise NotImplementedError
-
 
 
 @dataclass

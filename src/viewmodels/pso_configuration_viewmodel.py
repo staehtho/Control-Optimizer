@@ -1,7 +1,7 @@
 from PySide6.QtCore import QObject, Signal, Slot
 
 from service import SimulationService
-from app_domain.engine.types import PsoSimulationParam, PsoResult
+from app_types import PsoSimulationParam, PsoResult
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
 from models import (
     ModelContainer,
@@ -14,7 +14,7 @@ from models import (
 )
 from utils import LoggedProperty
 from .base_viewmodel import BaseViewModel
-from .types import PsoField
+from app_types import PsoField
 
 
 class PsoConfigurationViewModel(BaseViewModel):
@@ -325,3 +325,4 @@ class PsoConfigurationViewModel(BaseViewModel):
 
     def _on_pso_progress(self, iteration: int) -> None:
         self.psoProgressChanged.emit(iteration)
+

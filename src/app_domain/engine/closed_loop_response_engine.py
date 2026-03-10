@@ -2,7 +2,7 @@ import logging
 import numpy as np
 
 from app_domain.controlsys import Plant, PIDClosedLoop
-from .types import ClosedLoopResponseContext
+from app_types import ClosedLoopResponseContext
 
 class ClosedLoopResponseEngine:
     """Domain engine for closed-loop response simulation."""
@@ -56,3 +56,4 @@ class ClosedLoopResponseEngine:
         )
 
         return t, u, y
+

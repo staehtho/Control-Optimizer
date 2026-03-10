@@ -3,7 +3,7 @@ import logging
 from numpy import ndarray
 
 from app_domain.controlsys import Plant
-from .types import PlantResponseContext
+from app_types import PlantResponseContext
 
 class PlantResponseEngine:
     """Domain engine that computes a plant response.
@@ -41,3 +41,4 @@ class PlantResponseEngine:
             y.size,
         )
         return t, y
+

@@ -6,7 +6,7 @@ import time
 
 from app_domain.controlsys import ExcitationTarget, Plant, PIDClosedLoop, PsoFunc, smallest_root_realpart
 from app_domain.PSO import Swarm
-from .types import PsoResult, PsoSimulationParam
+from app_types import PsoResult, PsoSimulationParam
 
 
 class PsoSimulationEngine:
@@ -189,3 +189,4 @@ class PsoSimulationEngine:
             "PSO finished | total_duration=%.4fs | best_J=%.6f",
             self._total_duration, best_cost
         )
+

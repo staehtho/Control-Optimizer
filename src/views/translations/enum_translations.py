@@ -4,32 +4,7 @@ from enum import Enum
 
 from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex, MySolver
 from app_domain.functions import FunctionTypes
-from viewmodels.types import LanguageType, ThemeType
-
-
-class NavLabels(Enum):
-    PLANT = "Plant"
-    EXCITATION_FUNCTION = "Excitation Function"
-    CONTROLLER = "Controller"
-    PSO_PARAMETER = "PSO Parameter"
-    EVALUATION = "Evaluation"
-    SIMULATION = "Simulation"
-    SETTINGS = "Settings"
-
-
-class PlotLabels(Enum):
-    PLANT = "plant"
-    FUNCTION = "function"
-    CLOSED_LOOP = "closed_loop"
-    CONTROL_SIGNAL = "control_signal"
-    REFERENCE = "reference"
-    INPUT_DISTURBANCE = "input_disturbance"
-    MEASUREMENT_DISTURBANCE = "measurement_disturbance"
-    G = "g"
-    C = "c"
-    L = "l"
-    S = "s"
-    T = "t"
+from app_types import LanguageType, ThemeType, PlotLabels, NavLabels
 
 
 class Translation:
@@ -213,3 +188,4 @@ class Translation:
                 return QCoreApplication.translate("ControlEnums", "Dark")
             case _:
                 raise NotImplementedError(f"No translation registered for enum value: {value}")
+

@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from typing import Type, ClassVar, Optional
 
 from app_domain.ui_context import UiContext
-from viewmodels.types import FieldType, ThemeType
+from app_types import FieldType, ThemeType
 from views.translations import Translation
 
 
@@ -153,6 +153,7 @@ class BaseView:
 
     @staticmethod
     def _cmb_add_item(cmb: QComboBox, data: dict) -> None:
+        cmb.blockSignals(True)
         current_data = cmb.currentData()
         cmb.clear()
 
@@ -163,7 +164,6 @@ class BaseView:
             cmb.addItem(text, enum_key)
 
         # alten Wert wieder auswählen, falls noch gültig
-        cmb.blockSignals(True)
         if current_data in data:
             index = cmb.findData(current_data)
             if index >= 0:
@@ -495,3 +495,4 @@ class BaseView:
             self._logger.warning(
                 f"Widget type '{type(widget)}' not handled for key '{key}'"
             )
+

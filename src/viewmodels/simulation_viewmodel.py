@@ -3,7 +3,7 @@ from numpy import ndarray
 
 from app_domain.functions import NullFunction
 from service import SimulationService
-from app_domain.engine.types import ClosedLoopResponseContext, PlantResponseContext, PsoResult
+from app_types import ClosedLoopResponseContext, PlantResponseContext, PsoResult
 from app_domain.controlsys import ExcitationTarget
 from models import SettingsModel, FunctionModel, PsoSimulationSnapshot
 from utils import LoggedProperty
@@ -134,3 +134,4 @@ class SimulationViewModel(BaseViewModel):
 
     def _on_plant_compute_finished(self, t: ndarray, y: ndarray) -> None:
         self.plantResponseChanged.emit(t, y)
+

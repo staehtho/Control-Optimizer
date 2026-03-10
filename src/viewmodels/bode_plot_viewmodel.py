@@ -1,6 +1,6 @@
 from utils import LoggedProperty
 from .plot_viewmodel import PlotViewModel
-from .types import ValidationResult, PlotField
+from app_types import PlotField
 
 
 class BodePlotViewModel(PlotViewModel):
@@ -71,3 +71,4 @@ class BodePlotViewModel(PlotViewModel):
         typ=float,
         custom_setter=_verify_x_max,
     )
+

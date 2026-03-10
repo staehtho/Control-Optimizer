@@ -1,11 +1,11 @@
 from functools import partial
 
 from PySide6.QtWidgets import QWidget, QComboBox, QLineEdit, QFrame, QLabel, QGridLayout
-from PySide6.QtGui import QIntValidator, Qt
+from PySide6.QtGui import QIntValidator
 
 from app_domain import UiContext
 from app_domain.controlsys import MySolver
-from viewmodels.types import SettingsField, LanguageType, ThemeType
+from app_types import SettingsField, LanguageType, ThemeType
 from .base_view import BaseView, FieldConfig, SectionConfig
 
 FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
@@ -177,3 +177,4 @@ class SettingsView(BaseView, QWidget):
         widget = self._field_widgets.get(SettingsField.THEME)
         value = widget.itemData(index)
         self._vm_theme.set_theme(ThemeType(value))
+

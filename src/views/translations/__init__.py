@@ -1,1 +1,1 @@
-from .enum_translations import Translation, PlotLabels, NavLabels
+from .enum_translations import Translation, NavLabels

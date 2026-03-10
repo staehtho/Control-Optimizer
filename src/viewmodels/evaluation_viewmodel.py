@@ -4,7 +4,7 @@ from PySide6.QtCore import QObject, Signal, Slot
 from numpy import ndarray, linspace
 
 from service import SimulationService
-from app_domain.engine.types import (
+from app_types import (
     PlantResponseContext, ClosedLoopResponseContext, PsoResult, PlantTransferContext, ControllerTransferContext
 )
 from app_domain.controlsys import ExcitationTarget
@@ -211,3 +211,4 @@ class EvaluationViewModel(BaseViewModel):
 
     def _on_closed_loop_frequency_response_finished(self, result) -> None:
         self.closedLoopFrequencyResponseChanged.emit(result)
+

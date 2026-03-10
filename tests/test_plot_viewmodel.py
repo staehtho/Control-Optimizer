@@ -2,7 +2,7 @@ import numpy as np
 from PySide6.QtTest import QSignalSpy
 
 from viewmodels import PlotViewModel
-from viewmodels.types import PlotData
+from app_types import PlotData
 
 
 def test_grid_changed_emits_once_on_change() -> None:
@@ -86,3 +86,4 @@ def test_remove_and_clear_data_emit() -> None:
 
     assert spy_clear.size() == 1
     assert vm.get_data() == {}
+

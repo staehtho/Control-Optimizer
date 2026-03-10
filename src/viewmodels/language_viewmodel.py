@@ -3,7 +3,7 @@ from PySide6.QtCore import QObject, QCoreApplication, QTranslator, Signal, Slot
 from models import SettingsModel
 from utils import LoggedProperty
 from .base_viewmodel import BaseViewModel
-from .types import LanguageType
+from app_types import LanguageType
 
 
 class LanguageViewModel(BaseViewModel):
@@ -53,3 +53,4 @@ class LanguageViewModel(BaseViewModel):
         typ=LanguageType,
         read_only=True,
     )
+
