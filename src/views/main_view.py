@@ -24,6 +24,9 @@ class MainView(BaseView, QMainWindow):
         self._vm_pso = vm_pso
         self._has_pso_finished_once = self._vm_pso.get_pso_result() is not None
 
+        self._scroll_positions: dict[NavLabels, int] = {}  # track scroll positions
+        self._current_key: NavLabels | None = None  # track currently active view
+
         BaseView.__init__(self, ui_context)
 
     # -------------------------------------------------
@@ -91,18 +94,34 @@ class MainView(BaseView, QMainWindow):
     # -------------------------------------------------
     # UI event handlers
     # -------------------------------------------------
-
     def _switch_views(self, key: NavLabels):
         if not self._is_view_accessible(key):
             return
 
         self._stack.setUpdatesEnabled(False)
+
+        # Save scroll position of the current widget
+        if self._current_key is not None and self._current_key in self._views:
+            current_widget = self._views[self._current_key]
+            self._scroll_positions[self._current_key] = current_widget.verticalScrollBar().value()
+
+        # Create the view if it doesn’t exist yet
         if key not in self._views:
             view = self._view_factories[key](self._stack)
-            self._views[key] = view
-            self._stack.addWidget(view)
+            scroll = self._wrap_in_scroll_area(view)
+            self._views[key] = scroll
+            self._stack.addWidget(scroll)
 
+        # Show the selected view
         self._stack.setCurrentWidget(self._views[key])
+
+        # Restore scroll position
+        if key in self._scroll_positions:
+            self._views[key].verticalScrollBar().setValue(self._scroll_positions[key])
+        else:
+            self._views[key].verticalScrollBar().setValue(0)
+
+        self._current_key = key
         self._stack.setUpdatesEnabled(True)
 
     def _is_view_accessible(self, key: NavLabels) -> bool:

@@ -443,7 +443,7 @@
 <context>
     <name>MainView</name>
     <message>
-        <location filename="../views/main_view.py" line="76"/>
+        <location filename="../views/main_view.py" line="79"/>
         <source>Control Optimizer</source>
         <translation>Control Optimizer</translation>
     </message>

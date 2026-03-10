@@ -6,7 +6,7 @@ from PySide6.QtWidgets import (
     QDoubleSpinBox, QScrollArea, QApplication, QToolTip
 )
 from PySide6.QtCore import QPoint
-from PySide6.QtGui import QDoubleValidator, QColor
+from PySide6.QtGui import QDoubleValidator, QColor, Qt
 from dataclasses import dataclass
 from typing import Type, ClassVar, Optional
 
@@ -280,11 +280,13 @@ class BaseView:
 
     @staticmethod
     def _wrap_in_scroll_area(content_widget: QWidget) -> QScrollArea:
-        scroll = QScrollArea(content_widget.parentWidget())
+        scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QFrame.Shape.NoFrame)
         scroll.setStyleSheet("background: transparent;")
         scroll.viewport().setStyleSheet("background: transparent;")
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         scroll.setWidget(content_widget)
         return scroll
 
