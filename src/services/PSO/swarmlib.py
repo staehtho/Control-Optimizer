@@ -19,9 +19,51 @@ import copy
 import math
 import random
 import sys
-from typing import Callable, List, Optional
+from typing import Any, Callable, List, Optional
 
 import numpy as np
+
+
+def is_better_candidate(
+    candidate_feasible: bool,
+    candidate_violation: float,
+    candidate_perf: float,
+    incumbent_feasible: bool,
+    incumbent_violation: float,
+    incumbent_perf: float,
+) -> bool:
+    """Deb-like lexicographic comparison for PSO selection.
+
+    Order:
+      1) feasible > infeasible
+      2) among infeasible: smaller total violation V is better
+      3) among feasible: smaller performance J is better
+    """
+    c_violation = float(candidate_violation)
+    if math.isnan(c_violation) or c_violation == math.inf:
+        c_violation = math.inf
+    elif c_violation == -math.inf:
+        c_violation = 0.0
+
+    i_violation = float(incumbent_violation)
+    if math.isnan(i_violation) or i_violation == math.inf:
+        i_violation = math.inf
+    elif i_violation == -math.inf:
+        i_violation = 0.0
+
+    c_perf = float(candidate_perf)
+    if math.isnan(c_perf) or c_perf == math.inf:
+        c_perf = math.inf
+
+    i_perf = float(incumbent_perf)
+    if math.isnan(i_perf) or i_perf == math.inf:
+        i_perf = math.inf
+
+    if candidate_feasible != incumbent_feasible:
+        return candidate_feasible and not incumbent_feasible
+    if not candidate_feasible:
+        return c_violation < i_violation
+    return c_perf < i_perf
 
 
 # ============================================================================
@@ -53,6 +95,9 @@ class Particle:
         self._position = position
         self._velocity = velocity
         self._cost: float = sys.float_info.max
+        self._p_best_feasible: bool = False
+        self._p_best_violation: float = sys.float_info.max
+        self._p_best_perf: float = sys.float_info.max
         self._p_best_cost: float = sys.float_info.max
         self._p_best_position: np.ndarray = position
 
@@ -90,6 +135,18 @@ class Particle:
         return self._p_best_cost
 
     @property
+    def p_best_feasible(self) -> bool:
+        return self._p_best_feasible
+
+    @property
+    def p_best_violation(self) -> float:
+        return self._p_best_violation
+
+    @property
+    def p_best_perf(self) -> float:
+        return self._p_best_perf
+
+    @property
     def p_best_position(self) -> np.ndarray:
         return self._p_best_position
 
@@ -115,8 +172,18 @@ class Particle:
         indices = list(range(len(swarm_particles)))
         indices.remove(i)
         neighbors = random.sample(indices, N)
-        best_neighbor = min([swarm_particles[j] for j in neighbors],
-                            key=lambda pp: pp.p_best_cost)
+        best_neighbor = swarm_particles[neighbors[0]]
+        for j in neighbors[1:]:
+            candidate = swarm_particles[j]
+            if is_better_candidate(
+                candidate_feasible=candidate.p_best_feasible,
+                candidate_violation=candidate.p_best_violation,
+                candidate_perf=candidate.p_best_perf,
+                incumbent_feasible=best_neighbor.p_best_feasible,
+                incumbent_violation=best_neighbor.p_best_violation,
+                incumbent_perf=best_neighbor.p_best_perf,
+            ):
+                best_neighbor = candidate
 
         # Compute velocity contributions
         vec_g_best = best_neighbor.p_best_position - self._position
@@ -145,16 +212,38 @@ class Particle:
                 self._position[j] = Particle.bounds[0][j]
                 self._velocity[j] = 0
 
-    def update_best(self, cost: float) -> None:
-        """Updates the personal best position if the current cost is better.
+    def update_best(
+        self,
+        cost: float,
+        feasible: bool = True,
+        violation: float = 0.0,
+        perf: float | None = None,
+    ) -> bool:
+        """Updates the personal best position using feasibility-aware comparison.
 
         Args:
-            cost (float): Current cost value of the particle.
+            cost (float): Scalar cost kept for compatibility/monitoring.
+            feasible (bool): Feasibility flag for current candidate.
+            violation (float): Total violation V for current candidate.
+            perf (float | None): Objective performance J. If None, falls back to cost.
         """
         self._cost = cost
-        if cost < self._p_best_cost:
+        current_perf = cost if perf is None else perf
+        if is_better_candidate(
+            candidate_feasible=bool(feasible),
+            candidate_violation=float(violation),
+            candidate_perf=float(current_perf),
+            incumbent_feasible=self._p_best_feasible,
+            incumbent_violation=self._p_best_violation,
+            incumbent_perf=self._p_best_perf,
+        ):
+            self._p_best_feasible = bool(feasible)
+            self._p_best_violation = float(violation)
+            self._p_best_perf = float(current_perf)
             self._p_best_cost = cost
             self._p_best_position = copy.deepcopy(self._position)
+            return True
+        return False
 
 
 # ============================================================================
@@ -215,6 +304,7 @@ class Swarm:
         self.gBest: Particle
         self.iterations: int = 0
         self._no_improvement_counter = 0
+        self._last_eval_deferred_logging = False
 
         # Initialize swarm particles
         self._init_swarm()
@@ -248,27 +338,92 @@ class Swarm:
             velocity = np.array([random.uniform(-r[j], r[j]) for j in range(self.param_number)])
             self.particles.append(Particle(position, velocity))
 
-        self._init_costs()
-        self._init_global_best()
+        pbest_updated = self._init_costs()
+        gbest_updated = self._init_global_best()
+        self._finalize_deferred_log_batch(
+            pbest_updated=pbest_updated,
+            gbest_updated=gbest_updated,
+        )
 
-    def _get_costs(self) -> np.ndarray:
-        """Evaluates the objective function for all particles.
+    def _evaluate_particles(self) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """Evaluate all particles and return cost + feasibility-aware ranking fields.
 
         Returns:
-            np.ndarray: Array of cost values for each particle.
+            tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+                (cost, feasible, violation, perf)
         """
         positions = np.array([p.position for p in self.particles])
-        return self.obj_func(positions)
+        eval_func = getattr(self.obj_func, "evaluate_candidates", None)
 
-    def _init_costs(self) -> None:
+        if callable(eval_func):
+            try:
+                evaluation: dict[str, Any] = eval_func(positions, defer_logging=True)
+                self._last_eval_deferred_logging = True
+            except TypeError:
+                evaluation = eval_func(positions)
+                self._last_eval_deferred_logging = False
+            cost = np.asarray(evaluation["cost"], dtype=float).reshape(-1)
+            feasible = np.asarray(evaluation["feasible"], dtype=bool).reshape(-1)
+            violation = np.asarray(evaluation["violation"], dtype=float).reshape(-1)
+            perf = np.asarray(evaluation["perf"], dtype=float).reshape(-1)
+            return cost, feasible, violation, perf
+
+        # Backward-compatible fallback: old scalar objective is treated as feasible-only.
+        self._last_eval_deferred_logging = False
+        cost = np.asarray(self.obj_func(positions), dtype=float).reshape(-1)
+        feasible = np.ones_like(cost, dtype=bool)
+        violation = np.zeros_like(cost, dtype=float)
+        perf = cost.copy()
+        return cost, feasible, violation, perf
+
+    def _init_costs(self) -> np.ndarray:
         """Initializes particle costs and personal best positions."""
-        costs = self._get_costs()
-        for particle, cost in zip(self.particles, costs):
-            particle.update_best(cost)
+        costs, feasible, violation, perf = self._evaluate_particles()
+        pbest_updated = np.zeros(self.size, dtype=bool)
+        for idx, (particle, c, f, v, p) in enumerate(zip(self.particles, costs, feasible, violation, perf)):
+            pbest_updated[idx] = particle.update_best(
+                cost=float(c),
+                feasible=bool(f),
+                violation=float(v),
+                perf=float(p),
+            )
+        return pbest_updated
 
-    def _init_global_best(self) -> None:
+    def _init_global_best(self) -> np.ndarray:
         """Determines the initial global best particle in the swarm."""
-        self.gBest = copy.deepcopy(min(self.particles, key=lambda p: p.p_best_cost))
+        best_idx = 0
+        best_particle = self.particles[best_idx]
+        for idx, candidate in enumerate(self.particles[1:], start=1):
+            if is_better_candidate(
+                candidate_feasible=candidate.p_best_feasible,
+                candidate_violation=candidate.p_best_violation,
+                candidate_perf=candidate.p_best_perf,
+                incumbent_feasible=best_particle.p_best_feasible,
+                incumbent_violation=best_particle.p_best_violation,
+                incumbent_perf=best_particle.p_best_perf,
+            ):
+                best_idx = idx
+                best_particle = candidate
+        self.gBest = copy.deepcopy(best_particle)
+        gbest_updated = np.zeros(self.size, dtype=bool)
+        gbest_updated[best_idx] = True
+        return gbest_updated
+
+    def _finalize_deferred_log_batch(
+        self,
+        pbest_updated: np.ndarray,
+        gbest_updated: np.ndarray,
+    ) -> None:
+        if not self._last_eval_deferred_logging:
+            return
+        finalize_log = getattr(self.obj_func, "finalize_log_batch", None)
+        if callable(finalize_log):
+            finalize_log(
+                particles=self.particles,
+                gbest=self.gBest,
+                pbest_updated=pbest_updated,
+                gbest_updated=gbest_updated,
+            )
 
         # -------------------------------------------------------------------------
         # Iteration
@@ -288,12 +443,27 @@ class Swarm:
             p.update_position()
 
         # Evaluate costs and update personal/global bests
-        costs = self._get_costs()
-        for particle, cost in zip(self.particles, costs):
-            particle.update_best(cost)
-            if particle.p_best_cost < self.gBest.p_best_cost:
+        costs, feasible, violation, perf = self._evaluate_particles()
+        pbest_updated = np.zeros(self.size, dtype=bool)
+        gbest_updated = np.zeros(self.size, dtype=bool)
+        for idx, (particle, c, f, v, p) in enumerate(zip(self.particles, costs, feasible, violation, perf)):
+            pbest_updated[idx] = particle.update_best(cost=float(c), feasible=bool(f), violation=float(v), perf=float(p))
+            if is_better_candidate(
+                candidate_feasible=particle.p_best_feasible,
+                candidate_violation=particle.p_best_violation,
+                candidate_perf=particle.p_best_perf,
+                incumbent_feasible=self.gBest.p_best_feasible,
+                incumbent_violation=self.gBest.p_best_violation,
+                incumbent_perf=self.gBest.p_best_perf,
+            ):
                 self.gBest = copy.deepcopy(particle)
+                gbest_updated[idx] = True
                 new_best = True
+
+        self._finalize_deferred_log_batch(
+            pbest_updated=pbest_updated,
+            gbest_updated=gbest_updated,
+        )
 
         # Adaptive neighborhood and inertia adjustments
         if new_best:

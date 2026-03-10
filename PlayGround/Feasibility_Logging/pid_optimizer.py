@@ -16,6 +16,7 @@
 
 
 import sys
+from pathlib import Path
 
 import numpy as np
 from tqdm import tqdm
@@ -71,12 +72,15 @@ def main():
     td_max = config["pso"]["bounds"]["td_max"]'''
 
     plant_num = [1]
-    plant_den = [1, 3, 3, 1]
+    plant_den = [1, 0.1, 1]
 
     use_freq_metrics = True
-    pm_min_deg = 60
-    gm_min_db = 0
-    ms_max = 20
+    pm_min_deg = 80
+    gm_min_db = 10
+    ms_max = 2
+
+    use_overshoot_control = True
+    allowed_overshoot_pct = 5
 
     sim_mode = "fixed"
     start_time = 0
@@ -87,8 +91,8 @@ def main():
 
     excitation_target = "reference"
 
-    constraint_min = -2
-    constraint_max = 2
+    constraint_min = -100
+    constraint_max = 100
 
     performance_index = PerformanceIndex.ITAE
 
@@ -137,29 +141,39 @@ def main():
         t_set, y_set = plant.system_response(u=r, t0=start_time, t1=end_time, dt=time_step)
         end_time = settling_time(t=t_set, y=y_set, r=r, tolerance=0.05, max_allowed_time=end_time)
 
-    # generate function to be optimized
+    base_dir = Path(__file__).resolve().parent
+    log_file = base_dir / "particle_log.csv"
+
+    # Fresh logfile per run to avoid mixed legacy separators/headers.
+    if log_file.exists():
+        log_file.unlink()
+
     obj_func = PsoFunc(
         pid,
         start_time, end_time, time_step,
         r=r, l=l, n=n,
         use_freq_metrics=use_freq_metrics,
-        freq_low_exp=-5,
+        freq_low_exp=-2,
         freq_high_exp=5,
-        freq_points=450,
+        freq_points=600,
         pm_min_deg=pm_min_deg,
         gm_min_db=gm_min_db,
         ms_max=ms_max,
+        use_overshoot_control=use_overshoot_control,
+        allowed_overshoot_pct=allowed_overshoot_pct,
         performance_index=performance_index,
         swarm_size=swarm_size,
-        enable_logging=True,    # TODO FLO Rückgängig logging
-        log_path="particle_log.csv", # TODO FLO Rückgängig logging
+        enable_logging=True,
+        log_path=str(log_file),
     )
 
     # init values
     best_Kp = 0
     best_Ti = 0
     best_Td = 0
-    best_performance_index = sys.float_info.max
+    # NOTE: this is the scalar objective/cost returned by PSO (BIG-M compatible),
+    # not necessarily a pure performance index J for infeasible candidates.
+    best_objective_cost = sys.float_info.max
 
     # progressbar
     pbar = tqdm(range(iterations), desc="Processing", unit="step", colour="green")
@@ -167,17 +181,17 @@ def main():
 
 
     for run_idx in pbar:
-        obj_func.set_run_id(run_idx)  # TODO Flo rückgängig logging
+        obj_func.set_run_id(run_idx)
         swarm = Swarm(obj_func, swarm_size, 3, bounds)
-        swarm_result, performance_index_val = swarm.simulate_swarm()
+        swarm_result, objective_cost_val = swarm.simulate_swarm()
 
         # Best parameters from the swarm
         Kp = swarm_result[0]
         Ti = swarm_result[1]
         Td = swarm_result[2]
 
-        if performance_index_val < best_performance_index:
-            best_performance_index = performance_index_val
+        if objective_cost_val < best_objective_cost:
+            best_objective_cost = objective_cost_val
             best_Kp = Kp
             best_Ti = Ti
             best_Td = Td
@@ -187,7 +201,9 @@ def main():
         "best_Ti": best_Ti,
         "best_Td": best_Td,
         "performance_index": performance_index,
-        "best_performance_index": best_performance_index,
+        # Backward-compatible key name kept for existing consumers.
+        "best_performance_index": best_objective_cost,
+        "best_objective_cost": best_objective_cost,
 
         "plant": plant,
         "pid": pid,
@@ -213,7 +229,7 @@ def main():
     # --------------------------------------------------
     # Frequency metrics for best solution (DEBUG)
     # --------------------------------------------------
-    w_dbg = np.logspace(-5, 5, 600)
+    w_dbg = np.logspace(-2, 5, 600)
     s_dbg = 1j * w_dbg
     G_dbg = plant.system(s_dbg)
 

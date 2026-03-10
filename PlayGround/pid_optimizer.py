@@ -73,13 +73,13 @@ def main():
     plant_num = [1]
     plant_den = [1, 0.1, 1]
 
-    use_freq_metrics = False
-    pm_min_deg = 90
+    use_freq_metrics = True
+    pm_min_deg = 80
     gm_min_db = 10
     ms_max = 2
 
     use_overshoot_control = True
-    allowed_overshoot_pct = 1
+    allowed_overshoot_pct = 5
 
     sim_mode = "fixed"
     start_time = 0
@@ -161,7 +161,9 @@ def main():
     best_Kp = 0
     best_Ti = 0
     best_Td = 0
-    best_performance_index = sys.float_info.max
+    # NOTE: this is the scalar objective/cost returned by PSO (BIG-M compatible),
+    # not necessarily a pure performance index J for infeasible candidates.
+    best_objective_cost = sys.float_info.max
 
     # progressbar
     pbar = tqdm(range(iterations), desc="Processing", unit="step", colour="green")
@@ -170,15 +172,15 @@ def main():
 
     for run_idx in pbar:
         swarm = Swarm(obj_func, swarm_size, 3, bounds)
-        swarm_result, performance_index_val = swarm.simulate_swarm()
+        swarm_result, objective_cost_val = swarm.simulate_swarm()
 
         # Best parameters from the swarm
         Kp = swarm_result[0]
         Ti = swarm_result[1]
         Td = swarm_result[2]
 
-        if performance_index_val < best_performance_index:
-            best_performance_index = performance_index_val
+        if objective_cost_val < best_objective_cost:
+            best_objective_cost = objective_cost_val
             best_Kp = Kp
             best_Ti = Ti
             best_Td = Td
@@ -188,7 +190,9 @@ def main():
         "best_Ti": best_Ti,
         "best_Td": best_Td,
         "performance_index": performance_index,
-        "best_performance_index": best_performance_index,
+        # Backward-compatible key name kept for existing consumers.
+        "best_performance_index": best_objective_cost,
+        "best_objective_cost": best_objective_cost,
 
         "plant": plant,
         "pid": pid,

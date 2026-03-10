@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 import plotly.io as pio
 
 def create_interactive_particle_plot(csv_path, run_id=None, out_html="particle_3d_interactive.html"):
-    df = pd.read_csv(csv_path, sep=";")
+    df = pd.read_csv(csv_path, sep=None, engine="python")
     cost_col = "total_ost" if "total_ost" in df.columns else "total_cost"
 
     if run_id is None:
@@ -23,12 +23,9 @@ def create_interactive_particle_plot(csv_path, run_id=None, out_html="particle_3
     dfr["particle_idx"] = dfr["particle_idx"].astype(int)
 
     call_ids = sorted(dfr["call_id"].unique())
-    particle_ids = sorted(dfr["particle_idx"].unique())
-
     best_row = dfr.loc[dfr[cost_col].idxmin()]
     best_xyz = [float(best_row["Kp"]), float(best_row["Ti"]), float(best_row["Td"])]
 
-    by_particle = {pid: dfr[dfr["particle_idx"] == pid].sort_values("call_id").copy() for pid in particle_ids}
     by_call = {cid: dfr[dfr["call_id"] == cid].sort_values("particle_idx").copy() for cid in call_ids}
 
     def colors_from_v(v_series):
@@ -38,16 +35,7 @@ def create_interactive_particle_plot(csv_path, run_id=None, out_html="particle_3
     init_df = by_call[init_cid]
     init_colors = colors_from_v(init_df["V"])
 
-    traces = []
-    for pid in particle_ids:
-        g2 = by_particle[pid][by_particle[pid]["call_id"] <= init_cid]
-        traces.append(go.Scatter3d(
-            x=g2["Kp"], y=g2["Ti"], z=g2["Td"],
-            mode="lines", line=dict(width=3), opacity=0.35,
-            showlegend=False, hoverinfo="skip"
-        ))
-
-    traces.append(go.Scatter3d(
+    traces = [go.Scatter3d(
         x=init_df["Kp"], y=init_df["Ti"], z=init_df["Td"],
         mode="markers",
         marker=dict(size=5, color=init_colors, line=dict(width=1, color="black")),
@@ -55,32 +43,22 @@ def create_interactive_particle_plot(csv_path, run_id=None, out_html="particle_3
               for p, v, kp, ti, td in zip(init_df["particle_idx"], init_df["V"], init_df["Kp"], init_df["Ti"], init_df["Td"])],
         hovertemplate="%{text}<extra></extra>",
         name="Partikel"
-    ))
-
-    traces.append(go.Scatter3d(
+    ),
+    go.Scatter3d(
         x=[best_xyz[0]], y=[best_xyz[1]], z=[best_xyz[2]],
         mode="markers",
         marker=dict(size=9, symbol="diamond", color="gold", line=dict(width=2, color="black")),
         text=[f"Globales Minimum ({cost_col})<br>{cost_col}={best_row[cost_col]:.6g}<br>Kp={best_xyz[0]:.3f}<br>Ti={best_xyz[1]:.3f}<br>Td={best_xyz[2]:.3f}"],
         hovertemplate="%{text}<extra></extra>",
         name="Globales Minimum"
-    ))
+    )]
 
     frames = []
     for cid in call_ids:
         cur = by_call[cid]
         cur_colors = colors_from_v(cur["V"])
 
-        frame_traces = []
-        for pid in particle_ids:
-            g2 = by_particle[pid][by_particle[pid]["call_id"] <= cid]
-            frame_traces.append(go.Scatter3d(
-                x=g2["Kp"], y=g2["Ti"], z=g2["Td"],
-                mode="lines", line=dict(width=3), opacity=0.35,
-                showlegend=False, hoverinfo="skip"
-            ))
-
-        frame_traces.append(go.Scatter3d(
+        frame_traces = [go.Scatter3d(
             x=cur["Kp"], y=cur["Ti"], z=cur["Td"],
             mode="markers",
             marker=dict(size=5, color=cur_colors, line=dict(width=1, color="black")),
@@ -88,16 +66,15 @@ def create_interactive_particle_plot(csv_path, run_id=None, out_html="particle_3
                   for p, v, kp, ti, td in zip(cur["particle_idx"], cur["V"], cur["Kp"], cur["Ti"], cur["Td"])],
             hovertemplate="%{text}<extra></extra>",
             name="Partikel"
-        ))
-
-        frame_traces.append(go.Scatter3d(
+        ),
+        go.Scatter3d(
             x=[best_xyz[0]], y=[best_xyz[1]], z=[best_xyz[2]],
             mode="markers",
             marker=dict(size=9, symbol="diamond", color="gold", line=dict(width=2, color="black")),
             text=[f"Globales Minimum ({cost_col})<br>{cost_col}={best_row[cost_col]:.6g}<br>Kp={best_xyz[0]:.3f}<br>Ti={best_xyz[1]:.3f}<br>Td={best_xyz[2]:.3f}"],
             hovertemplate="%{text}<extra></extra>",
             name="Globales Minimum"
-        ))
+        )]
 
         frames.append(go.Frame(name=str(cid), data=frame_traces))
 

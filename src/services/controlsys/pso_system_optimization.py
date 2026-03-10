@@ -1,4 +1,4 @@
-# ──────────────────────────────────────────────────────────────────────────────
+# ------------------------------------------------------------------------------
 # Project:       PID Optimizer
 # Module:        pso_system_optimization.py
 # Description:   Provides Numba-accelerated simulation routines and performance index evaluation
@@ -6,13 +6,13 @@
 #                closed-loop and open-loop response functions, and a vectorized PSO objective
 #                function for evaluating multiple PID parameter sets in parallel.
 #
-# Authors:       Florin Büchi, Thomas Stähli
+# Authors:       Florin Buechi, Thomas Staehli
 # Created:       01.12.2025
 # Modified:      09.03.2026
 # Version:       1.2
 #
-# License:       ZHAW Zürcher Hochschule für angewandte Wissenschaften (or internal use only)
-# ──────────────────────────────────────────────────────────────────────────────
+# License:       ZHAW Zuercher Hochschule fuer angewandte Wissenschaften (or internal use only)
+# ------------------------------------------------------------------------------
 
 import time
 from typing import Callable
@@ -30,11 +30,15 @@ class PsoFunc:
     """
     Wrapper for Particle Swarm Optimization (PSO) of a PID controller.
 
-    Frequency-domain constraints via BIG-M (feasibility-first):
+    Frequency-domain constraints via BIG-M (compatibility helper):
       - Compute PM/GM/Ms first (fast, no time simulation).
       - Compute normalized violation V.
-      - If V > 0: return BIG_M * V (no time simulation).
+      - If V > 0: keep BIG_M-based scalar cost (no time simulation).
       - Else: compute time-domain performance index (e.g., ITAE).
+
+    Important after feasibility-aware PSO selection:
+      - Ranking must use (feasible, V, J), not BIG-M scalar cost.
+      - BIG-M is kept for compatibility/logging/legacy scalar outputs.
 
     Optional time-domain overshoot control (step references only):
       - Allowed overshoot is measured relative to the step height.
@@ -80,8 +84,8 @@ class PsoFunc:
         big_m: float = 1e10,
         use_overshoot_control: bool = False,
         allowed_overshoot_pct: float = 0.0,
-        log_path: str | None = None, # TODO FLO rückgängig logging
-        enable_logging: bool = False, # TODO FLO rückgängig logging
+        log_path: str | None = None, # TODO FLO rueckgaengig logging
+        enable_logging: bool = False, # TODO FLO rueckgaengig logging
     ) -> None:
         """
         Initialize a PsoFunc instance.
@@ -105,7 +109,8 @@ class PsoFunc:
             pm_min_deg: Phase margin minimum in degrees (PM >= pm_min_deg). PM missing => infeasible.
             gm_min_db: Gain margin minimum in dB (GM >= gm_min_db). GM missing => treated as +inf => OK.
             ms_max: Sensitivity peak maximum (Ms <= ms_max).
-            big_m: BIG-M multiplier for infeasible candidates. Defaults to 1e10.
+            big_m: BIG-M scalar compatibility multiplier for infeasible candidates.
+                   Kept for legacy cost outputs/logging/stop criteria; not for PSO ranking.
         """
         self.controller = controller
 
@@ -114,12 +119,14 @@ class PsoFunc:
         self.dt = dt
         self.t_eval = np.arange(t0, t1 + dt, dt)
 
-        # TODO FLO rückgängig logging
+        # TODO FLO rueckgaengig logging
         self.enable_logging = bool(enable_logging)
         self.log_path = log_path
-        self._run_id = 0  # PSO-Durchlauf (äußere Schleife)
-        self._call_id = 0  # zählt __call__-Aufrufe
+        self._run_id = 0  # PSO-Durchlauf (aeussere Schleife)
+        self._call_id = 0  # zaehlt __call__-Aufrufe
         self._wrote_header = False  # CSV header nur 1x
+        self._last_eval: dict[str, np.ndarray] | None = None
+        self._pending_log_batch: dict[str, np.ndarray] | None = None
 
         # Toggle frequency-domain metrics/constraints
         self.use_freq_metrics = bool(use_freq_metrics)
@@ -150,7 +157,7 @@ class PsoFunc:
         A, B, C, D = self.controller.plant.get_ABCD()
         self.A = np.ascontiguousarray(A, dtype=np.float64)
 
-        # SISO → (n,)
+        # SISO -> (n,)
         self.B = np.ascontiguousarray(B.flatten(), dtype=np.float64)
         self.C = np.ascontiguousarray(C.flatten(), dtype=np.float64)
         self.D = float(D[0, 0])
@@ -190,11 +197,11 @@ class PsoFunc:
             self._pre_compiling = False
 
 
-    # TODO FLO rückgängig logging
+    # TODO FLO rueckgaengig logging
     def set_run_id(self, run_id: int) -> None:
         self._run_id = int(run_id)
 
-    # TODO FLO rückgängig logging
+    # TODO FLO rueckgaengig logging
     def _ensure_log_header(self) -> None:
         if (not self.enable_logging) or (not self.log_path) or self._wrote_header:
             return
@@ -204,8 +211,11 @@ class PsoFunc:
             "run_id,call_id,particle_idx,"
             "Kp,Ti,Td,"
             "pm_deg,gm_db,ms,wc,w180,"
-            "V,time_simulated,overshoot_pct,"
-            "time_cost,total_cost\n"
+            "V,V_freq,V_ov,V_total,feasible_final,time_simulated,overshoot_pct,"
+            "time_cost,perf_J,total_cost,objective_cost,"
+            "pbest_updated,gbest_updated,"
+            "pbest_feasible,pbest_violation,pbest_perf,pbest_cost,"
+            "gbest_feasible,gbest_violation,gbest_perf,gbest_cost\n"
         )
 
         # Header nur schreiben, wenn Datei neu/leer ist
@@ -216,17 +226,33 @@ class PsoFunc:
 
         self._wrote_header = True
 
-    # TODO FLO rückgängig logging
+    # TODO FLO rueckgaengig logging
     def _log_batch(
             self,
             Kp: np.ndarray, Ti: np.ndarray, Td: np.ndarray,
             pm: np.ndarray, gm: np.ndarray, ms: np.ndarray,
             wc: np.ndarray, w180: np.ndarray,
             V: np.ndarray,
+            V_freq: np.ndarray,
+            V_ov: np.ndarray,
+            V_total: np.ndarray,
+            feasible_final: np.ndarray,
             time_sim: np.ndarray,
             overshoot_pct: np.ndarray,
             time_cost: np.ndarray,
+            perf_J: np.ndarray,
             total_cost: np.ndarray,
+            objective_cost: np.ndarray,
+            pbest_updated: np.ndarray,
+            gbest_updated: np.ndarray,
+            pbest_feasible: np.ndarray,
+            pbest_violation: np.ndarray,
+            pbest_perf: np.ndarray,
+            pbest_cost: np.ndarray,
+            gbest_feasible: np.ndarray,
+            gbest_violation: np.ndarray,
+            gbest_perf: np.ndarray,
+            gbest_cost: np.ndarray,
     ) -> None:
         if (not self.enable_logging) or (not self.log_path):
             return
@@ -242,12 +268,73 @@ class PsoFunc:
                 f"{run_id},{call_id},{i},"
                 f"{Kp[i]},{Ti[i]},{Td[i]},"
                 f"{pm[i]},{gm[i]},{ms[i]},{wc[i]},{w180[i]},"
-                f"{V[i]},{int(time_sim[i])},{overshoot_pct[i]},"
-                f"{time_cost[i]},{total_cost[i]}\n"
+                f"{V[i]},{V_freq[i]},{V_ov[i]},{V_total[i]},{int(feasible_final[i])},{int(time_sim[i])},{overshoot_pct[i]},"
+                f"{time_cost[i]},{perf_J[i]},{total_cost[i]},{objective_cost[i]},"
+                f"{int(pbest_updated[i])},{int(gbest_updated[i])},"
+                f"{int(pbest_feasible[i])},{pbest_violation[i]},{pbest_perf[i]},{pbest_cost[i]},"
+                f"{int(gbest_feasible[i])},{gbest_violation[i]},{gbest_perf[i]},{gbest_cost[i]}\n"
             )
 
         with open(self.log_path, "a", encoding="utf-8", newline="") as f:
             f.writelines(lines)
+
+    def finalize_log_batch(
+        self,
+        *,
+        particles: list,
+        gbest,
+        pbest_updated: np.ndarray,
+        gbest_updated: np.ndarray,
+    ) -> None:
+        """Finalize deferred batch logging with PSO state (pBest/gBest)."""
+        if (not self.enable_logging) or (self._pending_log_batch is None):
+            return
+
+        batch = self._pending_log_batch
+        P = int(batch["Kp"].shape[0])
+
+        pbest_feasible = np.array([bool(p.p_best_feasible) for p in particles], dtype=np.bool_)
+        pbest_violation = np.array([float(p.p_best_violation) for p in particles], dtype=np.float64)
+        pbest_perf = np.array([float(p.p_best_perf) for p in particles], dtype=np.float64)
+        pbest_cost = np.array([float(p.p_best_cost) for p in particles], dtype=np.float64)
+
+        gbest_feasible = np.full(P, bool(gbest.p_best_feasible), dtype=np.bool_)
+        gbest_violation = np.full(P, float(gbest.p_best_violation), dtype=np.float64)
+        gbest_perf = np.full(P, float(gbest.p_best_perf), dtype=np.float64)
+        gbest_cost = np.full(P, float(gbest.p_best_cost), dtype=np.float64)
+
+        self._log_batch(
+            Kp=batch["Kp"],
+            Ti=batch["Ti"],
+            Td=batch["Td"],
+            pm=batch["pm"],
+            gm=batch["gm"],
+            ms=batch["ms"],
+            wc=batch["wc"],
+            w180=batch["w180"],
+            V=batch["V"],
+            V_freq=batch["V_freq"],
+            V_ov=batch["V_ov"],
+            V_total=batch["V_total"],
+            feasible_final=batch["feasible_final"],
+            time_sim=batch["time_sim"],
+            overshoot_pct=batch["overshoot_pct"],
+            time_cost=batch["time_cost"],
+            perf_J=batch["perf_J"],
+            total_cost=batch["total_cost"],
+            objective_cost=batch["objective_cost"],
+            pbest_updated=np.asarray(pbest_updated, dtype=np.bool_),
+            gbest_updated=np.asarray(gbest_updated, dtype=np.bool_),
+            pbest_feasible=pbest_feasible,
+            pbest_violation=pbest_violation,
+            pbest_perf=pbest_perf,
+            pbest_cost=pbest_cost,
+            gbest_feasible=gbest_feasible,
+            gbest_violation=gbest_violation,
+            gbest_perf=gbest_perf,
+            gbest_cost=gbest_cost,
+        )
+        self._pending_log_batch = None
 
 
     def set_constraints(
@@ -377,15 +464,21 @@ class PsoFunc:
         V = np.nan_to_num(V, nan=1.0, posinf=1.0, neginf=0.0)
         return V
 
-    def __call__(self, X: np.ndarray) -> np.ndarray:
+    def evaluate_candidates(self, X: np.ndarray, defer_logging: bool = False) -> dict[str, np.ndarray]:
         """
-        Evaluate the objective for a batch of PID parameter sets.
+        Evaluate candidates and expose both scalar cost and feasibility-aware data.
 
         Args:
             X: PID parameter matrix of shape (P, 3). Each row contains [Kp, Ti, Td].
 
         Returns:
-            A 1-D array (P,) with the objective value for each particle.
+            dict with:
+              - cost: scalar helper value (BIG-M compatible)
+              - feasible: final feasibility flag
+              - violation: total violation V (frequency + optional overshoot)
+              - perf: objective J (np.inf for infeasible candidates)
+            If defer_logging=True, core batch metrics are cached and can be finalized later
+            with PSO state (pBest/gBest) via finalize_log_batch(...).
         """
         X = np.array(X, dtype=np.float64)
         if X.ndim == 1:
@@ -398,6 +491,7 @@ class PsoFunc:
 
         # TODO FLO rückgängig logging
         self._call_id += 1
+        self._pending_log_batch = None
 
         Kp = X[:, 0]
         Ti = X[:, 1]
@@ -421,9 +515,10 @@ class PsoFunc:
 
             V = self._compute_violation_batch(metrics)
         else:
-            # No frequency-domain constraints -> all candidates feasible
+            # No frequency-domain constraints -> all candidates feasible.
             V = np.zeros(P, dtype=np.float64)
-
+        V_freq = V.copy()
+        V_ov = np.zeros(P, dtype=np.float64)
 
         # TODO FLO rückgängig logging
         # Logging helpers (per particle)
@@ -441,11 +536,14 @@ class PsoFunc:
             wc = metrics.get("wc", wc)
             w180 = metrics.get("w180", w180)
 
-        time_sim = np.zeros(P, dtype=np.bool_)  # will be set after feasible mask
+        time_sim = np.zeros(P, dtype=np.bool_)
         overshoot_pct = np.full(P, np.nan, dtype=np.float64)
-        time_cost = np.full(P, np.nan, dtype=np.float64)  # ITAE/IAE/ISE/ITSE for simulated ones
+        time_cost = np.full(P, np.nan, dtype=np.float64)
 
+        # Scalar compatibility output retained for existing logging/return paths.
         cost = np.full(P, np.nan, dtype=np.float64)
+        # J for feasibility-aware ranking. Infeasible candidates keep J=inf.
+        perf = np.full(P, np.inf, dtype=np.float64)
 
         infeasible = V > 0.0
         feasible = ~infeasible
@@ -453,12 +551,12 @@ class PsoFunc:
         # TODO FLO rückgängig logging
         time_sim = feasible.copy()
 
-        # BIG-M for infeasible candidates (NO time simulation!)
+        # BIG-M helper for infeasible candidates (no time simulation).
         if self.use_freq_metrics:
             cost[infeasible] = self.big_m * (1 + V[infeasible])
 
         # --------------------------------------------------
-        # 2) Time simulation only for feasible candidates
+        # 2) Time simulation only for currently feasible candidates
         # --------------------------------------------------
         if np.any(feasible):
             Xf = X[feasible]
@@ -491,6 +589,7 @@ class PsoFunc:
             )
             time_cost[feasible] = perf_vals
             overshoot_pct[feasible] = overshoot_vals
+            perf[feasible] = perf_vals
 
             if self.use_overshoot_control:
                 overshoot_violation = np.maximum(
@@ -499,36 +598,99 @@ class PsoFunc:
                 )
                 overshoot_violation = np.nan_to_num(overshoot_violation, nan=1.0, posinf=1.0, neginf=0.0)
 
+                # Keep overshoot as feasibility component in total violation V.
+                feasible_indices = np.where(feasible)[0]
+                V_ov_local = overshoot_violation * overshoot_violation
+                V_ov[feasible_indices] = V_ov_local
+                V[feasible_indices] += V_ov_local
+
                 feasible_cost = perf_vals.copy()
                 bad_overshoot = overshoot_violation > 0.0
                 if np.any(bad_overshoot):
                     feasible_cost[bad_overshoot] = self.big_m * (1.0 + overshoot_violation[bad_overshoot])
+                    perf[feasible_indices[bad_overshoot]] = np.inf
                 cost[feasible] = feasible_cost
             else:
                 cost[feasible] = perf_vals
+
+        V_total = V.copy()
+        feasible_final = V_total <= 0.0
 
         # --------------------------------------------------
         # TODO FLO rückgängig logging
         # --------------------------------------------------
         if self.enable_logging:
-            self._log_batch(
-                Kp=Kp,
-                Ti=Ti,
-                Td=Td,
-                pm=pm,
-                gm=gm,
-                ms=ms,
-                wc=wc,
-                w180=w180,
-                V=V,
-                time_sim=time_sim,
-                overshoot_pct=overshoot_pct,
-                time_cost=time_cost,
-                total_cost=cost,
-            )
+            batch = {
+                "Kp": Kp,
+                "Ti": Ti,
+                "Td": Td,
+                "pm": pm,
+                "gm": gm,
+                "ms": ms,
+                "wc": wc,
+                "w180": w180,
+                "V": V_total,  # backward-compatible alias
+                "V_freq": V_freq,
+                "V_ov": V_ov,
+                "V_total": V_total,
+                "feasible_final": feasible_final,
+                "time_sim": time_sim,
+                "overshoot_pct": overshoot_pct,
+                "time_cost": time_cost,
+                "perf_J": perf,
+                "total_cost": cost,
+                "objective_cost": cost,
+            }
+            if defer_logging:
+                self._pending_log_batch = batch
+            else:
+                P_local = int(Kp.shape[0])
+                false_flags = np.zeros(P_local, dtype=np.bool_)
+                nan_vals = np.full(P_local, np.nan, dtype=np.float64)
+                self._log_batch(
+                    Kp=batch["Kp"],
+                    Ti=batch["Ti"],
+                    Td=batch["Td"],
+                    pm=batch["pm"],
+                    gm=batch["gm"],
+                    ms=batch["ms"],
+                    wc=batch["wc"],
+                    w180=batch["w180"],
+                    V=batch["V"],
+                    V_freq=batch["V_freq"],
+                    V_ov=batch["V_ov"],
+                    V_total=batch["V_total"],
+                    feasible_final=batch["feasible_final"],
+                    time_sim=batch["time_sim"],
+                    overshoot_pct=batch["overshoot_pct"],
+                    time_cost=batch["time_cost"],
+                    perf_J=batch["perf_J"],
+                    total_cost=batch["total_cost"],
+                    objective_cost=batch["objective_cost"],
+                    pbest_updated=false_flags,
+                    gbest_updated=false_flags,
+                    pbest_feasible=false_flags,
+                    pbest_violation=nan_vals,
+                    pbest_perf=nan_vals,
+                    pbest_cost=nan_vals,
+                    gbest_feasible=false_flags,
+                    gbest_violation=nan_vals,
+                    gbest_perf=nan_vals,
+                    gbest_cost=nan_vals,
+                )
 
-        return cost
+        result = {
+            "cost": cost,
+            "feasible": feasible_final,
+            "violation": V_total,
+            "perf": perf,
+        }
+        self._last_eval = result
+        return result
 
+    def __call__(self, X: np.ndarray) -> np.ndarray:
+        """Backward-compatible scalar objective interface."""
+        return self.evaluate_candidates(X)["cost"]
 
 # =============================================================================
 # Helper Functions
@@ -929,3 +1091,4 @@ def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarr
         overshoot_pct[i] = overshoot_i
 
     return performance_index_val, overshoot_pct
+
