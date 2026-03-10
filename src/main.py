@@ -7,6 +7,7 @@ from PySide6.QtWidgets import QApplication
 from app_domain import AppEngine
 from app_domain.controlsys import ExcitationTarget
 from app_domain.functions import FunctionTypes
+from app_types import ThemeType
 from views import (
     PlantView, FunctionView, ControllerView, PsoConfigurationView, EvaluationView, MainView, BaseView,
     SimulationView, SettingsView
@@ -57,13 +58,27 @@ if __name__ == '__main__':
     }
 
     items = [
-        NavItem(NavLabels.PLANT, "plant.svg"),
-        NavItem(NavLabels.EXCITATION_FUNCTION, "excitation_function.svg"),
-        NavItem(NavLabels.CONTROLLER, ""),
-        NavItem(NavLabels.PSO_PARAMETER, ""),
-        NavItem(NavLabels.EVALUATION, ""),
-        NavItem(NavLabels.SIMULATION, ""),
-        NavItem(NavLabels.SETTINGS, "settings.svg"),
+        NavItem(NavLabels.PLANT, {
+            ThemeType.DARK: "plant_dark.svg", ThemeType.LIGHT: "plant_light.svg"
+        }),
+        NavItem(NavLabels.EXCITATION_FUNCTION, {
+            ThemeType.DARK: "excitation_function_dark.svg", ThemeType.LIGHT: "excitation_function_light.svg"
+        }),
+        NavItem(NavLabels.CONTROLLER, {
+            ThemeType.DARK: "controller_dark.svg", ThemeType.LIGHT: "controller_light.svg"
+        }),
+        NavItem(NavLabels.PSO_PARAMETER, {
+            ThemeType.DARK: "pso_parameter_dark.svg", ThemeType.LIGHT: "pso_parameter_light.svg"
+        }),
+        NavItem(NavLabels.EVALUATION, {
+            ThemeType.DARK: "evaluation_dark.svg", ThemeType.LIGHT: "evaluation_light.svg"
+        }),
+        NavItem(NavLabels.SIMULATION, {
+            ThemeType.DARK: "simulation_dark.svg", ThemeType.LIGHT: "simulation_light.svg"
+        }),
+        NavItem(NavLabels.SETTINGS, {
+            ThemeType.DARK: "settings_dark.svg", ThemeType.LIGHT: "settings_light.svg"
+        }),
     ]
 
     view_factories = {
@@ -90,8 +105,6 @@ if __name__ == '__main__':
         ),
         NavLabels.SETTINGS: lambda parent=None: SettingsView(ui_context, parent=parent),
     }
-
-    view_factories.get(NavLabels.SETTINGS)().show()
 
     main_view = MainView(ui_context, items, view_factories, engine.vm_pso)
     main_view.show()

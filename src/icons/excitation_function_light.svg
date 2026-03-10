@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#17212b"
+     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Excitation waveform -->
+  <polyline points="2,12 6,12 8,8 10,16 12,8 14,12 16,10 18,14 20,12" fill="none"/>
+
+  <!-- Output arrow -->
+  <line x1="20" y1="12" x2="22" y2="12"/>
+  <polygon points="22,11 22,13 24,12" fill="#17212b"/>
+</svg>

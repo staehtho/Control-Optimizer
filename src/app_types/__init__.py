@@ -15,7 +15,10 @@ from .frequency_domain import (
     FrequencyResponse,
 )
 
-from .nav_labels import NavLabels
+from .nav_labels import (
+    NavLabels,
+    NavItem
+)
 
 from .plant_response import PlantResponseContext
 
@@ -46,6 +49,7 @@ __all__ = [
     "ControllerTransferContext",
     "FrequencyResponse",
     "NavLabels",
+    "NavItem",
     "PlantResponseContext",
     "PlotData",
     "BodePlotData",

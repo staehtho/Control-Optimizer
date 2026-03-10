@@ -1,5 +1,7 @@
+from dataclasses import dataclass
 from enum import Enum
 
+from .settings_type import ThemeType
 
 class NavLabels(Enum):
     PLANT = "Plant"
@@ -9,3 +11,9 @@ class NavLabels(Enum):
     EVALUATION = "Evaluation"
     SIMULATION = "Simulation"
     SETTINGS = "Settings"
+
+
+@dataclass
+class NavItem:
+    key: NavLabels
+    icons: dict[ThemeType, str]

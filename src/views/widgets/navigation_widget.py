@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
 
@@ -14,15 +13,10 @@ from PySide6.QtWidgets import (
 )
 
 from app_domain.ui_context import UiContext
+from app_types import NavItem, NavLabels, ThemeType
 from views import BaseView
-from views.translations import NavLabels
 
-
-@dataclass
-class NavItem:
-    key: NavLabels
-    icon: str
-
+MENU_ICONS = {ThemeType.DARK: "menu_dark.svg", ThemeType.LIGHT: "menu_light.svg"}
 
 class NavigationWidget(BaseView, QWidget):
     viewSelected = Signal(NavLabels)
@@ -66,7 +60,7 @@ class NavigationWidget(BaseView, QWidget):
         self._toggle_btn = QToolButton(self)
         self._toggle_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self._toggle_btn.setFixedSize(self.BTN_SIZE, self.BTN_SIZE)
-        self._toggle_btn.setIcon(self._load_icon("menu.svg"))
+        self._toggle_btn.setIcon(self._load_icon(MENU_ICONS))
         self._toggle_btn.setIconSize(QSize(18, 18))
         self._toggle_btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
         self._toggle_btn.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
@@ -94,7 +88,7 @@ class NavigationWidget(BaseView, QWidget):
             btn.setCheckable(True)
             btn.setCursor(Qt.CursorShape.PointingHandCursor)
             btn.setFixedHeight(self.BTN_SIZE)
-            btn.setIcon(self._load_icon(item.icon))
+            btn.setIcon(self._load_icon(item.icons))
             btn.setIconSize(QSize(self.ICON_SIZE, self.ICON_SIZE))
             btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
             btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
@@ -153,11 +147,11 @@ class NavigationWidget(BaseView, QWidget):
     # ViewModel change handlers
     # -------------------------------------------------
     def _on_vm_theme_changed(self) -> None:
-        self._toggle_btn.setIcon(self._load_icon("menu.svg"))
+        self._toggle_btn.setIcon(self._load_icon(MENU_ICONS))
 
         for item in self._nav_items:
             btn = self._field_widgets[item.key]
-            btn.setIcon(self._load_icon(item.icon))
+            btn.setIcon(self._load_icon(item.icons))
 
     # -------------------------------------------------
     # Event Handlers
@@ -192,6 +186,6 @@ class NavigationWidget(BaseView, QWidget):
     # -------------------------------------------------
     # Internal helpers
     # -------------------------------------------------
-    def _load_icon(self, icon: str) -> QIcon:
-        icon_path = Path("icons") / self._vm_theme.current_theme.value / icon
-        return QIcon(str(icon_path.resolve()))
+    def _load_icon(self, icons) -> QIcon:
+        icon_path = Path("icons") / icons.get(self._vm_theme.current_theme, "")
+        return QIcon(str(icon_path))
