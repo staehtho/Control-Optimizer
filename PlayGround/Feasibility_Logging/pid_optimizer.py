@@ -80,7 +80,7 @@ def main():
     ms_max = 2
 
     use_overshoot_control = True
-    allowed_overshoot_pct = 5
+    allowed_overshoot_pct = 1
 
     sim_mode = "fixed"
     start_time = 0

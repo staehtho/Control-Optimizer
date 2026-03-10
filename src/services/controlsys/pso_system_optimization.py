@@ -456,12 +456,14 @@ class PsoFunc:
             if self.ms_max > 0.0:
                 v_ms[good] = np.maximum(0.0, (ms[good] - self.ms_max) / self.ms_max)
 
-        # For hard-fails we set violations to 1; this guarantees infeasible.
+        # Hard-fails are ranked strictly worse than regular infeasible candidates.
+        # We therefore force total V to +inf for hard-fail entries.
         v_pm[hard_fail] = 1.0
         v_ms[hard_fail] = 1.0
 
         V = v_pm * v_pm + v_gm * v_gm + v_ms * v_ms
-        V = np.nan_to_num(V, nan=1.0, posinf=1.0, neginf=0.0)
+        V = np.nan_to_num(V, nan=np.inf, posinf=np.inf, neginf=0.0)
+        V[hard_fail] = np.inf
         return V
 
     def evaluate_candidates(self, X: np.ndarray, defer_logging: bool = False) -> dict[str, np.ndarray]:
@@ -594,7 +596,7 @@ class PsoFunc:
             if self.use_overshoot_control:
                 overshoot_violation = np.maximum(
                     0.0,
-                    (overshoot_vals - self.allowed_overshoot_pct) / 100.0,
+                    (overshoot_vals - self.allowed_overshoot_pct),
                 )
                 overshoot_violation = np.nan_to_num(overshoot_violation, nan=1.0, posinf=1.0, neginf=0.0)
 
