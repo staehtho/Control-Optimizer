@@ -204,5 +204,5 @@ class NavigationWidget(BaseView, QWidget):
     # Internal helpers
     # -------------------------------------------------
     def _load_icon(self, icons) -> QIcon:
-        icon_path = Path("icons") / icons.get(self._vm_theme.current_theme, "")
+        icon_path = Path("resources") / "icons" / icons.get(self._vm_theme.current_theme, "")
         return QIcon(str(icon_path))
