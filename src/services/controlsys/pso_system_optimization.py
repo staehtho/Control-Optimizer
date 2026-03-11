@@ -105,9 +105,21 @@ class PsoFunc:
             freq_low_exp, freq_high_exp, freq_points:
                 Frequency grid definition w = logspace(freq_low_exp, freq_high_exp, freq_points).
 
+            use_freq_metrics:
+                If True, evaluate PM/GM/Ms first and derive feasibility from frequency metrics.
+                If False, all candidates are treated as frequency-feasible.
             pm_min_deg: Phase margin minimum in degrees (PM >= pm_min_deg). PM missing => infeasible.
             gm_min_db: Gain margin minimum in dB (GM >= gm_min_db). GM missing => treated as +inf => OK.
             ms_max: Sensitivity peak maximum (Ms <= ms_max).
+            use_overshoot_control:
+                If True, overshoot becomes an additional feasibility criterion after time simulation.
+            allowed_overshoot_pct:
+                Maximum allowed overshoot in percent before a feasible time response is marked infeasible.
+            log_path:
+                Optional CSV path used by the temporary logging pipeline.
+            enable_logging:
+                Enables temporary per-call CSV logging when True.
+
             cost is interpreted as:
               - J for feasible candidates
               - V for infeasible candidates
@@ -470,10 +482,14 @@ class PsoFunc:
 
         Args:
             X: PID parameter matrix of shape (P, 3). Each row contains [Kp, Ti, Td].
+            defer_logging:
+                If True, cache batch metrics so PSO state (pBest/gBest) can be attached later
+                via ``finalize_log_batch(...)``.
 
         Returns:
             dict with:
-              - cost: scalar helper value (BIG-M compatible)
+              - cost: scalar summary value
+                (J for feasible candidates, V for infeasible candidates)
               - feasible: final feasibility flag
               - violation: total violation V (frequency + optional overshoot)
               - perf: objective J (np.inf for infeasible candidates)

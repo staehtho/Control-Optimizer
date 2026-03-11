@@ -125,7 +125,7 @@ class ClosedLoop(ABC):
 
         Raises:
             NotImplementedError:
-                If a subclass does not implement this method.
+                Raised by concrete subclasses if controller evaluation is not implemented.
         """
         pass
 
@@ -305,7 +305,7 @@ class ClosedLoop(ABC):
         over the time vector defined by ``t0``, ``t1``, and ``dt``.
 
         The function must return both the simulated time vector and the corresponding
-        output trajectory.
+        output trajectory. Concrete subclasses must implement the actual simulation.
 
         Args:
             t0 (float):
@@ -337,6 +337,6 @@ class ClosedLoop(ABC):
 
         Raises:
             NotImplementedError:
-                Must be raised by subclasses that do not implement this method.
+                Raised by concrete subclasses if time-domain simulation is not implemented.
         """
         pass

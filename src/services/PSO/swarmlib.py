@@ -528,8 +528,11 @@ class Swarm:
 
         This method iteratively updates particle positions and velocities
         according to the PSO algorithm, tracking global and personal bests.
-        The optimization stops when either the swarm's particle space shrinks
-        below a threshold or when improvements stall beyond a defined limit.
+        The optimization stops when one of the configured termination criteria
+        is met:
+        - the hard iteration limit ``max_iter``
+        - particle-space collapse below the configured threshold
+        - repeated weak-improvement stall windows
 
         Args:
             iterate_func (Optional[Callable[['Swarm'], None]]):
