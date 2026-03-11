@@ -7,12 +7,11 @@ from PySide6.QtWidgets import QApplication
 from app_domain import AppEngine
 from app_domain.controlsys import ExcitationTarget
 from app_domain.functions import FunctionTypes
-from app_types import ThemeType
+from app_types import ThemeType, NavItem
 from views import (
     PlantView, FunctionView, ControllerView, PsoConfigurationView, EvaluationView, MainView, BaseView,
     SimulationView, SettingsView
 )
-from views.widgets import NavItem
 from views.translations import NavLabels
 
 if __name__ == '__main__':
