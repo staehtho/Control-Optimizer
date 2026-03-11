@@ -1,4 +1,4 @@
-# ──────────────────────────────────────────────────────────────────────────────
+# ------------------------------------------------------------------------------
 # Project:       PID Optimizer
 # Script:        main.py
 # Description:   Serves as the entry point of the PID Optimizer. Loads configuration settings,
@@ -6,28 +6,37 @@
 #                function, runs the optimization loop with progress feedback, and generates a
 #                comprehensive report with the final tuned parameters and system responses.
 #
-# Authors:       Florin Büchi, Thomas Stähli
+# Authors:       Florin Buechi, Thomas Staehli
 # Created:       01.12.2025
 # Modified:      01.12.2025
 # Version:       1.0
 #
-# License:       ZHAW Zürcher Hochschule für angewandte Wissenschaften (or internal use only)
-# ──────────────────────────────────────────────────────────────────────────────
-
+# License:       ZHAW Zuercher Hochschule fuer angewandte Wissenschaften (or internal use only)
+# ------------------------------------------------------------------------------
 
 import sys
 
-import numpy as np
-from tqdm import tqdm
-import pandas as pd
-from services.PSO import Swarm
-#from services.config_loader import load_config, ConfigError
-from services.controlsys import Plant, PIDClosedLoop, PsoFunc, dominant_pole_realpart, settling_time, AntiWindup, PerformanceIndex, bode_plot, crossover_frequency
-#from services.report_generator import report_generator
-from services.controlsys.freq_metrics import compute_loop_metrics_batch_from_frf
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from tqdm import tqdm
+
+from services.PSO import Swarm
+from services.controlsys import (
+    AntiWindup,
+    PIDClosedLoop,
+    PerformanceIndex,
+    Plant,
+    PsoFunc,
+    bode_plot,
+    crossover_frequency,
+    dominant_pole_realpart,
+    settling_time,
+)
+from services.controlsys.freq_metrics import compute_loop_metrics_batch_from_frf
 
 print("Starting the PID Optimizer. Loading modules, please wait...")
+
 
 def load_cases_from_excel(xlsx_path: str):
     import numpy as np
@@ -40,7 +49,7 @@ def load_cases_from_excel(xlsx_path: str):
 
     # --- PTn ---
     ptn_header_row = ptn_row + 1
-    ptn_df = raw.iloc[ptn_header_row+1:pt2_row].copy()
+    ptn_df = raw.iloc[ptn_header_row + 1 : pt2_row].copy()
     ptn_df.columns = raw.iloc[ptn_header_row].tolist()
     ptn_df = ptn_df.dropna(how="all")
     ptn_df = ptn_df.rename(columns={"n": "param"})
@@ -48,7 +57,7 @@ def load_cases_from_excel(xlsx_path: str):
 
     # --- PT2 ---
     pt2_header_row = pt2_row + 1
-    pt2_df = raw.iloc[pt2_header_row+1:].copy()
+    pt2_df = raw.iloc[pt2_header_row + 1 :].copy()
     pt2_df.columns = raw.iloc[pt2_header_row].tolist()
     pt2_df = pt2_df.dropna(how="all")
     pt2_df = pt2_df.rename(columns={"D": "param"})
@@ -65,45 +74,67 @@ def load_cases_from_excel(xlsx_path: str):
         n = int(r["param"])
         A = float(r["A"])
         p = np.poly1d([1, 1]) ** n
-        cases.append({
-            "type": "PTn",
-            "n_or_D": n,
-            "A": A,
-            "plant_num": [1.0],
-            "plant_den": p.c.tolist(),
-        })
+        cases.append(
+            {
+                "type": "PTn",
+                "n_or_D": n,
+                "A": A,
+                "plant_num": [1.0],
+                "plant_den": p.c.tolist(),
+            }
+        )
 
     # --- PT2 ---
     for _, r in pt2_df.iterrows():
         D = float(r["param"])
         A = float(r["A"])
-        cases.append({
-            "type": "PT2",
-            "n_or_D": D,
-            "A": A,
-            "plant_num": [1.0],
-            "plant_den": [1.0, 2.0 * D, 1.0],
-        })
+        cases.append(
+            {
+                "type": "PT2",
+                "n_or_D": D,
+                "A": A,
+                "plant_num": [1.0],
+                "plant_den": [1.0, 2.0 * D, 1.0],
+            }
+        )
 
     return cases
 
 
-def run_one_case(case, *, swarm_size=40, iterations=14,
-                 sim_mode="fixed", start_time=0.0, end_time=20.0, time_step=1e-4,
-                 kp_min=0, kp_max=10, ti_min=0.1, ti_max=10, td_min=0, td_max=10,
-                 pm_min_deg=0, gm_min_db=0, ms_max=20,
-                 anti_windup=AntiWindup.CLAMPING,
-                 excitation_target="reference",
-                 performance_index=PerformanceIndex.ITAE):
+def run_one_case(
+    case,
+    *,
+    swarm_size=40,
+    iterations=14,
+    sim_mode="fixed",
+    start_time=0.0,
+    end_time=20.0,
+    time_step=1e-4,
+    kp_min=0,
+    kp_max=10,
+    ti_min=0.1,
+    ti_max=10,
+    td_min=0,
+    td_max=10,
+    pm_min_deg=0,
+    gm_min_db=0,
+    ms_max=20,
+    anti_windup=AntiWindup.CLAMPING,
+    excitation_target="reference",
+    performance_index=PerformanceIndex.ITAE,
+):
 
     plant = Plant(case["plant_num"], case["plant_den"])
     A = case["A"]
     bounds = [[kp_min, ti_min, td_min], [kp_max, ti_max, td_max]]
 
     pid = PIDClosedLoop(
-        plant, Kp=10, Ti=5, Td=3,
+        plant,
+        Kp=10,
+        Ti=5,
+        Td=3,
         control_constraint=[-A, +A],
-        anti_windup_method=anti_windup
+        anti_windup_method=anti_windup,
     )
 
     # Filter wie bei dir
@@ -114,15 +145,19 @@ def run_one_case(case, *, swarm_size=40, iterations=14,
         t_dom = 1 / abs(p_dom)
         pid.set_filter(Tf=t_dom / 100)
 
-    # Anregung (bei dir ist’s ein Step auf r)
+    # Anregung (bei dir ist es ein Step auf r)
     r = lambda t: np.ones_like(t)
     l = lambda t: np.zeros_like(t)
     n = lambda t: np.zeros_like(t)
 
     obj_func = PsoFunc(
         pid,
-        start_time, end_time, time_step,
-        r=r, l=l, n=n,
+        start_time,
+        end_time,
+        time_step,
+        r=r,
+        l=l,
+        n=n,
         use_freq_metrics=True,
         freq_low_exp=-5,
         freq_high_exp=5,
@@ -134,16 +169,20 @@ def run_one_case(case, *, swarm_size=40, iterations=14,
         swarm_size=swarm_size,
     )
 
-    best = {"Kp": 0.0, "Ti": 0.0, "Td": 0.0, "J": sys.float_info.max}
+    best = {"Kp": 0.0, "Ti": 0.0, "Td": 0.0, "cost": sys.float_info.max}
 
     for _ in range(iterations):
         swarm = Swarm(obj_func, swarm_size, 3, bounds)
-        swarm_result, J = swarm.simulate_swarm()
-        if J < best["J"]:
-            best.update({"Kp": float(swarm_result[0]),
-                         "Ti": float(swarm_result[1]),
-                         "Td": float(swarm_result[2]),
-                         "J": float(J)})
+        swarm_result, best_cost = swarm.simulate_swarm()
+        if best_cost < best["cost"]:
+            best.update(
+                {
+                    "Kp": float(swarm_result[0]),
+                    "Ti": float(swarm_result[1]),
+                    "Td": float(swarm_result[2]),
+                    "cost": float(best_cost),
+                }
+            )
 
     # Best setzen + Frequenzmetriken berechnen
     pid.set_pid_param(Kp=best["Kp"], Ti=best["Ti"], Td=best["Td"])
@@ -153,7 +192,8 @@ def run_one_case(case, *, swarm_size=40, iterations=14,
     G = plant.system(s)
 
     metrics = compute_loop_metrics_batch_from_frf(
-        G=G, w=w,
+        G=G,
+        w=w,
         Kp=np.array([best["Kp"]]),
         Ti=np.array([best["Ti"]]),
         Td=np.array([best["Td"]]),
@@ -167,7 +207,7 @@ def run_one_case(case, *, swarm_size=40, iterations=14,
         "Kp": best["Kp"],
         "Ti": best["Ti"],
         "Td": best["Td"],
-        "J": best["J"],
+        "cost": best["cost"],
         "pm_deg": float(metrics["pm_deg"][0]),
         "gm_db": float(metrics["gm_db"][0]),
         "ms": float(metrics["ms"][0]),
@@ -188,12 +228,12 @@ def run_batch(xlsx_path: str, out_path: str = "batch_results.xlsx"):
     df = pd.DataFrame(results)
     df.to_excel(out_path, index=False)
 
-    print(f"\n✅ Fertig. Ergebnis gespeichert in: {out_path}")
+    print(f"\nFertig. Ergebnis gespeichert in: {out_path}")
     return df
 
 
 def main():
-    excel_path = "../Verification Freq_Metrics no_impact/Referenzsysteme.xlsx"  # ← anpassen!
+    excel_path = "Referenzsysteme.xlsx"
     run_batch(excel_path)
 
 

@@ -134,16 +134,16 @@ def run_one_case(case, *, swarm_size=40, iterations=14,
         swarm_size=swarm_size,
     )
 
-    best = {"Kp": 0.0, "Ti": 0.0, "Td": 0.0, "J": sys.float_info.max}
+    best = {"Kp": 0.0, "Ti": 0.0, "Td": 0.0, "cost": sys.float_info.max}
 
     for _ in range(iterations):
         swarm = Swarm(obj_func, swarm_size, 3, bounds)
-        swarm_result, J = swarm.simulate_swarm()
-        if J < best["J"]:
+        swarm_result, best_cost = swarm.simulate_swarm()
+        if best_cost < best["cost"]:
             best.update({"Kp": float(swarm_result[0]),
                          "Ti": float(swarm_result[1]),
                          "Td": float(swarm_result[2]),
-                         "J": float(J)})
+                         "cost": float(best_cost)})
 
     # Best setzen + Frequenzmetriken berechnen
     pid.set_pid_param(Kp=best["Kp"], Ti=best["Ti"], Td=best["Td"])
@@ -167,7 +167,7 @@ def run_one_case(case, *, swarm_size=40, iterations=14,
         "Kp": best["Kp"],
         "Ti": best["Ti"],
         "Td": best["Td"],
-        "J": best["J"],
+        "cost": best["cost"],
         "pm_deg": float(metrics["pm_deg"][0]),
         "gm_db": float(metrics["gm_db"][0]),
         "ms": float(metrics["ms"][0]),

@@ -222,7 +222,10 @@ class Particle:
         """Updates the personal best position using feasibility-aware comparison.
 
         Args:
-            cost (float): Scalar cost kept for compatibility/monitoring.
+            cost (float): Scalar summary value kept for compatibility/monitoring.
+                Semantics:
+                  - feasible candidate   -> cost = performance J
+                  - infeasible candidate -> cost = violation V
             feasible (bool): Feasibility flag for current candidate.
             violation (float): Total violation V for current candidate.
             perf (float | None): Objective performance J. If None, falls back to cost.
@@ -268,6 +271,8 @@ class Swarm:
                  initial_swarm_span: int = 2000,
                  min_neighbors_fraction: float = 0.25,
                  max_stall: int = 15,
+                 max_iter: int = 100,
+                 stall_windows_required: int = 3,
                  space_factor: float = 0.001,
                  convergence_factor: float = 1e-2) -> None:
         """Initializes the PSO swarm with given parameters.
@@ -284,6 +289,9 @@ class Swarm:
             initial_swarm_span (int, optional): Initial span divisions for particle positions. Defaults to 2000.
             min_neighbors_fraction (float, optional): Minimum fraction of swarm considered neighbors. Defaults to 0.25.
             max_stall (int, optional): Maximum iterations with little improvement. Defaults to 15.
+            max_iter (int, optional): Hard iteration limit for one swarm run. Defaults to 100.
+            stall_windows_required (int, optional): Consecutive weak-improvement windows required before stopping.
+                Defaults to 3.
             space_factor (float, optional): Factor to define particle space convergence. Defaults to 0.001.
             convergence_factor (float, optional): Relative change threshold for convergence. Defaults to 1e-2.
         """
@@ -295,6 +303,8 @@ class Swarm:
         self._coefficients = [initial_range[1], u1, u2]
         self._initial_range = initial_range
         self._max_stall = max_stall
+        self._max_iter = max_iter
+        self._stall_windows_required = stall_windows_required
         self._initial_swarm_span = initial_swarm_span
         self._min_neighbors_fraction = min_neighbors_fraction
         self._space_factor = space_factor
@@ -497,6 +507,16 @@ class Swarm:
         max_positions = np.max([p.position for p in self.particles], axis=0)
         return np.prod(max_positions - min_positions)
 
+    def _get_gbest_progress_value(self) -> float:
+        """Returns the convergence metric for the current global best.
+
+        Feasible global bests are tracked via performance J.
+        Infeasible global bests are tracked via total violation V.
+        """
+        if self.gBest.p_best_feasible:
+            return float(self.gBest.p_best_perf)
+        return float(self.gBest.p_best_violation)
+
         # -------------------------------------------------------------------------
         # Public API
         # -------------------------------------------------------------------------
@@ -521,11 +541,13 @@ class Swarm:
             tuple[np.ndarray, float]:
                 A tuple containing:
                 - The best position vector found by the swarm (`np.ndarray`).
-                - The corresponding best cost value (`float`).
+                - The corresponding scalar summary value (`float`):
+                  J for feasible results, V for infeasible results.
         """
-        swarm_state = [self.gBest.p_best_cost]
+        swarm_state = [self._get_gbest_progress_value()]
         termination_criteria = False
         space_criteria = False
+        stall_window_counter = 0
 
         # Compute initial hypervolume for convergence comparison
         r = np.subtract(self.bounds[1], self.bounds[0])
@@ -534,13 +556,16 @@ class Swarm:
         while True:
             self._iterate()
             self.iterations += 1
-            swarm_state.append(self.gBest.p_best_cost)
+            swarm_state.append(self._get_gbest_progress_value())
 
             particle_space = self._get_particle_space()
 
             # Execute user-provided callback if available
             if iterate_func:
                 iterate_func(self)
+
+            if self.iterations >= self._max_iter:
+                termination_criteria = True
 
             # Check convergence based on particle hypervolume
             if particle_space < initial_space * self._space_factor:
@@ -550,17 +575,22 @@ class Swarm:
 
             # Robust convergence check based on lack of improvement
             if len(swarm_state) > self._max_stall:
-                prev_cost = swarm_state[-self._max_stall]
-                curr_cost = swarm_state[-1]
+                prev_value = swarm_state[-self._max_stall]
+                curr_value = swarm_state[-1]
 
                 # Falls vorher oder aktuell NaN/inf → setze Verbesserung auf 0
-                if not np.isfinite(prev_cost) or not np.isfinite(curr_cost) or prev_cost == 0:
+                if not np.isfinite(prev_value) or not np.isfinite(curr_value) or prev_value == 0:
                     improvement = 0.0
                 else:
-                    improvement = 1 - (curr_cost / prev_cost)
+                    improvement = 1 - (curr_value / prev_value)
 
                 # Prüfen, ob Verbesserung klein genug ist
                 if improvement <= self._convergence_factor:
+                    stall_window_counter += 1
+                else:
+                    stall_window_counter = 0
+
+                if stall_window_counter >= self._stall_windows_required:
                     termination_criteria = True
 
             if termination_criteria:

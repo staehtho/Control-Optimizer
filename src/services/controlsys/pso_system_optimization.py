@@ -30,15 +30,15 @@ class PsoFunc:
     """
     Wrapper for Particle Swarm Optimization (PSO) of a PID controller.
 
-    Frequency-domain constraints via BIG-M (compatibility helper):
+    Frequency-domain constraints with feasibility-aware scalar outputs:
       - Compute PM/GM/Ms first (fast, no time simulation).
       - Compute normalized violation V.
-      - If V > 0: keep BIG_M-based scalar cost (no time simulation).
+      - If V > 0: use V as scalar cost proxy (no time simulation).
       - Else: compute time-domain performance index (e.g., ITAE).
 
     Important after feasibility-aware PSO selection:
-      - Ranking must use (feasible, V, J), not BIG-M scalar cost.
-      - BIG-M is kept for compatibility/logging/legacy scalar outputs.
+      - Ranking uses (feasible, V, J), not scalar cost alone.
+      - Scalar cost is interpreted as J for feasible candidates and V for infeasible candidates.
 
     Optional time-domain overshoot control (step references only):
       - Allowed overshoot is measured relative to the step height.
@@ -81,7 +81,6 @@ class PsoFunc:
         pm_min_deg: float = 60.0,
         gm_min_db: float = 5.0,
         ms_max: float = 2.0,
-        big_m: float = 1e10,
         use_overshoot_control: bool = False,
         allowed_overshoot_pct: float = 0.0,
         log_path: str | None = None, # TODO FLO rueckgaengig logging
@@ -109,8 +108,9 @@ class PsoFunc:
             pm_min_deg: Phase margin minimum in degrees (PM >= pm_min_deg). PM missing => infeasible.
             gm_min_db: Gain margin minimum in dB (GM >= gm_min_db). GM missing => treated as +inf => OK.
             ms_max: Sensitivity peak maximum (Ms <= ms_max).
-            big_m: BIG-M scalar compatibility multiplier for infeasible candidates.
-                   Kept for legacy cost outputs/logging/stop criteria; not for PSO ranking.
+            cost is interpreted as:
+              - J for feasible candidates
+              - V for infeasible candidates
         """
         self.controller = controller
 
@@ -175,8 +175,6 @@ class PsoFunc:
         self.pm_min_deg = float(pm_min_deg)
         self.gm_min_db = float(gm_min_db)
         self.ms_max = float(ms_max)
-        self.big_m = float(big_m)
-
         self.use_overshoot_control = bool(use_overshoot_control)
         self.allowed_overshoot_pct = float(allowed_overshoot_pct)
         self._overshoot_step_amplitude_abs = 0.0
@@ -542,7 +540,11 @@ class PsoFunc:
         overshoot_pct = np.full(P, np.nan, dtype=np.float64)
         time_cost = np.full(P, np.nan, dtype=np.float64)
 
-        # Scalar compatibility output retained for existing logging/return paths.
+        # Scalar summary value retained for logging/return compatibility.
+        # Semantics:
+        #   - feasible candidate   -> cost = performance J
+        #   - infeasible candidate -> cost = total violation V
+        # Ranking in the PSO itself uses (feasible, violation, perf), not cost alone.
         cost = np.full(P, np.nan, dtype=np.float64)
         # J for feasibility-aware ranking. Infeasible candidates keep J=inf.
         perf = np.full(P, np.inf, dtype=np.float64)
@@ -553,9 +555,8 @@ class PsoFunc:
         # TODO FLO rückgängig logging
         time_sim = feasible.copy()
 
-        # BIG-M helper for infeasible candidates (no time simulation).
-        if self.use_freq_metrics:
-            cost[infeasible] = self.big_m * (1 + V[infeasible])
+        # Infeasible candidates use their total violation as scalar cost proxy.
+        cost[infeasible] = V[infeasible]
 
         # --------------------------------------------------
         # 2) Time simulation only for currently feasible candidates
@@ -609,7 +610,7 @@ class PsoFunc:
                 feasible_cost = perf_vals.copy()
                 bad_overshoot = overshoot_violation > 0.0
                 if np.any(bad_overshoot):
-                    feasible_cost[bad_overshoot] = self.big_m * (1.0 + overshoot_violation[bad_overshoot])
+                    feasible_cost[bad_overshoot] = V[feasible_indices[bad_overshoot]]
                     perf[feasible_indices[bad_overshoot]] = np.inf
                 cost[feasible] = feasible_cost
             else:
