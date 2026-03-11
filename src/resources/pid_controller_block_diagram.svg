@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="500" viewBox="0 0 700 250">
+
+    <style>
+        .fill { fill:#e2e8f0 }
+        .line { stroke:#e2e8f0; stroke-width:2; fill:none; }
+        .block { fill:#1e293b; stroke:#e2e8f0; stroke-width:2; }
+        .text { fill:#e2e8f0; font-family:Arial, sans-serif; font-size:14px; text-anchor:middle;
+        dominant-baseline:middle; }
+    </style>
+
+    <!-- Arrow -->
+    <defs>
+        <path id="arrow" class="fill" d=" M0 0 L-5 2 L-5 -2" transform="scale(1.5)"/>
+    </defs>
+
+    <!-- Rect -->
+    <defs>
+        <rect id="rect" class="block" width="50" height="50"/>
+    </defs>
+
+    <!-- Block -->
+    <defs>
+        <path id="block" class="block" d="M0 0 L0 50 L50 25 Z"/>
+    </defs>
+
+    <!-- Integrator -->
+    <defs>
+        <g id="integrator">
+            <use href="#rect"/>
+            <text class="text" x="25" y="20">1</text>
+            <path class="block" d="M17.5 25 H32.5"/>
+            <text class="text" x="25" y="35">s</text>
+        </g>
+    </defs>
+
+    <!-- Differentiator -->
+    <defs>
+        <g id="differentiator">
+            <use href="#rect"/>
+            <text class="text" x="25" y="30">s</text>
+        </g>
+    </defs>
+
+    <!-- Constraint -->
+    <defs>
+        <g id="constraint">
+            <use href="#rect"/>
+            <path class="line" d="M7 40 H20 L30 10 H43"/>
+            <path class="line" d="M5 25 H45" style="stroke-width:0.7"/>
+            <path class="line" d="M25 5 V45" style="stroke-width:0.7"/>
+        </g>
+    </defs>
+
+
+    <!-- Input -->
+    <g transform="translate(0, 125)">
+        <path class="line" d="M0 0 H100"/>
+        <!-- Node -->
+        <circle class="fill" cx="75" cy="0" r="4"/>
+        <!-- P -->
+        <path class="line" d="M75 0 V-75 H120"/>
+        <use href="#arrow" transform="translate(125, -75)"/>
+        <!-- I -->
+        <path class="line" d="M75 0 H120"/>
+        <use href="#arrow" transform="translate(125, 0)"/>
+        <!-- D -->
+        <path class="line" d="M75 0 V75 H120"/>
+        <use href="#arrow" transform="translate(125, 75)"/>
+    </g>
+
+
+    <!-- P -->
+    <g transform="translate(125, 50)">
+        <g transform="translate(0, -25)">
+            <use href="#block"/>
+            <text class="text" x="15" y="30">Kp</text>
+        </g>
+    </g>
+
+
+    <!-- I -->
+    <g transform="translate(125, 125)">
+        <g transform="translate(0, -25)">
+            <use href="#block"/>
+            <text class="text" x="15" y="30">Ki</text>
+        </g>
+
+        <path class="line" d="M50 0 H95"/>
+        <use href="#arrow" transform="translate(100, 0)"/>
+
+        <g transform="translate(100, -25)">
+            <use href="#integrator"/>
+        </g>
+    </g>
+
+
+    <!-- D -->
+    <g transform="translate(125, 200)">
+        <g transform="translate(0, -25)">
+            <use href="#block"/>
+            <text class="text" x="15" y="30">Kd</text>
+        </g>
+
+        <path class="line" d="M50 0 H95"/>
+        <use href="#arrow" transform="translate(100, 0)"/>
+
+        <g transform="translate(100, -25)">
+            <use href="#differentiator"/>
+        </g>
+    </g>
+
+
+    <!-- Sum -->
+    <g transform="translate(400 125)">
+        <!-- Sum -->
+        <circle class="fill" cx="0" cy="0" r="5"/>
+
+        <!-- P -->
+        <path class="line" d="M0 -10 V-75 H-225"/>
+        <use href="#arrow" transform="rotate(90 2.5 -2.5)"/>
+
+        <!-- I -->
+        <path class="line" d="M-10 0 H-125"/>
+        <use href="#arrow" transform="translate(-5, 0)"/>
+
+        <!-- D -->
+        <path class="line" d="M0 10 V75 H-125"/>
+        <use href="#arrow" transform="rotate(-90 2.5 2.5)"/>
+
+        <!-- Output -->
+        <path class="line" d="M0 0 H45"/>
+        <use href="#arrow" transform="translate(50, 0)"/>
+    </g>
+
+    <!-- Output -->
+    <g transform="translate(450 125)">
+        <use href="#constraint" transform="translate(0 -25)"/>
+    </g>
+</svg>

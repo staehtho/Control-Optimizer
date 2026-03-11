@@ -1,4 +1,5 @@
 from functools import partial
+from pathlib import Path
 
 from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit
 
@@ -7,7 +8,7 @@ from app_domain.controlsys import AntiWindup
 from viewmodels import ControllerViewModel
 from app_types import ControllerField
 from .base_view import BaseView, FieldConfig, SectionConfig
-from views.widgets import ExpandableFrame
+from views.widgets import ExpandableFrame, AspectRatioSvgWidget
 
 FIELDS: list[FieldConfig] = [
     SectionConfig(ControllerField.CONSTRAINT, [
@@ -50,6 +51,10 @@ class ControllerView(BaseView, QWidget):
         frame, frame_layout = self._create_card(self)
 
         frame_layout.addLayout(self._create_grid(FIELDS))
+
+        svg_path = Path("resources/pid_controller_block_diagram.svg")
+        svg_widget = AspectRatioSvgWidget(str(svg_path), 2)
+        frame_layout.addWidget(svg_widget)
 
         return frame
 
