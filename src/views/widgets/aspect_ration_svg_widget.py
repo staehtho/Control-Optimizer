@@ -1,16 +1,26 @@
 from PySide6.QtSvgWidgets import QSvgWidget
-from PySide6.QtCore import QRectF
+from PySide6.QtCore import QRectF, QByteArray
 from PySide6.QtGui import QPainter
 
 
 class AspectRatioSvgWidget(QSvgWidget):
-    def __init__(self, svg_file: str, initial_scale: float = 1.0):
+    def __init__(
+            self,
+            svg_file: str | None = None,
+            initial_scale: float = 1.0,
+            svg_bytes: bytes | bytearray | None = None,
+    ):
         """
-        svg_file: path to the SVG
+        svg_file: path to the SVG (optional if svg_bytes is provided)
         initial_scale: initial scaling factor applied to SVG size
                        (1.0 = native size, 0.5 = half size, 2.0 = double size)
+        svg_bytes: raw SVG bytes (optional)
         """
-        super().__init__(svg_file)
+        if svg_bytes is not None:
+            super().__init__()
+            self.load(QByteArray(bytes(svg_bytes)))
+        else:
+            super().__init__(svg_file)
         self.initial_scale = initial_scale
 
     def paintEvent(self, event):
