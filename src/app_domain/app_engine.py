@@ -22,7 +22,7 @@ class AppEngine:
         - Instantiate ViewModels and model containers
     """
 
-    def __init__(self):
+    def __init__(self, run_warmup: bool = True, warmup_runs: int = 2):
         """Initialize the application engine."""
         # ------------------------------
         # Logger
@@ -38,8 +38,8 @@ class AppEngine:
         # ------------------------------
         # Warmup
         # ------------------------------
-        self.pso_warmup()
-        self.pso_warmup()
+        if run_warmup:
+            self.run_warmup(warmup_runs)
 
         # ------------------------------
         # Model containers
@@ -205,6 +205,11 @@ class AppEngine:
                 "PSO warmup iteration %d completed.", iteration
             )
         )
+
+    def run_warmup(self, runs: int = 2) -> None:
+        """Run PSO warmup multiple times to prime caches/JIT."""
+        for _ in range(max(0, runs)):
+            self.pso_warmup()
 
     def shutdown(self) -> None:
         """Stop background workers before the application exits."""
