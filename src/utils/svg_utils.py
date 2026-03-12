@@ -1,4 +1,8 @@
 import re
+from PySide6.QtSvg import QSvgRenderer
+from PySide6.QtGui import QPixmap, QPainter, QIcon
+from PySide6.QtCore import QByteArray, Qt
+
 
 
 def recolor_svg(svg_text: str, color_map: dict[str, str]) -> str:
@@ -36,3 +40,16 @@ def _extract_svg_inner(svg_text: str) -> str:
     if match is None:
         return svg_text.strip()
     return match.group(1).strip()
+
+
+def svg_to_icon(svg_text: str, size: int = 32) -> QIcon:
+    renderer = QSvgRenderer(QByteArray(svg_text.encode("utf-8")))
+
+    pixmap = QPixmap(size, size)
+    pixmap.fill(Qt.GlobalColor.transparent)
+
+    painter = QPainter(pixmap)
+    renderer.render(painter)
+    painter.end()
+
+    return QIcon(pixmap)

@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (
 
 from app_domain.ui_context import UiContext
 from app_types import NavItem, NavLabels, ThemeType
+from utils import recolor_svg, svg_to_icon
 from views import BaseView
 
 MENU_ICONS = {ThemeType.DARK: "menu_dark.svg", ThemeType.LIGHT: "menu_light.svg"}
@@ -39,6 +40,9 @@ class NavigationWidget(BaseView, QWidget):
         self._field_widgets: dict[NavLabels, QToolButton] = {}
         self._active_bar_frames: dict[NavLabels, QFrame] = {}
 
+        self._icons_path = Path("resources") / "icons"
+        self._icon_menu = "menu.svg"
+
         BaseView.__init__(self, ui_context)
 
     # -------------------------------------------------
@@ -60,8 +64,10 @@ class NavigationWidget(BaseView, QWidget):
         self._toggle_btn = QToolButton(self)
         self._toggle_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self._toggle_btn.setFixedSize(self.BTN_SIZE, self.BTN_SIZE)
-        self._toggle_btn.setIcon(self._load_icon(MENU_ICONS))
+
+        self._toggle_btn.setIcon(self._load_icon(self._icon_menu))
         self._toggle_btn.setIconSize(QSize(self.ICON_SIZE, self.ICON_SIZE))
+
         self._toggle_btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
         self._toggle_btn.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self._toggle_btn.setObjectName("toggleBtn")
@@ -96,8 +102,10 @@ class NavigationWidget(BaseView, QWidget):
             btn.setCheckable(True)
             btn.setCursor(Qt.CursorShape.PointingHandCursor)
             btn.setFixedHeight(self.BTN_SIZE)
-            btn.setIcon(self._load_icon(item.icons))
+
+            btn.setIcon(self._load_icon(item.icon))
             btn.setIconSize(QSize(self.ICON_SIZE, self.ICON_SIZE))
+
             btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
             btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
             btn.setStyleSheet("text-align:left; padding-left:6px;")
@@ -164,11 +172,11 @@ class NavigationWidget(BaseView, QWidget):
     # ViewModel change handlers
     # -------------------------------------------------
     def _on_vm_theme_changed(self) -> None:
-        self._toggle_btn.setIcon(self._load_icon(MENU_ICONS))
+        self._toggle_btn.setIcon(self._load_icon(self._icon_menu))
 
         for item in self._nav_items:
             btn = self._field_widgets[item.key]
-            btn.setIcon(self._load_icon(item.icons))
+            btn.setIcon(self._load_icon(item.icon))
 
     # -------------------------------------------------
     # Event Handlers
@@ -203,6 +211,8 @@ class NavigationWidget(BaseView, QWidget):
     # -------------------------------------------------
     # Internal helpers
     # -------------------------------------------------
-    def _load_icon(self, icons) -> QIcon:
-        icon_path = Path("resources") / "icons" / icons.get(self._vm_theme.current_theme, "")
-        return QIcon(str(icon_path))
+    def _load_icon(self, svg_path: str | Path) -> QIcon:
+        svg_path = self._icons_path / svg_path
+        svg_text = svg_path.read_text(encoding="utf-8")
+        recolored = recolor_svg(svg_text, self._vm_theme.get_svg_color_map())
+        return svg_to_icon(recolored, 24)

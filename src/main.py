@@ -7,10 +7,10 @@ from PySide6.QtWidgets import QApplication
 from app_domain import AppEngine
 from app_domain.controlsys import ExcitationTarget
 from app_domain.functions import FunctionTypes
-from app_types import ThemeType, NavItem
+from app_types import NavItem
 from views import (
-    PlantView, FunctionView, ControllerView, PsoConfigurationView, EvaluationView, MainView, BaseView,
-    SimulationView, SettingsView
+    PlantView, FunctionView, ControllerView, PsoConfigurationView, EvaluationView, MainView, SimulationView,
+    SettingsView
 )
 from views.translations import NavLabels
 
@@ -55,27 +55,13 @@ if __name__ == '__main__':
     }
 
     items = [
-        NavItem(NavLabels.PLANT, {
-            ThemeType.DARK: "plant_dark.svg", ThemeType.LIGHT: "plant_light.svg"
-        }),
-        NavItem(NavLabels.EXCITATION_FUNCTION, {
-            ThemeType.DARK: "excitation_function_dark.svg", ThemeType.LIGHT: "excitation_function_light.svg"
-        }),
-        NavItem(NavLabels.CONTROLLER, {
-            ThemeType.DARK: "controller_dark.svg", ThemeType.LIGHT: "controller_light.svg"
-        }),
-        NavItem(NavLabels.PSO_PARAMETER, {
-            ThemeType.DARK: "pso_parameter_dark.svg", ThemeType.LIGHT: "pso_parameter_light.svg"
-        }),
-        NavItem(NavLabels.EVALUATION, {
-            ThemeType.DARK: "evaluation_dark.svg", ThemeType.LIGHT: "evaluation_light.svg"
-        }),
-        NavItem(NavLabels.SIMULATION, {
-            ThemeType.DARK: "simulation_dark.svg", ThemeType.LIGHT: "simulation_light.svg"
-        }),
-        NavItem(NavLabels.SETTINGS, {
-            ThemeType.DARK: "settings_dark.svg", ThemeType.LIGHT: "settings_light.svg"
-        }, bottom=True),
+        NavItem(NavLabels.PLANT, "plant.svg"),
+        NavItem(NavLabels.EXCITATION_FUNCTION, "excitation_function.svg"),
+        NavItem(NavLabels.CONTROLLER, "controller.svg"),
+        NavItem(NavLabels.PSO_PARAMETER, "pso_parameter.svg"),
+        NavItem(NavLabels.EVALUATION, "evaluation.svg"),
+        NavItem(NavLabels.SIMULATION, "simulation.svg"),
+        NavItem(NavLabels.SETTINGS, "settings.svg", bottom=True),
     ]
 
     view_factories = {
