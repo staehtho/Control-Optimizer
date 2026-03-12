@@ -74,17 +74,17 @@ def main():
     plant_den = [1, 0.1, 1]
 
     use_freq_metrics = True
-    pm_min_deg = 90
+    pm_min_deg = 80
     gm_min_db = 10
     ms_max = 2
 
     use_overshoot_control = True
-    allowed_overshoot_pct = 5
+    allowed_overshoot_pct = 10
 
     sim_mode = "fixed"
     start_time = 0
-    end_time = 10
     time_step = 1e-4
+    end_time = 20
 
     anti_windup = AntiWindup.CLAMPING
 
@@ -290,6 +290,8 @@ def main():
     plt.title("Step Response")
     plt.grid(True)
     plt.legend()
+
+    systems_for_bode["Open Loop L=C*G"] = lambda s: pid.controller(s) * plant.system(s)
 
     # --- Bode ---
     bode_fig = bode_plot(systems_for_bode, high_exp=5)
