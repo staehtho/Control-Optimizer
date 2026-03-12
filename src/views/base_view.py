@@ -1,17 +1,15 @@
 import logging
-import re
-from weakref import WeakSet
 from PySide6.QtWidgets import (
     QWidget, QLayout, QLabel, QComboBox, QGridLayout, QFrame, QVBoxLayout, QLineEdit, QCheckBox, QSpinBox,
     QDoubleSpinBox, QScrollArea, QApplication, QToolTip
 )
 from PySide6.QtCore import QPoint
-from PySide6.QtGui import QDoubleValidator, QColor, Qt
+from PySide6.QtGui import QDoubleValidator, Qt
 from dataclasses import dataclass
-from typing import Type, ClassVar, Optional
+from typing import Type, Optional
 
 from app_domain.ui_context import UiContext
-from app_types import FieldType, ThemeType
+from app_types import FieldType
 from views.translations import Translation
 
 
@@ -39,30 +37,6 @@ class BaseView:
     - Abstract methods enforce that concrete Views implement required functionality
     """
 
-    _instances: ClassVar[WeakSet] = WeakSet()
-    _active_theme: ClassVar[ThemeType] = ThemeType.DARK
-    _themes: ClassVar[dict[ThemeType, str]] = {}
-    _theme_text_colors: ClassVar[dict[ThemeType, QColor]] = {}
-
-    @classmethod
-    def load_themes(cls, themes: dict[ThemeType | str, str], active_theme: ThemeType | str) -> None:
-        normalized_themes: dict[ThemeType, str] = {}
-        text_colors: dict[ThemeType, QColor] = {}
-        for key, value in themes.items():
-            theme_key = key if isinstance(key, ThemeType) else ThemeType(key)
-            normalized_themes[theme_key] = value
-            extracted = cls._extract_qwidget_text_color(value)
-            if extracted is not None:
-                text_colors[theme_key] = extracted
-
-        cls._themes = normalized_themes
-        cls._theme_text_colors = text_colors
-        if not cls._themes:
-            raise ValueError("No themes provided")
-
-        active = active_theme if isinstance(active_theme, ThemeType) else ThemeType(active_theme)
-        cls._active_theme = active if active in cls._themes else next(iter(cls._themes))
-
     def __init__(self, ui_context: UiContext):
         self._ui_context = ui_context
 
@@ -76,14 +50,16 @@ class BaseView:
         # Connect signal: whenever language changes, call _retranslate
         self._vm_lang.languageChanged.connect(self._retranslate)
 
+        # Theme support
+        self._vm_theme = self._ui_context.vm_theme
+        self._vm_theme.themeChanged.connect(self._on_theme_changed)
+
         # Scale factor for rendering the LaTeX formula
         self._formula_font_size_scale = 1.5
         self._title_size = 16
 
         self._field_widgets = {}
         self._labels = {}
-
-        BaseView._instances.add(self)
         # -----------------------------
         # Logging setup
         # -----------------------------
@@ -294,29 +270,23 @@ class BaseView:
         widget = self if isinstance(self, QWidget) else None
         if widget is None:
             return
-        if not BaseView._themes:
-            return
 
         widget.setObjectName("viewRoot")
-        fallback_theme = next(iter(BaseView._themes.values()))
-        theme = BaseView._themes.get(BaseView._active_theme, fallback_theme)
-        widget.setStyleSheet(theme)
+        stylesheet = self._vm_theme.get_theme_stylesheet()
+        if not stylesheet:
+            return
+        widget.setStyleSheet(stylesheet)
         app = QApplication.instance()
         if app is not None:
-            app.setProperty("appTheme", BaseView._active_theme)
-            text_color = BaseView._theme_text_colors.get(BaseView._active_theme)
+            app.setProperty("appTheme", self._vm_theme.current_theme)
+            background = self._vm_theme.get_theme_background_color()
+            text_color = self._vm_theme.get_theme_text_color()
             if text_color is not None:
                 app.setProperty("themeTextColor", text_color)
+            if background is not None:
+                app.setProperty("themeBackgroundColor", background)
 
         self._on_theme_applied()
-
-    @staticmethod
-    def _extract_qwidget_text_color(stylesheet: str) -> QColor | None:
-        match = re.search(r"QWidget\s*\{[^}]*\bcolor\s*:\s*([^;]+);", stylesheet, flags=re.IGNORECASE | re.DOTALL)
-        if match is None:
-            return None
-        color = QColor(match.group(1).strip())
-        return color if color.isValid() else None
 
     def _on_theme_applied(self) -> None:
         """Hook for subclasses that need non-QSS theme updates."""
@@ -353,17 +323,8 @@ class BaseView:
         QToolTip.hideText()
         widget.setProperty("_input_invalid", False)
 
-    @classmethod
-    def set_theme(cls, theme: ThemeType | str) -> None:
-        theme_type = theme if isinstance(theme, ThemeType) else ThemeType(theme)
-        if theme_type not in cls._themes:
-            valid = ", ".join(theme_type.value for theme_type in cls._themes.keys())
-            raise ValueError(f"Unknown theme '{theme}'. Valid themes: {valid}")
-
-        cls._active_theme = theme_type
-
-        for view in list(cls._instances):
-            view.apply_theme()
+    def _on_theme_changed(self, *_args) -> None:
+        self.apply_theme()
 
     def _on_widget_changed(self, key: str | FieldType, attribute: str, *args, **kwargs) -> None:
         """Handle changes from various input widgets and update the corresponding attribute.
