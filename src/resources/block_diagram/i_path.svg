@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="600" viewBox="0 0 550 300">
+
+    <style>
+        .fill { fill:#000000 }
+        .line { stroke:#000000; stroke-width:2; fill:none; }
+        .block { stroke:#000000; stroke-width:2; fill:#ffffff; }
+        .text { fill:#000000; font-family:Arial, sans-serif; font-size:14px; text-anchor:middle;
+        dominant-baseline:middle; }
+    </style>
+
+    <!-- Arrow -->
+    <defs>
+        <path id="arrow" class="fill" d=" M0 0 L-5 2 L-5 -2" transform="scale(1.5)"/>
+    </defs>
+
+    <!-- Rect -->
+    <defs>
+        <rect id="rect" class="block" width="50" height="50"/>
+    </defs>
+
+    <!-- Block -->
+    <defs>
+        <path id="block" class="block" d="M0 0 L0 50 L50 25 Z"/>
+    </defs>
+
+    <!-- Integrator -->
+    <defs>
+        <g id="integrator">
+            <use href="#rect"/>
+            <text class="text" x="25" y="17.5">1</text>
+            <path class="line" d="M17.5 25 H32.5"/>
+            <text class="text" x="25" y="40">s</text>
+        </g>
+    </defs>
+
+    <!-- Input -->
+    <g transform="translate(75 125)">
+        <path class="line" d="M0 0 V75 H45"/>
+        <use href="#arrow" transform="translate(50 75)"/>
+    </g>
+
+    <!-- I -->
+    <g transform="translate(125, 200)">
+        <g transform="translate(0, -25)">
+            <use href="#block"/>
+            <text class="text" x="15" y="30">Ki</text>
+        </g>
+
+        <path class="line" d="M50 0 H95"/>
+        <use href="#arrow" transform="translate(100, 0)"/>
+
+        <g transform="translate(100, -25)">
+            <use href="#integrator"/>
+        </g>
+    </g>
+
+    <!-- Output -->
+    <g transform="translate(400 125)">
+        <path class="line" d="M0 10 V75 H-125"/>
+        <use href="#arrow" transform="rotate(-90 2.5 2.5)"/>
+    </g>
+
+</svg>

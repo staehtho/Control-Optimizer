@@ -27,6 +27,7 @@ class ControllerField(FieldType):
     CONTROLLER_TYPE = "type"
 
     ANTI_WINDUP = "anti_wind"
+    BLOCK_DIAGRAM = "block_diagram"
 
 
 # PsoConfigurationViewModel / PsoConfigurationView

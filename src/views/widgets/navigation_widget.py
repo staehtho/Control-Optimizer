@@ -40,7 +40,7 @@ class NavigationWidget(BaseView, QWidget):
         self._field_widgets: dict[NavLabels, QToolButton] = {}
         self._active_bar_frames: dict[NavLabels, QFrame] = {}
 
-        self._icons_path = Path("resources") / "icons"
+        self._icons_path = Path(__file__).parent.parent.parent / "resources" / "icons"
         self._icon_menu = "menu.svg"
 
         BaseView.__init__(self, ui_context)
@@ -137,12 +137,6 @@ class NavigationWidget(BaseView, QWidget):
             btn.clicked.connect(partial(self._on_btn_clicked, key=key))
 
     # -------------------------------------------------
-    # ViewModel bindings (ViewModel → UI)
-    # -------------------------------------------------
-    def _bind_vm(self):
-        self._vm_theme.themeChanged.connect(self._on_vm_theme_changed)
-
-    # -------------------------------------------------
     # Translation
     # -------------------------------------------------
     def _retranslate(self) -> None:
@@ -171,7 +165,7 @@ class NavigationWidget(BaseView, QWidget):
     # -------------------------------------------------
     # ViewModel change handlers
     # -------------------------------------------------
-    def _on_vm_theme_changed(self) -> None:
+    def _on_theme_applied(self) -> None:
         self._toggle_btn.setIcon(self._load_icon(self._icon_menu))
 
         for item in self._nav_items:

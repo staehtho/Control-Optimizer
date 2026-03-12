@@ -5,7 +5,7 @@ from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit
 
 from app_domain.ui_context import UiContext
 from app_domain.controlsys import AntiWindup
-from utils import recolor_svg
+from utils import recolor_svg, merge_svgs
 from viewmodels import ControllerViewModel
 from app_types import ControllerField
 from .base_view import BaseView, FieldConfig, SectionConfig
@@ -27,6 +27,13 @@ class ControllerView(BaseView, QWidget):
         QWidget.__init__(self, parent)
 
         self._vm_controller = vm_controller
+
+        self._resource_path = Path(__file__).parent.parent / "resources" / "block_diagram"
+        self._block_diagram_template = ["controller_base.svg", "p_path.svg", "d_path.svg"]
+        self._anti_windup_block_diagram: dict[AntiWindup, str] = {
+            AntiWindup.CLAMPING: "clamping.svg",
+            AntiWindup.CONDITIONAL: "conditional.svg"
+        }
 
         BaseView.__init__(self, ui_context)
 
@@ -53,12 +60,11 @@ class ControllerView(BaseView, QWidget):
 
         frame_layout.addLayout(self._create_grid(FIELDS))
 
-        svg_path = Path("resources/pid_controller_block_diagram.svg")
-        svg_text = svg_path.read_text(encoding="utf-8")
-        recolored = recolor_svg(svg_text, self._vm_theme.get_svg_color_map())
-
-        svg_widget = AspectRatioSvgWidget(svg_bytes=recolored.encode("utf-8"), initial_scale=2)
+        svg_widget = AspectRatioSvgWidget()
+        svg_widget.set_initial_scale(2)
         frame_layout.addWidget(svg_widget)
+        self._field_widgets.setdefault(ControllerField.BLOCK_DIAGRAM, svg_widget)
+        self._load_block_diagram()
 
         return frame
 
@@ -70,12 +76,14 @@ class ControllerView(BaseView, QWidget):
         attributes: dict[ControllerField, tuple[str, str, object]] = {
             ControllerField.CONSTRAINT_MIN: ("editingFinished", "_vm_controller.constraint_min", float),
             ControllerField.CONSTRAINT_MAX: ("editingFinished", "_vm_controller.constraint_max", float),
-            ControllerField.ANTI_WINDUP: ("currentIndexChanged", "_vm_controller.anti_windup", AntiWindup),
         }
         for key, value in attributes.items():
             attr, vm_attr, value_type = value
             getattr(self._field_widgets[key], attr).connect(
                 partial(self._on_widget_changed, key, vm_attr, value_type=value_type))
+
+        self._field_widgets.get(ControllerField.ANTI_WINDUP).currentIndexChanged.connect(
+            self._on_index_changed_anti_windup)
 
     # -------------------------------------------------
     # ViewModel bindings (ViewModel → UI)
@@ -131,3 +139,31 @@ class ControllerView(BaseView, QWidget):
         self._field_widgets[ControllerField.CONSTRAINT_MIN].setText(f"{self._vm_controller.constraint_min}")
         self._field_widgets[ControllerField.CONSTRAINT_MAX].setText(f"{self._vm_controller.constraint_max}")
 
+    # -------------------------------------------------
+    # ViewModel change handlers
+    # -------------------------------------------------
+    def _on_theme_applied(self) -> None:
+        self._load_block_diagram()
+
+    # -------------------------------------------------
+    # UI event handlers
+    # -------------------------------------------------
+    def _on_index_changed_anti_windup(self, index: int) -> None:
+        widget = self._field_widgets.get(ControllerField.ANTI_WINDUP)
+        value = widget.itemData(index)
+        self._vm_controller.anti_windup = value
+        self._load_block_diagram()
+
+    # -------------------------------------------------
+    # Internal helpers
+    # -------------------------------------------------
+    def _load_block_diagram(self) -> None:
+        svgs = [*self._block_diagram_template, self._anti_windup_block_diagram.get(self._vm_controller.anti_windup)]
+        svg_texts = []
+        for svg in svgs:
+            svg_path = self._resource_path / svg
+            svg_texts.append(svg_path.read_text(encoding="utf-8"))
+
+        merged_svg = merge_svgs(svg_texts)
+        recolored = recolor_svg(merged_svg, self._vm_theme.get_svg_color_map())
+        self._field_widgets.get(ControllerField.BLOCK_DIAGRAM).set_svg_bytes(recolored.encode("utf-8"))
