@@ -5,6 +5,7 @@ from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit
 
 from app_domain.ui_context import UiContext
 from app_domain.controlsys import AntiWindup
+from utils import recolor_svg
 from viewmodels import ControllerViewModel
 from app_types import ControllerField
 from .base_view import BaseView, FieldConfig, SectionConfig
@@ -53,7 +54,10 @@ class ControllerView(BaseView, QWidget):
         frame_layout.addLayout(self._create_grid(FIELDS))
 
         svg_path = Path("resources/pid_controller_block_diagram.svg")
-        svg_widget = AspectRatioSvgWidget(str(svg_path), 2)
+        svg_text = svg_path.read_text(encoding="utf-8")
+        recolored = recolor_svg(svg_text, self._vm_theme.get_svg_color_map())
+
+        svg_widget = AspectRatioSvgWidget(svg_bytes=recolored.encode("utf-8"), initial_scale=2)
         frame_layout.addWidget(svg_widget)
 
         return frame
