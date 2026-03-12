@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from PySide6.QtWidgets import (
     QWidget, QHBoxLayout, QLabel, QCheckBox, QLineEdit, QSizePolicy
 )
-from PySide6.QtCore import QCoreApplication, QObject
+from PySide6.QtCore import QCoreApplication, QObject, QSize
 from PySide6.QtGui import QDoubleValidator, QColor, QPainter, QPixmap, QIcon
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
@@ -37,6 +37,8 @@ class PlotWidgetConfiguration:
     subplot: tuple[int, int] = (1, 1)
     subplot_configuration: dict[int, SubplotConfiguration] = field(default_factory=dict)
     show_x_min_max: bool = True
+    # Width / height ratio for a fixed-size canvas. Set to None to allow free resizing.
+    fixed_aspect_ratio: float | None = 500 / 350
 
 
 class PlotWidget(BaseView, QWidget):
@@ -80,11 +82,22 @@ class PlotWidget(BaseView, QWidget):
 
         # Matplotlib figure and canvas
         self._figure = Figure()
-        self._canvas = FigureCanvas(self._figure)
+        if self._cfg.fixed_aspect_ratio:
+            self._canvas = _AspectCanvas(self._figure, self._cfg.fixed_aspect_ratio)
+        else:
+            self._canvas = FigureCanvas(self._figure)
         self._toolbar = NavigationToolbar(self._canvas, self)
         self._toolbar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        self._canvas.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        self._canvas.setMinimumSize(500, 350)
+        if self._cfg.fixed_aspect_ratio:
+            policy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+            policy.setHeightForWidth(True)
+            self._canvas.setSizePolicy(policy)
+            min_width = 500
+            min_height = int(round(min_width / self._cfg.fixed_aspect_ratio))
+            self._canvas.setMinimumSize(min_width, max(1, min_height))
+        else:
+            self._canvas.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+            self._canvas.setMinimumSize(500, 350)
         self._apply_toolbar_icons()
 
         main_layout.addWidget(self._toolbar, 0)
@@ -414,3 +427,21 @@ class PlotWidget(BaseView, QWidget):
         painter.end()
         return QIcon(tinted)
 
+
+class _AspectCanvas(FigureCanvas):
+    """Figure canvas that keeps a fixed width/height ratio via height-for-width."""
+
+    def __init__(self, figure: Figure, ratio: float):
+        super().__init__(figure)
+        self._ratio = ratio if ratio and ratio > 0 else 1.0
+
+    def hasHeightForWidth(self) -> bool:
+        return True
+
+    def heightForWidth(self, width: int) -> int:
+        return int(round(width / self._ratio))
+
+    def sizeHint(self) -> QSize:
+        width = 500
+        height = int(round(width / self._ratio))
+        return QSize(width, max(1, height))
