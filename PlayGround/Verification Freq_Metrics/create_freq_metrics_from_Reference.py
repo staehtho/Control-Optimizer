@@ -11,9 +11,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SRC_PATH = PROJECT_ROOT / "src"
 sys.path.insert(0, str(SRC_PATH))
 
-
-from services.controlsys import Plant
-from services.controlsys.freq_metrics import compute_loop_metrics_batch
+from app_domain.controlsys import Plant
+from app_domain.controlsys.freq_metrics import compute_loop_metrics_batch
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Plant-Konstruktion (K=1, Tm=1)

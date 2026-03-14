@@ -21,8 +21,8 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-from services.PSO import Swarm
-from services.controlsys import (
+from app_domain.PSO import Swarm
+from app_domain.controlsys import (
     AntiWindup,
     PIDClosedLoop,
     PerformanceIndex,
@@ -33,7 +33,7 @@ from services.controlsys import (
     dominant_pole_realpart,
     settling_time,
 )
-from services.controlsys.freq_metrics import compute_loop_metrics_batch_from_frf
+from app_domain.controlsys.freq_metrics import compute_loop_metrics_batch_from_frf
 
 print("Starting the PID Optimizer. Loading modules, please wait...")
 

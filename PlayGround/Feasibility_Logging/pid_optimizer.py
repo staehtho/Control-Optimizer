@@ -21,11 +21,12 @@ from pathlib import Path
 import numpy as np
 from tqdm import tqdm
 
-from services.PSO import Swarm
+from app_domain.PSO import Swarm
 #from services.config_loader import load_config, ConfigError
-from services.controlsys import Plant, PIDClosedLoop, PsoFunc, dominant_pole_realpart, settling_time, AntiWindup, PerformanceIndex, bode_plot, crossover_frequency
+from app_domain.controlsys import Plant, PIDClosedLoop, PsoFunc, dominant_pole_realpart, settling_time, AntiWindup, \
+    PerformanceIndex, bode_plot, crossover_frequency
 #from services.report_generator import report_generator
-from services.controlsys.freq_metrics import compute_loop_metrics_batch_from_frf
+from app_domain.controlsys.freq_metrics import compute_loop_metrics_batch_from_frf
 import matplotlib.pyplot as plt
 
 print("Starting the PID Optimizer. Loading modules, please wait...")
