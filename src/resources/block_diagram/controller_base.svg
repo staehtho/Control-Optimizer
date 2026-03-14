@@ -3,7 +3,7 @@
     <style>
         .fill { fill:#000000 }
         .line { stroke:#000000; stroke-width:2; fill:none; }
-        .block { stroke:#000000; stroke-width:2; fill:#ffffff; }
+        .block { stroke:#000000; stroke-width:2; fill:none; }
     </style>
 
     <!-- Arrow -->
