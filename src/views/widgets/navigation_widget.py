@@ -16,6 +16,7 @@ from app_domain.ui_context import UiContext
 from app_types import NavItem, NavLabels, ThemeType
 from utils import recolor_svg, svg_to_icon
 from views import BaseView
+from views.resources import ICONS_DIR, Icons
 
 MENU_ICONS = {ThemeType.DARK: "menu_dark.svg", ThemeType.LIGHT: "menu_light.svg"}
 
@@ -40,9 +41,6 @@ class NavigationWidget(BaseView, QWidget):
         self._field_widgets: dict[NavLabels, QToolButton] = {}
         self._active_bar_frames: dict[NavLabels, QFrame] = {}
 
-        self._icons_path = Path(__file__).parent.parent.parent / "resources" / "icons"
-        self._icon_menu = "menu.svg"
-
         BaseView.__init__(self, ui_context)
 
     # -------------------------------------------------
@@ -65,7 +63,7 @@ class NavigationWidget(BaseView, QWidget):
         self._toggle_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self._toggle_btn.setFixedSize(self.BTN_SIZE, self.BTN_SIZE)
 
-        self._toggle_btn.setIcon(self._load_icon(self._icon_menu))
+        self._toggle_btn.setIcon(self._load_icon(Icons.menu))
         self._toggle_btn.setIconSize(QSize(self.ICON_SIZE, self.ICON_SIZE))
 
         self._toggle_btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
@@ -166,7 +164,7 @@ class NavigationWidget(BaseView, QWidget):
     # ViewModel change handlers
     # -------------------------------------------------
     def _on_theme_applied(self) -> None:
-        self._toggle_btn.setIcon(self._load_icon(self._icon_menu))
+        self._toggle_btn.setIcon(self._load_icon(Icons.menu))
 
         for item in self._nav_items:
             btn = self._field_widgets[item.key]
@@ -206,7 +204,7 @@ class NavigationWidget(BaseView, QWidget):
     # Internal helpers
     # -------------------------------------------------
     def _load_icon(self, svg_path: str | Path) -> QIcon:
-        svg_path = self._icons_path / svg_path
+        svg_path = ICONS_DIR / svg_path
         svg_text = svg_path.read_text(encoding="utf-8")
         recolored = recolor_svg(svg_text, self._vm_theme.get_svg_color_map())
         return svg_to_icon(recolored, 24)

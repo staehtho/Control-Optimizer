@@ -10,6 +10,7 @@ from app_domain.controlsys import ExcitationTarget
 from app_domain.functions import FunctionTypes
 from app_types import NavItem, NavLabels
 from views.main_view import MainView
+from views.resources import Icons
 
 if __name__ == '__main__':
 
@@ -46,13 +47,13 @@ if __name__ == '__main__':
     vm_function.set_selected_function(FunctionTypes.STEP)
 
     items = [
-        NavItem(NavLabels.PLANT, "plant.svg"),
-        NavItem(NavLabels.EXCITATION_FUNCTION, "excitation_function.svg"),
-        NavItem(NavLabels.CONTROLLER, "controller.svg"),
-        NavItem(NavLabels.PSO_PARAMETER, "pso_parameter.svg"),
-        NavItem(NavLabels.EVALUATION, "evaluation.svg"),
-        NavItem(NavLabels.SIMULATION, "simulation.svg"),
-        NavItem(NavLabels.SETTINGS, "settings.svg", bottom=True),
+        NavItem(NavLabels.PLANT, Icons.plant),
+        NavItem(NavLabels.EXCITATION_FUNCTION, Icons.excitation_function),
+        NavItem(NavLabels.CONTROLLER, Icons.controller),
+        NavItem(NavLabels.PSO_PARAMETER, Icons.pso_parameter),
+        NavItem(NavLabels.EVALUATION, Icons.evaluation),
+        NavItem(NavLabels.SIMULATION, Icons.simulation),
+        NavItem(NavLabels.SETTINGS, Icons.settings, bottom=True),
     ]
 
 

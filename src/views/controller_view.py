@@ -1,6 +1,4 @@
 from functools import partial
-from pathlib import Path
-
 from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit
 
 from app_domain.ui_context import UiContext
@@ -10,6 +8,8 @@ from viewmodels import ControllerViewModel
 from app_types import ControllerField
 from .base_view import BaseView, FieldConfig, SectionConfig
 from views.widgets import ExpandableFrame, AspectRatioSvgWidget
+from views.resources import BLOCK_DIAGRAM_DIR, BlockDiagram
+
 
 FIELDS: list[FieldConfig] = [
     SectionConfig(ControllerField.CONSTRAINT, [
@@ -27,14 +27,6 @@ class ControllerView(BaseView, QWidget):
         QWidget.__init__(self, parent)
 
         self._vm_controller = vm_controller
-
-        self._resource_path = Path(__file__).parent.parent / "resources" / "block_diagram"
-        self._block_diagram_template = ["controller_base.svg", "p_path.svg", "d_path.svg"]
-        self._anti_windup_block_diagram: dict[AntiWindup, str] = {
-            AntiWindup.CLAMPING: "clamping.svg",
-            AntiWindup.CONDITIONAL: "conditional.svg",
-            AntiWindup.BACKCALCULATION: "backcalculation.svg",
-        }
 
         BaseView.__init__(self, ui_context)
 
@@ -159,10 +151,28 @@ class ControllerView(BaseView, QWidget):
     # Internal helpers
     # -------------------------------------------------
     def _load_block_diagram(self) -> None:
-        svgs = [*self._block_diagram_template, self._anti_windup_block_diagram.get(self._vm_controller.anti_windup)]
+        svgs = [
+            BlockDiagram.controller_base,
+            BlockDiagram.p_path,
+            BlockDiagram.d_path
+        ]
+
+        match self._vm_controller.anti_windup:
+            case AntiWindup.BACKCALCULATION:
+                svgs.append(BlockDiagram.backcalculation)
+            case AntiWindup.CLAMPING:
+                svgs.append(BlockDiagram.clamping)
+            case AntiWindup.CONDITIONAL:
+                svgs.append(BlockDiagram.conditional)
+            case unknown_value:
+                raise ValueError(
+                    f"Unsupported anti-windup method: {unknown_value!r}. "
+                    "Expected one of: BACKCALCULATION, CLAMPING, CONDITIONAL."
+                )
+
         svg_layers = []
         for svg in svgs:
-            svg_path = self._resource_path / svg
+            svg_path = BLOCK_DIAGRAM_DIR / svg
             svg_layers.append(SvgLayer(svg_path.read_text(encoding="utf-8")))
 
         merged_svg = merge_svgs(svg_layers)
