@@ -1,8 +1,14 @@
 import re
+from dataclasses import dataclass
 from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtGui import QPixmap, QPainter, QIcon
 from PySide6.QtCore import QByteArray, Qt
 
+
+@dataclass
+class SvgLayer:
+    svg: str
+    translate: tuple[float, float] = (0, 0)
 
 
 def recolor_svg(svg_text: str, color_map: dict[str, str]) -> str:
@@ -11,22 +17,32 @@ def recolor_svg(svg_text: str, color_map: dict[str, str]) -> str:
     return svg_text
 
 
-def merge_svgs(svg_texts: list[str]) -> str:
-    if not svg_texts:
+def merge_svgs(layers: list[SvgLayer]) -> str:
+    if not layers:
         return ""
 
-    root_attrs = _extract_svg_root_attrs(svg_texts[0])
+    root_attrs = _extract_svg_root_attrs(layers[0].svg)
     if "xmlns" not in root_attrs:
         root_attrs = f'{root_attrs} xmlns="http://www.w3.org/2000/svg"'.strip()
 
-    merged_body = []
-    for idx, svg_text in enumerate(svg_texts):
+    merged_body: list[str] = []
+
+    for idx, layer in enumerate(layers):
         scoped_group_id = f"merged_svg_{idx}"
         defs_suffix = f"__m{idx}"
-        prepared = _prepare_svg_for_merge(svg_text, scoped_group_id, defs_suffix)
+
+        prepared = _prepare_svg_for_merge(layer.svg, scoped_group_id, defs_suffix)
         inner = _extract_svg_inner(prepared)
+
+        tx, ty = layer.translate
+        transform_attr = ""
+        if tx or ty:
+            transform_attr = f' transform="translate({tx},{ty})"'
+
         if inner:
-            merged_body.append(f'<g id="{scoped_group_id}">\n{inner}\n</g>')
+            merged_body.append(
+                f'<g id="{scoped_group_id}"{transform_attr}>\n{inner}\n</g>'
+            )
 
     return f"<svg {root_attrs}>\n" + "\n".join(merged_body) + "\n</svg>\n"
 

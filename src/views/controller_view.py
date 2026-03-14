@@ -5,7 +5,7 @@ from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit
 
 from app_domain.ui_context import UiContext
 from app_domain.controlsys import AntiWindup
-from utils import recolor_svg, merge_svgs
+from utils import recolor_svg, merge_svgs, SvgLayer
 from viewmodels import ControllerViewModel
 from app_types import ControllerField
 from .base_view import BaseView, FieldConfig, SectionConfig
@@ -159,11 +159,11 @@ class ControllerView(BaseView, QWidget):
     # -------------------------------------------------
     def _load_block_diagram(self) -> None:
         svgs = [*self._block_diagram_template, self._anti_windup_block_diagram.get(self._vm_controller.anti_windup)]
-        svg_texts = []
+        svg_layers = []
         for svg in svgs:
             svg_path = self._resource_path / svg
-            svg_texts.append(svg_path.read_text(encoding="utf-8"))
+            svg_layers.append(SvgLayer(svg_path.read_text(encoding="utf-8")))
 
-        merged_svg = merge_svgs(svg_texts)
+        merged_svg = merge_svgs(svg_layers)
         recolored = recolor_svg(merged_svg, self._vm_theme.get_svg_color_map())
         self._field_widgets.get(ControllerField.BLOCK_DIAGRAM).set_svg_bytes(recolored.encode("utf-8"))
