@@ -58,6 +58,8 @@ class Translation:
                 return QCoreApplication.translate("ControlEnums", "Clamping")
             case AntiWindup.CONDITIONAL:
                 return QCoreApplication.translate("ControlEnums", "Conditional")
+            case AntiWindup.BACKCALCULATION:
+                return QCoreApplication.translate("ControlEnums", "Backcalculation")
             case _:
                 raise NotImplementedError(f"No translation registered for enum type: {value}")
 
