@@ -1,6 +1,6 @@
 from functools import partial
 
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QTabWidget, QSizePolicy
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QTabWidget, QSizePolicy, QHBoxLayout
 from PySide6.QtCore import QT_TRANSLATE_NOOP
 from numpy import ndarray
 
@@ -11,6 +11,7 @@ from viewmodels import FunctionViewModel, PlotViewModel, SimulationViewModel
 from app_types import PlotData, PlotLabels
 from views import BaseView
 from views.plot_style import PLOT_STYLE
+from views.resources import Icons
 from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, ExpandableFrame, FunctionWidget
 
 
@@ -41,10 +42,22 @@ class SimulationView(BaseView, QWidget):
 
         main_layout = self._create_page_layout()
 
-        # Title
+        # Title row (icon + title)
+        icon = self._load_icon(Icons.simulation, self._titel_icon_size)
+        self._label_icon = QLabel(self)
+        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
+        self._label_icon.setFixedSize(self._titel_icon_size, self._titel_icon_size)
+
         self._lbl_title = QLabel(self)
         self._lbl_title.setObjectName("viewTitle")
-        main_layout.addWidget(self._lbl_title)
+
+        title_layout = QHBoxLayout()
+        title_layout.setContentsMargins(0, 0, 0, 0)
+        title_layout.setSpacing(10)
+        title_layout.addWidget(self._label_icon)
+        title_layout.addWidget(self._lbl_title)
+        title_layout.addStretch()
+        main_layout.addLayout(title_layout)
 
         self._frm_function = self._create_function_frame()
         main_layout.addWidget(self._frm_function, 0)
@@ -157,6 +170,13 @@ class SimulationView(BaseView, QWidget):
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
         self._on_vm_pso_simulation_finished()
+
+    # -------------------------------------------------
+    # Applied theme
+    # -------------------------------------------------
+    def _on_theme_applied(self) -> None:
+        icon = self._load_icon(Icons.simulation, self._titel_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
 
     # -------------------------------------------------
     # ViewModel change handlers

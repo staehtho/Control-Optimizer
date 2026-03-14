@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QTabWidget
+from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QTabWidget, QHBoxLayout
 from PySide6.QtCore import QT_TRANSLATE_NOOP
 from numpy import ndarray
 
@@ -12,8 +12,7 @@ from views import BaseView
 from views.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, ExpandableFrame, FormulaWidget, \
     BodePlotWidget, AspectRatioSvgWidget
-from views.resources import BLOCK_DIAGRAM_DIR, BlockDiagram
-
+from views.resources import BLOCK_DIAGRAM_DIR, BlockDiagram, Icons
 
 TIME_DOMAIN = "time_domain"
 FREQUENCY_DOMAIN = "frequency_domain"
@@ -46,10 +45,22 @@ class EvaluationView(BaseView, QWidget):
 
         main_layout = self._create_page_layout()
 
-        # Title
+        # Title row (icon + title)
+        icon = self._load_icon(Icons.evaluation, self._titel_icon_size)
+        self._label_icon = QLabel(self)
+        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
+        self._label_icon.setFixedSize(self._titel_icon_size, self._titel_icon_size)
+
         self._lbl_title = QLabel(self)
         self._lbl_title.setObjectName("viewTitle")
-        main_layout.addWidget(self._lbl_title)
+
+        title_layout = QHBoxLayout()
+        title_layout.setContentsMargins(0, 0, 0, 0)
+        title_layout.setSpacing(10)
+        title_layout.addWidget(self._label_icon)
+        title_layout.addWidget(self._lbl_title)
+        title_layout.addStretch()
+        main_layout.addLayout(title_layout)
 
         self._frm_cl = self._create_cl_frame()
         main_layout.addWidget(self._frm_cl, 0)
@@ -210,6 +221,13 @@ class EvaluationView(BaseView, QWidget):
 
         self._update_time_domain_plots()
         self._update_frequency_domain_plots()
+
+    # -------------------------------------------------
+    # Applied theme
+    # -------------------------------------------------
+    def _on_theme_applied(self) -> None:
+        icon = self._load_icon(Icons.evaluation, self._titel_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
 
     # -------------------------------------------------
     # ViewModel change handlers

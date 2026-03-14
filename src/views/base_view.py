@@ -1,15 +1,19 @@
 import logging
+from pathlib import Path
+
 from PySide6.QtWidgets import (
     QWidget, QLayout, QLabel, QComboBox, QGridLayout, QFrame, QVBoxLayout, QLineEdit, QCheckBox, QSpinBox,
     QDoubleSpinBox, QScrollArea, QApplication, QToolTip
 )
 from PySide6.QtCore import QPoint
-from PySide6.QtGui import QDoubleValidator, Qt
+from PySide6.QtGui import QDoubleValidator, Qt, QIcon
 from dataclasses import dataclass
 from typing import Type, Optional
 
 from app_domain.ui_context import UiContext
 from app_types import FieldType
+from utils import recolor_svg, svg_to_icon
+from views.resources import ICONS_DIR
 from views.translations import Translation
 
 
@@ -56,7 +60,8 @@ class BaseView:
 
         # Scale factor for rendering the LaTeX formula
         self._formula_font_size_scale = 1.5
-        self._title_size = 16
+
+        self._titel_icon_size = 50
 
         self._field_widgets = {}
         self._labels = {}
@@ -291,6 +296,12 @@ class BaseView:
     def _on_theme_applied(self) -> None:
         """Hook for subclasses that need non-QSS theme updates."""
         ...
+
+    def _load_icon(self, svg_path: str | Path, size: int = 24) -> QIcon:
+        svg_path = ICONS_DIR / svg_path
+        svg_text = svg_path.read_text(encoding="utf-8")
+        recolored = recolor_svg(svg_text, self._vm_theme.get_svg_color_map())
+        return svg_to_icon(recolored, size)
 
     def _on_validation_failed(self, field: FieldType, message: str) -> None:
         widget = self._field_widgets.get(field)

@@ -1,5 +1,5 @@
 from functools import partial
-from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit
+from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit, QHBoxLayout
 
 from app_domain.ui_context import UiContext
 from app_domain.controlsys import AntiWindup
@@ -8,8 +8,7 @@ from viewmodels import ControllerViewModel
 from app_types import ControllerField
 from .base_view import BaseView, FieldConfig, SectionConfig
 from views.widgets import ExpandableFrame, AspectRatioSvgWidget
-from views.resources import BLOCK_DIAGRAM_DIR, BlockDiagram
-
+from views.resources import BLOCK_DIAGRAM_DIR, BlockDiagram, Icons
 
 FIELDS: list[FieldConfig] = [
     SectionConfig(ControllerField.CONSTRAINT, [
@@ -37,9 +36,22 @@ class ControllerView(BaseView, QWidget):
         """Create and configure all UI components."""
         main_layout = self._create_page_layout()
 
+        # Title row (icon + title)
+        icon = self._load_icon(Icons.controller, self._titel_icon_size)
+        self._label_icon = QLabel(self)
+        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
+        self._label_icon.setFixedSize(self._titel_icon_size, self._titel_icon_size)
+
         self._lbl_title = QLabel(self)
         self._lbl_title.setObjectName("viewTitle")
-        main_layout.addWidget(self._lbl_title)
+
+        title_layout = QHBoxLayout()
+        title_layout.setContentsMargins(0, 0, 0, 0)
+        title_layout.setSpacing(10)
+        title_layout.addWidget(self._label_icon)
+        title_layout.addWidget(self._lbl_title)
+        title_layout.addStretch()
+        main_layout.addLayout(title_layout)
 
         self._frm_controller = self._create_controller_frame()
         main_layout.addWidget(self._frm_controller)
@@ -133,10 +145,13 @@ class ControllerView(BaseView, QWidget):
         self._field_widgets[ControllerField.CONSTRAINT_MAX].setText(f"{self._vm_controller.constraint_max}")
 
     # -------------------------------------------------
-    # ViewModel change handlers
+    # Applied theme
     # -------------------------------------------------
     def _on_theme_applied(self) -> None:
         self._load_block_diagram()
+
+        icon = self._load_icon(Icons.controller, self._titel_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
 
     # -------------------------------------------------
     # UI event handlers

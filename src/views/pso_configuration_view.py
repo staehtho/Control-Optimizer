@@ -1,6 +1,6 @@
 from functools import partial
 
-from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QComboBox, QPushButton, QProgressBar
+from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QComboBox, QPushButton, QProgressBar, QHBoxLayout
 from PySide6.QtCore import QObject, Qt
 
 from app_domain.ui_context import UiContext
@@ -9,7 +9,7 @@ from viewmodels import PlantViewModel, FunctionViewModel, PsoConfigurationViewMo
 from app_types import PsoField
 from .base_view import BaseView, FieldConfig, SectionConfig
 from views.widgets import ExpandableFrame, FormulaWidget
-
+from .resources import Icons
 
 FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
     "excitation_target": [
@@ -60,10 +60,22 @@ class PsoConfigurationView(BaseView, QWidget):
         """Create and configure all UI components."""
         main_layout = self._create_page_layout()
 
-        # Title
+        # Title row (icon + title)
+        icon = self._load_icon(Icons.pso_parameter, self._titel_icon_size)
+        self._label_icon = QLabel(self)
+        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
+        self._label_icon.setFixedSize(self._titel_icon_size, self._titel_icon_size)
+
         self._lbl_title = QLabel(self)
         self._lbl_title.setObjectName("viewTitle")
-        main_layout.addWidget(self._lbl_title)
+
+        title_layout = QHBoxLayout()
+        title_layout.setContentsMargins(0, 0, 0, 0)
+        title_layout.setSpacing(10)
+        title_layout.addWidget(self._label_icon)
+        title_layout.addWidget(self._lbl_title)
+        title_layout.addStretch()
+        main_layout.addLayout(title_layout)
 
         self._frm_plant = self._create_plant_frame()
         main_layout.addWidget(self._frm_plant)
@@ -278,6 +290,13 @@ class PsoConfigurationView(BaseView, QWidget):
                 self._field_widgets[key].setCurrentIndex(index)
 
         self._labels[PsoField.RUN_PSO].setEnabled(self._vm_plant.is_valid)
+
+    # -------------------------------------------------
+    # Applied theme
+    # -------------------------------------------------
+    def _on_theme_applied(self) -> None:
+        icon = self._load_icon(Icons.pso_parameter, self._titel_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
 
     # -------------------------------------------------
     # ViewModel change handlers

@@ -1,12 +1,13 @@
 from functools import partial
 
-from PySide6.QtWidgets import QWidget, QComboBox, QLineEdit, QFrame, QLabel, QGridLayout
+from PySide6.QtWidgets import QWidget, QComboBox, QLineEdit, QFrame, QLabel, QGridLayout, QHBoxLayout
 from PySide6.QtGui import QIntValidator
 
 from app_domain import UiContext
 from app_domain.controlsys import MySolver
 from app_types import SettingsField, LanguageType, ThemeType
 from .base_view import BaseView, FieldConfig, SectionConfig
+from .resources import Icons
 
 FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
     "language": [
@@ -50,10 +51,22 @@ class SettingsView(BaseView, QWidget):
         """Create and configure all UI components."""
         main_layout = self._create_page_layout()
 
-        # Title
+        # Title row (icon + title)
+        icon = self._load_icon(Icons.settings, self._titel_icon_size)
+        self._label_icon = QLabel(self)
+        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
+        self._label_icon.setFixedSize(self._titel_icon_size, self._titel_icon_size)
+
         self._lbl_title = QLabel(self)
         self._lbl_title.setObjectName("viewTitle")
-        main_layout.addWidget(self._lbl_title, 0)
+
+        title_layout = QHBoxLayout()
+        title_layout.setContentsMargins(0, 0, 0, 0)
+        title_layout.setSpacing(10)
+        title_layout.addWidget(self._label_icon)
+        title_layout.addWidget(self._lbl_title)
+        title_layout.addStretch()
+        main_layout.addLayout(title_layout)
 
         grid_layout = QGridLayout()
         grid_layout.setColumnStretch(0, 1)
@@ -162,8 +175,11 @@ class SettingsView(BaseView, QWidget):
                 self._field_widgets[key].setCurrentIndex(index)
 
     # -------------------------------------------------
-    # ViewModel change handlers
+    # Applied theme
     # -------------------------------------------------
+    def _on_theme_applied(self) -> None:
+        icon = self._load_icon(Icons.settings, self._titel_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
 
     # -------------------------------------------------
     # UI event handlers

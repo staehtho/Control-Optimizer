@@ -1,7 +1,7 @@
 from PySide6.QtCore import QObject
 from PySide6.QtCore import QRegularExpression, Qt, QT_TRANSLATE_NOOP
 from PySide6.QtGui import QRegularExpressionValidator
-from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QScrollArea, QSizePolicy
+from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QScrollArea, QSizePolicy, QHBoxLayout
 from numpy import ndarray
 
 from app_domain.ui_context import UiContext
@@ -10,6 +10,7 @@ from app_types import PlotData, PlantField, PlotLabels
 from .base_view import BaseView
 from views.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, ExpandableFrame, FormulaWidget
+from .resources import Icons
 
 
 class PlantView(BaseView, QWidget):
@@ -37,10 +38,22 @@ class PlantView(BaseView, QWidget):
 
         main_layout = self._create_page_layout()
 
-        # Title
+        # Title row (icon + title)
+        icon = self._load_icon(Icons.plant, self._titel_icon_size)
+        self._label_icon = QLabel(self)
+        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
+        self._label_icon.setFixedSize(self._titel_icon_size, self._titel_icon_size)
+
         self._lbl_title = QLabel(self)
         self._lbl_title.setObjectName("viewTitle")
-        main_layout.addWidget(self._lbl_title)
+
+        title_layout = QHBoxLayout()
+        title_layout.setContentsMargins(0, 0, 0, 0)
+        title_layout.setSpacing(10)
+        title_layout.addWidget(self._label_icon)
+        title_layout.addWidget(self._lbl_title)
+        title_layout.addStretch()
+        main_layout.addLayout(title_layout)
 
         self._frm_tf = self._create_transfer_function_frame()
         main_layout.addWidget(self._frm_tf, 0)
@@ -179,6 +192,13 @@ class PlantView(BaseView, QWidget):
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
         ...
+
+    # -------------------------------------------------
+    # Applied theme
+    # -------------------------------------------------
+    def _on_theme_applied(self) -> None:
+        icon = self._load_icon(Icons.plant, self._titel_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
 
     # -------------------------------------------------
     # ViewModel change handlers

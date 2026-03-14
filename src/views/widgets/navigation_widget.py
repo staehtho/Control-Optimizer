@@ -1,8 +1,6 @@
 from functools import partial
-from pathlib import Path
 
 from PySide6.QtCore import Qt, Signal, QSize, QPropertyAnimation
-from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -14,9 +12,8 @@ from PySide6.QtWidgets import (
 
 from app_domain.ui_context import UiContext
 from app_types import NavItem, NavLabels, ThemeType
-from utils import recolor_svg, svg_to_icon
 from views import BaseView
-from views.resources import ICONS_DIR, Icons
+from views.resources import Icons
 
 MENU_ICONS = {ThemeType.DARK: "menu_dark.svg", ThemeType.LIGHT: "menu_light.svg"}
 
@@ -199,12 +196,3 @@ class NavigationWidget(BaseView, QWidget):
     def is_nav_item_enabled(self, key: NavLabels) -> bool:
         btn = self._field_widgets.get(key)
         return btn.isEnabled() if btn else False
-
-    # -------------------------------------------------
-    # Internal helpers
-    # -------------------------------------------------
-    def _load_icon(self, svg_path: str | Path) -> QIcon:
-        svg_path = ICONS_DIR / svg_path
-        svg_text = svg_path.read_text(encoding="utf-8")
-        recolored = recolor_svg(svg_text, self._vm_theme.get_svg_color_map())
-        return svg_to_icon(recolored, 24)
