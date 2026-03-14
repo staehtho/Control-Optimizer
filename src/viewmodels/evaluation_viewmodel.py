@@ -7,7 +7,7 @@ from service import SimulationService
 from app_types import (
     PlantResponseContext, ClosedLoopResponseContext, PsoResult, PlantTransferContext, ControllerTransferContext
 )
-from app_domain.controlsys import ExcitationTarget
+from app_domain.controlsys import ExcitationTarget, AntiWindup
 from app_domain.functions import NullFunction, BaseFunction
 from models import SettingsModel, PsoSimulationSnapshot
 from utils import LoggedProperty
@@ -67,6 +67,12 @@ class EvaluationViewModel(BaseViewModel):
     excitation_target = LoggedProperty(
         path="_pso_snapshot.excitation_target",
         typ=ExcitationTarget,
+        read_only=True
+    )
+
+    anti_windup = LoggedProperty(
+        path="_pso_snapshot.controller_anti_windup",
+        typ=AntiWindup,
         read_only=True
     )
 
