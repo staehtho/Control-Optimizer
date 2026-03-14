@@ -264,37 +264,37 @@
 <context>
     <name>ControllerView</name>
     <message>
-        <location filename="../views/controller_view.py" line="108"/>
+        <location filename="../views/controller_view.py" line="109"/>
         <source>Controller</source>
         <translation>Regler</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="109"/>
+        <location filename="../views/controller_view.py" line="110"/>
         <source>Parameters</source>
         <translation>Parameter</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="112"/>
+        <location filename="../views/controller_view.py" line="113"/>
         <source>Controller Type</source>
         <translation>Reglertyp</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="113"/>
+        <location filename="../views/controller_view.py" line="114"/>
         <source>Anti Windup</source>
         <translation>Windup</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="114"/>
+        <location filename="../views/controller_view.py" line="115"/>
         <source>Constraint</source>
         <translation>Begrenzung</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="115"/>
+        <location filename="../views/controller_view.py" line="116"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="116"/>
+        <location filename="../views/controller_view.py" line="117"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
@@ -570,29 +570,29 @@ Beispiel: 1, 0.5, 2 → 1·s² + 0,5·s + 2</translation>
 <context>
     <name>PlotWidget</name>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="179"/>
+        <location filename="../views/widgets/plot_widget.py" line="192"/>
         <source>plot.grid</source>
         <translation>Grid</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="180"/>
+        <location filename="../views/widgets/plot_widget.py" line="193"/>
         <source>plot.start</source>
         <translation>Startzeit</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="181"/>
+        <location filename="../views/widgets/plot_widget.py" line="194"/>
         <source>plot.end</source>
         <translation>Endzeit</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="182"/>
+        <location filename="../views/widgets/plot_widget.py" line="195"/>
         <source>plot.start.tooltip</source>
         <translation>Untere Grenze der x-Achse (x_min).
 Legt fest, wo die Zeitachse beginnt.
 Einheit: Sekunden (s).</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="183"/>
+        <location filename="../views/widgets/plot_widget.py" line="196"/>
         <source>plot.end.tooltip</source>
         <translation>Obere Grenze der x-Achse (x_max).
 Legt fest, wo die Zeitachse endet.
