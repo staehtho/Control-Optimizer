@@ -269,37 +269,37 @@
 <context>
     <name>ControllerView</name>
     <message>
-        <location filename="../views/controller_view.py" line="109"/>
+        <location filename="../views/controller_view.py" line="102"/>
         <source>Controller</source>
         <translation>Controller</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="110"/>
+        <location filename="../views/controller_view.py" line="103"/>
         <source>Parameters</source>
         <translation>Parameters</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="113"/>
+        <location filename="../views/controller_view.py" line="106"/>
         <source>Controller Type</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="114"/>
+        <location filename="../views/controller_view.py" line="107"/>
         <source>Anti Windup</source>
         <translation>Anti Windup</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="115"/>
+        <location filename="../views/controller_view.py" line="108"/>
         <source>Constraint</source>
         <translation>Constraint</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="116"/>
+        <location filename="../views/controller_view.py" line="109"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="117"/>
+        <location filename="../views/controller_view.py" line="110"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
@@ -328,38 +328,43 @@
 <context>
     <name>EvaluationView</name>
     <message>
-        <location filename="../views/evaluation_view.py" line="109"/>
-        <location filename="../views/evaluation_view.py" line="157"/>
-        <location filename="../views/evaluation_view.py" line="158"/>
+        <location filename="../views/evaluation_view.py" line="118"/>
+        <location filename="../views/evaluation_view.py" line="196"/>
+        <location filename="../views/evaluation_view.py" line="197"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="96"/>
-        <location filename="../views/evaluation_view.py" line="101"/>
+        <location filename="../views/evaluation_view.py" line="105"/>
+        <location filename="../views/evaluation_view.py" line="110"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="97"/>
-        <location filename="../views/evaluation_view.py" line="102"/>
+        <location filename="../views/evaluation_view.py" line="106"/>
+        <location filename="../views/evaluation_view.py" line="111"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="156"/>
+        <location filename="../views/evaluation_view.py" line="195"/>
         <source>Evaluation</source>
         <translation>Evaluation</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="161"/>
+        <location filename="../views/evaluation_view.py" line="200"/>
         <source>Time Domain</source>
         <translation>Time Domain</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="162"/>
+        <location filename="../views/evaluation_view.py" line="201"/>
         <source>Frequency Domain</source>
         <translation>Frequency Domain</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="202"/>
+        <source>Block Diagram</source>
+        <translation>Block Diagram</translation>
     </message>
     <message>
         <source>Excitation Function</source>

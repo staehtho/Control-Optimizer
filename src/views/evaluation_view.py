@@ -2,17 +2,22 @@ from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QTabWidget
 from PySide6.QtCore import QT_TRANSLATE_NOOP
 from numpy import ndarray
 
+from app_domain.controlsys import AntiWindup
 from app_types import FrequencyResponse
 from app_domain.ui_context import UiContext
+from utils import SvgLayer, merge_svgs, recolor_svg
 from viewmodels import EvaluationViewModel, PlotViewModel
 from app_types import PlotData, BodePlotData, PlotLabels
 from views import BaseView
 from views.plot_style import PLOT_STYLE
-from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, ExpandableFrame, FormulaWidget, BodePlotWidget
+from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, ExpandableFrame, FormulaWidget, \
+    BodePlotWidget, AspectRatioSvgWidget
+from views.resources import BLOCK_DIAGRAM_DIR, BlockDiagram
 
 
 TIME_DOMAIN = "time_domain"
 FREQUENCY_DOMAIN = "frequency_domain"
+BLOCK_DIAGRAM = "block_diagram"
 
 class EvaluationView(BaseView, QWidget):
     def __init__(
@@ -87,6 +92,10 @@ class EvaluationView(BaseView, QWidget):
         self._plot_tab_pages.setdefault(FREQUENCY_DOMAIN, widget_frequency_domain)
         self._plot_tab.addTab(widget_frequency_domain, FREQUENCY_DOMAIN)
 
+        widget_blockdiagram = self._create_block_diagram_widget()
+        self._plot_tab_pages.setdefault(BLOCK_DIAGRAM, widget_blockdiagram)
+        self._plot_tab.addTab(widget_blockdiagram, BLOCK_DIAGRAM)
+
         return frame
 
     def _create_time_domain_widget(self) -> QWidget:
@@ -121,6 +130,36 @@ class EvaluationView(BaseView, QWidget):
         widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         return widget
+
+    def _create_block_diagram_widget(self) -> QWidget:
+        svgs = [
+            (BlockDiagram.closed_loop, (0, 0)),
+            (BlockDiagram.controller_base, (100, 0)),
+            (BlockDiagram.p_path, (100, 0)),
+            (BlockDiagram.d_path, (100, 0))
+        ]
+
+        match self._vm_evaluator.anti_windup:
+            case AntiWindup.BACKCALCULATION:
+                svgs.append((BlockDiagram.backcalculation, (100, 0)))
+            case AntiWindup.CLAMPING:
+                svgs.append((BlockDiagram.clamping, (100, 0)))
+            case AntiWindup.CONDITIONAL:
+                svgs.append((BlockDiagram.conditional, (100, 0)))
+            case unknown_value:
+                raise ValueError(
+                    f"Unsupported anti-windup method: {unknown_value!r}. "
+                    "Expected one of: BACKCALCULATION, CLAMPING, CONDITIONAL."
+                )
+
+        svg_layers = []
+        for svg, translate in svgs:
+            svg_path = BLOCK_DIAGRAM_DIR / svg
+            svg_layers.append(SvgLayer(svg_path.read_text(encoding="utf-8"), translate=translate))
+
+        merged_svg = merge_svgs(svg_layers)
+        recolored = recolor_svg(merged_svg, self._vm_theme.get_svg_color_map())
+        return AspectRatioSvgWidget(svg_bytes=recolored.encode("utf-8"), initial_scale=2)
 
     # -------------------------------------------------
     # Signal / ViewModel Binding
@@ -160,6 +199,7 @@ class EvaluationView(BaseView, QWidget):
         # translate pages
         self._plot_tab.setTabText(0, self.tr("Time Domain"))
         self._plot_tab.setTabText(1, self.tr("Frequency Domain"))
+        self._plot_tab.setTabText(2, self.tr("Block Diagram"))
 
     # -------------------------------------------------
     # Apply initial values

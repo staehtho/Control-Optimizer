@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="600" viewBox="0 0 800 300">
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="600" viewBox="-25 0 900 300">
 
     <style>
         .fill { fill:#000000 }
@@ -18,7 +18,7 @@
     <path class="line" d="M0 125 H90" />
 
     <!-- sum -->
-    <g transform="translate(100 125)">
+    <g transform="translate(95 125)">
         <circle class="block" cx="0" cy="0" r="5"/>
         <use href="#arrow" transform="translate(-5 0)"/>
         <use href="#arrow" transform="translate(0 5) rotate(-90 0 0)"/>
@@ -26,14 +26,14 @@
     </g>
 
     <!-- Plant -->
-    <g transform="translate(550 125)">
+    <g transform="translate(650 125)">
         <rect class="block" height="50" width="100" x="0" y="-25"/>
-        <text class="text" x="50" y="0" >G(s)</text>
+        <text class="text" x="50" y="5">G(s)</text>
     </g>
 
     <!-- Output -->
-    <path class="line" d="M650 125 H745 M700 125 V250 H100 V135" />
-    <use href="#arrow" transform="translate(750 125)"/>
+    <path class="line" d="M750 125 H845 M800 125 V275 H95 V135"/>
+    <use href="#arrow" transform="translate(850 125)"/>
     <!-- Node -->
-    <circle class="fill" cx="700" cy="125" r="4"/>
+    <circle class="fill" cx="800" cy="125" r="4"/>
 </svg>
