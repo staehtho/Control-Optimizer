@@ -11,6 +11,9 @@ from views.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, ExpandableFrame, FormulaWidget, BodePlotWidget
 
 
+TIME_DOMAIN = "time_domain"
+FREQUENCY_DOMAIN = "frequency_domain"
+
 class EvaluationView(BaseView, QWidget):
     def __init__(
             self,
@@ -77,12 +80,12 @@ class EvaluationView(BaseView, QWidget):
         frame_layout.addWidget(self._plot_tab)
 
         widget_time_domain = self._create_time_domain_widget()
-        self._plot_tab_pages.setdefault("time_domain", widget_time_domain)
-        self._plot_tab.addTab(widget_time_domain, "time_domain")
+        self._plot_tab_pages.setdefault(TIME_DOMAIN, widget_time_domain)
+        self._plot_tab.addTab(widget_time_domain, TIME_DOMAIN)
 
         widget_frequency_domain = self._create_frequency_domain_widget()
-        self._plot_tab_pages.setdefault("frequency_domain", widget_frequency_domain)
-        self._plot_tab.addTab(widget_frequency_domain, "frequency_domain")
+        self._plot_tab_pages.setdefault(FREQUENCY_DOMAIN, widget_frequency_domain)
+        self._plot_tab.addTab(widget_frequency_domain, FREQUENCY_DOMAIN)
 
         return frame
 
@@ -108,13 +111,13 @@ class EvaluationView(BaseView, QWidget):
             subplot_configuration=subplot_cfgs,
         )
 
-        widget = PlotWidget(self._ui_context, self._vm_plots.get("time_domain"), cl_plot_cfg, parent=self._plot_tab)
+        widget = PlotWidget(self._ui_context, self._vm_plots.get(TIME_DOMAIN), cl_plot_cfg, parent=self._plot_tab)
         widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         return widget
 
     def _create_frequency_domain_widget(self) -> QWidget:
-        widget = BodePlotWidget(self._ui_context, self._vm_plots.get("frequency_domain"), parent=self._plot_tab)
+        widget = BodePlotWidget(self._ui_context, self._vm_plots.get(FREQUENCY_DOMAIN), parent=self._plot_tab)
         widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         return widget
@@ -140,10 +143,10 @@ class EvaluationView(BaseView, QWidget):
         self._vm_evaluator.closedLoopFrequencyResponseChanged.connect(self._on_vm_frequency_computation_finished)
 
         # Plot ViewModel -> Function recomputation
-        self._vm_plots.get("time_domain").xMinChanged.connect(self._on_vm_time_changed)
-        self._vm_plots.get("time_domain").xMaxChanged.connect(self._on_vm_time_changed)
-        self._vm_plots.get("frequency_domain").xMinChanged.connect(self._on_vm_frequency_changed)
-        self._vm_plots.get("frequency_domain").xMaxChanged.connect(self._on_vm_frequency_changed)
+        self._vm_plots.get(TIME_DOMAIN).xMinChanged.connect(self._on_vm_time_changed)
+        self._vm_plots.get(TIME_DOMAIN).xMaxChanged.connect(self._on_vm_time_changed)
+        self._vm_plots.get(FREQUENCY_DOMAIN).xMinChanged.connect(self._on_vm_frequency_changed)
+        self._vm_plots.get(FREQUENCY_DOMAIN).xMaxChanged.connect(self._on_vm_frequency_changed)
 
     # -------------------------------------------------
     # Translation
@@ -179,7 +182,7 @@ class EvaluationView(BaseView, QWidget):
 
         key = self._vm_evaluator.excitation_target.name
 
-        self._vm_plots.get("time_domain").update_data(
+        self._vm_plots.get(TIME_DOMAIN).update_data(
             PlotData(
                 key=PlotLabels[key].value,
                 label=self._enum_translation(PlotLabels[key]),
@@ -195,7 +198,7 @@ class EvaluationView(BaseView, QWidget):
             "Closed-loop response computation finished -> updating response plot (samples=%d)",
             len(t),
         )
-        self._vm_plots.get("time_domain").update_data(
+        self._vm_plots.get(TIME_DOMAIN).update_data(
             PlotData(
                 key=PlotLabels.CLOSED_LOOP.value,
                 label=self._enum_translation(PlotLabels.CLOSED_LOOP),
@@ -206,7 +209,7 @@ class EvaluationView(BaseView, QWidget):
             )
         )
 
-        self._vm_plots.get("time_domain").update_data(
+        self._vm_plots.get(TIME_DOMAIN).update_data(
             PlotData(
                 key=PlotLabels.CONTROL_SIGNAL.value,
                 label=self._enum_translation(PlotLabels.CONTROL_SIGNAL),
@@ -222,7 +225,7 @@ class EvaluationView(BaseView, QWidget):
             "Plant response computation finished -> updating response plot (samples=%d)",
             len(t),
         )
-        self._vm_plots.get("time_domain").update_data(
+        self._vm_plots.get(TIME_DOMAIN).update_data(
             PlotData(
                 key=PlotLabels.PLANT.value,
                 label=self._enum_translation(PlotLabels.PLANT),
@@ -246,7 +249,7 @@ class EvaluationView(BaseView, QWidget):
                 label_enum = PlotLabels[key]
             else:
                 label_enum = PlotLabels(key)
-            self._vm_plots.get("frequency_domain").update_data(
+            self._vm_plots.get(FREQUENCY_DOMAIN).update_data(
                 BodePlotData(
                     key=label_enum.value,
                     label=self._enum_translation(label_enum),
@@ -269,16 +272,16 @@ class EvaluationView(BaseView, QWidget):
 
     def _on_vm_time_changed(self) -> None:
         """Trigger recomputation when plot time range changes."""
-        t0 = self._vm_plots.get("time_domain").x_min
-        t1 = self._vm_plots.get("time_domain").x_max
+        t0 = self._vm_plots.get(TIME_DOMAIN).x_min
+        t1 = self._vm_plots.get(TIME_DOMAIN).x_max
 
         self._logger.debug(f"Time range changed: t0={t0}, t1={t1}")
         self._update_time_domain_plots()
 
     def _on_vm_frequency_changed(self) -> None:
         """Trigger recomputation when plot time range changes."""
-        omega_min = self._vm_plots.get("frequency_domain").x_min
-        omega_max = self._vm_plots.get("frequency_domain").x_max
+        omega_min = self._vm_plots.get(FREQUENCY_DOMAIN).x_min
+        omega_max = self._vm_plots.get(FREQUENCY_DOMAIN).x_max
 
         self._logger.debug(f"Frequency range changed: {omega_min=}, {omega_max=}")
         self._update_frequency_domain_plots()
@@ -288,23 +291,23 @@ class EvaluationView(BaseView, QWidget):
     # -------------------------------------------------
     def _sync_plot_time_window_from_model(self) -> None:
         """Sync plot time range from persisted evaluator state via evaluator VM."""
-        self._vm_plots.get("time_domain").x_min = self._vm_evaluator.t0
-        self._vm_plots.get("time_domain").x_max = self._vm_evaluator.t1
+        self._vm_plots.get(TIME_DOMAIN).x_min = self._vm_evaluator.t0
+        self._vm_plots.get(TIME_DOMAIN).x_max = self._vm_evaluator.t1
 
     # -------------------------------------------------
     # Helpers
     # -------------------------------------------------
     def _update_time_domain_plots(self) -> None:
-        t0 = self._vm_plots.get("time_domain").x_min
-        t1 = self._vm_plots.get("time_domain").x_max
+        t0 = self._vm_plots.get(TIME_DOMAIN).x_min
+        t1 = self._vm_plots.get(TIME_DOMAIN).x_max
 
         self._vm_evaluator.compute_closed_loop_response(t0, t1)
         self._vm_evaluator.compute_plant_response(t0, t1)
         self._vm_evaluator.compute_function(t0, t1)
 
     def _update_frequency_domain_plots(self) -> None:
-        omega_min = self._vm_plots.get("frequency_domain").x_min
-        omega_max = self._vm_plots.get("frequency_domain").x_max
+        omega_min = self._vm_plots.get(FREQUENCY_DOMAIN).x_min
+        omega_max = self._vm_plots.get(FREQUENCY_DOMAIN).x_max
 
         self._vm_evaluator.compute_plant_frequency_response(omega_min, omega_max)
         self._vm_evaluator.compute_closed_loop_frequency_response(omega_max, omega_min)
