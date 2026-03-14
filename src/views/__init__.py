@@ -1,2 +1,3 @@
-from .baseView import BaseView
-from .plantView import PlantView
+from .base_view import BaseView
+
+__all__ = ["BaseView"]

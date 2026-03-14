@@ -1,0 +1,218 @@
+import logging
+
+from app_types import PlantResponseContext, PsoSimulationParam
+from app_domain.controlsys import MySolver, AntiWindup, ExcitationTarget, PerformanceIndex
+from app_domain.functions import StepFunction
+from models import ModelContainer
+from service import SimulationService
+from .ui_context import UiContext
+from viewmodels import (
+    PlantViewModel, LanguageViewModel, ThemeViewModel, PlotViewModel, FunctionViewModel, SettingsViewModel,
+    ControllerViewModel, PsoConfigurationViewModel, EvaluationViewModel, SimulationViewModel, BodePlotViewModel
+)
+
+
+class AppEngine:
+    """Main application engine that initializes domain services and ViewModels.
+
+    Responsibilities:
+        - Initialize logging
+        - Initialize simulation services
+        - Perform PSO warmup
+        - Instantiate ViewModels and model containers
+    """
+
+    def __init__(self, run_warmup: bool = True, warmup_runs: int = 2):
+        """Initialize the application engine."""
+        # ------------------------------
+        # Logger
+        # ------------------------------
+        self.logger = logging.getLogger(f"AppEngine.{self.__class__.__name__}")
+        self.logger.info("Starting new Application Engine.")
+
+        # ------------------------------
+        # Simulation services
+        # ------------------------------
+        self.simulation_service = SimulationService()
+
+        # ------------------------------
+        # Warmup
+        # ------------------------------
+        if run_warmup:
+            self.run_warmup(warmup_runs)
+
+        # ------------------------------
+        # Model containers
+        # ------------------------------
+        self.model_container = ModelContainer()
+
+        # ------------------------------
+        # ViewModels
+        # ------------------------------
+        # Cache for PlotViewModel instances keyed by plot type.
+        self._vm_plots: dict[str, PlotViewModel] = {}
+        # Cache for BodePlotViewModel instances keyed by plot type.
+        self._vm_bode_plots: dict[str, BodePlotViewModel] = {}
+        # Cache for FunctionViewModel instances keyed by plot type.
+        self._vm_functions: dict[str, FunctionViewModel] = {}
+
+        # Language ViewModel (e.g., for translations)
+        self.vm_lang = LanguageViewModel(self.model_container.model_settings)
+        # Theme ViewModel (e.g., for UI styles)
+        self.vm_theme = ThemeViewModel(self.model_container.model_settings)
+
+        # Plant
+        self.vm_plant = PlantViewModel(self.model_container, self.simulation_service)
+
+        # Controller ViewModel
+        self.vm_controller = ControllerViewModel(self.model_container.model_controller)
+
+        # PSO configuration ViewModel
+        self.vm_pso = PsoConfigurationViewModel(self.model_container, self.simulation_service)
+
+        # Evaluation ViewModel
+        self.vm_evaluator = EvaluationViewModel(self.model_container.model_settings, self.vm_pso,
+                                                self.simulation_service)
+
+        # Simulation ViewModel
+        model_functions = {i.name: self.model_container.ensure_function_model(i.name) for i in ExcitationTarget}
+        self.vm_simulation = SimulationViewModel(
+            model_functions, self.model_container.model_settings, self.vm_pso, self.simulation_service
+        )
+
+        self.vm_settings = SettingsViewModel(self.model_container.model_settings)
+
+        self.ui_context = UiContext(
+            settings=self.vm_settings,
+            vm_lang=self.vm_lang,
+            vm_theme=self.vm_theme,
+        )
+
+        self.logger.info("Application Engine initialization completed.")
+
+    def ensure_plot_viewmodel(self, key: str) -> PlotViewModel:
+        """
+        Ensure a PlotViewModel exists for the given key, creating and caching it if necessary.
+
+        Implements a lazy-initializing factory with caching:
+        - Returns the existing PlotViewModel if present.
+        - Otherwise, creates, caches, and returns a new PlotViewModel.
+
+        Args:
+            key (str): Identifier for the plot (e.g., "plant", "function").
+
+        Returns:
+            PlotViewModel: The cached or newly created PlotViewModel instance.
+        """
+        return self._vm_plots.setdefault(key, PlotViewModel())
+
+    def ensure_bode_plot_viewmodel(self, key: str) -> BodePlotViewModel:
+        """
+        Ensure a BodePlotViewModel exists for the given key, creating and caching it if necessary.
+
+        Implements a lazy-initializing factory with caching:
+        - Returns the existing BodePlotViewModel if present.
+        - Otherwise, creates, caches, and returns a new BodePlotViewModel.
+
+        Args:
+            key (str): Identifier for the plot (e.g., "plant").
+
+        Returns:
+            BodePlotViewModel: The cached or newly created BodePlotViewModel instance.
+        """
+        return self._vm_bode_plots.setdefault(key, BodePlotViewModel())
+
+    def ensure_function_viewmodel(self, key: str) -> FunctionViewModel:
+        """
+        Ensure a FunctionViewModel exists for the given key, creating and caching it if necessary.
+
+        Implements a lazy-initializing factory with caching:
+        - Returns the existing FunctionViewModel if present.
+        - Otherwise, creates, caches, and returns a new FunctionViewModel.
+
+        Args:
+            key (str): Identifier for the function (e.g., "plant", "function").
+
+        Returns:
+            FunctionViewModel: The cached or newly created FunctionViewModel instance.
+        """
+        return self._vm_functions.setdefault(
+            key, FunctionViewModel(self.model_container.ensure_function_model(key), self.simulation_service)
+        )
+
+    # ------------------------------
+    # Step Response Warmup Method
+    # ------------------------------
+    def step_response_warmup(self):
+        """Perform a minimal step response to warm up the engine.
+
+        This pre-compiles any JIT functions, initializes caches, and
+        triggers one-time setup in the step response engine for faster subsequent runs.
+        """
+        import numpy as np
+        self.logger.info("Starting step response engine warmup.")
+
+        context = PlantResponseContext(
+            num=[1],
+            den=[1, 2, 1],
+            t0=0,
+            t1=10,
+            solver=MySolver.RK4,
+            reference=lambda t: np.where(t >= 0, 1.0, 0.0),
+        )
+
+        # Run warmup simulation asynchronously
+        self.simulation_service.compute_plant_response(context, callback=lambda t, y: self.logger.info(
+            "Step response warmup completed successfully."))
+
+    # ------------------------------
+    # PSO Warmup Method
+    # ------------------------------
+    def pso_warmup(self):
+        """Perform a minimal PSO simulation to warm up the engine.
+
+        This pre-compiles any JIT functions, initializes caches, and
+        triggers one-time setup in the PSO engine for faster subsequent runs.
+        """
+
+        # Minimal PSO parameters for warmup
+        pso_param = PsoSimulationParam(
+            num=[1],
+            den=[1, 2, 1],
+            t0=0,
+            t1=10,
+            dt=1e-4,
+            solver=MySolver.RK4,
+            anti_windup=AntiWindup.CLAMPING,
+            constraint=(-5, 5),
+            excitation_target=ExcitationTarget.REFERENCE,
+            function=StepFunction(),
+            performance_index=PerformanceIndex.ITAE,
+            kp=(0, 10),
+            ti=(1e-9, 10),
+            td=(0, 10),
+            swarm_size=40,
+            pso_iteration=1  # only one iteration for warmup
+        )
+
+        self.logger.info("Starting PSO engine warmup.")
+
+        # Run warmup simulation asynchronously
+        self.simulation_service.run_pso_simulation(
+            pso_param,
+            callback=lambda result: self.logger.info("PSO warmup completed successfully."),
+            progress_callback=lambda iteration: self.logger.debug(
+                "PSO warmup iteration %d completed.", iteration
+            )
+        )
+
+    def run_warmup(self, runs: int = 2) -> None:
+        """Run PSO warmup multiple times to prime caches/JIT."""
+        for _ in range(max(0, runs)):
+            self.pso_warmup()
+
+    def shutdown(self) -> None:
+        """Stop background workers before the application exits."""
+        self.logger.info("Shutting down AppEngine.")
+        self.simulation_service.shutdown()
+

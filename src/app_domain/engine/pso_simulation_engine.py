@@ -1,0 +1,192 @@
+from typing import Callable, Tuple
+import logging
+import numpy as np
+import sys
+import time
+
+from app_domain.controlsys import ExcitationTarget, Plant, PIDClosedLoop, PsoFunc, smallest_root_realpart
+from app_domain.PSO import Swarm
+from app_types import PsoResult, PsoSimulationParam
+
+
+class PsoSimulationEngine:
+    """Domain-layer engine for PSO-based PID optimization."""
+
+    def __init__(self):
+        self._logger = logging.getLogger(f"{self.__class__.__name__}.{id(self)}")
+        self._logger.debug("PsoSimulationEngine initialized.")
+
+        self._total_duration = 0.0
+
+        self._best_kp = 0.0
+        self._best_ti = 0.0
+        self._best_td = 0.0
+
+    # ==========================================================
+    # Public API
+    # ==========================================================
+
+    def run_simulation(self, param: PsoSimulationParam, callback: Callable[[int], None]) -> PsoResult:
+        """Run full PSO optimization workflow."""
+
+        self._logger.info("Starting PSO simulation.")
+
+        pid_cl, tf = self._create_controller(param)
+        r, l, n = self._configure_excitation(param)
+
+        objective = PsoFunc(
+            controller=pid_cl,
+            t0=param.t0,
+            t1=param.t1,
+            dt=param.dt,
+            r=r,
+            l=l,
+            n=n,
+            solver=param.solver,
+            performance_index=param.performance_index,
+            swarm_size=param.swarm_size,
+            pre_compiling=False
+        )
+
+        bounds = self._extract_bounds(param)
+
+        self._run_pso(param, objective, bounds, callback)
+
+        self._logger.info("PSO simulation finished.")
+
+        return PsoResult(
+            simulation_time=self._total_duration,
+            kp=self._best_kp,
+            ti=self._best_ti,
+            td=self._best_td,
+            tf=tf,
+            t0=param.t0,
+            t1=param.t1
+        )
+
+    # ==========================================================
+    # Controller Setup
+    # ==========================================================
+
+    def _create_controller(self, param: PsoSimulationParam) -> Tuple[PIDClosedLoop, float]:
+        """Create plant, PID controller, and set filter time constant."""
+
+        plant = Plant(param.num, param.den)
+
+        pid_cl = PIDClosedLoop(
+            plant,
+            Kp=10,
+            Ti=1,
+            Td=1,
+            control_constraint=list(param.constraint),
+            anti_windup_method=param.anti_windup
+        )
+
+        # Determine dominant pole
+        p_dom = smallest_root_realpart(plant.den)
+
+        if p_dom >= 0:
+            tf = 0.01
+        else:
+            t_dom = 1 / abs(p_dom)
+            tf = t_dom / 100
+
+        pid_cl.set_filter(Tf=tf)
+
+        self._logger.debug("Controller created with Tf=%f", tf)
+
+        return pid_cl, tf
+
+    # ==========================================================
+    # Excitation
+    # ==========================================================
+
+    def _configure_excitation(self, param: PsoSimulationParam) -> tuple[Callable, Callable, Callable]:
+        """Configure excitation signals (r, l, n)."""
+
+        r = lambda t: np.zeros_like(t)
+        l = lambda t: np.zeros_like(t)
+        n = lambda t: np.zeros_like(t)
+
+        match param.excitation_target:
+            case ExcitationTarget.REFERENCE:
+                r = param.function.get_function()
+            case ExcitationTarget.INPUT_DISTURBANCE:
+                l = param.function.get_function()
+            case ExcitationTarget.MEASUREMENT_DISTURBANCE:
+                n = param.function.get_function()
+
+        self._logger.debug("Excitation configured: %s", param.excitation_target)
+
+        return r, l, n
+
+    # ==========================================================
+    # Bounds
+    # ==========================================================
+
+    def _extract_bounds(self, param: PsoSimulationParam):
+        """Extract parameter bounds for PSO."""
+
+        kp_min, kp_max = param.kp
+        ti_min, ti_max = param.ti
+        td_min, td_max = param.td
+
+        bounds = [
+            [kp_min, ti_min, td_min],
+            [kp_max, ti_max, td_max]
+        ]
+
+        self._logger.debug("Bounds extracted: %s", bounds)
+
+        return bounds
+
+    # ==========================================================
+    # PSO Execution
+    # ==========================================================
+
+    def _run_pso(self, param: PsoSimulationParam, objective: PsoFunc, bounds, callback: Callable[[int], None]) -> None:
+        """Execute PSO optimization loop."""
+
+        self._total_duration = 0.0
+
+        self._best_kp = 0.0
+        self._best_ti = 0.0
+        self._best_td = 0.0
+        best_cost = sys.float_info.max
+
+        total_start = time.perf_counter()
+
+        for iteration in range(param.pso_iteration):
+
+            iter_start = time.perf_counter()
+
+            swarm = Swarm(
+                objective,
+                param.swarm_size,
+                3,
+                bounds
+            )
+
+            result, cost = swarm.simulate_swarm()
+            kp, ti, td = result
+
+            if cost < best_cost:
+                best_cost = cost
+                self._best_kp, self._best_ti, self._best_td = kp, ti, td
+
+            duration = time.perf_counter() - iter_start
+
+            self._logger.info(
+                "Iteration %d | duration=%.4fs | J=%.6f | best_J=%.6f",
+                iteration + 1, duration, cost, best_cost
+            )
+
+            callback(iteration + 1)
+
+        self._total_duration = time.perf_counter() - total_start
+
+        self._logger.info(
+            "PSO finished | total_duration=%.4fs | best_J=%.6f",
+            self._total_duration, best_cost
+        )
+

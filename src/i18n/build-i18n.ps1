@@ -38,8 +38,11 @@ catch {
 # -----------------------------
 # Extract languages
 # -----------------------------
-$languages = $config.languages.PSObject.Properties.Name
+$languages = $config.languages
 Write-Host "Languages: $($languages -join ', ')"
+
+# Base file name
+$baseFileName = $config.base_file_name
 
 # -----------------------------
 # Virtual environment
@@ -59,8 +62,8 @@ if (Test-Path $venvActivate) {
 Write-Host "Checking for obsolete i18n files..."
 $validFiles = @()
 foreach ($lang in $languages) {
-    $validFiles += (Split-Path $config.languages.$lang.ts -Leaf)
-    $validFiles += (Split-Path $config.languages.$lang.qm -Leaf)
+    $validFiles += (Split-Path ($baseFileName + $lang + ".ts") -Leaf)
+    $validFiles += (Split-Path ($baseFileName + $lang + ".qm") -Leaf)
 }
 
 $i18nDir = Join-Path $projectRoot "Control_Optimizer\src\i18n"
@@ -77,9 +80,17 @@ ForEach-Object {
 # -----------------------------
 # Gather all relevant Python files
 # -----------------------------
-$includeDirs = @("app_engine", "models", "resources", "services", "utils", "viewmodels", "views")
 $sourceFiles = Get-ChildItem -Path (Join-Path $projectRoot "Control_Optimizer\src") -Recurse -Include *.py |
-    Where-Object { $includeDirs -contains $_.Directory.Name } |
+        Where-Object {
+            $filePath = $_.FullName.ToLower()
+            $includeDirs | ForEach-Object {
+                if ($filePath -like "*$_*")
+                {
+                    return $true
+                }
+            }
+            $false
+        } |
     ForEach-Object { $_.FullName }
 
 $sourceFiles += Join-Path $projectRoot "Control_Optimizer\src\main.py"
@@ -91,9 +102,8 @@ Write-Host "Found $($sourceFiles.Count) Python files to scan for translation"
 # -----------------------------
 foreach ($lang in $languages) {
 
-    $langCfg = $config.languages.$lang
-    $tsFile = Join-Path $i18nDir $langCfg.ts
-    $qmFile = Join-Path $i18nDir $langCfg.qm
+    $tsFile = Join-Path $i18nDir ("app_" + $lang + ".ts")
+    $qmFile = Join-Path $i18nDir ("app_" + $lang + ".qm")
 
     Write-Host "Processing language: $lang"
     Write-Host " TS: $tsFile"

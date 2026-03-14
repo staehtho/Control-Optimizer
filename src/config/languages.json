@@ -1,14 +1,7 @@
 {
-  "languages": {
-    "en": {
-      "label": "English",
-      "ts": "app_en.ts",
-      "qm": "app_en.qm"
-    },
-    "de": {
-      "label": "Deutsch",
-      "ts": "app_de.ts",
-      "qm": "app_de.qm"
-    }
-  }
+  "languages": [
+    "en",
+    "de"
+  ],
+  "base_file_name": "app_"
 }
