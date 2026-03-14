@@ -4,7 +4,7 @@ import numpy as np
 import sys
 import time
 
-from app_domain.controlsys import ExcitationTarget, Plant, PIDClosedLoop, PsoFunc, smallest_root_realpart
+from app_domain.controlsys import ExcitationTarget, Plant, PIDClosedLoop, PsoFunc, dominant_pole_realpart
 from app_domain.PSO import Swarm
 from app_types import PsoResult, PsoSimulationParam
 
@@ -83,7 +83,7 @@ class PsoSimulationEngine:
         )
 
         # Determine dominant pole
-        p_dom = smallest_root_realpart(plant.den)
+        p_dom = dominant_pole_realpart(plant.den)
 
         if p_dom >= 0:
             tf = 0.01
