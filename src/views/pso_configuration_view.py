@@ -8,7 +8,7 @@ from app_domain.controlsys import ExcitationTarget, PerformanceIndex
 from viewmodels import PlantViewModel, FunctionViewModel, PsoConfigurationViewModel
 from app_types import PsoField
 from .base_view import BaseView, FieldConfig, SectionConfig
-from views.widgets import ExpandableFrame, FormulaWidget
+from views.widgets import SectionFrame, FormulaWidget
 from .resources import Icons
 
 FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
@@ -89,8 +89,8 @@ class PsoConfigurationView(BaseView, QWidget):
         main_layout.addStretch()
         self.setLayout(main_layout)
 
-    def _create_plant_frame(self) -> ExpandableFrame:
-        frame: ExpandableFrame
+    def _create_plant_frame(self) -> SectionFrame:
+        frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
         # TF
@@ -103,8 +103,8 @@ class PsoConfigurationView(BaseView, QWidget):
 
         return frame
 
-    def _create_function_frame(self) -> ExpandableFrame:
-        frame: ExpandableFrame
+    def _create_function_frame(self) -> SectionFrame:
+        frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
         frame_layout.addLayout(self._create_grid(FIELDS["excitation_target"], 4))
@@ -115,16 +115,16 @@ class PsoConfigurationView(BaseView, QWidget):
 
         return frame
 
-    def _create_controller_frame(self) -> ExpandableFrame:
-        frame: ExpandableFrame
+    def _create_controller_frame(self) -> SectionFrame:
+        frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
         frame_layout.addLayout(self._create_grid(FIELDS["control"], 4))
 
         return frame
 
-    def _create_run_pso_frame(self) -> ExpandableFrame:
-        frame: ExpandableFrame
+    def _create_run_pso_frame(self) -> SectionFrame:
+        frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
         self._progress_bar = QProgressBar(frame)

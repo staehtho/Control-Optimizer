@@ -1,5 +1,5 @@
 from .aspect_ration_svg_widget import AspectRatioSvgWidget
-from .expandable_frame import ExpandableFrame
+from .section_frame import SectionFrame
 from .plot_widget import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration
 from .bode_plot_widget import BodePlotWidget
 from .function_widget import FunctionWidget

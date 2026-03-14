@@ -7,7 +7,7 @@ from utils import recolor_svg, merge_svgs, SvgLayer
 from viewmodels import ControllerViewModel
 from app_types import ControllerField
 from .base_view import BaseView, FieldConfig, SectionConfig
-from views.widgets import ExpandableFrame, AspectRatioSvgWidget
+from views.widgets import SectionFrame, AspectRatioSvgWidget
 from views.resources import BLOCK_DIAGRAM_DIR, BlockDiagram, Icons
 
 FIELDS: list[FieldConfig] = [
@@ -59,8 +59,8 @@ class ControllerView(BaseView, QWidget):
 
         self.setLayout(main_layout)
 
-    def _create_controller_frame(self) -> ExpandableFrame:
-        frame: ExpandableFrame
+    def _create_controller_frame(self) -> SectionFrame:
+        frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
         frame_layout.addLayout(self._create_grid(FIELDS))

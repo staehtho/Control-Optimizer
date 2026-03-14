@@ -9,7 +9,7 @@ from app_types import PlotData, PlotLabels
 from views import BaseView
 from views.plot_style import PLOT_STYLE
 from views.resources import Icons
-from views.widgets import PlotWidget, PlotWidgetConfiguration, FunctionWidget, ExpandableFrame
+from views.widgets import PlotWidget, PlotWidgetConfiguration, FunctionWidget, SectionFrame
 
 
 class FunctionView(BaseView, QWidget):
@@ -63,8 +63,8 @@ class FunctionView(BaseView, QWidget):
         main_layout.addStretch()
         self.setLayout(main_layout)
 
-    def _create_function_frame(self) -> ExpandableFrame:
-        frame: ExpandableFrame
+    def _create_function_frame(self) -> SectionFrame:
+        frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
         self._function_widget = FunctionWidget(
@@ -75,9 +75,9 @@ class FunctionView(BaseView, QWidget):
 
         return frame
 
-    def _create_plot_frame(self) -> ExpandableFrame:
-        frame: ExpandableFrame
-        frame, frame_layout = self._create_card(self, True)
+    def _create_plot_frame(self) -> SectionFrame:
+        frame: SectionFrame
+        frame, frame_layout = self._create_card(self)
 
         function_type = resolve_function_type(self._vm_function.selected_function)
         self._plot_cfg = PlotWidgetConfiguration(

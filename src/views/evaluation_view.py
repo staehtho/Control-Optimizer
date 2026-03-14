@@ -10,7 +10,7 @@ from viewmodels import EvaluationViewModel, PlotViewModel
 from app_types import PlotData, BodePlotData, PlotLabels
 from views import BaseView
 from views.plot_style import PLOT_STYLE
-from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, ExpandableFrame, FormulaWidget, \
+from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, SectionFrame, FormulaWidget, \
     BodePlotWidget, AspectRatioSvgWidget
 from views.resources import BLOCK_DIAGRAM_DIR, BlockDiagram, Icons
 
@@ -70,8 +70,8 @@ class EvaluationView(BaseView, QWidget):
         main_layout.addStretch()
         self.setLayout(main_layout)
 
-    def _create_cl_frame(self) -> ExpandableFrame:
-        frame: ExpandableFrame
+    def _create_cl_frame(self) -> SectionFrame:
+        frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
         # TF closed loop
@@ -88,9 +88,9 @@ class EvaluationView(BaseView, QWidget):
 
         return frame
 
-    def _create_plot_frame(self) -> ExpandableFrame:
-        frame: ExpandableFrame
-        frame, frame_layout = self._create_card(self, True)
+    def _create_plot_frame(self) -> SectionFrame:
+        frame: SectionFrame
+        frame, frame_layout = self._create_card(self)
 
         self._plot_tab = QTabWidget(frame)
         frame_layout.addWidget(self._plot_tab)

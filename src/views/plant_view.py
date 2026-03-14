@@ -9,7 +9,7 @@ from viewmodels import PlantViewModel, PlotViewModel
 from app_types import PlotData, PlantField, PlotLabels
 from .base_view import BaseView
 from views.plot_style import PLOT_STYLE
-from views.widgets import PlotWidget, PlotWidgetConfiguration, ExpandableFrame, FormulaWidget
+from views.widgets import PlotWidget, PlotWidgetConfiguration, SectionFrame, FormulaWidget
 from .resources import Icons
 
 
@@ -63,8 +63,8 @@ class PlantView(BaseView, QWidget):
         main_layout.addStretch()
         self.setLayout(main_layout)
 
-    def _create_transfer_function_frame(self) -> ExpandableFrame:
-        frame: ExpandableFrame
+    def _create_transfer_function_frame(self) -> SectionFrame:
+        frame: SectionFrame
         frame, frame_layout = self._create_card(self)
         grid_layout = QGridLayout()
         grid_layout.setHorizontalSpacing(10)
@@ -129,9 +129,9 @@ class PlantView(BaseView, QWidget):
 
         return frame
 
-    def _create_plot_frame(self) -> ExpandableFrame:
-        frame: ExpandableFrame
-        frame, frame_layout = self._create_card(self, True)
+    def _create_plot_frame(self) -> SectionFrame:
+        frame: SectionFrame
+        frame, frame_layout = self._create_card(self)
         plot_cfg = PlotWidgetConfiguration(
             context="PlantView",
             title=str(QT_TRANSLATE_NOOP("PlantView", "Step Response")),

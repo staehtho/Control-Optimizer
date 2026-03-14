@@ -12,7 +12,7 @@ from app_types import PlotData, PlotLabels
 from views import BaseView
 from views.plot_style import PLOT_STYLE
 from views.resources import Icons
-from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, ExpandableFrame, FunctionWidget
+from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, SectionFrame, FunctionWidget
 
 
 class SimulationView(BaseView, QWidget):
@@ -67,8 +67,8 @@ class SimulationView(BaseView, QWidget):
         main_layout.addStretch()
         self.setLayout(main_layout)
 
-    def _create_function_frame(self) -> ExpandableFrame:
-        frame: ExpandableFrame
+    def _create_function_frame(self) -> SectionFrame:
+        frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
         # Function Tab
@@ -90,9 +90,9 @@ class SimulationView(BaseView, QWidget):
 
         return frame
 
-    def _create_cl_response_frame(self) -> ExpandableFrame:
-        frame: ExpandableFrame
-        frame, frame_layout = self._create_card(self, True)
+    def _create_cl_response_frame(self) -> SectionFrame:
+        frame: SectionFrame
+        frame, frame_layout = self._create_card(self)
 
         subplot_cfgs = {
             1: SubplotConfiguration(

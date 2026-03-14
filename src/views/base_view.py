@@ -235,15 +235,11 @@ class BaseView:
         return layout
 
     @staticmethod
-    def _create_card(parent: Optional[QWidget] = None, expand_vertically_when_expanded: bool = False) -> tuple[
+    def _create_card(parent: Optional[QWidget] = None) -> tuple[
         QFrame, QVBoxLayout]:
-        from views.widgets import ExpandableFrame
+        from views.widgets import SectionFrame
 
-        frame = ExpandableFrame(
-            expanded=True,
-            expand_vertically_when_expanded=expand_vertically_when_expanded,
-            parent=parent
-        )
+        frame = SectionFrame(parent=parent)
         frame.setObjectName("card")
         frame_layout = frame.content_layout()
         frame_layout.setContentsMargins(16, 14, 16, 14)
