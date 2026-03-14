@@ -32,7 +32,8 @@ class ControllerView(BaseView, QWidget):
         self._block_diagram_template = ["controller_base.svg", "p_path.svg", "d_path.svg"]
         self._anti_windup_block_diagram: dict[AntiWindup, str] = {
             AntiWindup.CLAMPING: "clamping.svg",
-            AntiWindup.CONDITIONAL: "conditional.svg"
+            AntiWindup.CONDITIONAL: "conditional.svg",
+            AntiWindup.BACKCALCULATION: "backcalculation.svg",
         }
 
         BaseView.__init__(self, ui_context)
