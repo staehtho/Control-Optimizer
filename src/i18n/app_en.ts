@@ -394,7 +394,7 @@
         <translation type="vanished">PSO finished after %(time).3f seconds.</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="49"/>
+        <location filename="../views/evaluation_view.py" line="48"/>
         <source>Kp = %(kp).3f</source>
         <translation>Kp = %(kp).3f</translation>
     </message>
@@ -411,70 +411,70 @@
         <translation type="vanished">Tf = %(kp).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="48"/>
+        <location filename="../views/evaluation_view.py" line="47"/>
         <source>PSO finished after %(time).1f seconds.</source>
         <translation>PSO finished after %(time).1f seconds.</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="50"/>
+        <location filename="../views/evaluation_view.py" line="49"/>
         <source>Ti = %(ti).3f</source>
         <translation>Ti = %(ti).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="51"/>
+        <location filename="../views/evaluation_view.py" line="50"/>
         <source>Td = %(td).3f</source>
         <translation>Td = %(td).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="52"/>
+        <location filename="../views/evaluation_view.py" line="51"/>
         <source>Tf = %(tf).3f</source>
         <translation>Tf = %(tf).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="156"/>
-        <location filename="../views/evaluation_view.py" line="161"/>
+        <location filename="../views/evaluation_view.py" line="155"/>
+        <location filename="../views/evaluation_view.py" line="160"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="157"/>
-        <location filename="../views/evaluation_view.py" line="162"/>
+        <location filename="../views/evaluation_view.py" line="156"/>
+        <location filename="../views/evaluation_view.py" line="161"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="169"/>
-        <location filename="../views/evaluation_view.py" line="276"/>
+        <location filename="../views/evaluation_view.py" line="168"/>
+        <location filename="../views/evaluation_view.py" line="275"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="274"/>
+        <location filename="../views/evaluation_view.py" line="273"/>
         <source>Evaluation</source>
         <translation>Evaluation</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="275"/>
+        <location filename="../views/evaluation_view.py" line="274"/>
         <source>PSO Result</source>
         <translation>PSO Result</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="279"/>
+        <location filename="../views/evaluation_view.py" line="278"/>
         <source>Time Domain</source>
         <translation>Time Domain</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="280"/>
+        <location filename="../views/evaluation_view.py" line="279"/>
         <source>Frequency Domain</source>
         <translation>Frequency Domain</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="281"/>
+        <location filename="../views/evaluation_view.py" line="280"/>
         <source>Block Diagram</source>
         <translation>Block Diagram</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="284"/>
+        <location filename="../views/evaluation_view.py" line="283"/>
         <source>PSO run time</source>
         <translation>PSO run time</translation>
     </message>
@@ -483,7 +483,7 @@
         <translation type="vanished">PSO runt time</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="285"/>
+        <location filename="../views/evaluation_view.py" line="284"/>
         <source>Controller Parameters</source>
         <translation>Controller Parameters</translation>
     </message>
@@ -652,7 +652,7 @@
 <context>
     <name>MainView</name>
     <message>
-        <location filename="../views/main_view.py" line="85"/>
+        <location filename="../views/main_view.py" line="89"/>
         <source>Control Optimizer</source>
         <translation>Control Optimizer</translation>
     </message>

@@ -32,6 +32,7 @@ ICONS_DIR = RESOURCES_DIR / "icons"
 
 @dataclass(frozen=True)
 class Icons:
+    control_optimizer: str = "control_optimizer.svg"
     controller: str = "controller.svg"
     evaluation: str = "evaluation.svg"
     excitation_function: str = "excitation_function.svg"

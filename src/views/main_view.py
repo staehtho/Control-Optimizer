@@ -1,10 +1,11 @@
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QStackedWidget
-from PySide6.QtGui import QCloseEvent
+from PySide6.QtGui import QCloseEvent, QIcon
 
 from app_domain.ui_context import UiContext
 from app_types import NavLabels, NavItem
 from viewmodels import PsoConfigurationViewModel
 from views import ViewMixin
+from views.resources import Icons, ICONS_DIR
 from views.widgets import NavigationWidget
 
 
@@ -32,6 +33,9 @@ class MainView(ViewMixin, QMainWindow):
 
         self._scroll_positions: dict[NavLabels, int] = {}  # track scroll positions
         self._current_key: NavLabels | None = None  # track currently active view
+
+        icon_path = str(ICONS_DIR / Icons.control_optimizer)
+        self.setWindowIcon(QIcon(icon_path))
 
         ViewMixin.__init__(self, ui_context)
 
