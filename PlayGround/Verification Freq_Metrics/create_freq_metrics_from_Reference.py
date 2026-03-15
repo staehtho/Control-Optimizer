@@ -2,77 +2,69 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Import-Pfad so wie bei dir im Playground üblich
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SRC_PATH = PROJECT_ROOT / "src"
-sys.path.insert(0, str(SRC_PATH))
+if str(SRC_PATH) not in sys.path:
+    sys.path.insert(0, str(SRC_PATH))
 
 from app_domain.controlsys import Plant
-from app_domain.controlsys.freq_metrics import compute_loop_metrics_batch
+from app_domain.controlsys.freq_metrics import compute_loop_metrics_batch_from_frf
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Plant-Konstruktion (K=1, Tm=1)
+
+# Verification grid aligned with the MATLAB reference script.
+W_MIN_EXP = -4
+W_MAX_EXP = 4
+W_POINTS = 4000
+
 
 def make_ptn(n: int) -> Plant:
-    """PTn: G(s) = 1 / (s+1)^n  (K=1, Tm=1)."""
-    den = np.poly([-1.0] * int(n))  # (s+1)^n
-    num = np.array([1.0], dtype=float)
-    return Plant(num=num, den=den)
+    """PTn: G(s) = 1 / (s + 1)^n with K=1 and Tm=1."""
+    den = np.poly([-1.0] * int(n))
+    return Plant(num=np.array([1.0], dtype=float), den=den)
 
-def make_pt2(D: float) -> Plant:
-    """PT2: G(s) = 1 / (s^2 + 2*D*s + 1)  (K=1, Tm=1)."""
-    D = float(D)
-    den = np.array([1.0, 2.0 * D, 1.0], dtype=float)
-    num = np.array([1.0], dtype=float)
-    return Plant(num=num, den=den)
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Tf-Heuristik (wie du sie beschrieben hast)
+def make_pt2(damping: float) -> Plant:
+    """PT2: G(s) = 1 / (s^2 + 2*D*s + 1) with K=1 and Tm=1."""
+    den = np.array([1.0, 2.0 * float(damping), 1.0], dtype=float)
+    return Plant(num=np.array([1.0], dtype=float), den=den)
+
 
 def dominant_pole_realpart_from_den(den: np.ndarray) -> float:
-    """
-    Dominanter Pol = am nächsten an der jω-Achse (von links),
-    also max(real part) unter den stabilen Polen.
-    """
+    """Return the dominant stable pole real part, i.e. the largest negative real part."""
     roots = np.roots(np.asarray(den, dtype=float))
-    stable = roots[roots.real < 0]
+    stable = roots[roots.real < 0.0]
     if stable.size == 0:
-        # keine stabilen Pole -> z.B. marginal/instabil
         return float(np.max(roots.real))
     return float(np.max(stable.real))
 
-def tf_from_plant(plant: Plant) -> float:
-    """
-    Deine Policy:
-      - wenn p_dom >= 0 => Tf = 0.01
-      - sonst Tf = (1/|p_dom|)/100
-    """
-    p_dom = dominant_pole_realpart_from_den(plant.den)
-    if p_dom >= 0:
-        return 0.01
-    t_dom = 1.0 / abs(p_dom)
-    return t_dom / 100.0
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Excel-Parsing: Layout wie in Referenzsysteme.xlsx
+def tf_from_plant(plant: Plant) -> float:
+    """Apply the project's Tf heuristic based on the dominant plant pole."""
+    p_dom = dominant_pole_realpart_from_den(plant.den)
+    if p_dom >= 0.0:
+        return 0.01
+    return (1.0 / abs(p_dom)) / 100.0
+
 
 def parse_reference_cases(xlsx_path: Path) -> pd.DataFrame:
+    """Parse the mixed PTn/PT2 reference workbook into a flat case table."""
     df_raw = pd.read_excel(xlsx_path, sheet_name=0, header=None)
     rows = df_raw.values.tolist()
 
-    cases = []
-    mode = None
-    headers = None
+    cases: list[dict[str, float | str]] = []
+    mode: str | None = None
+    headers: list[str] | None = None
 
-    for r in rows:
-        if not r or all(pd.isna(x) for x in r):
+    for row in rows:
+        if not row or all(pd.isna(value) for value in row):
             continue
 
-        first = r[0]
+        first = row[0]
 
         if isinstance(first, str) and first.strip() == "PTn":
             mode = "PTn"
@@ -84,103 +76,190 @@ def parse_reference_cases(xlsx_path: Path) -> pd.DataFrame:
             headers = None
             continue
 
-        # Headerzeile innerhalb eines Blocks
-        if mode in ("PTn", "PT2") and isinstance(first, str) and first.strip() in ("n", "D"):
-            headers = [str(x).strip() if x is not None and not pd.isna(x) else "" for x in r]
+        if mode in {"PTn", "PT2"} and isinstance(first, str) and first.strip() in {"n", "D"}:
+            headers = [str(value).strip() if value is not None and not pd.isna(value) else "" for value in row]
             continue
 
-        # Datenzeile: beginnt mit Zahl (n oder D)
-        if mode in ("PTn", "PT2") and headers is not None and isinstance(first, (int, float)) and not pd.isna(first):
-            row = dict(zip(headers, r))
-
-            cases.append({
-                "plant_type": mode,
-                "param": float(row["n"]) if mode == "PTn" else float(row["D"]),  # n oder D
-                "LowerLimit": float(row["LowerLimit"]),
-                "UpperLimit": float(row["UpperLimit"]),
-                "Kp": float(row["Kp_PSO"]),
-                "Ti": float(row["Ti_PSO"]),
-                "Td": float(row["Td_PSO"]),
-                "ITAE_ref": float(row.get("ITAE_PSO_python", np.nan)),
-            })
+        if mode in {"PTn", "PT2"} and headers is not None and isinstance(first, (int, float)) and not pd.isna(first):
+            parsed = dict(zip(headers, row))
+            cases.append(
+                {
+                    "plant_type": mode,
+                    "param": float(parsed["n"]) if mode == "PTn" else float(parsed["D"]),
+                    "LowerLimit": float(parsed["LowerLimit"]),
+                    "UpperLimit": float(parsed["UpperLimit"]),
+                    "Kp": float(parsed["Kp_PSO"]),
+                    "Ti": float(parsed["Ti_PSO"]),
+                    "Td": float(parsed["Td_PSO"]),
+                    "ITAE_ref": float(parsed.get("ITAE_PSO_python", np.nan)),
+                }
+            )
 
     return pd.DataFrame(cases)
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Evaluation
 
-def evaluate_cases(df_cases: pd.DataFrame, adaptive_range: bool = True) -> pd.DataFrame:
-    out = []
+def load_matlab_references(script_dir: Path) -> pd.DataFrame:
+    """Load and normalize the exported MATLAB reference margins if present."""
+    refs: list[pd.DataFrame] = []
 
-    for _, c in df_cases.iterrows():
-        plant_type = c["plant_type"]
-        n_or_D = c["param"]
+    pt2_path = script_dir / "Margins_PT2_Matlab.csv"
+    if pt2_path.exists():
+        df_pt2 = pd.read_csv(pt2_path, sep=";").rename(columns={"D": "param"})
+        df_pt2["plant_type"] = "PT2"
+        refs.append(df_pt2)
 
+    ptn_path = script_dir / "Margins_PTn_Matlab.csv"
+    if ptn_path.exists():
+        df_ptn = pd.read_csv(ptn_path, sep=";").rename(columns={"n": "param"})
+        df_ptn["plant_type"] = "PTn"
+        refs.append(df_ptn)
+
+    if not refs:
+        return pd.DataFrame()
+
+    matlab_df = pd.concat(refs, ignore_index=True, sort=False)
+    matlab_df = matlab_df.rename(
+        columns={
+            "u_min": "LowerLimit",
+            "u_max": "UpperLimit",
+            "PM_deg": "pm_deg_matlab",
+            "GM_dB": "gm_db_matlab",
+            "Ms": "ms_matlab",
+            "omega_c": "wc_matlab",
+        }
+    )
+
+    keep_cols = [
+        "plant_type",
+        "param",
+        "LowerLimit",
+        "UpperLimit",
+        "Tf",
+        "pm_deg_matlab",
+        "gm_db_matlab",
+        "ms_matlab",
+        "wc_matlab",
+    ]
+    return matlab_df[keep_cols].copy()
+
+
+def evaluate_cases(df_cases: pd.DataFrame, w: np.ndarray) -> pd.DataFrame:
+    """Evaluate all reference cases with the current Python implementation."""
+    out: list[dict[str, float | bool | str]] = []
+
+    for (plant_type, param), group in df_cases.groupby(["plant_type", "param"], sort=False):
         if plant_type == "PTn":
-            plant = make_ptn(int(round(n_or_D)))
+            plant = make_ptn(int(round(float(param))))
         else:
-            plant = make_pt2(float(n_or_D))
+            plant = make_pt2(float(param))
 
-        Tf = tf_from_plant(plant)
+        tf_used = tf_from_plant(plant)
+        s = 1j * w
 
-        # Batch-Call (P=1)
         with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
-            metrics = compute_loop_metrics_batch(
-                plant=plant,
-                Kp=np.array([c["Kp"]], dtype=float),
-                Ti=np.array([c["Ti"]], dtype=float),
-                Td=np.array([c["Td"]], dtype=float),
-                Tf=np.array([Tf], dtype=float),
-                adaptive_range=adaptive_range,
+            G = np.asarray(plant.system(s), dtype=np.complex128)
+            metrics = compute_loop_metrics_batch_from_frf(
+                G=G,
+                w=w,
+                Kp=group["Kp"].to_numpy(dtype=float),
+                Ti=group["Ti"].to_numpy(dtype=float),
+                Td=group["Td"].to_numpy(dtype=float),
+                Tf=np.full(group.shape[0], tf_used, dtype=float),
             )
 
-        out.append({
-            "plant_type": plant_type,
-            "n_or_D": n_or_D,
-            "LowerLimit": c["LowerLimit"],
-            "UpperLimit": c["UpperLimit"],
-            "Kp": c["Kp"],
-            "Ti": c["Ti"],
-            "Td": c["Td"],
-            "Tf": Tf,
-            "ITAE_ref": c["ITAE_ref"],
-
-            "ok": bool(metrics.get("ok_particles", np.array([True]))[0]),
-            "pm_deg": float(metrics["pm_deg"][0]),
-            "gm_db": float(metrics["gm_db"][0]),
-            "ms": float(metrics["ms"][0]),
-            "has_wc": bool(metrics["has_wc"][0]),
-            "has_w180": bool(metrics["has_w180"][0]),
-            "wc": float(metrics["wc"][0]),
-            "w180": float(metrics["w180"][0]),
-        })
+        group = group.reset_index(drop=True)
+        for idx, case in group.iterrows():
+            out.append(
+                {
+                    "plant_type": str(plant_type),
+                    "param": float(param),
+                    "LowerLimit": float(case["LowerLimit"]),
+                    "UpperLimit": float(case["UpperLimit"]),
+                    "Kp": float(case["Kp"]),
+                    "Ti": float(case["Ti"]),
+                    "Td": float(case["Td"]),
+                    "Tf": float(tf_used),
+                    "ITAE_ref": float(case["ITAE_ref"]),
+                    "numerically_valid": bool(metrics["numerically_valid_particles"][idx]),
+                    "pm_deg": float(metrics["pm_deg"][idx]),
+                    "gm_db": float(metrics["gm_db"][idx]),
+                    "ms": float(metrics["ms"][idx]),
+                    "has_wc": bool(metrics["has_wc"][idx]),
+                    "has_w180": bool(metrics["has_w180"][idx]),
+                    "wc": float(metrics["wc"][idx]),
+                    "w180": float(metrics["w180"][idx]),
+                }
+            )
 
     return pd.DataFrame(out)
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Main
 
-def main():
+def attach_matlab_comparison(df_python: pd.DataFrame, matlab_df: pd.DataFrame) -> pd.DataFrame:
+    """Merge Python results with MATLAB references and add delta columns."""
+    if matlab_df.empty:
+        return df_python
+
+    merged = df_python.merge(
+        matlab_df,
+        how="left",
+        on=["plant_type", "param", "LowerLimit", "UpperLimit"],
+    )
+
+    merged["d_pm_deg"] = merged["pm_deg"] - merged["pm_deg_matlab"]
+    merged["d_gm_db"] = merged["gm_db"] - merged["gm_db_matlab"]
+    merged["d_ms"] = merged["ms"] - merged["ms_matlab"]
+    merged["d_wc"] = merged["wc"] - merged["wc_matlab"]
+
+    return merged
+
+
+def main() -> None:
     script_dir = Path(__file__).resolve().parent
-
-    print("SCRIPT:", Path(__file__).resolve())
-    print("CWD   :", Path.cwd().resolve())
-
     xlsx_path = script_dir / "Referenzsysteme.xlsx"
-    print("EXCEL :", xlsx_path)
-    print("EXISTS:", xlsx_path.exists())
 
+    if not xlsx_path.exists():
+        raise FileNotFoundError(f"Reference workbook not found: {xlsx_path}")
+
+    w = np.logspace(W_MIN_EXP, W_MAX_EXP, W_POINTS, dtype=np.float64)
     df_cases = parse_reference_cases(xlsx_path)
-    print(f"Loaded {len(df_cases)} cases from {xlsx_path.name}")
+    if df_cases.empty:
+        raise ValueError(f"No reference cases parsed from: {xlsx_path}")
 
-    df_out = evaluate_cases(df_cases, adaptive_range=True)
-    df_out = df_out.sort_values(["plant_type", "n_or_D", "LowerLimit"]).reset_index(drop=True)
+    df_python = evaluate_cases(df_cases, w)
+    df_python = df_python.sort_values(["plant_type", "param", "LowerLimit"]).reset_index(drop=True)
 
-    print(df_out)
+    matlab_df = load_matlab_references(script_dir)
+    df_out = attach_matlab_comparison(df_python, matlab_df)
 
     out_path = script_dir / "FreqMetrics_Reference_Python.xlsx"
     df_out.to_excel(out_path, index=False)
+
+    print(f"Loaded {len(df_cases)} reference cases from {xlsx_path.name}")
+    if not matlab_df.empty:
+        print("MATLAB reference CSVs loaded and merged.")
+        print(
+            df_out[
+                [
+                    "plant_type",
+                    "param",
+                    "LowerLimit",
+                    "pm_deg",
+                    "pm_deg_matlab",
+                    "d_pm_deg",
+                    "gm_db",
+                    "gm_db_matlab",
+                    "d_gm_db",
+                    "ms",
+                    "ms_matlab",
+                    "d_ms",
+                ]
+            ].to_string(index=False)
+        )
+    else:
+        print(df_out.to_string(index=False))
+
     print(f"\nWrote results to: {out_path}")
+
 
 if __name__ == "__main__":
     main()

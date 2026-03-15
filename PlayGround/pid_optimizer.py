@@ -75,17 +75,17 @@ def main():
     plant_den = [1, 0.1, 1]
 
     use_freq_metrics = True
-    pm_min_deg = 80
-    gm_min_db = 10
-    ms_max = 2
+    pm_min_deg = 0
+    gm_min_db = 0
+    ms_max = 20
 
-    use_overshoot_control = True
-    allowed_overshoot_pct = 10
+    use_overshoot_control = False
+    allowed_overshoot_pct = 5
 
     sim_mode = "fixed"
     start_time = 0
     time_step = 1e-4
-    end_time = 20
+    end_time = 10
 
     anti_windup = AntiWindup.CLAMPING
 
@@ -257,7 +257,7 @@ def main():
 
     match excitation_target:
         case "reference":
-            t_cl, y_cl = pid.step_response(
+            t_cl, _, y_cl = pid.step_response(
                 t0=start_time,
                 t1=end_time,
                 dt=time_step,
