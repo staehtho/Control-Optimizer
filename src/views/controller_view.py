@@ -5,8 +5,8 @@ from app_domain.ui_context import UiContext
 from app_domain.controlsys import AntiWindup
 from utils import recolor_svg, merge_svgs, SvgLayer
 from viewmodels import ControllerViewModel
-from app_types import ControllerField
-from .base_view import BaseView, FieldConfig, SectionConfig
+from app_types import ControllerField, FieldConfig, SectionConfig
+from .base_view import BaseView
 from views.widgets import SectionFrame, AspectRatioSvgWidget
 from views.resources import BLOCK_DIAGRAM_DIR, BlockDiagram, Icons
 

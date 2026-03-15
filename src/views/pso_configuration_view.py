@@ -5,11 +5,12 @@ from PySide6.QtCore import QObject, Qt
 
 from app_domain.ui_context import UiContext
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
+from app_types import PsoField, FieldConfig, SectionConfig
 from viewmodels import PlantViewModel, FunctionViewModel, PsoConfigurationViewModel
-from app_types import PsoField
-from .base_view import BaseView, FieldConfig, SectionConfig
+from views.base_view import BaseView
 from views.widgets import SectionFrame, FormulaWidget
-from .resources import Icons
+from views.resources import Icons
+
 
 FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
     "excitation_target": [

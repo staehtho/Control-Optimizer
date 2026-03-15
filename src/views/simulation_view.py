@@ -7,9 +7,9 @@ from numpy import ndarray
 from app_domain.functions import resolve_function_type, FunctionTypes
 from app_domain.ui_context import UiContext
 from app_domain.controlsys import ExcitationTarget
-from viewmodels import FunctionViewModel, PlotViewModel, SimulationViewModel
 from app_types import PlotData, PlotLabels
-from views import BaseView
+from viewmodels import FunctionViewModel, PlotViewModel, SimulationViewModel
+from views.base_view import BaseView
 from views.plot_style import PLOT_STYLE
 from views.resources import Icons
 from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, SectionFrame, FunctionWidget

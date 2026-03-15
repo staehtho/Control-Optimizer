@@ -5,9 +5,10 @@ from PySide6.QtGui import QIntValidator
 
 from app_domain import UiContext
 from app_domain.controlsys import MySolver
-from app_types import SettingsField, LanguageType, ThemeType
-from .base_view import BaseView, FieldConfig, SectionConfig
-from .resources import Icons
+from app_types import SettingsField, LanguageType, ThemeType, FieldConfig, SectionConfig
+from views.base_view import BaseView
+from views.resources import Icons
+
 
 FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
     "language": [

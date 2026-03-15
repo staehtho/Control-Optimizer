@@ -6,29 +6,15 @@ from PySide6.QtWidgets import (
     QDoubleSpinBox, QScrollArea, QApplication, QToolTip
 )
 from PySide6.QtCore import QPoint
-from PySide6.QtGui import QDoubleValidator, Qt, QIcon
-from dataclasses import dataclass
-from typing import Type, Optional
+from PySide6.QtGui import Qt, QIcon
+from typing import Optional
 
 from app_domain.ui_context import UiContext
-from app_types import FieldType
+from app_types import FieldType, FieldConfig, SectionConfig
 from utils import recolor_svg, svg_to_icon
 from views.resources import ICONS_DIR
 from views.translations import Translation
 
-
-@dataclass
-class FieldConfig:
-    key: str | FieldType
-    widget_type: Type[QWidget] = QLabel
-    create_label: bool = True
-    validator: object = QDoubleValidator
-
-
-@dataclass
-class SectionConfig:
-    key: str | FieldType
-    fields: list[FieldConfig]
 
 class BaseView:
     """

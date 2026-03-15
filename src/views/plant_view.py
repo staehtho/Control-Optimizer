@@ -7,10 +7,10 @@ from numpy import ndarray
 from app_domain.ui_context import UiContext
 from viewmodels import PlantViewModel, PlotViewModel
 from app_types import PlotData, PlantField, PlotLabels
-from .base_view import BaseView
+from views import BaseView
 from views.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, SectionFrame, FormulaWidget
-from .resources import Icons
+from views.resources import Icons
 
 
 class PlantView(BaseView, QWidget):

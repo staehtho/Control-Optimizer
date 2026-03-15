@@ -3,11 +3,10 @@ from PySide6.QtCore import QT_TRANSLATE_NOOP
 from numpy import ndarray
 
 from app_domain.controlsys import AntiWindup
-from app_types import FrequencyResponse
 from app_domain.ui_context import UiContext
+from app_types import FrequencyResponse, EvaluationField, FieldConfig, PlotData, BodePlotData, PlotLabels
 from utils import SvgLayer, merge_svgs, recolor_svg
 from viewmodels import EvaluationViewModel, PlotViewModel
-from app_types import PlotData, BodePlotData, PlotLabels
 from views import BaseView
 from views.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, SectionFrame, FormulaWidget, \

@@ -2,10 +2,10 @@ from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QS
 from PySide6.QtGui import QCloseEvent
 
 from app_domain.ui_context import UiContext
+from app_types import NavLabels, NavItem
 from viewmodels import PsoConfigurationViewModel
 from views import BaseView
-from .widgets import NavigationWidget
-from app_types import NavLabels, NavItem
+from views.widgets import NavigationWidget
 
 
 class MainView(BaseView, QMainWindow):

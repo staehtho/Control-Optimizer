@@ -1,6 +1,8 @@
 from .closed_loop_context import ClosedLoopResponseContext
 
 from .field import (
+    FieldConfig,
+    SectionConfig,
     FieldType,
     PlotField,
     PlantField,
