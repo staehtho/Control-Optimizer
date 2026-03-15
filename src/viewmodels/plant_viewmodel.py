@@ -223,13 +223,12 @@ class PlantViewModel(BaseViewModel):
 
     @Slot(float, float)
     def compute_step_response(self, t0: float, t1: float) -> None:
+        # save step time
+        self._step_time = (t0, t1)
 
         if not self._model_plant.is_valid:
             self.logger.debug("Model is invalid -> no (new) calculation")
             return
-
-        # save step time
-        self._step_time = (t0, t1)
 
         self.logger.debug(f"Computing step response for {t0} to {t1}")
         solver = self._settings.get_solver()
