@@ -105,6 +105,12 @@ class Translation:
                 return QCoreApplication.translate("ControlEnums", "Cosine")
             case FunctionTypes.RECTANGULAR:
                 return QCoreApplication.translate("ControlEnums", "Rectangle")
+            case FunctionTypes.BROWNIAN_NOISE:
+                return QCoreApplication.translate("ControlEnums", "BrownianNoise")
+            case FunctionTypes.PINK_NOISE:
+                return QCoreApplication.translate("ControlEnums", "PinkNoise")
+            case FunctionTypes.WHITE_NOISE:
+                return QCoreApplication.translate("ControlEnums", "WhiteNoise")
             case _:
                 raise NotImplementedError(f"No translation registered for enum value: {value}")
 

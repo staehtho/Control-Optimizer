@@ -72,8 +72,15 @@ class FunctionView(ViewMixin, QWidget):
         frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
+        excluded_function_types: list[FunctionTypes] = [
+            FunctionTypes.NULL,
+            FunctionTypes.BROWNIAN_NOISE,
+            FunctionTypes.PINK_NOISE,
+            FunctionTypes.WHITE_NOISE
+        ]
+
         self._function_widget = FunctionWidget(
-            self._ui_context, self._vm_function, [FunctionTypes.NULL], parent=self
+            self._ui_context, self._vm_function, excluded_function_types, parent=self
         )
 
         frame_layout.addWidget(self._function_widget)

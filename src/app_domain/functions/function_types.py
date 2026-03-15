@@ -1,7 +1,7 @@
 from enum import Enum
 
 from app_domain.functions import BaseFunction, StepFunction, SineFunction, CosineFunction, NullFunction, \
-    RectangularFunction
+    RectangularFunction, WhiteNoise, BrownianNoise, PinkNoise
 
 
 class FunctionTypes(Enum):
@@ -10,6 +10,10 @@ class FunctionTypes(Enum):
     SINE = SineFunction
     COSINE = CosineFunction
     RECTANGULAR = RectangularFunction
+
+    BROWNIAN_NOISE = BrownianNoise
+    PINK_NOISE = PinkNoise
+    WHITE_NOISE = WhiteNoise
 
 
 # ------------------------------------------------------------------

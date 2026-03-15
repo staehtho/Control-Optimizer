@@ -67,19 +67,19 @@
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="71"/>
-        <location filename="../views/translations/enum_translations.py" line="145"/>
+        <location filename="../views/translations/enum_translations.py" line="151"/>
         <source>Reference</source>
         <translation>Reference</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="73"/>
-        <location filename="../views/translations/enum_translations.py" line="147"/>
+        <location filename="../views/translations/enum_translations.py" line="153"/>
         <source>Input Disturbance</source>
         <translation>Input Disturbance</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="75"/>
-        <location filename="../views/translations/enum_translations.py" line="149"/>
+        <location filename="../views/translations/enum_translations.py" line="155"/>
         <source>Measurement Disturbance</source>
         <translation>Measurement Disturbance</translation>
     </message>
@@ -145,93 +145,108 @@
         <translation>Rectangular function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="116"/>
-        <location filename="../views/translations/enum_translations.py" line="137"/>
+        <location filename="../views/translations/enum_translations.py" line="109"/>
+        <source>BrownianNoise</source>
+        <translation>Brownian Noise</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="111"/>
+        <source>PinkNoise</source>
+        <translation>Pink Noise</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="113"/>
+        <source>WhiteNoise</source>
+        <translation>White Noise</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="122"/>
+        <location filename="../views/translations/enum_translations.py" line="143"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="118"/>
+        <location filename="../views/translations/enum_translations.py" line="124"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="120"/>
+        <location filename="../views/translations/enum_translations.py" line="126"/>
         <source>Controller</source>
         <translation>Controller</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="122"/>
+        <location filename="../views/translations/enum_translations.py" line="128"/>
         <source>PSO Parameter</source>
         <translation>PSO Parameter</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="124"/>
+        <location filename="../views/translations/enum_translations.py" line="130"/>
         <source>Evaluation</source>
         <translation>Evaluation</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="126"/>
+        <location filename="../views/translations/enum_translations.py" line="132"/>
         <source>Simulation</source>
         <translation>Simulation</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="128"/>
+        <location filename="../views/translations/enum_translations.py" line="134"/>
         <source>Settings</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="139"/>
+        <location filename="../views/translations/enum_translations.py" line="145"/>
         <source>Function</source>
         <translation>Function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="151"/>
+        <location filename="../views/translations/enum_translations.py" line="157"/>
         <source>G_plant</source>
         <translation>G Plant</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="153"/>
+        <location filename="../views/translations/enum_translations.py" line="159"/>
         <source>C_controller</source>
         <translation>C controller</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="155"/>
+        <location filename="../views/translations/enum_translations.py" line="161"/>
         <source>L_open_loop</source>
         <translation>L open loop</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="157"/>
+        <location filename="../views/translations/enum_translations.py" line="163"/>
         <source>S_sensitivity</source>
         <translation>S sensitivity</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="159"/>
+        <location filename="../views/translations/enum_translations.py" line="165"/>
         <source>T_complement_sensitivity</source>
         <translation>T complement sensitivity</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="168"/>
+        <location filename="../views/translations/enum_translations.py" line="174"/>
         <source>RK4</source>
         <translation>RK4</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="177"/>
+        <location filename="../views/translations/enum_translations.py" line="183"/>
         <source>English</source>
         <translation>English</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="179"/>
+        <location filename="../views/translations/enum_translations.py" line="185"/>
         <source>German</source>
         <translation>German</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="188"/>
+        <location filename="../views/translations/enum_translations.py" line="194"/>
         <source>Light</source>
         <translation>Light</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="190"/>
+        <location filename="../views/translations/enum_translations.py" line="196"/>
         <source>Dark</source>
         <translation>Dark</translation>
     </message>
@@ -244,7 +259,7 @@
         <translation type="vanished">Response</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="143"/>
+        <location filename="../views/translations/enum_translations.py" line="149"/>
         <source>Control Signal</source>
         <translation>Control Signal</translation>
     </message>
@@ -253,7 +268,7 @@
         <translation type="vanished">Excitation Function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="141"/>
+        <location filename="../views/translations/enum_translations.py" line="147"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
@@ -535,28 +550,28 @@
 <context>
     <name>FunctionView</name>
     <message>
-        <location filename="../views/function_view.py" line="90"/>
-        <location filename="../views/function_view.py" line="127"/>
+        <location filename="../views/function_view.py" line="97"/>
+        <location filename="../views/function_view.py" line="134"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="91"/>
+        <location filename="../views/function_view.py" line="98"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="92"/>
+        <location filename="../views/function_view.py" line="99"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="128"/>
+        <location filename="../views/function_view.py" line="135"/>
         <source>Function</source>
         <translation>Function</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="129"/>
+        <location filename="../views/function_view.py" line="136"/>
         <source>Function Plot</source>
         <translation>Function Plot</translation>
     </message>
@@ -738,17 +753,17 @@ Example: 1, 0.5, 2 → 1*s^2 + 0.5*s + 2</translation>
         <translation>Invalid denominator: enter at least one numeric coefficient.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="282"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="281"/>
         <source>Invalid numerator: first coefficient must be non-zero.</source>
         <translation>Invalid numerator: first coefficient must be non-zero.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="288"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="287"/>
         <source>Invalid denominator: first coefficient must be non-zero.</source>
         <translation>Invalid denominator: first coefficient must be non-zero.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="298"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="297"/>
         <source>Invalid transfer function: denominator order must be greater than or equal to numerator order.</source>
         <translation>Invalid transfer function: denominator order must be greater than or equal to numerator order.</translation>
     </message>
