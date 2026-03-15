@@ -17,6 +17,11 @@ class FieldConfig:
 class SectionConfig:
     key: str | FieldType
     fields: list[FieldConfig]
+    columns: int = 2
+
+    def __post_init__(self):
+        if self.columns % 2 != 0:
+            raise ValueError(f"Columns {self.columns} must be even")
 
 
 class FieldType(Enum):
@@ -83,6 +88,17 @@ class EvaluationField(FieldType):
     CLOSED_LOOP = "closed_loop"
     SENSITIVITY = "sensitivity"
     COMPLEMENTARY_SENSITIVITY = "complementary_sensitivity"
+
+
+# EvaluationViewModel / EvaluationView
+class PsoResultField(FieldType):
+    RUN_TIME = "run_time"
+    TIME = "time"
+    PARAMETERS = "parameters"
+    KP = "kp"
+    TI = "ti"
+    TD = "td"
+    TF = "tf"
 
 
 # SettingsViewModle / SettingsView

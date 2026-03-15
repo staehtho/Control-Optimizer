@@ -370,72 +370,122 @@
 <context>
     <name>EvaluationView</name>
     <message>
-        <location filename="../views/evaluation_view.py" line="22"/>
         <source>Simulation Time [s]</source>
-        <translation>Simulation Time [s]</translation>
+        <translation type="vanished">Simulation Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="23"/>
         <source>Kp</source>
-        <translation>Kp</translation>
+        <translation type="vanished">Kp</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="24"/>
         <source>Ti</source>
-        <translation>Ti</translation>
+        <translation type="vanished">Ti</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="25"/>
         <source>Td</source>
-        <translation>Td</translation>
+        <translation type="vanished">Td</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="26"/>
         <source>Tf</source>
-        <translation>Tf</translation>
+        <translation type="vanished">Tf</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="157"/>
-        <location filename="../views/evaluation_view.py" line="162"/>
+        <source>PSO finished after %(time).3f seconds.</source>
+        <translation type="vanished">PSO finished after %(time).3f seconds.</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="49"/>
+        <source>Kp = %(kp).3f</source>
+        <translation>Kp = %(kp).3f</translation>
+    </message>
+    <message>
+        <source>Ti = %(kp).3f</source>
+        <translation type="vanished">Ti = %(kp).3f</translation>
+    </message>
+    <message>
+        <source>Td = %(kp).3f</source>
+        <translation type="vanished">Td = %(kp).3f</translation>
+    </message>
+    <message>
+        <source>Tf = %(kp).3f</source>
+        <translation type="vanished">Tf = %(kp).3f</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="48"/>
+        <source>PSO finished after %(time).1f seconds.</source>
+        <translation>PSO finished after %(time).1f seconds.</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="50"/>
+        <source>Ti = %(ti).3f</source>
+        <translation>Ti = %(ti).3f</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="51"/>
+        <source>Td = %(td).3f</source>
+        <translation>Td = %(td).3f</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="52"/>
+        <source>Tf = %(tf).3f</source>
+        <translation>Tf = %(tf).3f</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="156"/>
+        <location filename="../views/evaluation_view.py" line="161"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="158"/>
-        <location filename="../views/evaluation_view.py" line="163"/>
+        <location filename="../views/evaluation_view.py" line="157"/>
+        <location filename="../views/evaluation_view.py" line="162"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="170"/>
-        <location filename="../views/evaluation_view.py" line="277"/>
+        <location filename="../views/evaluation_view.py" line="169"/>
+        <location filename="../views/evaluation_view.py" line="276"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="275"/>
+        <location filename="../views/evaluation_view.py" line="274"/>
         <source>Evaluation</source>
         <translation>Evaluation</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="276"/>
+        <location filename="../views/evaluation_view.py" line="275"/>
         <source>PSO Result</source>
         <translation>PSO Result</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="280"/>
+        <location filename="../views/evaluation_view.py" line="279"/>
         <source>Time Domain</source>
         <translation>Time Domain</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="281"/>
+        <location filename="../views/evaluation_view.py" line="280"/>
         <source>Frequency Domain</source>
         <translation>Frequency Domain</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="282"/>
+        <location filename="../views/evaluation_view.py" line="281"/>
         <source>Block Diagram</source>
         <translation>Block Diagram</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="284"/>
+        <source>PSO run time</source>
+        <translation>PSO run time</translation>
+    </message>
+    <message>
+        <source>PSO runt time</source>
+        <translation type="vanished">PSO runt time</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="285"/>
+        <source>Controller Parameters</source>
+        <translation>Controller Parameters</translation>
     </message>
 </context>
 <context>

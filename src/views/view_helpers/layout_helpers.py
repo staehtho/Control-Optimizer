@@ -58,7 +58,7 @@ def add_section(
     frame_layout.addWidget(label)
     view.labels[section.key] = label
 
-    inner_layout = create_grid(view, section.fields, 2)
+    inner_layout = create_grid(view, section.fields, section.columns)
     frame_layout.addLayout(inner_layout)
 
     # Calculate inner rows
