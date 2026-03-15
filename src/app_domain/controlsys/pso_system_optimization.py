@@ -190,8 +190,7 @@ class PsoFunc:
         self.use_overshoot_control = bool(use_overshoot_control)
         self.allowed_overshoot_pct = float(allowed_overshoot_pct)
         self._overshoot_step_amplitude_abs = 0.0
-        self._overshoot_reference_activation_eps = 0.0
-        self._overshoot_arm_immediately = False
+        self._overshoot_step_start_idx = 0
         self._overshoot_step_sign = 0.0
         self._overshoot_r_final = 0.0
         self._update_overshoot_control_cache()
@@ -371,11 +370,15 @@ class PsoFunc:
         self._update_overshoot_control_cache()
 
     def _update_overshoot_control_cache(self) -> None:
-        """Precompute scalar overshoot-control helpers from the fixed reference trace."""
+        """Precompute overshoot helpers from the sampled reference trace.
+
+        The UI guarantees that overshoot control is only enabled for a single step
+        reference. We therefore cache one fixed step start index and avoid any
+        per-sample step detection inside the simulation loop.
+        """
         eps = 1e-15
         self._overshoot_step_amplitude_abs = 0.0
-        self._overshoot_reference_activation_eps = 0.0
-        self._overshoot_arm_immediately = False
+        self._overshoot_step_start_idx = 0
         self._overshoot_step_sign = 0.0
         self._overshoot_r_final = float(self.r_eval[-1])
 
@@ -391,36 +394,20 @@ class PsoFunc:
 
         if abs(dr) > eps:
             tol = max(1e-12, 1e-9 * abs(dr))
-            is_r0 = np.isclose(self.r_eval, r0, atol=tol, rtol=0.0)
-            is_rf = np.isclose(self.r_eval, rf, atol=tol, rtol=0.0)
-
-            if not np.all(is_r0 | is_rf):
-                raise ValueError("overshoot_control requires a single step reference with exactly two levels.")
-
-            change_idx = np.where(~is_r0)[0]
+            change_idx = np.where(~np.isclose(self.r_eval, r0, atol=tol, rtol=0.0))[0]
             if change_idx.size == 0:
                 raise ValueError("overshoot_control could not detect a valid step transition.")
 
-            k = int(change_idx[0])
-            if (not np.all(is_r0[:k])) or (not np.all(is_rf[k:])):
-                raise ValueError("overshoot_control requires one monotonic transition from initial to final level.")
-
             self._overshoot_step_amplitude_abs = abs(dr)
-            self._overshoot_reference_activation_eps = max(1e-12, 1e-9 * abs(dr))
-            self._overshoot_arm_immediately = False
+            self._overshoot_step_start_idx = int(change_idx[0])
             self._overshoot_step_sign = float(np.sign(dr))
             self._overshoot_r_final = rf
             return
 
         if abs(rf) > eps:
-            tol = max(1e-12, 1e-9 * abs(rf))
-            if not np.all(np.isclose(self.r_eval, rf, atol=tol, rtol=0.0)):
-                raise ValueError("overshoot_control requires a step reference. Non-step trajectory detected.")
-
             # Immediate step at t0 represented as constant non-zero level in sampled r_eval.
             self._overshoot_step_amplitude_abs = abs(rf)
-            self._overshoot_reference_activation_eps = 0.0
-            self._overshoot_arm_immediately = True
+            self._overshoot_step_start_idx = 0
             self._overshoot_step_sign = float(np.sign(rf))
             self._overshoot_r_final = rf
             return
@@ -600,10 +587,9 @@ class PsoFunc:
                 self.performance_index,
                 1 if self.use_overshoot_control else 0,
                 self._overshoot_step_amplitude_abs,
+                self._overshoot_step_start_idx,
                 self._overshoot_step_sign,
                 self._overshoot_r_final,
-                self._overshoot_reference_activation_eps,
-                1 if self._overshoot_arm_immediately else 0,
                 Pf,  # IMPORTANT: swarm_size = number of feasible particles
             )
             time_cost[feasible] = perf_vals
@@ -1025,12 +1011,14 @@ def pid_simulate_metrics(
     performance_index: int,
     use_overshoot_control: int,
     overshoot_step_amplitude_abs: float,
+    overshoot_step_start_idx: int,
     overshoot_step_sign: float,
     overshoot_r_final: float,
-    overshoot_reference_activation_eps: float,
-    overshoot_arm_immediately: int,
 ) -> tuple[float, float]:
-    """Simulate one PID candidate and return (performance_index_value, overshoot_pct)."""
+    """Simulate one PID candidate and return (performance_index_value, overshoot_pct).
+
+    Overshoot is tracked only from the precomputed step start index onward.
+    """
     e_prev = 0.0
     filtered_prev = 0.0
     integral = 0.0
@@ -1041,8 +1029,6 @@ def pid_simulate_metrics(
     y = dot1D(C, x)
     perf = 0.0
 
-    r0 = float(r_eval[0])
-    armed = overshoot_arm_immediately != 0
     max_overshoot = 0.0
     use_ov = use_overshoot_control != 0
 
@@ -1076,22 +1062,17 @@ def pid_simulate_metrics(
             elif performance_index == PerformanceIndexInt.ITSE:
                 perf += t_eval[i] * err * err * dt
 
-        if use_ov and overshoot_step_amplitude_abs > 0.0:
-            if not armed:
-                if abs(r - r0) > overshoot_reference_activation_eps:
-                    armed = True
-
-            if armed:
-                signed_overshoot = overshoot_step_sign * (y_out - overshoot_r_final)
-                if signed_overshoot > max_overshoot:
-                    max_overshoot = signed_overshoot
+        if use_ov and overshoot_step_amplitude_abs > 0.0 and i >= overshoot_step_start_idx:
+            signed_overshoot = overshoot_step_sign * (y_out - overshoot_r_final)
+            if signed_overshoot > max_overshoot:
+                max_overshoot = signed_overshoot
 
         e_prev = e
 
     if (not use_ov) or overshoot_step_amplitude_abs <= 0.0:
         overshoot_pct = 0.0
     else:
-        if armed:
+        if overshoot_step_start_idx < n_steps:
             if max_overshoot > 0.0:
                 overshoot_pct = 100.0 * max_overshoot / overshoot_step_amplitude_abs
             else:
@@ -1111,9 +1092,8 @@ def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarr
                   system_order: int, Tf: float, control_constraint: np.ndarray, anti_windup_method: int,
                   solver: int, performance_index: int,
                   use_overshoot_control: int, overshoot_step_amplitude_abs: float,
-                  overshoot_step_sign: float, overshoot_r_final: float,
-                  overshoot_reference_activation_eps: float,
-                  overshoot_arm_immediately: int, swarm_size: int) -> tuple[np.ndarray, np.ndarray]:
+                  overshoot_step_start_idx: int, overshoot_step_sign: float,
+                  overshoot_r_final: float, swarm_size: int) -> tuple[np.ndarray, np.ndarray]:
     performance_index_val = np.zeros(swarm_size)
     overshoot_pct = np.zeros(swarm_size)
 
@@ -1133,10 +1113,9 @@ def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarr
             performance_index,
             use_overshoot_control,
             overshoot_step_amplitude_abs,
+            overshoot_step_start_idx,
             overshoot_step_sign,
             overshoot_r_final,
-            overshoot_reference_activation_eps,
-            overshoot_arm_immediately,
         )
         performance_index_val[i] = perf_i
         overshoot_pct[i] = overshoot_i
