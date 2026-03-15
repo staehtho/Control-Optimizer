@@ -27,23 +27,23 @@
 <context>
     <name>BodePlotWidget</name>
     <message>
-        <location filename="../views/widgets/bode_plot_widget.py" line="42"/>
-        <location filename="../views/widgets/bode_plot_widget.py" line="47"/>
+        <location filename="../views/widgets/bode_plot_widget.py" line="43"/>
+        <location filename="../views/widgets/bode_plot_widget.py" line="48"/>
         <source>freq /Hz</source>
         <translation>Frequenz /Hz</translation>
     </message>
     <message>
-        <location filename="../views/widgets/bode_plot_widget.py" line="41"/>
+        <location filename="../views/widgets/bode_plot_widget.py" line="42"/>
         <source>Margin</source>
         <translation>Amplitude</translation>
     </message>
     <message>
-        <location filename="../views/widgets/bode_plot_widget.py" line="46"/>
+        <location filename="../views/widgets/bode_plot_widget.py" line="47"/>
         <source>Phase</source>
         <translation>Phase</translation>
     </message>
     <message>
-        <location filename="../views/widgets/bode_plot_widget.py" line="55"/>
+        <location filename="../views/widgets/bode_plot_widget.py" line="56"/>
         <source>Bode Plot</source>
         <translation>Bode Plot</translation>
     </message>

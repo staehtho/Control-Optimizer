@@ -260,7 +260,8 @@ class PlotWidget(ViewMixin, QWidget):
             axs[i].set_ylabel(translated_y)
             if len(axs) > 1:
                 axs[i].xaxis.labelpad = 10
-            axs[i].grid(self._vm.grid)
+
+            self._apply_grid(axs[i])
             axs[i].set_xlim(self._vm.x_min, self._vm.x_max)
 
         same_x_labels = len(axs) > 1 and len({label.strip() for label in translated_x_labels}) == 1
@@ -319,6 +320,9 @@ class PlotWidget(ViewMixin, QWidget):
             if handles:
                 legend = axs[i].legend(loc="best", frameon=False)
                 legend.set_draggable(True)
+
+    def _apply_grid(self, ax) -> None:
+        ax.grid(self._vm.grid)
 
     # ============================================================
     # Series checkboxes synchronization

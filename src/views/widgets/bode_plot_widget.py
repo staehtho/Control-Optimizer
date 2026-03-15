@@ -1,5 +1,6 @@
 from PySide6.QtCore import QObject, QT_TRANSLATE_NOOP
 import numpy as np
+from matplotlib.ticker import LogLocator
 
 from app_domain.ui_context import UiContext
 from viewmodels import PlotViewModel
@@ -83,6 +84,18 @@ class BodePlotWidget(PlotWidget):
             legend = axs[0].legend(loc="best", frameon=False)
             legend.set_draggable(True)
 
+    def _apply_grid(self, ax) -> None:
+        # Major ticks at 10^n
+        ax.xaxis.set_major_locator(LogLocator(base=10))
+
+        # Minor ticks at 2â€“9 * 10^n
+        ax.xaxis.set_minor_locator(LogLocator(base=10, subs=np.arange(2, 10) * 0.1))
+
+        # Gridlines
+        ax.grid(self._vm.grid, which='major', linestyle='-')
+        ax.grid(self._vm.grid, which='minor', linestyle='--', alpha=0.5)
+
+
     def _plot_margin_and_phase_on_axes(self, axs, series: list) -> None:
         """Plot margin and phase responses on the Bode axes.
 
@@ -121,7 +134,7 @@ class BodePlotWidget(PlotWidget):
 
             all_margin.append(serie.margin)
 
-            # Wrap phase into range [-180°, 180°]
+            # Wrap phase into range [-180ï¿½, 180ï¿½]
             phase = (serie.phase + 180) % 360 - 180
 
             # Plot phase curve
