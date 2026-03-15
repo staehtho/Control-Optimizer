@@ -75,6 +75,16 @@ class PsoField(FieldType):
     RUN_PSO = "run_pso"
 
 
+# EvaluationViewModel / EvaluationView
+class EvaluationField(FieldType):
+    PLANT = "plant"
+    CONTROLLER = "controller"
+    OPEN_LOOP = "open_loop"
+    CLOSED_LOOP = "closed_loop"
+    SENSITIVITY = "sensitivity"
+    COMPLEMENTARY_SENSITIVITY = "complementary_sensitivity"
+
+
 # SettingsViewModle / SettingsView
 class SettingsField(FieldType):
     LANGUAGE = "language"

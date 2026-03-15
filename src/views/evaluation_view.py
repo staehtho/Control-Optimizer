@@ -1,5 +1,5 @@
-from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QTabWidget, QHBoxLayout
-from PySide6.QtCore import QT_TRANSLATE_NOOP
+from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QTabWidget, QHBoxLayout, QGridLayout
+from PySide6.QtCore import QT_TRANSLATE_NOOP, Qt
 from numpy import ndarray
 
 from app_domain.controlsys import AntiWindup
@@ -15,9 +15,28 @@ from views.resources import BLOCK_DIAGRAM_DIR, BlockDiagram, Icons
 
 TIME_DOMAIN = "time_domain"
 FREQUENCY_DOMAIN = "frequency_domain"
+TRANSFER_FUNCTION = "transfer_function"
 BLOCK_DIAGRAM = "block_diagram"
 
-class EvaluationView(BaseView, QWidget):
+PSO_RESULT_FIELDS = [
+    ("simulation_time", QT_TRANSLATE_NOOP("EvaluationViewMixin", "Simulation Time [s]")),
+    ("kp", QT_TRANSLATE_NOOP("EvaluationViewMixin", "Kp")),
+    ("ti", QT_TRANSLATE_NOOP("EvaluationViewMixin", "Ti")),
+    ("td", QT_TRANSLATE_NOOP("EvaluationViewMixin", "Td")),
+    ("tf", QT_TRANSLATE_NOOP("EvaluationViewMixin", "Tf")),
+]
+
+FIELDS: list[FieldConfig] = [
+    FieldConfig(EvaluationField.PLANT, FormulaWidget),
+    FieldConfig(EvaluationField.CONTROLLER, FormulaWidget),
+    FieldConfig(EvaluationField.OPEN_LOOP, FormulaWidget),
+    FieldConfig(EvaluationField.CLOSED_LOOP, FormulaWidget),
+    FieldConfig(EvaluationField.SENSITIVITY, FormulaWidget),
+    FieldConfig(EvaluationField.COMPLEMENTARY_SENSITIVITY, FormulaWidget),
+]
+
+
+class EvaluationViewMixin(ViewMixin, QWidget):
     def __init__(
             self,
             ui_context: UiContext,
@@ -33,6 +52,8 @@ class EvaluationView(BaseView, QWidget):
         self._plot_tab_pages: dict[str, QWidget] = {}
 
         self._latex_labels: dict[str, QLabel] = {}
+        self._pso_caption_labels: dict[str, QLabel] = {}
+        self._pso_value_labels: dict[str, QLabel] = {}
 
         BaseView.__init__(self, ui_context)
 
@@ -61,29 +82,38 @@ class EvaluationView(BaseView, QWidget):
         title_layout.addStretch()
         main_layout.addLayout(title_layout)
 
-        self._frm_cl = self._create_cl_frame()
-        main_layout.addWidget(self._frm_cl, 0)
+        self._frm_result = self._create_result_frame()
+        main_layout.addWidget(self._frm_result, 0)
+
         self._frm_plot = self._create_plot_frame()
         main_layout.addWidget(self._frm_plot, 1)
 
         main_layout.addStretch()
         self.setLayout(main_layout)
 
-    def _create_cl_frame(self) -> SectionFrame:
+    def _create_result_frame(self) -> SectionFrame:
         frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
-        # TF closed loop
-        latex_text = {
-            "cl": r"T(s) = \frac{C(s) \cdot G(s)}{1 + C(s) \cdot G(s)}",
-            "controller": r"C(s) = K_p \left( 1 + \frac{1}{T_i\,s} + \frac{T_d\,s}{1 + T_f\,s} \right)",
-            "plant": r"G(s) = " + self._vm_evaluator.plant_tf,
-        }
+        grid_layout = QGridLayout()
+        grid_layout.setContentsMargins(0, 0, 0, 0)
+        grid_layout.setHorizontalSpacing(12)
+        grid_layout.setVerticalSpacing(6)
 
-        for key, text in latex_text.items():
-            lbl_latex = FormulaWidget(text, self._formula_font_size_scale, parent=frame)
-            frame_layout.addWidget(lbl_latex)
-            self._latex_labels[key] = lbl_latex
+        for row, (key, _label) in enumerate(PSO_RESULT_FIELDS):
+            caption = QLabel(frame)
+            value = QLabel(frame)
+            value.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+
+            self._pso_caption_labels[key] = caption
+            self._pso_value_labels[key] = value
+
+            grid_layout.addWidget(caption, row, 0)
+            grid_layout.addWidget(value, row, 1)
+
+        grid_layout.setColumnStretch(0, 1)
+        grid_layout.setColumnStretch(1, 1)
+        frame_layout.addLayout(grid_layout)
 
         return frame
 
@@ -105,6 +135,10 @@ class EvaluationView(BaseView, QWidget):
         widget_blockdiagram = self._create_block_diagram_widget()
         self._plot_tab_pages.setdefault(BLOCK_DIAGRAM, widget_blockdiagram)
         self._plot_tab.addTab(widget_blockdiagram, BLOCK_DIAGRAM)
+
+        widget_tf = self._create_transfer_function_widget()
+        self._plot_tab_pages.setdefault(TRANSFER_FUNCTION, widget_tf)
+        self._plot_tab.addTab(widget_tf, TRANSFER_FUNCTION)
 
         return frame
 
@@ -171,6 +205,32 @@ class EvaluationView(BaseView, QWidget):
         recolored = recolor_svg(merged_svg, self._vm_theme.get_svg_color_map())
         return AspectRatioSvgWidget(svg_bytes=recolored.encode("utf-8"), initial_scale=2)
 
+    def _create_transfer_function_widget(self) -> QWidget:
+
+        widget = QWidget(self)
+
+        grid_layout = self._create_grid(FIELDS, 4)
+        widget.setLayout(grid_layout)
+
+        tf: dict[EvaluationField, str] = {
+            EvaluationField.PLANT: self._vm_evaluator.plant_tf,
+            EvaluationField.CONTROLLER: r"C(S) = ",
+            EvaluationField.OPEN_LOOP: r"L(S) = C(S) \cdot G(S)",
+            EvaluationField.CLOSED_LOOP: r"",
+            EvaluationField.SENSITIVITY: r"",
+            EvaluationField.COMPLEMENTARY_SENSITIVITY: r"",
+        }
+
+        for key, value in tf.items():
+            w: FormulaWidget
+            w = self._field_widgets.get(key)
+
+            w.set_formula(value)
+            w.set_font_size(self._formula_font_size_scale)
+            w.setAlignment(Qt.AlignmentFlag.AlignLeft)
+
+        return widget
+
     # -------------------------------------------------
     # Signal / ViewModel Binding
     # -------------------------------------------------
@@ -203,13 +263,18 @@ class EvaluationView(BaseView, QWidget):
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("Evaluation"))
-        self._frm_cl.set_title(self.tr("Closed Loop"))
+        self._frm_result.set_title(self.tr("PSO Result"))
         self._frm_plot.set_title(self.tr("Closed Loop"))
 
         # translate pages
         self._plot_tab.setTabText(0, self.tr("Time Domain"))
         self._plot_tab.setTabText(1, self.tr("Frequency Domain"))
         self._plot_tab.setTabText(2, self.tr("Block Diagram"))
+
+        for key, label in PSO_RESULT_FIELDS:
+            caption = self._pso_caption_labels.get(key)
+            if caption is not None:
+                caption.setText(self.tr(label))
 
     # -------------------------------------------------
     # Apply initial values
@@ -220,6 +285,7 @@ class EvaluationView(BaseView, QWidget):
 
         self._update_time_domain_plots()
         self._update_frequency_domain_plots()
+        self._update_pso_result_values()
 
     # -------------------------------------------------
     # Applied theme
@@ -318,14 +384,10 @@ class EvaluationView(BaseView, QWidget):
             )
 
     def _on_vm_pso_simulation_finished(self) -> None:
-        self._logger.debug(
-            "PSO simulation finished -> refreshing excitation function"
-        )
+        self._logger.debug("PSO simulation finished -> refreshing excitation function")
 
-        self._sync_plot_time_window_from_model()
-
-        self._update_time_domain_plots()
-        self._update_frequency_domain_plots()
+        self._update_pso_result_values()
+        self._apply_init_value()
 
     def _on_vm_time_changed(self) -> None:
         """Trigger recomputation when plot time range changes."""
@@ -369,3 +431,22 @@ class EvaluationView(BaseView, QWidget):
         self._vm_evaluator.compute_plant_frequency_response(omega_min, omega_max)
         self._vm_evaluator.compute_closed_loop_frequency_response(omega_max, omega_min)
 
+    def _update_pso_result_values(self) -> None:
+        result = self._vm_evaluator.get_pso_result()
+        if result is None:
+            for label in self._pso_value_labels.values():
+                label.setText("-")
+            return
+
+        values = {
+            "simulation_time": result.simulation_time,
+            "kp": result.kp,
+            "ti": result.ti,
+            "td": result.td,
+            "tf": result.tf,
+        }
+
+        for key, value in values.items():
+            label = self._pso_value_labels.get(key)
+            if label is not None:
+                label.setText(self._format_value(value))

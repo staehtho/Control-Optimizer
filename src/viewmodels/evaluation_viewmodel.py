@@ -82,6 +82,10 @@ class EvaluationViewModel(BaseViewModel):
 
         self.psoSimulationFinished.emit()
 
+    @Slot()
+    def get_pso_result(self) -> PsoResult | None:
+        return self._pos_result
+
 
     @Slot(float, float)
     def compute_closed_loop_response(self, t0: float, t1: float) -> None:

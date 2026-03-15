@@ -8,6 +8,7 @@ from .field import (
     PlantField,
     ControllerField,
     PsoField,
+    EvaluationField,
     SettingsField
 )
 
@@ -41,11 +42,14 @@ from .validation_result import ValidationResult
 
 __all__ = [
     "ClosedLoopResponseContext",
+    "FieldConfig",
+    "SectionConfig",
     "FieldType",
     "PlotField",
     "PlantField",
     "ControllerField",
     "PsoField",
+    "EvaluationField",
     "SettingsField",
     "PlantTransferContext",
     "ControllerTransferContext",
