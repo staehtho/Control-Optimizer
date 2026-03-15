@@ -51,7 +51,8 @@ class Plant:
         roots = np.roots(self._den)
         stable_poles = roots[np.real(roots) < 0]
         if stable_poles.size > 0:
-            self._t1 = -1 / np.min(np.real(stable_poles))
+            # Dominant pole = stable pole closest to the imaginary axis.
+            self._t1 = -1 / np.max(np.real(stable_poles))
         else:
             self._t1 = 1.0  # fallback
 
