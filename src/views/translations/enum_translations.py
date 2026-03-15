@@ -191,3 +191,4 @@ class Translation:
             case _:
                 raise NotImplementedError(f"No translation registered for enum value: {value}")
 
+

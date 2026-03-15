@@ -6,7 +6,7 @@ from PySide6.QtGui import QIntValidator
 from app_domain import UiContext
 from app_domain.controlsys import MySolver
 from app_types import SettingsField, LanguageType, ThemeType, FieldConfig, SectionConfig
-from views.base_view import BaseView
+from views.view_mixin import ViewMixin
 from views.resources import Icons
 
 
@@ -36,14 +36,14 @@ FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
 }
 
 
-class SettingsView(BaseView, QWidget):
+class SettingsView(ViewMixin, QWidget):
     def __init__(self, ui_context: UiContext, parent: QWidget = None):
         QWidget.__init__(self, parent)
 
         self._vm_theme = ui_context.vm_theme
         self._vm_settings = ui_context.settings
 
-        BaseView.__init__(self, ui_context)
+        ViewMixin.__init__(self, ui_context)
 
     # -------------------------------------------------
     # UI Initialization
@@ -105,13 +105,13 @@ class SettingsView(BaseView, QWidget):
         }
         for key, value in attributes.items():
             attr, vm_attr, value_type = value
-            getattr(self._field_widgets[key], attr).connect(
+            getattr(self.field_widgets[key], attr).connect(
                 partial(self._on_widget_changed, key, vm_attr, value_type=value_type))
 
-        self._field_widgets.get(SettingsField.LANGUAGE).currentIndexChanged.connect(
+        self.field_widgets.get(SettingsField.LANGUAGE).currentIndexChanged.connect(
             self._on_language_index_changed
         )
-        self._field_widgets.get(SettingsField.THEME).currentIndexChanged.connect(
+        self.field_widgets.get(SettingsField.THEME).currentIndexChanged.connect(
             self._on_theme_index_changed
         )
 
@@ -141,7 +141,7 @@ class SettingsView(BaseView, QWidget):
         }
 
         for key in labels.keys():
-            self._labels[key].setText(labels[key])
+            self.labels[key].setText(labels[key])
 
         enums = {
             SettingsField.LANGUAGE: LanguageType,
@@ -150,7 +150,7 @@ class SettingsView(BaseView, QWidget):
         }
         for key, value in enums.items():
             data = {k: self._enum_translation(k) for k in value}
-            self._cmb_add_item(self._field_widgets[key], data)
+            self._cmb_add_item(self.field_widgets[key], data)
 
     # -------------------------------------------------
     # Apply initial values
@@ -163,7 +163,7 @@ class SettingsView(BaseView, QWidget):
             SettingsField.PSO_PARTICLES: self._vm_settings.pso_particle,
         }
         for key, value in init_value.items():
-            self._field_widgets[key].setText(f"{value}")
+            self.field_widgets[key].setText(f"{value}")
 
         attributes: dict[SettingsField, tuple[str, str]] = {
             SettingsField.LANGUAGE: ("_vm_lang", "current_language"),
@@ -171,9 +171,9 @@ class SettingsView(BaseView, QWidget):
             SettingsField.SOLVER_TYPE: ("_vm_settings", "solver")
         }
         for key, item in attributes.items():
-            index = self._field_widgets[key].findData(getattr(getattr(self, item[0]), item[1]))
+            index = self.field_widgets[key].findData(getattr(getattr(self, item[0]), item[1]))
             if index >= 0:
-                self._field_widgets[key].setCurrentIndex(index)
+                self.field_widgets[key].setCurrentIndex(index)
 
     # -------------------------------------------------
     # Applied theme
@@ -186,12 +186,13 @@ class SettingsView(BaseView, QWidget):
     # UI event handlers
     # -------------------------------------------------
     def _on_language_index_changed(self, index: int) -> None:
-        widget = self._field_widgets.get(SettingsField.LANGUAGE)
+        widget = self.field_widgets.get(SettingsField.LANGUAGE)
         value = widget.itemData(index)
         self._vm_lang.set_language(LanguageType(value))
 
     def _on_theme_index_changed(self, index: int) -> None:
-        widget = self._field_widgets.get(SettingsField.THEME)
+        widget = self.field_widgets.get(SettingsField.THEME)
         value = widget.itemData(index)
         self._vm_theme.set_theme(ThemeType(value))
+
 

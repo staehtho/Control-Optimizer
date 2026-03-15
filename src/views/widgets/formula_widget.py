@@ -29,3 +29,4 @@ class FormulaWidget(QLabel):
     def _update_formula(self) -> None:
         if self._formula != "":
             self.setPixmap(LatexRenderer.latex2pixmap(self._formula, font_size_scale=self._font_size_scale))
+

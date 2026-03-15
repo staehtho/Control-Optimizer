@@ -7,13 +7,13 @@ from numpy import ndarray
 from app_domain.ui_context import UiContext
 from viewmodels import PlantViewModel, PlotViewModel
 from app_types import PlotData, PlantField, PlotLabels
-from views import BaseView
+from views import ViewMixin
 from views.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, SectionFrame, FormulaWidget
 from views.resources import Icons
 
 
-class PlantView(BaseView, QWidget):
+class PlantView(ViewMixin, QWidget):
 
     def __init__(
         self,
@@ -28,7 +28,7 @@ class PlantView(BaseView, QWidget):
         self._vm_plant = vm_plant
         self._vm_plot = vm_plot
 
-        BaseView.__init__(self, ui_context)
+        ViewMixin.__init__(self, ui_context)
 
     # -------------------------------------------------
     # UI Initialization
@@ -85,7 +85,7 @@ class PlantView(BaseView, QWidget):
 
         # Set fixed width (height follows style automatically)
         self._txt_num.setFixedWidth(220)
-        self._field_widgets[PlantField.NUM] = self._txt_num
+        self.field_widgets[PlantField.NUM] = self._txt_num
 
         grid_layout.addWidget(self._lbl_num, 0, 0)
         grid_layout.addWidget(self._txt_num, 0, 1)
@@ -100,7 +100,7 @@ class PlantView(BaseView, QWidget):
 
         # Same fixed width for visual consistency
         self._txt_den.setFixedWidth(220)
-        self._field_widgets[PlantField.DEN] = self._txt_den
+        self.field_widgets[PlantField.DEN] = self._txt_den
 
         grid_layout.addWidget(self._lbl_den, 1, 0)
         grid_layout.addWidget(self._txt_den, 1, 1)
@@ -239,14 +239,14 @@ class PlantView(BaseView, QWidget):
         """Handle user changes in numerator input field."""
         text = self._txt_num.text()
         self._clear_input_error(self._txt_num)
-        self._logger.debug(f"UI event: txt_num changed (value={text})")
+        self.logger.debug(f"UI event: txt_num changed (value={text})")
         self._vm_plant.update_num(text)
 
     def _on_txt_den_changed(self) -> None:
         """Handle user changes in denominator input field."""
         text = self._txt_den.text()
         self._clear_input_error(self._txt_den)
-        self._logger.debug(f"UI event: txt_den changed (value={text})")
+        self.logger.debug(f"UI event: txt_den changed (value={text})")
         self._vm_plant.update_den(text)
 
     # -------------------------------------------------
@@ -254,3 +254,4 @@ class PlantView(BaseView, QWidget):
     # -------------------------------------------------
     def _set_formula(self) -> None:
         self._lbl_formula.set_formula(r"G(s) = " + self._vm_plant.get_tf())
+

@@ -9,13 +9,13 @@ from app_domain.ui_context import UiContext
 from app_domain.controlsys import ExcitationTarget
 from app_types import PlotData, PlotLabels
 from viewmodels import FunctionViewModel, PlotViewModel, SimulationViewModel
-from views.base_view import BaseView
+from views.view_mixin import ViewMixin
 from views.plot_style import PLOT_STYLE
 from views.resources import Icons
 from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, SectionFrame, FunctionWidget
 
 
-class SimulationView(BaseView, QWidget):
+class SimulationView(ViewMixin, QWidget):
     def __init__(
             self,
             ui_context: UiContext,
@@ -32,7 +32,7 @@ class SimulationView(BaseView, QWidget):
 
         self._function_tab_pages: dict[str, QWidget] = {}
 
-        BaseView.__init__(self, ui_context)
+        ViewMixin.__init__(self, ui_context)
 
     # -------------------------------------------------
     # UI Initialization
@@ -83,7 +83,7 @@ class SimulationView(BaseView, QWidget):
             function_widget = FunctionWidget(self._ui_context, self._vm_functions[key], parent=function_page)
 
             function_page_layout.addWidget(function_widget)
-            self._field_widgets[key] = function_widget
+            self.field_widgets[key] = function_widget
 
             self._function_tab_pages.setdefault(key, function_page)
             self._function_tab.addTab(function_page, key)
@@ -182,7 +182,7 @@ class SimulationView(BaseView, QWidget):
     # ViewModel change handlers
     # -------------------------------------------------
     def _on_vm_function_compute_finished(self, key: str, t: ndarray, y: ndarray) -> None:
-        self._logger.debug(
+        self.logger.debug(
             "Function VM '%s' finished computation -> updating plot (samples=%d)",
             key, len(t),
         )
@@ -204,7 +204,7 @@ class SimulationView(BaseView, QWidget):
         )
 
     def _on_vm_closed_loop_compute_finished(self, t: ndarray, u: ndarray, y: ndarray) -> None:
-        self._logger.debug(
+        self.logger.debug(
             "Closed-loop response computation finished -> updating response plot (samples=%d)",
             len(t),
         )
@@ -231,7 +231,7 @@ class SimulationView(BaseView, QWidget):
         )
 
     def _on_vm_plant_compute_finished(self, t: ndarray, y: ndarray) -> None:
-        self._logger.debug(
+        self.logger.debug(
             "Plant response computation finished -> updating response plot (samples=%d)",
             len(t),
         )
@@ -248,7 +248,7 @@ class SimulationView(BaseView, QWidget):
 
     def _on_vm_pso_simulation_finished(self) -> None:
         target = self._vm_simulation.excitation_target
-        self._logger.debug(
+        self.logger.debug(
             "PSO simulation finished for target '%s' -> refreshing all excitation functions",
             target.name,
         )
@@ -276,7 +276,7 @@ class SimulationView(BaseView, QWidget):
         t0 = self._vm_plot.x_min
         t1 = self._vm_plot.x_max
 
-        self._logger.debug(f"Time range changed: t0={t0}, t1={t1}")
+        self.logger.debug(f"Time range changed: t0={t0}, t1={t1}")
         self._vm_simulation.compute_closed_loop_response(t0, t1)
         self._vm_simulation.compute_plant_response(t0, t1)
 
@@ -290,7 +290,7 @@ class SimulationView(BaseView, QWidget):
         t0 = self._vm_plot.x_min
         t1 = self._vm_plot.x_max
 
-        self._logger.debug(
+        self.logger.debug(
             "Excitation function changed -> recomputing closed-loop response (time window=[%.3f, %.3f])",
             t0, t1,
         )
@@ -303,5 +303,6 @@ class SimulationView(BaseView, QWidget):
         """Sync plot time range from persisted evaluator state via evaluator VM."""
         self._vm_plot.x_min = self._vm_simulation.t0
         self._vm_plot.x_max = self._vm_simulation.t1
+
 
 

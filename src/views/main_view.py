@@ -4,11 +4,11 @@ from PySide6.QtGui import QCloseEvent
 from app_domain.ui_context import UiContext
 from app_types import NavLabels, NavItem
 from viewmodels import PsoConfigurationViewModel
-from views import BaseView
+from views import ViewMixin
 from views.widgets import NavigationWidget
 
 
-class MainView(BaseView, QMainWindow):
+class MainView(ViewMixin, QMainWindow):
     def __init__(
             self,
             ui_context: UiContext,
@@ -27,7 +27,7 @@ class MainView(BaseView, QMainWindow):
         self._scroll_positions: dict[NavLabels, int] = {}  # track scroll positions
         self._current_key: NavLabels | None = None  # track currently active view
 
-        BaseView.__init__(self, ui_context)
+        ViewMixin.__init__(self, ui_context)
 
     # -------------------------------------------------
     # UI Initialization
@@ -154,3 +154,4 @@ class MainView(BaseView, QMainWindow):
 
         if self._ui_context.settings.get_window_maximized():
             self.showMaximized()
+

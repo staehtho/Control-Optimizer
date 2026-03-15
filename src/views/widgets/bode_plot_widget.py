@@ -104,7 +104,7 @@ class BodePlotWidget(PlotWidget):
             if not serie.show or serie.ignore_plot:
                 continue
 
-            self._logger.debug(f"Plotting margin and phase: {serie.key}")
+            self.logger.debug(f"Plotting margin and phase: {serie.key}")
 
             # Plot margin (gain) curve
             ax_margin.semilogx(
@@ -153,5 +153,6 @@ class BodePlotWidget(PlotWidget):
 
         # Standard phase tick spacing for Bode plots
         ax_phase.set_yticks(np.arange(-180, 181, 45))
+
 
 

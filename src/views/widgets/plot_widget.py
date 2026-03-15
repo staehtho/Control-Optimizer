@@ -15,7 +15,7 @@ from matplotlib import cbook
 from app_domain.ui_context import UiContext
 from app_types import PlotField
 from viewmodels import PlotViewModel
-from views import BaseView
+from views import ViewMixin
 
 
 @dataclass
@@ -41,7 +41,7 @@ class PlotWidgetConfiguration:
     fixed_aspect_ratio: float | None = 500 / 350
 
 
-class PlotWidget(BaseView, QWidget):
+class PlotWidget(ViewMixin, QWidget):
     """Generic plotting widget with matplotlib canvas, toolbar, and series checkboxes.
 
     Attributes:
@@ -59,9 +59,9 @@ class PlotWidget(BaseView, QWidget):
         self._cfg = plot_configuration
         self._series_checkboxes: dict[str, QCheckBox] = {}
 
-        BaseView.__init__(self, ui_context)
+        ViewMixin.__init__(self, ui_context)
 
-        self._logger.debug(f"PlotWidget initialized (context={self._cfg.context})")
+        self.logger.debug(f"PlotWidget initialized (context={self._cfg.context})")
 
     # -------------------------------------------------
     # UI Initialization
@@ -122,7 +122,7 @@ class PlotWidget(BaseView, QWidget):
         self._txt_min.setValidator(QDoubleValidator())
         self._txt_min.setVisible(show)
         layout.addWidget(self._txt_min)
-        self._field_widgets.setdefault(PlotField.X_MIN, self._txt_min)
+        self.field_widgets.setdefault(PlotField.X_MIN, self._txt_min)
 
         # End time
         self._lbl_max = QLabel("", self)
@@ -136,13 +136,13 @@ class PlotWidget(BaseView, QWidget):
         self._txt_max.setValidator(QDoubleValidator())
         self._txt_max.setVisible(show)
         layout.addWidget(self._txt_max)
-        self._field_widgets.setdefault(PlotField.X_MAX, self._txt_max)
+        self.field_widgets.setdefault(PlotField.X_MAX, self._txt_max)
 
         # Grid checkbox
         self._chk_grid = QCheckBox("", self)
         self._chk_grid.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         layout.addWidget(self._chk_grid)
-        self._field_widgets.setdefault(PlotField.GRID, self._chk_grid)
+        self.field_widgets.setdefault(PlotField.GRID, self._chk_grid)
 
         layout.addStretch()  # keeps everything left-aligned
         return layout
@@ -169,7 +169,7 @@ class PlotWidget(BaseView, QWidget):
         }
         for key, value in attributes.items():
             attr, vm_attr, value_type = value
-            getattr(self._field_widgets[key], attr).connect(
+            getattr(self.field_widgets[key], attr).connect(
                 partial(self._on_widget_changed, key, vm_attr, value_type=value_type))
 
     # -------------------------------------------------
@@ -212,7 +212,7 @@ class PlotWidget(BaseView, QWidget):
     # -------------------------------------------------
     def _update_plot(self) -> None:
         """Redraw the plot, including axes, legends, and grid."""
-        self._logger.debug(
+        self.logger.debug(
             f"Updating plot (grid={self._vm.grid}, xlim=[{self._vm.x_min}, {self._vm.x_max}])"
         )
 
@@ -223,14 +223,14 @@ class PlotWidget(BaseView, QWidget):
         subplot = self._cfg.subplot
         rows, cols = subplot
         if rows < 1 or cols < 1:
-            self._logger.warning(f"Invalid subplot layout {subplot}, falling back to (1, 1)")
+            self.logger.warning(f"Invalid subplot layout {subplot}, falling back to (1, 1)")
             rows, cols = 1, 1
         total_subplots = rows * cols
         axs = [self._figure.add_subplot(rows, cols, i) for i in range(1, total_subplots + 1)]
 
         data = self._vm.get_data()
         self._sync_series_checkboxes(data)
-        self._logger.debug(f"Plot contains {len(data)} data series")
+        self.logger.debug(f"Plot contains {len(data)} data series")
 
         sorted_series = sorted(data.values(), key=lambda s: s.plot_style.plot_order)
 
@@ -294,7 +294,7 @@ class PlotWidget(BaseView, QWidget):
                 if len(axs) != 1:
                     subplot_position = serie.subplot_position
                     if subplot_position < 1 or subplot_position > len(axs):
-                        self._logger.warning(
+                        self.logger.warning(
                             f"Series '{serie.key}' has invalid subplot position {subplot_position}; "
                             "using subplot 1"
                         )
@@ -302,7 +302,7 @@ class PlotWidget(BaseView, QWidget):
                     if subplot_position != i + 1:
                         continue
 
-                self._logger.debug(f"Plotting serie: {serie.key}")
+                self.logger.debug(f"Plotting serie: {serie.key}")
                 axs[i].plot(
                     serie.x,
                     serie.y,
@@ -331,7 +331,7 @@ class PlotWidget(BaseView, QWidget):
                 if checkbox is not None:
                     self._series_layout.removeWidget(checkbox)
                     checkbox.deleteLater()
-                    self._field_widgets.pop(f"plot_data_{series.key}", None)
+                    self.field_widgets.pop(f"plot_data_{series.key}", None)
                 existing_keys.discard(series.key)
                 continue
 
@@ -341,7 +341,7 @@ class PlotWidget(BaseView, QWidget):
                 checkbox.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
                 checkbox.toggled.connect(partial(self._on_series_checkbox_toggled, series.key))
                 self._series_checkboxes[series.key] = checkbox
-                self._field_widgets[f"plot_data_{series.key}"] = checkbox
+                self.field_widgets[f"plot_data_{series.key}"] = checkbox
             else:
                 checkbox.setText(series.label)
 
@@ -358,13 +358,13 @@ class PlotWidget(BaseView, QWidget):
             checkbox = self._series_checkboxes.pop(key)
             self._series_layout.removeWidget(checkbox)
             checkbox.deleteLater()
-            self._field_widgets.pop(f"plot_data_{key}", None)
+            self.field_widgets.pop(f"plot_data_{key}", None)
 
     # -------------------------------------------------
     # UI event handlers
     # -------------------------------------------------
     def _on_series_checkbox_toggled(self, key: str, checked: bool) -> None:
-        self._logger.debug(f"UI event: series visibility changed -> {key}={checked}")
+        self.logger.debug(f"UI event: series visibility changed -> {key}={checked}")
         self._vm.set_data_visibility(key, checked)
 
     def resizeEvent(self, event) -> None:
@@ -445,3 +445,4 @@ class _AspectCanvas(FigureCanvas):
         width = 500
         height = int(round(width / self._ratio))
         return QSize(width, max(1, height))
+

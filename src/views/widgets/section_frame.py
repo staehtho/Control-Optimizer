@@ -65,3 +65,4 @@ class SectionFrame(QFrame):
         self.titleChanged.emit(value)
 
     title = Property(str, title, set_title, notify=titleChanged)
+

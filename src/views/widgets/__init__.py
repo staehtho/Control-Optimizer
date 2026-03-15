@@ -5,3 +5,4 @@ from .bode_plot_widget import BodePlotWidget
 from .function_widget import FunctionWidget
 from .navigation_widget import NavigationWidget
 from .formula_widget import FormulaWidget
+

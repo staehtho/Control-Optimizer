@@ -6,13 +6,13 @@ from app_domain.ui_context import UiContext
 from app_domain.functions import FunctionTypes, resolve_function_type
 from app_types import PlotData, PlotLabels
 from viewmodels import FunctionViewModel, PlotViewModel
-from views import BaseView
+from views import ViewMixin
 from views.plot_style import PLOT_STYLE
 from views.resources import Icons
 from views.widgets import PlotWidget, PlotWidgetConfiguration, FunctionWidget, SectionFrame
 
 
-class FunctionView(BaseView, QWidget):
+class FunctionView(ViewMixin, QWidget):
     """View for selecting and configuring functions and displaying the plot."""
 
     def __init__(
@@ -29,7 +29,7 @@ class FunctionView(BaseView, QWidget):
 
         self._txt_function_params: dict[str, QLineEdit] = {}
 
-        BaseView.__init__(self, ui_context)
+        ViewMixin.__init__(self, ui_context)
 
     # -------------------------------------------------
     # UI Initialization
@@ -143,7 +143,7 @@ class FunctionView(BaseView, QWidget):
     # -------------------------------------------------
     def _on_vm_function_changed(self) -> None:
         """Rebuild parameter grid when selected function changes."""
-        self._logger.info(f"Function changed to: {self._vm_function.selected_function.__class__.__name__}")
+        self.logger.info(f"Function changed to: {self._vm_function.selected_function.__class__.__name__}")
 
         function_type = resolve_function_type(self._vm_function.selected_function)
         self._plot_cfg.title = self._enum_translation(function_type)
@@ -154,7 +154,7 @@ class FunctionView(BaseView, QWidget):
 
     def _on_vm_compute_finished(self, t: ndarray, y: ndarray) -> None:
         """Update plot data after function computation completes."""
-        self._logger.debug("Function computation finished, updating plot")
+        self.logger.debug("Function computation finished, updating plot")
         self._vm_plot.update_data(
             PlotData(
                 key=PlotLabels.FUNCTION.value,
@@ -169,10 +169,11 @@ class FunctionView(BaseView, QWidget):
         """Trigger recomputation when plot time range changes."""
         t0 = self._vm_plot.x_min
         t1 = self._vm_plot.x_max
-        self._logger.debug(f"Time range changed: t0={t0}, t1={t1}")
+        self.logger.debug(f"Time range changed: t0={t0}, t1={t1}")
         self._vm_function.compute_function(t0, t1)
 
     # -------------------------------------------------
     # UI event handlers
     # -------------------------------------------------
+
 

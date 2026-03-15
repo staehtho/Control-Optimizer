@@ -40,3 +40,4 @@ class Icons:
     pso_parameter: str = "pso_parameter.svg"
     settings: str = "settings.svg"
     simulation: str = "simulation.svg"
+

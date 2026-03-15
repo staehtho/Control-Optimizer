@@ -7,11 +7,11 @@ from PySide6.QtGui import QDoubleValidator
 from app_domain.ui_context import UiContext
 from app_domain.functions import resolve_function_type, FunctionTypes
 from viewmodels import FunctionViewModel
-from views import BaseView
+from views import ViewMixin
 from .formula_widget import FormulaWidget
 
 
-class FunctionWidget(BaseView, QWidget):
+class FunctionWidget(ViewMixin, QWidget):
     functionChanged = Signal()
 
     def __init__(
@@ -32,7 +32,7 @@ class FunctionWidget(BaseView, QWidget):
         self._txt_function_params: dict[str, QLineEdit] = {}
         self._lbl_function_params: dict[str, FormulaWidget] = {}
 
-        BaseView.__init__(self, ui_context)
+        ViewMixin.__init__(self, ui_context)
 
     # -------------------------------------------------
     # UI Initialization
@@ -67,7 +67,7 @@ class FunctionWidget(BaseView, QWidget):
 
     def _create_param_grid(self, show_formula: bool = True) -> QGridLayout:
         """Create and populate the parameter grid."""
-        self._logger.debug(
+        self.logger.debug(
             f"Building parameter grid for function: {self._vm_function.selected_function.__class__.__name__}"
         )
 
@@ -107,7 +107,7 @@ class FunctionWidget(BaseView, QWidget):
             self._txt_function_params.setdefault(label, txt_param)
             grid.addWidget(txt_param, row, col + 1)
 
-        self._logger.debug(f"Parameter grid created with {len(params)} parameters")
+        self.logger.debug(f"Parameter grid created with {len(params)} parameters")
 
         self._connect_param_signals()
 
@@ -175,10 +175,10 @@ class FunctionWidget(BaseView, QWidget):
     # -------------------------------------------------
     def _on_vm_function_changed(self) -> None:
         """Rebuild parameter grid when selected function changes."""
-        self._logger.info(f"Function changed to: {self._vm_function.selected_function.__class__.__name__}")
+        self.logger.info(f"Function changed to: {self._vm_function.selected_function.__class__.__name__}")
 
         if self._cmb_function.currentData() == self._vm_function.selected_function:
-            self._logger.debug(
+            self.logger.debug(
                 "Function selection ignored because it matches current ViewModel state (%s).",
                 self._vm_function.selected_function
             )
@@ -233,7 +233,7 @@ class FunctionWidget(BaseView, QWidget):
     # -------------------------------------------------
     def _on_cmb_func_index_changed(self) -> None:
         """Handle user selection of a different function."""
-        if self._initializing:
+        if self.initializing:
             return
 
         selected = self._cmb_function.currentData()
@@ -244,7 +244,7 @@ class FunctionWidget(BaseView, QWidget):
         if selected == current_type:
             return
 
-        self._logger.info(f"User selected function: {selected.name}")
+        self.logger.info(f"User selected function: {selected.name}")
 
         self._vm_function.set_selected_function(selected)
 
@@ -263,3 +263,4 @@ class FunctionWidget(BaseView, QWidget):
 
         txt.setText(self._format_value(value))
         self._vm_function.update_param_value(key, value)
+

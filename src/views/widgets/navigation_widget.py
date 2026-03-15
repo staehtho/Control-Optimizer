@@ -12,12 +12,13 @@ from PySide6.QtWidgets import (
 
 from app_domain.ui_context import UiContext
 from app_types import NavItem, NavLabels, ThemeType
-from views import BaseView
+from views import ViewMixin
 from views.resources import Icons
 
 MENU_ICONS = {ThemeType.DARK: "menu_dark.svg", ThemeType.LIGHT: "menu_light.svg"}
 
-class NavigationWidget(BaseView, QWidget):
+
+class NavigationWidget(ViewMixin, QWidget):
     viewSelected = Signal(NavLabels)
 
     COLLAPSED_WIDTH = 70
@@ -38,7 +39,7 @@ class NavigationWidget(BaseView, QWidget):
         self._field_widgets: dict[NavLabels, QToolButton] = {}
         self._active_bar_frames: dict[NavLabels, QFrame] = {}
 
-        BaseView.__init__(self, ui_context)
+        ViewMixin.__init__(self, ui_context)
 
     # -------------------------------------------------
     # UI Initialization
@@ -196,3 +197,4 @@ class NavigationWidget(BaseView, QWidget):
     def is_nav_item_enabled(self, key: NavLabels) -> bool:
         btn = self._field_widgets.get(key)
         return btn.isEnabled() if btn else False
+

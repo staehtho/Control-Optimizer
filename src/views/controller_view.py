@@ -6,7 +6,7 @@ from app_domain.controlsys import AntiWindup
 from utils import recolor_svg, merge_svgs, SvgLayer
 from viewmodels import ControllerViewModel
 from app_types import ControllerField, FieldConfig, SectionConfig
-from .base_view import BaseView
+from .view_mixin import ViewMixin
 from views.widgets import SectionFrame, AspectRatioSvgWidget
 from views.resources import BLOCK_DIAGRAM_DIR, BlockDiagram, Icons
 
@@ -21,13 +21,13 @@ FIELDS: list[FieldConfig] = [
 ]
 
 
-class ControllerView(BaseView, QWidget):
+class ControllerView(ViewMixin, QWidget):
     def __init__(self, ui_context: UiContext, vm_controller: ControllerViewModel, parent: QWidget = None):
         QWidget.__init__(self, parent)
 
         self._vm_controller = vm_controller
 
-        BaseView.__init__(self, ui_context)
+        ViewMixin.__init__(self, ui_context)
 
     # -------------------------------------------------
     # UI Initialization
@@ -68,7 +68,7 @@ class ControllerView(BaseView, QWidget):
         svg_widget = AspectRatioSvgWidget()
         svg_widget.set_initial_scale(2)
         frame_layout.addWidget(svg_widget)
-        self._field_widgets.setdefault(ControllerField.BLOCK_DIAGRAM, svg_widget)
+        self.field_widgets.setdefault(ControllerField.BLOCK_DIAGRAM, svg_widget)
         self._load_block_diagram()
 
         return frame
@@ -84,10 +84,10 @@ class ControllerView(BaseView, QWidget):
         }
         for key, value in attributes.items():
             attr, vm_attr, value_type = value
-            getattr(self._field_widgets[key], attr).connect(
+            getattr(self.field_widgets[key], attr).connect(
                 partial(self._on_widget_changed, key, vm_attr, value_type=value_type))
 
-        self._field_widgets.get(ControllerField.ANTI_WINDUP).currentIndexChanged.connect(
+        self.field_widgets.get(ControllerField.ANTI_WINDUP).currentIndexChanged.connect(
             self._on_index_changed_anti_windup)
 
     # -------------------------------------------------
@@ -123,26 +123,26 @@ class ControllerView(BaseView, QWidget):
         }
 
         for key in labels.keys():
-            self._labels[key].setText(labels[key])
+            self.labels[key].setText(labels[key])
 
         enums = {ControllerField.ANTI_WINDUP: AntiWindup}
         for key, value in enums.items():
             data = {k: self._enum_translation(k) for k in value}
-            self._cmb_add_item(self._field_widgets[key], data)
+            self._cmb_add_item(self.field_widgets[key], data)
 
     # -------------------------------------------------
     # Apply initial values
     # -------------------------------------------------
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
-        self._field_widgets[ControllerField.CONTROLLER_TYPE].setText(self._vm_controller.controller_type)
+        self.field_widgets[ControllerField.CONTROLLER_TYPE].setText(self._vm_controller.controller_type)
 
-        index = self._field_widgets[ControllerField.ANTI_WINDUP].findData(self._vm_controller.anti_windup)
+        index = self.field_widgets[ControllerField.ANTI_WINDUP].findData(self._vm_controller.anti_windup)
         if index >= 0:
-            self._field_widgets[ControllerField.ANTI_WINDUP].setCurrentIndex(index)
+            self.field_widgets[ControllerField.ANTI_WINDUP].setCurrentIndex(index)
 
-        self._field_widgets[ControllerField.CONSTRAINT_MIN].setText(f"{self._vm_controller.constraint_min}")
-        self._field_widgets[ControllerField.CONSTRAINT_MAX].setText(f"{self._vm_controller.constraint_max}")
+        self.field_widgets[ControllerField.CONSTRAINT_MIN].setText(f"{self._vm_controller.constraint_min}")
+        self.field_widgets[ControllerField.CONSTRAINT_MAX].setText(f"{self._vm_controller.constraint_max}")
 
     # -------------------------------------------------
     # Applied theme
@@ -157,7 +157,7 @@ class ControllerView(BaseView, QWidget):
     # UI event handlers
     # -------------------------------------------------
     def _on_index_changed_anti_windup(self, index: int) -> None:
-        widget = self._field_widgets.get(ControllerField.ANTI_WINDUP)
+        widget = self.field_widgets.get(ControllerField.ANTI_WINDUP)
         value = widget.itemData(index)
         self._vm_controller.anti_windup = value
         self._load_block_diagram()
@@ -192,4 +192,4 @@ class ControllerView(BaseView, QWidget):
 
         merged_svg = merge_svgs(svg_layers)
         recolored = recolor_svg(merged_svg, self._vm_theme.get_svg_color_map())
-        self._field_widgets.get(ControllerField.BLOCK_DIAGRAM).set_svg_bytes(recolored.encode("utf-8"))
+        self.field_widgets.get(ControllerField.BLOCK_DIAGRAM).set_svg_bytes(recolored.encode("utf-8"))

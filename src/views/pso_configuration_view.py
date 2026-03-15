@@ -7,7 +7,7 @@ from app_domain.ui_context import UiContext
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
 from app_types import PsoField, FieldConfig, SectionConfig
 from viewmodels import PlantViewModel, FunctionViewModel, PsoConfigurationViewModel
-from views.base_view import BaseView
+from views.view_mixin import ViewMixin
 from views.widgets import SectionFrame, FormulaWidget
 from views.resources import Icons
 
@@ -42,7 +42,7 @@ FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
 }
 
 
-class PsoConfigurationView(BaseView, QWidget):
+class PsoConfigurationView(ViewMixin, QWidget):
     def __init__(self, ui_context: UiContext, vm_plant: PlantViewModel, vm_function: FunctionViewModel,
                  vm_pso: PsoConfigurationViewModel,
                  parent: QObject = None):
@@ -52,7 +52,7 @@ class PsoConfigurationView(BaseView, QWidget):
         self._vm_function = vm_function
         self._vm_pso = vm_pso
 
-        BaseView.__init__(self, ui_context)
+        ViewMixin.__init__(self, ui_context)
 
     # -------------------------------------------------
     # UI Initialization
@@ -108,7 +108,7 @@ class PsoConfigurationView(BaseView, QWidget):
 
         frame_layout.addLayout(self._create_grid(FIELDS["excitation_target"], 4))
 
-        widget: FormulaWidget = self._field_widgets[PsoField.FUNCTION_FORMULA]
+        widget: FormulaWidget = self.field_widgets[PsoField.FUNCTION_FORMULA]
         widget.set_font_size(self._formula_font_size_scale)
 
         return frame
@@ -132,7 +132,7 @@ class PsoConfigurationView(BaseView, QWidget):
 
         btn_run_pso = QPushButton(frame)
         frame_layout.addWidget(btn_run_pso)
-        self._labels[PsoField.RUN_PSO] = btn_run_pso
+        self.labels[PsoField.RUN_PSO] = btn_run_pso
 
         return frame
 
@@ -155,10 +155,10 @@ class PsoConfigurationView(BaseView, QWidget):
         }
         for key, value in attributes.items():
             attr, vm_attr, value_type = value
-            getattr(self._field_widgets[key], attr).connect(
+            getattr(self.field_widgets[key], attr).connect(
                 partial(self._on_widget_changed, key, vm_attr, value_type=value_type))
 
-        self._labels[PsoField.RUN_PSO].clicked.connect(self._on_btn_run_pso)
+        self.labels[PsoField.RUN_PSO].clicked.connect(self._on_btn_run_pso)
 
     # -------------------------------------------------
     # ViewModel bindings (ViewModel → UI)
@@ -225,12 +225,12 @@ class PsoConfigurationView(BaseView, QWidget):
         }
 
         for key in labels.keys():
-            self._labels[key].setText(labels[key])
+            self.labels[key].setText(labels[key])
 
         enums = {PsoField.EXCITATION_TARGET: ExcitationTarget, PsoField.TIME_DOMAIN: PerformanceIndex}
         for key, value in enums.items():
             data = {k: self._enum_translation(k) for k in value}
-            self._cmb_add_item(self._field_widgets[key], data)
+            self._cmb_add_item(self.field_widgets[key], data)
 
     # -------------------------------------------------
     # Apply initial values
@@ -249,18 +249,18 @@ class PsoConfigurationView(BaseView, QWidget):
 
         }
         for key, value in init_value.items():
-            self._field_widgets[key].setText(f"{value}")
+            self.field_widgets[key].setText(f"{value}")
 
         attributes: dict[PsoField, str] = {
             PsoField.EXCITATION_TARGET: "excitation_target",
             PsoField.TIME_DOMAIN: "performance_index",
         }
         for key, attr in attributes.items():
-            index = self._field_widgets[key].findData(getattr(self._vm_pso, attr))
+            index = self.field_widgets[key].findData(getattr(self._vm_pso, attr))
             if index >= 0:
-                self._field_widgets[key].setCurrentIndex(index)
+                self.field_widgets[key].setCurrentIndex(index)
 
-        self._labels[PsoField.RUN_PSO].setEnabled(self._vm_plant.is_valid)
+        self.labels[PsoField.RUN_PSO].setEnabled(self._vm_plant.is_valid)
 
         self._set_formula_tf()
         self._set_formula_function()
@@ -288,7 +288,7 @@ class PsoConfigurationView(BaseView, QWidget):
     # UI event handlers
     # -------------------------------------------------
     def _on_vm_plant_is_valid_changed(self) -> None:
-        self._labels[PsoField.RUN_PSO].setEnabled(self._vm_plant.is_valid)
+        self.labels[PsoField.RUN_PSO].setEnabled(self._vm_plant.is_valid)
 
     def _on_vm_pso_progress_changed(self, iteration: int) -> None:
         percent = int((iteration / self._vm_pso.get_pos_iteration()) * 100)
@@ -298,12 +298,12 @@ class PsoConfigurationView(BaseView, QWidget):
         if not self._vm_plant.is_valid:
             return
 
-        self._labels[PsoField.RUN_PSO].setEnabled(False)
+        self.labels[PsoField.RUN_PSO].setEnabled(False)
         self._progress_bar.setValue(0)
         self._vm_pso.run_pso_simulation()
 
     def _on_vm_pso_simulation_finished(self) -> None:
-        self._labels[PsoField.RUN_PSO].setEnabled(True)
+        self.labels[PsoField.RUN_PSO].setEnabled(True)
 
     # -------------------------------------------------
     # Internal handlers
@@ -312,4 +312,4 @@ class PsoConfigurationView(BaseView, QWidget):
         self._lbl_tf.set_formula(r"G(s) = " + self._vm_plant.get_tf())
 
     def _set_formula_function(self) -> None:
-        self._field_widgets[PsoField.FUNCTION_FORMULA].set_formula(self._vm_function.selected_function.get_formula())
+        self.field_widgets[PsoField.FUNCTION_FORMULA].set_formula(self._vm_function.selected_function.get_formula())

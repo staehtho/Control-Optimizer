@@ -7,7 +7,7 @@ from app_domain.ui_context import UiContext
 from app_types import FrequencyResponse, EvaluationField, FieldConfig, PlotData, BodePlotData, PlotLabels
 from utils import SvgLayer, merge_svgs, recolor_svg
 from viewmodels import EvaluationViewModel, PlotViewModel
-from views import BaseView
+from views import ViewMixin
 from views.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, SectionFrame, FormulaWidget, \
     BodePlotWidget, AspectRatioSvgWidget
@@ -19,11 +19,11 @@ TRANSFER_FUNCTION = "transfer_function"
 BLOCK_DIAGRAM = "block_diagram"
 
 PSO_RESULT_FIELDS = [
-    ("simulation_time", QT_TRANSLATE_NOOP("EvaluationViewMixin", "Simulation Time [s]")),
-    ("kp", QT_TRANSLATE_NOOP("EvaluationViewMixin", "Kp")),
-    ("ti", QT_TRANSLATE_NOOP("EvaluationViewMixin", "Ti")),
-    ("td", QT_TRANSLATE_NOOP("EvaluationViewMixin", "Td")),
-    ("tf", QT_TRANSLATE_NOOP("EvaluationViewMixin", "Tf")),
+    ("simulation_time", QT_TRANSLATE_NOOP("EvaluationView", "Simulation Time [s]")),
+    ("kp", QT_TRANSLATE_NOOP("EvaluationView", "Kp")),
+    ("ti", QT_TRANSLATE_NOOP("EvaluationView", "Ti")),
+    ("td", QT_TRANSLATE_NOOP("EvaluationView", "Td")),
+    ("tf", QT_TRANSLATE_NOOP("EvaluationView", "Tf")),
 ]
 
 FIELDS: list[FieldConfig] = [
@@ -36,7 +36,7 @@ FIELDS: list[FieldConfig] = [
 ]
 
 
-class EvaluationViewMixin(ViewMixin, QWidget):
+class EvaluationView(ViewMixin, QWidget):
     def __init__(
             self,
             ui_context: UiContext,
@@ -55,7 +55,7 @@ class EvaluationViewMixin(ViewMixin, QWidget):
         self._pso_caption_labels: dict[str, QLabel] = {}
         self._pso_value_labels: dict[str, QLabel] = {}
 
-        BaseView.__init__(self, ui_context)
+        ViewMixin.__init__(self, ui_context)
 
     # -------------------------------------------------
     # UI Initialization
@@ -223,7 +223,7 @@ class EvaluationViewMixin(ViewMixin, QWidget):
 
         for key, value in tf.items():
             w: FormulaWidget
-            w = self._field_widgets.get(key)
+            w = self.field_widgets.get(key)
 
             w.set_formula(value)
             w.set_font_size(self._formula_font_size_scale)
@@ -298,7 +298,7 @@ class EvaluationViewMixin(ViewMixin, QWidget):
     # ViewModel change handlers
     # -------------------------------------------------
     def _on_vm_compute_finished(self, t: ndarray, y: ndarray) -> None:
-        self._logger.debug(
+        self.logger.debug(
             "Function finished computation -> updating plot (samples=%d)",
             len(t),
         )
@@ -317,7 +317,7 @@ class EvaluationViewMixin(ViewMixin, QWidget):
         )
 
     def _on_vm_closed_loop_compute_finished(self, t: ndarray, u: ndarray, y: ndarray) -> None:
-        self._logger.debug(
+        self.logger.debug(
             "Closed-loop response computation finished -> updating response plot (samples=%d)",
             len(t),
         )
@@ -344,7 +344,7 @@ class EvaluationViewMixin(ViewMixin, QWidget):
         )
 
     def _on_vm_plant_compute_finished(self, t: ndarray, y: ndarray) -> None:
-        self._logger.debug(
+        self.logger.debug(
             "Plant response computation finished -> updating response plot (samples=%d)",
             len(t),
         )
@@ -360,7 +360,7 @@ class EvaluationViewMixin(ViewMixin, QWidget):
         )
 
     def _on_vm_frequency_computation_finished(self, result: FrequencyResponse) -> None:
-        self._logger.debug(
+        self.logger.debug(
             "Closed loop frequency response computation finished -> updating response plot (samples=%d)",
             len(result.omega)
         )
@@ -384,7 +384,7 @@ class EvaluationViewMixin(ViewMixin, QWidget):
             )
 
     def _on_vm_pso_simulation_finished(self) -> None:
-        self._logger.debug("PSO simulation finished -> refreshing excitation function")
+        self.logger.debug("PSO simulation finished -> refreshing excitation function")
 
         self._update_pso_result_values()
         self._apply_init_value()
@@ -394,7 +394,7 @@ class EvaluationViewMixin(ViewMixin, QWidget):
         t0 = self._vm_plots.get(TIME_DOMAIN).x_min
         t1 = self._vm_plots.get(TIME_DOMAIN).x_max
 
-        self._logger.debug(f"Time range changed: t0={t0}, t1={t1}")
+        self.logger.debug(f"Time range changed: t0={t0}, t1={t1}")
         self._update_time_domain_plots()
 
     def _on_vm_frequency_changed(self) -> None:
@@ -402,7 +402,7 @@ class EvaluationViewMixin(ViewMixin, QWidget):
         omega_min = self._vm_plots.get(FREQUENCY_DOMAIN).x_min
         omega_max = self._vm_plots.get(FREQUENCY_DOMAIN).x_max
 
-        self._logger.debug(f"Frequency range changed: {omega_min=}, {omega_max=}")
+        self.logger.debug(f"Frequency range changed: {omega_min=}, {omega_max=}")
         self._update_frequency_domain_plots()
 
     # -------------------------------------------------
@@ -450,3 +450,4 @@ class EvaluationViewMixin(ViewMixin, QWidget):
             label = self._pso_value_labels.get(key)
             if label is not None:
                 label.setText(self._format_value(value))
+

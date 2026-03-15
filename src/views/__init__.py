@@ -1,3 +1,3 @@
-from .base_view import BaseView
+from .view_mixin import ViewMixin
 
-__all__ = ["BaseView"]
+__all__ = ["ViewMixin"]

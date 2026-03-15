@@ -281,7 +281,7 @@
     <message>
         <location filename="../views/controller_view.py" line="118"/>
         <source>Controller Type</source>
-        <translation></translation>
+        <translation>Controller Type</translation>
     </message>
     <message>
         <location filename="../views/controller_view.py" line="119"/>
@@ -302,6 +302,33 @@
         <location filename="../views/controller_view.py" line="122"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
+    </message>
+</context>
+<context>
+    <name>ControllerViewMixin</name>
+    <message>
+        <source>Controller</source>
+        <translation type="vanished">Controller</translation>
+    </message>
+    <message>
+        <source>Parameters</source>
+        <translation type="vanished">Parameters</translation>
+    </message>
+    <message>
+        <source>Anti Windup</source>
+        <translation type="vanished">Anti Windup</translation>
+    </message>
+    <message>
+        <source>Constraint</source>
+        <translation type="vanished">Constraint</translation>
+    </message>
+    <message>
+        <source>Minimum</source>
+        <translation type="vanished">Minimum</translation>
+    </message>
+    <message>
+        <source>Maximum</source>
+        <translation type="vanished">Maximum</translation>
     </message>
 </context>
 <context>
@@ -328,43 +355,127 @@
 <context>
     <name>EvaluationView</name>
     <message>
-        <location filename="../views/evaluation_view.py" line="129"/>
-        <location filename="../views/evaluation_view.py" line="207"/>
-        <location filename="../views/evaluation_view.py" line="208"/>
-        <source>Closed Loop</source>
-        <translation>Closed Loop</translation>
+        <location filename="../views/evaluation_view.py" line="22"/>
+        <source>Simulation Time [s]</source>
+        <translation>Simulation Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="116"/>
-        <location filename="../views/evaluation_view.py" line="121"/>
+        <location filename="../views/evaluation_view.py" line="23"/>
+        <source>Kp</source>
+        <translation>Kp</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="24"/>
+        <source>Ti</source>
+        <translation>Ti</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="25"/>
+        <source>Td</source>
+        <translation>Td</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="26"/>
+        <source>Tf</source>
+        <translation>Tf</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="149"/>
+        <location filename="../views/evaluation_view.py" line="154"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="117"/>
-        <location filename="../views/evaluation_view.py" line="122"/>
+        <location filename="../views/evaluation_view.py" line="150"/>
+        <location filename="../views/evaluation_view.py" line="155"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="206"/>
+        <location filename="../views/evaluation_view.py" line="162"/>
+        <location filename="../views/evaluation_view.py" line="267"/>
+        <source>Closed Loop</source>
+        <translation>Closed Loop</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="265"/>
         <source>Evaluation</source>
         <translation>Evaluation</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="211"/>
+        <location filename="../views/evaluation_view.py" line="266"/>
+        <source>PSO Result</source>
+        <translation>PSO Result</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="270"/>
         <source>Time Domain</source>
         <translation>Time Domain</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="212"/>
+        <location filename="../views/evaluation_view.py" line="271"/>
         <source>Frequency Domain</source>
         <translation>Frequency Domain</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="213"/>
+        <location filename="../views/evaluation_view.py" line="272"/>
         <source>Block Diagram</source>
         <translation>Block Diagram</translation>
+    </message>
+</context>
+<context>
+    <name>EvaluationViewMixin</name>
+    <message>
+        <source>Closed Loop</source>
+        <translation type="vanished">Closed Loop</translation>
+    </message>
+    <message>
+        <source>Time [s]</source>
+        <translation type="vanished">Time [s]</translation>
+    </message>
+    <message>
+        <source>Simulation Time [s]</source>
+        <translation type="vanished">Simulation Time [s]</translation>
+    </message>
+    <message>
+        <source>Kp</source>
+        <translation type="vanished">Kp</translation>
+    </message>
+    <message>
+        <source>Ti</source>
+        <translation type="vanished">Ti</translation>
+    </message>
+    <message>
+        <source>Td</source>
+        <translation type="vanished">Td</translation>
+    </message>
+    <message>
+        <source>Tf</source>
+        <translation type="vanished">Tf</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="vanished">Output</translation>
+    </message>
+    <message>
+        <source>Evaluation</source>
+        <translation type="vanished">Evaluation</translation>
+    </message>
+    <message>
+        <source>PSO Result</source>
+        <translation type="vanished">PSO Result</translation>
+    </message>
+    <message>
+        <source>Time Domain</source>
+        <translation type="vanished">Time Domain</translation>
+    </message>
+    <message>
+        <source>Frequency Domain</source>
+        <translation type="vanished">Frequency Domain</translation>
+    </message>
+    <message>
+        <source>Block Diagram</source>
+        <translation type="vanished">Block Diagram</translation>
     </message>
     <message>
         <source>Excitation Function</source>
@@ -424,30 +535,53 @@
 <context>
     <name>FunctionView</name>
     <message>
-        <location filename="../views/function_view.py" line="85"/>
-        <location filename="../views/function_view.py" line="122"/>
+        <location filename="../views/function_view.py" line="84"/>
+        <location filename="../views/function_view.py" line="121"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="86"/>
+        <location filename="../views/function_view.py" line="85"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="87"/>
+        <location filename="../views/function_view.py" line="86"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="123"/>
+        <location filename="../views/function_view.py" line="122"/>
         <source>Function</source>
         <translation>Function</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="124"/>
+        <location filename="../views/function_view.py" line="123"/>
         <source>Function Plot</source>
         <translation>Function Plot</translation>
+    </message>
+</context>
+<context>
+    <name>FunctionViewMixin</name>
+    <message>
+        <source>Excitation Function</source>
+        <translation type="vanished">Excitation Function</translation>
+    </message>
+    <message>
+        <source>Time [s]</source>
+        <translation type="vanished">Time [s]</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="vanished">Output</translation>
+    </message>
+    <message>
+        <source>Function</source>
+        <translation type="vanished">Function</translation>
+    </message>
+    <message>
+        <source>Function Plot</source>
+        <translation type="vanished">Function Plot</translation>
     </message>
 </context>
 <context>
@@ -456,6 +590,13 @@
         <location filename="../views/main_view.py" line="79"/>
         <source>Control Optimizer</source>
         <translation>Control Optimizer</translation>
+    </message>
+</context>
+<context>
+    <name>MainViewMixin</name>
+    <message>
+        <source>Control Optimizer</source>
+        <translation type="vanished">Control Optimizer</translation>
     </message>
 </context>
 <context>
@@ -473,56 +614,102 @@
     <name>PlantView</name>
     <message>
         <location filename="../views/plant_view.py" line="81"/>
-        <location filename="../views/plant_view.py" line="180"/>
+        <location filename="../views/plant_view.py" line="178"/>
         <source>plant.num</source>
         <translation>Numerator</translation>
     </message>
     <message>
         <location filename="../views/plant_view.py" line="96"/>
-        <location filename="../views/plant_view.py" line="181"/>
+        <location filename="../views/plant_view.py" line="179"/>
         <source>plant.den</source>
         <translation>Denumerator</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="138"/>
-        <source>Time [s]</source>
-        <translation>Time [s]</translation>
-    </message>
-    <message>
-        <location filename="../views/plant_view.py" line="139"/>
-        <source>Output</source>
-        <translation>Output</translation>
-    </message>
-    <message>
+        <location filename="../views/plant_view.py" line="135"/>
         <location filename="../views/plant_view.py" line="177"/>
-        <source>Plant</source>
-        <translation>Plant</translation>
-    </message>
-    <message>
-        <location filename="../views/plant_view.py" line="178"/>
-        <source>Transfer function</source>
-        <translation>Transfer function</translation>
-    </message>
-    <message>
-        <location filename="../views/plant_view.py" line="137"/>
-        <location filename="../views/plant_view.py" line="179"/>
         <source>Step Response</source>
         <translation>Step Response</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="182"/>
+        <location filename="../views/plant_view.py" line="136"/>
+        <source>Time [s]</source>
+        <translation>Time [s]</translation>
+    </message>
+    <message>
+        <location filename="../views/plant_view.py" line="137"/>
+        <source>Output</source>
+        <translation>Output</translation>
+    </message>
+    <message>
+        <location filename="../views/plant_view.py" line="175"/>
+        <source>Plant</source>
+        <translation>Plant</translation>
+    </message>
+    <message>
+        <location filename="../views/plant_view.py" line="176"/>
+        <source>Transfer function</source>
+        <translation>Transfer function</translation>
+    </message>
+    <message>
+        <location filename="../views/plant_view.py" line="180"/>
         <source>e.g. 1  → 1</source>
         <translation>e.g. 1  → 1</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="183"/>
+        <location filename="../views/plant_view.py" line="181"/>
         <source>e.g. 1, 0, 0  → 1*s^2 + 0*s + 0</source>
         <translation>e.g. 1, 0, 0  → 1*s² + 0*s + 0</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="185"/>
+        <location filename="../views/plant_view.py" line="183"/>
         <source>tooltip_num_den</source>
         <translation>Enter coefficients separated by commas, spaces, or semicolons.
+Use &apos;.&apos; as the decimal point.
+The first number corresponds to the highest power of s.
+Example: 1, 0.5, 2 → 1*s² + 0.5*s + 2</translation>
+    </message>
+</context>
+<context>
+    <name>PlantViewMixin</name>
+    <message>
+        <source>plant.num</source>
+        <translation type="vanished">Numerator</translation>
+    </message>
+    <message>
+        <source>plant.den</source>
+        <translation type="vanished">Denumerator</translation>
+    </message>
+    <message>
+        <source>Time [s]</source>
+        <translation type="vanished">Time [s]</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="vanished">Output</translation>
+    </message>
+    <message>
+        <source>Plant</source>
+        <translation type="vanished">Plant</translation>
+    </message>
+    <message>
+        <source>Transfer function</source>
+        <translation type="vanished">Transfer function</translation>
+    </message>
+    <message>
+        <source>Step Response</source>
+        <translation type="vanished">Step Response</translation>
+    </message>
+    <message>
+        <source>e.g. 1  → 1</source>
+        <translation type="vanished">e.g. 1  → 1</translation>
+    </message>
+    <message>
+        <source>e.g. 1, 0, 0  → 1*s^2 + 0*s + 0</source>
+        <translation type="vanished">e.g. 1, 0, 0  → 1*s² + 0*s + 0</translation>
+    </message>
+    <message>
+        <source>tooltip_num_den</source>
+        <translation type="vanished">Enter coefficients separated by commas, spaces, or semicolons.
 Use &apos;.&apos; as the decimal point.
 The first number corresponds to the highest power of s.
 Example: 1, 0.5, 2 → 1*s² + 0.5*s + 2</translation>
@@ -623,87 +810,170 @@ Must be greater than the start time.</translation>
 <context>
     <name>PsoConfigurationView</name>
     <message>
-        <source>PSO Bounds</source>
-        <translation type="vanished">PSO Bounds</translation>
-    </message>
-    <message>
-        <location filename="../views/pso_configuration_view.py" line="208"/>
+        <location filename="../views/pso_configuration_view.py" line="201"/>
         <source>PSO Parameter</source>
         <translation>PSO Parameter</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="210"/>
+        <location filename="../views/pso_configuration_view.py" line="202"/>
+        <source>Plant</source>
+        <translation>Plant</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="203"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="212"/>
+        <location filename="../views/pso_configuration_view.py" line="204"/>
+        <source>Controller Optimization Parameters</source>
+        <translation>Controller Optimization Parameters</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="205"/>
         <source>PSO Simulation</source>
         <translation>PSO Simulation</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="215"/>
+        <location filename="../views/pso_configuration_view.py" line="208"/>
         <source>Simulation Time</source>
         <translation>Simulation Time</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="216"/>
+        <location filename="../views/pso_configuration_view.py" line="209"/>
         <source>Start Time</source>
         <translation>Start Time</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="217"/>
+        <location filename="../views/pso_configuration_view.py" line="210"/>
         <source>End Time</source>
         <translation>End Time</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="218"/>
+        <location filename="../views/pso_configuration_view.py" line="211"/>
         <source>Excitation Target</source>
-        <translation>Excitation Target</translation>
+        <translation></translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="219"/>
+        <location filename="../views/pso_configuration_view.py" line="212"/>
         <source>Function</source>
         <translation>Function</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="213"/>
+        <source>Performance Index</source>
+        <translation>Performance Index</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="214"/>
+        <source>Time Domain</source>
+        <translation>Time Domain</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="215"/>
+        <source>PSO Bounds: Kp</source>
+        <translation>PSO Bounds: Kp</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="216"/>
+        <location filename="../views/pso_configuration_view.py" line="219"/>
+        <location filename="../views/pso_configuration_view.py" line="222"/>
+        <source>Minimum</source>
+        <translation>Minimum</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="217"/>
+        <location filename="../views/pso_configuration_view.py" line="220"/>
+        <location filename="../views/pso_configuration_view.py" line="223"/>
+        <source>Maximum</source>
+        <translation>Maximum</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="218"/>
+        <source>PSO Bounds: Ti</source>
+        <translation>PSO Bounds: Ti</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="221"/>
+        <source>PSO Bounds: Td</source>
+        <translation>PSO Bounds: Td</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="224"/>
+        <source>Start PSO Simulation</source>
+        <translation>Start PSO Simulation</translation>
+    </message>
+</context>
+<context>
+    <name>PsoConfigurationViewMixin</name>
+    <message>
+        <source>PSO Bounds</source>
+        <translation type="vanished">PSO Bounds</translation>
+    </message>
+    <message>
+        <source>PSO Parameter</source>
+        <translation type="vanished">PSO Parameter</translation>
+    </message>
+    <message>
+        <source>Excitation Function</source>
+        <translation type="vanished">Excitation Function</translation>
+    </message>
+    <message>
+        <source>PSO Simulation</source>
+        <translation type="vanished">PSO Simulation</translation>
+    </message>
+    <message>
+        <source>Simulation Time</source>
+        <translation type="vanished">Simulation Time</translation>
+    </message>
+    <message>
+        <source>Start Time</source>
+        <translation type="vanished">Start Time</translation>
+    </message>
+    <message>
+        <source>End Time</source>
+        <translation type="vanished">End Time</translation>
+    </message>
+    <message>
+        <source>Excitation Target</source>
+        <translation type="vanished">Excitation Target</translation>
+    </message>
+    <message>
+        <source>Function</source>
+        <translation type="vanished">Function</translation>
     </message>
     <message>
         <source>Function Formula</source>
         <translation type="vanished">Function Formula</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="221"/>
         <source>Time Domain</source>
-        <translation>Time Domain</translation>
+        <translation type="vanished">Time Domain</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="222"/>
         <source>PSO Bounds: Kp</source>
-        <translation>PSO Bounds: Kp</translation>
+        <translation type="vanished">PSO Bounds: Kp</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="225"/>
         <source>PSO Bounds: Ti</source>
-        <translation>PSO Bounds: Ti</translation>
+        <translation type="vanished">PSO Bounds: Ti</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="228"/>
         <source>PSO Bounds: Td</source>
-        <translation>PSO Bounds: Td</translation>
+        <translation type="vanished">PSO Bounds: Td</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="231"/>
         <source>Start PSO Simulation</source>
-        <translation>Start PSO Simulation</translation>
+        <translation type="vanished">Start PSO Simulation</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="243"/>
         <source>PSO Result:
 Time = %(time).2f s
 Kp   = %(kp).3f
 Ti   = %(ti).3f
 Td   = %(td).3f
 Tf   = %(tf).3f</source>
-        <translation>PSO Result:
+        <translation type="vanished">PSO Result:
 Time = %(time).2f s
 Kp   = %(kp).3f
 Ti   = %(ti).3f
@@ -715,27 +985,20 @@ Tf   = %(tf).3f</translation>
         <translation type="vanished">Anti-Windup Strategy</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="220"/>
         <source>Performance Index</source>
-        <translation>Performance Index</translation>
+        <translation type="vanished">Performance Index</translation>
     </message>
     <message>
         <source>Constraint</source>
         <translation type="vanished">Constraint</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="223"/>
-        <location filename="../views/pso_configuration_view.py" line="226"/>
-        <location filename="../views/pso_configuration_view.py" line="229"/>
         <source>Minimum</source>
-        <translation>Minimum</translation>
+        <translation type="vanished">Minimum</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="224"/>
-        <location filename="../views/pso_configuration_view.py" line="227"/>
-        <location filename="../views/pso_configuration_view.py" line="230"/>
         <source>Maximum</source>
-        <translation>Maximum</translation>
+        <translation type="vanished">Maximum</translation>
     </message>
     <message>
         <source>Kp</source>
@@ -786,14 +1049,12 @@ Tf   = %(tf).3f</translation>
         <translation type="vanished">ISE</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="209"/>
         <source>Plant</source>
-        <translation>Plant</translation>
+        <translation type="vanished">Plant</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="211"/>
         <source>Controller Optimization Parameters</source>
-        <translation>Controller Optimization Parameters</translation>
+        <translation type="vanished">Controller Optimization Parameters</translation>
     </message>
     <message>
         <source>title.plant</source>
@@ -862,57 +1123,92 @@ Tf   = %(tf).3f</translation>
 <context>
     <name>SettingsView</name>
     <message>
-        <location filename="../views/settings_view.py" line="129"/>
+        <location filename="../views/settings_view.py" line="130"/>
         <source>Settings</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="132"/>
+        <location filename="../views/settings_view.py" line="133"/>
         <source>Language</source>
         <translation>Language</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="133"/>
+        <location filename="../views/settings_view.py" line="134"/>
         <source>Theme</source>
         <translation>Theme</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="134"/>
+        <location filename="../views/settings_view.py" line="135"/>
         <source>Solver</source>
         <translation>Solver</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="135"/>
+        <location filename="../views/settings_view.py" line="136"/>
         <source>Type</source>
         <translation>Type</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="136"/>
+        <location filename="../views/settings_view.py" line="137"/>
         <source>Time Step</source>
         <translation>Time Step</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="137"/>
+        <location filename="../views/settings_view.py" line="138"/>
         <source>PSO</source>
         <translation>PSO</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="138"/>
+        <location filename="../views/settings_view.py" line="139"/>
         <source>Iterations</source>
         <translation>Iterations</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="139"/>
+        <location filename="../views/settings_view.py" line="140"/>
         <source>Particles</source>
         <translation>Particles</translation>
     </message>
 </context>
 <context>
-    <name>SimulationView</name>
+    <name>SettingsViewMixin</name>
     <message>
-        <source>Evaluation</source>
-        <translation type="vanished">Evaluation</translation>
+        <source>Settings</source>
+        <translation type="vanished">Settings</translation>
     </message>
+    <message>
+        <source>Language</source>
+        <translation type="vanished">Language</translation>
+    </message>
+    <message>
+        <source>Theme</source>
+        <translation type="vanished">Theme</translation>
+    </message>
+    <message>
+        <source>Solver</source>
+        <translation type="vanished">Solver</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="vanished">Type</translation>
+    </message>
+    <message>
+        <source>Time Step</source>
+        <translation type="vanished">Time Step</translation>
+    </message>
+    <message>
+        <source>PSO</source>
+        <translation type="vanished">PSO</translation>
+    </message>
+    <message>
+        <source>Iterations</source>
+        <translation type="vanished">Iterations</translation>
+    </message>
+    <message>
+        <source>Particles</source>
+        <translation type="vanished">Particles</translation>
+    </message>
+</context>
+<context>
+    <name>SimulationView</name>
     <message>
         <location filename="../views/simulation_view.py" line="99"/>
         <location filename="../views/simulation_view.py" line="104"/>
@@ -940,6 +1236,33 @@ Tf   = %(tf).3f</translation>
         <location filename="../views/simulation_view.py" line="159"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
+    </message>
+</context>
+<context>
+    <name>SimulationViewMixin</name>
+    <message>
+        <source>Evaluation</source>
+        <translation type="vanished">Evaluation</translation>
+    </message>
+    <message>
+        <source>Time [s]</source>
+        <translation type="vanished">Time [s]</translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="vanished">Output</translation>
+    </message>
+    <message>
+        <source>Closed Loop</source>
+        <translation type="vanished">Closed Loop</translation>
+    </message>
+    <message>
+        <source>Simulation</source>
+        <translation type="vanished">Simulation</translation>
+    </message>
+    <message>
+        <source>Excitation Function</source>
+        <translation type="vanished">Excitation Function</translation>
     </message>
 </context>
 <context>
