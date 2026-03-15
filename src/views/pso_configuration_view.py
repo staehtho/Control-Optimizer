@@ -132,11 +132,6 @@ class PsoConfigurationView(BaseView, QWidget):
         self._progress_bar.setValue(0)
         frame_layout.addWidget(self._progress_bar)
 
-        lbl_pso_result = QLabel(frame)
-        lbl_pso_result.setWordWrap(True)
-        frame_layout.addWidget(lbl_pso_result)
-        self._labels["pso_result"] = lbl_pso_result
-
         btn_run_pso = QPushButton(frame)
         frame_layout.addWidget(btn_run_pso)
         self._labels[PsoField.RUN_PSO] = btn_run_pso
@@ -239,28 +234,6 @@ class PsoConfigurationView(BaseView, QWidget):
             data = {k: self._enum_translation(k) for k in value}
             self._cmb_add_item(self._field_widgets[key], data)
 
-        self._lbl_pso_result_template = self.tr(
-            "PSO Result:\n"
-            "Time = %(time).2f s\n"
-            "Kp   = %(kp).3f\n"
-            "Ti   = %(ti).3f\n"
-            "Td   = %(td).3f\n"
-            "Tf   = %(tf).3f"
-        )
-
-        result = self._vm_pso.get_pso_result()
-        if result is None:
-            self._labels["pso_result"].setText("")
-
-        else:
-            self._labels["pso_result"].setText(self._lbl_pso_result_template % {
-                "time": result.simulation_time,
-                "kp": result.kp,
-                "ti": result.ti,
-                "td": result.td,
-                "tf": result.tf
-            })
-
     # -------------------------------------------------
     # Apply initial values
     # -------------------------------------------------
@@ -322,23 +295,8 @@ class PsoConfigurationView(BaseView, QWidget):
             return
 
         self._labels[PsoField.RUN_PSO].setEnabled(False)
-        self._labels["pso_result"].setText("")
         self._progress_bar.setValue(0)
         self._vm_pso.run_pso_simulation()
 
     def _on_vm_pso_simulation_finished(self) -> None:
         self._labels[PsoField.RUN_PSO].setEnabled(True)
-
-        result = self._vm_pso.get_pso_result()
-        if result is None:
-            self._labels["pso_result"].setText("")
-            return
-
-        self._labels["pso_result"].setText(self._lbl_pso_result_template % {
-            "time": result.simulation_time,
-            "kp": result.kp,
-            "ti": result.ti,
-            "td": result.td,
-            "tf": result.tf
-        })
-
