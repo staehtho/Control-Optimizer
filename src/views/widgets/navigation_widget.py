@@ -37,11 +37,12 @@ class NavigationWidget(ViewMixin, QWidget):
                  parent: QWidget | None = None):
         QWidget.__init__(self, parent)
 
+        self._vm_settings = ui_context.settings
         self._vm_theme = ui_context.vm_theme
         self._nav_items = nav_items
         self._init_item = init_item
 
-        self._collapsed = False
+        self._collapsed = self._vm_settings.get_nav_collapsed()
         self._field_widgets: dict[NavLabels, QToolButton] = {}
         self._active_bar_frames: dict[NavLabels, QFrame] = {}
 
@@ -52,7 +53,8 @@ class NavigationWidget(ViewMixin, QWidget):
     # ============================================================
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
-        self.setFixedWidth(self.EXPANDED_WIDTH)
+        width = self.COLLAPSED_WIDTH if self._collapsed else self.EXPANDED_WIDTH
+        self.setFixedWidth(width)
         self.setObjectName("card")
 
         self._layout = QVBoxLayout(self)
@@ -182,6 +184,7 @@ class NavigationWidget(ViewMixin, QWidget):
     # ============================================================
     def _on_toggle(self) -> None:
         self._collapsed = not self._collapsed
+        self._vm_settings.set_nav_collapsed(self._collapsed)
         width = self.COLLAPSED_WIDTH if self._collapsed else self.EXPANDED_WIDTH
         self._animate_sidebar(width)
         self._retranslate()

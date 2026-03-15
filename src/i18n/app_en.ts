@@ -652,7 +652,7 @@
 <context>
     <name>MainView</name>
     <message>
-        <location filename="../views/main_view.py" line="89"/>
+        <location filename="../views/main_view.py" line="90"/>
         <source>Control Optimizer</source>
         <translation>Control Optimizer</translation>
     </message>

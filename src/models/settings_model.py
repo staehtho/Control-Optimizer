@@ -121,6 +121,22 @@ class SettingsModel:
         self._settings.setValue("window/maximized", maximize)
 
     # -------------------
+    # Navigation state
+    # -------------------
+    def get_nav_collapsed(self) -> bool:
+        """Returns True if the navigation is collapsed, False otherwise."""
+        return bool(self._settings.value("ui/nav_collapsed", False, type=bool))
+
+    def set_nav_collapsed(self, collapsed: bool) -> None:
+        """Stores the navigation collapsed state and logs the change.
+
+        Args:
+            collapsed (bool): True if nav should be collapsed, else False.
+        """
+        self._logger.debug(f"Setting nav collapsed to {collapsed}")
+        self._settings.setValue("ui/nav_collapsed", collapsed)
+
+    # -------------------
     # Solver Property
     # -------------------
     def get_solver(self) -> MySolver:

@@ -76,3 +76,13 @@ class SettingsViewModel(BaseViewModel):
     def set_window_maximized(self, value: bool) -> None:
         self.logger.debug(f"Setter 'window_maximized' called (value={value})")
         self._settings.set_window_maximized(value)
+
+    @Slot()
+    def get_nav_collapsed(self) -> bool:
+        self.logger.debug("Getter 'nav_collapsed' called")
+        return self._settings.get_nav_collapsed()
+
+    @Slot(bool)
+    def set_nav_collapsed(self, value: bool) -> None:
+        self.logger.debug(f"Setter 'nav_collapsed' called (value={value})")
+        self._settings.set_nav_collapsed(value)
