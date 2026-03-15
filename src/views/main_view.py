@@ -9,6 +9,12 @@ from views.widgets import NavigationWidget
 
 
 class MainView(ViewMixin, QMainWindow):
+    """Main application window that hosts navigation and view stack."""
+
+    # ============================================================
+    # Initialization
+    # ============================================================
+
     def __init__(
             self,
             ui_context: UiContext,
@@ -29,9 +35,9 @@ class MainView(ViewMixin, QMainWindow):
 
         ViewMixin.__init__(self, ui_context)
 
-    # -------------------------------------------------
+    # ============================================================
     # UI Initialization
-    # -------------------------------------------------
+    # ============================================================
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
         central = QWidget(self)
@@ -57,44 +63,41 @@ class MainView(ViewMixin, QMainWindow):
         layout.addWidget(self._nav)
         layout.addWidget(scroll, 1)
 
-    # -------------------------------------------------
+    # ============================================================
     # Signal / ViewModel Binding
-    # -------------------------------------------------
+    # ============================================================
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
         self._nav.viewSelected.connect(self._switch_views)
 
-    # -------------------------------------------------
-    # ViewModel bindings (ViewModel → UI)
-    # -------------------------------------------------
+    # ============================================================
+    # ViewModel bindings (ViewModel -> UI)
+    # ============================================================
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
         self._vm_pso.psoSimulationFinished.connect(self._on_vm_pso_simulation_finished)
 
-    # -------------------------------------------------
+    # ============================================================
     # Translation
-    # -------------------------------------------------
+    # ============================================================
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self.setWindowTitle(self.tr("Control Optimizer"))
 
-    # -------------------------------------------------
+    # ============================================================
     # Apply initial values
-    # -------------------------------------------------
+    # ============================================================
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
         self._restore_window_state()
         self._apply_pso_gate()
         self._switch_views(NavLabels.PLANT)
 
-    # -------------------------------------------------
-    # ViewModel change handlers
-    # -------------------------------------------------
-
-    # -------------------------------------------------
+    # ============================================================
     # UI event handlers
-    # -------------------------------------------------
+    # ============================================================
     def _switch_views(self, key: NavLabels):
+        """Switch the view stack to the requested navigation key."""
         if not self._is_view_accessible(key):
             return
 
@@ -105,7 +108,7 @@ class MainView(ViewMixin, QMainWindow):
             current_widget = self._views[self._current_key]
             self._scroll_positions[self._current_key] = current_widget.verticalScrollBar().value()
 
-        # Create the view if it doesn’t exist yet
+        # Create the view if it doesn't exist yet
         if key not in self._views:
             view = self._view_factories[key](self._stack)
             scroll = self._wrap_in_scroll_area(view)
@@ -125,17 +128,20 @@ class MainView(ViewMixin, QMainWindow):
         self._stack.setUpdatesEnabled(True)
 
     def _is_view_accessible(self, key: NavLabels) -> bool:
+        """Return True if the view should be accessible to the user."""
         if self._has_pso_finished_once:
             return True
 
         return key not in (NavLabels.SIMULATION, NavLabels.EVALUATION)
 
     def _apply_pso_gate(self) -> None:
+        """Enable or disable navigation items gated by PSO completion."""
         views_active = self._has_pso_finished_once
         self._nav.set_nav_item_enabled(NavLabels.SIMULATION, views_active)
         self._nav.set_nav_item_enabled(NavLabels.EVALUATION, views_active)
 
     def _on_vm_pso_simulation_finished(self) -> None:
+        """Unlock additional views after the first PSO simulation finishes."""
         if self._has_pso_finished_once:
             return
 
@@ -143,15 +149,19 @@ class MainView(ViewMixin, QMainWindow):
         self._apply_pso_gate()
 
     def closeEvent(self, event: QCloseEvent) -> None:
+        """Persist window state on close."""
         self._ui_context.settings.set_window_geometry(self.saveGeometry())
         self._ui_context.settings.set_window_maximized(self.isMaximized())
         super().closeEvent(event)
 
+    # ============================================================
+    # Internal helpers
+    # ============================================================
     def _restore_window_state(self) -> None:
+        """Restore window geometry and maximized state from settings."""
         geometry = self._ui_context.settings.get_window_geometry()
         if geometry is not None and not geometry.isEmpty():
             self.restoreGeometry(geometry)
 
         if self._ui_context.settings.get_window_maximized():
             self.showMaximized()
-

@@ -1,11 +1,19 @@
+"""Plot style definitions for labeled data series."""
+
 from dataclasses import dataclass
 from collections.abc import Mapping
 
 from app_types import PlotLabels
 
 
+# ============================================================
+# Style Definitions
+# ============================================================
+
 @dataclass(frozen=True)
 class PlotStyle:
+    """Styling parameters used for matplotlib series rendering."""
+
     color: str
     plot_order: int
     linestyle: str = "-"
@@ -14,6 +22,7 @@ class PlotStyle:
     z_order: int = 10
 
     def mpl_kwargs(self) -> dict:
+        """Return matplotlib keyword args for this style."""
         return {
             "color": self.color,
             "linestyle": self.linestyle,
@@ -21,6 +30,10 @@ class PlotStyle:
             "markersize": self.markersize,
         }
 
+
+# ============================================================
+# Default Style Map
+# ============================================================
 
 PLOT_STYLE: Mapping[PlotLabels, PlotStyle] = {
     PlotLabels.PLANT: PlotStyle("#7f7f7f", 1, z_order=14),
@@ -37,5 +50,3 @@ PLOT_STYLE: Mapping[PlotLabels, PlotStyle] = {
     PlotLabels.S: PlotStyle("#d62728", 11, z_order=14),
     PlotLabels.T: PlotStyle("#9467bd", 12, z_order=15),
 }
-
-

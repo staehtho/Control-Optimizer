@@ -19,6 +19,8 @@ MENU_ICONS = {ThemeType.DARK: "menu_dark.svg", ThemeType.LIGHT: "menu_light.svg"
 
 
 class NavigationWidget(ViewMixin, QWidget):
+    """Sidebar navigation widget with collapsible behavior."""
+
     viewSelected = Signal(NavLabels)
 
     COLLAPSED_WIDTH = 70
@@ -26,6 +28,10 @@ class NavigationWidget(ViewMixin, QWidget):
     BTN_SIZE = 40
     ICON_SIZE = int(BTN_SIZE * 0.8)
     ACTIVE_BAR_WIDTH = 4
+
+    # ============================================================
+    # Initialization
+    # ============================================================
 
     def __init__(self, ui_context: UiContext, nav_items: list[NavItem], init_item: NavLabels,
                  parent: QWidget | None = None):
@@ -41,10 +47,11 @@ class NavigationWidget(ViewMixin, QWidget):
 
         ViewMixin.__init__(self, ui_context)
 
-    # -------------------------------------------------
+    # ============================================================
     # UI Initialization
-    # -------------------------------------------------
+    # ============================================================
     def _init_ui(self) -> None:
+        """Create and configure all UI components."""
         self.setFixedWidth(self.EXPANDED_WIDTH)
         self.setObjectName("card")
 
@@ -124,18 +131,20 @@ class NavigationWidget(ViewMixin, QWidget):
         # Add bottom items
         self._layout.addLayout(bottom_layout)
 
-    # -------------------------------------------------
+    # ============================================================
     # Signal / ViewModel Binding
-    # -------------------------------------------------
+    # ============================================================
     def _connect_signals(self) -> None:
+        """Connect UI signals to event handlers."""
         self._toggle_btn.clicked.connect(self._on_toggle)
         for key, btn in self._field_widgets.items():
             btn.clicked.connect(partial(self._on_btn_clicked, key=key))
 
-    # -------------------------------------------------
+    # ============================================================
     # Translation
-    # -------------------------------------------------
+    # ============================================================
     def _retranslate(self) -> None:
+        """Update all UI texts after a language change."""
         for key, btn in self._field_widgets.items():
             text = self._enum_translation(key)
             if self._collapsed:
@@ -147,9 +156,9 @@ class NavigationWidget(ViewMixin, QWidget):
                 btn.setToolTip("")
                 btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
 
-    # -------------------------------------------------
+    # ============================================================
     # Animation
-    # -------------------------------------------------
+    # ============================================================
     def _animate_sidebar(self, target_width: int) -> None:
         self._animation = QPropertyAnimation(self, b"minimumWidth")
         self._animation.setDuration(150)
@@ -158,9 +167,9 @@ class NavigationWidget(ViewMixin, QWidget):
         self._animation.start()
         self.setMaximumWidth(target_width)
 
-    # -------------------------------------------------
+    # ============================================================
     # ViewModel change handlers
-    # -------------------------------------------------
+    # ============================================================
     def _on_theme_applied(self) -> None:
         self._toggle_btn.setIcon(self._load_icon(Icons.menu))
 
@@ -168,9 +177,9 @@ class NavigationWidget(ViewMixin, QWidget):
             btn = self._field_widgets[item.key]
             btn.setIcon(self._load_icon(item.icon))
 
-    # -------------------------------------------------
+    # ============================================================
     # Event Handlers
-    # -------------------------------------------------
+    # ============================================================
     def _on_toggle(self) -> None:
         self._collapsed = not self._collapsed
         width = self.COLLAPSED_WIDTH if self._collapsed else self.EXPANDED_WIDTH
@@ -186,15 +195,16 @@ class NavigationWidget(ViewMixin, QWidget):
             )
         self.viewSelected.emit(key)
 
-    # -------------------------------------------------
+    # ============================================================
     # Helpers
-    # -------------------------------------------------
+    # ============================================================
     def set_nav_item_enabled(self, key: NavLabels, enabled: bool) -> None:
+        """Enable or disable a navigation button."""
         btn = self._field_widgets.get(key)
         if btn:
             btn.setEnabled(enabled)
 
     def is_nav_item_enabled(self, key: NavLabels) -> bool:
+        """Return whether a navigation button is enabled."""
         btn = self._field_widgets.get(key)
         return btn.isEnabled() if btn else False
-

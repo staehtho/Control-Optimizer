@@ -22,6 +22,12 @@ FIELDS: list[FieldConfig] = [
 
 
 class ControllerView(ViewMixin, QWidget):
+    """View for configuring controller parameters and anti-windup settings."""
+
+    # ============================================================
+    # Initialization
+    # ============================================================
+
     def __init__(self, ui_context: UiContext, vm_controller: ControllerViewModel, parent: QWidget = None):
         QWidget.__init__(self, parent)
 
@@ -29,9 +35,9 @@ class ControllerView(ViewMixin, QWidget):
 
         ViewMixin.__init__(self, ui_context)
 
-    # -------------------------------------------------
+    # ============================================================
     # UI Initialization
-    # -------------------------------------------------
+    # ============================================================
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
         main_layout = self._create_page_layout()
@@ -60,6 +66,7 @@ class ControllerView(ViewMixin, QWidget):
         self.setLayout(main_layout)
 
     def _create_controller_frame(self) -> SectionFrame:
+        """Create the controller configuration card."""
         frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
@@ -73,9 +80,9 @@ class ControllerView(ViewMixin, QWidget):
 
         return frame
 
-    # -------------------------------------------------
+    # ============================================================
     # Signal / ViewModel Binding
-    # -------------------------------------------------
+    # ============================================================
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
         attributes: dict[ControllerField, tuple[str, str, object]] = {
@@ -90,9 +97,9 @@ class ControllerView(ViewMixin, QWidget):
         self.field_widgets.get(ControllerField.ANTI_WINDUP).currentIndexChanged.connect(
             self._on_index_changed_anti_windup)
 
-    # -------------------------------------------------
-    # ViewModel bindings (ViewModel → UI)
-    # -------------------------------------------------
+    # ============================================================
+    # ViewModel bindings (ViewModel -> UI)
+    # ============================================================
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
         self._vm_controller.validationFailed.connect(self._on_validation_failed)
@@ -106,9 +113,9 @@ class ControllerView(ViewMixin, QWidget):
             partial(self._on_vm_changed, ControllerField.ANTI_WINDUP, "_vm_controller.anti_windup")
         )
 
-    # -------------------------------------------------
+    # ============================================================
     # Translation
-    # -------------------------------------------------
+    # ============================================================
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("Controller"))
@@ -130,9 +137,9 @@ class ControllerView(ViewMixin, QWidget):
             data = {k: self._enum_translation(k) for k in value}
             self._cmb_add_item(self.field_widgets[key], data)
 
-    # -------------------------------------------------
+    # ============================================================
     # Apply initial values
-    # -------------------------------------------------
+    # ============================================================
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
         self.field_widgets[ControllerField.CONTROLLER_TYPE].setText(self._vm_controller.controller_type)
@@ -144,28 +151,31 @@ class ControllerView(ViewMixin, QWidget):
         self.field_widgets[ControllerField.CONSTRAINT_MIN].setText(f"{self._vm_controller.constraint_min}")
         self.field_widgets[ControllerField.CONSTRAINT_MAX].setText(f"{self._vm_controller.constraint_max}")
 
-    # -------------------------------------------------
+    # ============================================================
     # Applied theme
-    # -------------------------------------------------
+    # ============================================================
     def _on_theme_applied(self) -> None:
+        """Update theme-dependent UI elements."""
         self._load_block_diagram()
 
         icon = self._load_icon(Icons.controller, self._titel_icon_size)
         self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
 
-    # -------------------------------------------------
+    # ============================================================
     # UI event handlers
-    # -------------------------------------------------
+    # ============================================================
     def _on_index_changed_anti_windup(self, index: int) -> None:
+        """Handle anti-windup selection changes."""
         widget = self.field_widgets.get(ControllerField.ANTI_WINDUP)
         value = widget.itemData(index)
         self._vm_controller.anti_windup = value
         self._load_block_diagram()
 
-    # -------------------------------------------------
+    # ============================================================
     # Internal helpers
-    # -------------------------------------------------
+    # ============================================================
     def _load_block_diagram(self) -> None:
+        """Build and recolor the controller block diagram SVG."""
         svgs = [
             BlockDiagram.controller_base,
             BlockDiagram.p_path,

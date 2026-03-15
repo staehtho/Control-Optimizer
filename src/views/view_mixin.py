@@ -10,7 +10,6 @@ from PySide6.QtWidgets import (
     QFrame,
     QVBoxLayout,
     QApplication,
-    QLineEdit,
     QScrollArea,
 )
 from PySide6.QtGui import QIcon
@@ -135,32 +134,6 @@ class ViewMixin:
         """Create a dynamic grid layout from FieldConfig and SectionConfig."""
         return layout_helpers.create_grid(self, fields, columns)
 
-    def _add_section(
-            self,
-            layout: QGridLayout,
-            section: SectionConfig,
-            columns: int,
-            parent_widget: Optional[QWidget],
-    ) -> None:
-        return layout_helpers.add_section(self, layout, section, columns, parent_widget)
-
-    def _add_field(
-            self,
-            layout: QGridLayout,
-            field: FieldConfig,
-            columns: int,
-            parent_widget: Optional[QWidget],
-    ) -> None:
-        return layout_helpers.add_field(self, layout, field, columns, parent_widget)
-
-    @staticmethod
-    def _create_widget(field: FieldConfig, parent_widget: Optional[QWidget]) -> QWidget:
-        return layout_helpers.create_widget(field, parent_widget)
-
-    @staticmethod
-    def _find_next_cell(layout: QGridLayout, columns: int) -> tuple[int, int]:
-        return layout_helpers.find_next_cell(layout, columns)
-
     # ============================================================
     # Layout Utilities
     # ============================================================
@@ -169,11 +142,6 @@ class ViewMixin:
     def _clear_layout(layout: QLayout) -> None:
         """Remove and delete all widgets/layouts from a layout."""
         return layout_helpers.clear_layout(layout)
-
-    @staticmethod
-    def cell_has_widget(grid_layout: QGridLayout, row: int, col: int) -> bool:
-        """Check if a grid cell has a widget assigned."""
-        return layout_helpers.cell_has_widget(grid_layout, row, col)
 
     @staticmethod
     def _create_page_layout() -> QVBoxLayout:
@@ -219,11 +187,6 @@ class ViewMixin:
     def _on_validation_failed(self, field: FieldType, message: str) -> None:
         """Handle a validation error for a specific field."""
         return validation_helpers.on_validation_failed(self, field, message)
-
-    @staticmethod
-    def _show_invalid_input(widget: QLineEdit, message: str) -> None:
-        """Show a consistent invalid-input state for line edits across all views."""
-        return validation_helpers.show_invalid_input(widget, message)
 
     @staticmethod
     def _clear_input_error(widget: QWidget) -> None:

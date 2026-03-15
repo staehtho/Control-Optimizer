@@ -50,6 +50,10 @@ class PlotWidget(ViewMixin, QWidget):
         _series_checkboxes (dict[str, QCheckBox]): Mapping of series keys to checkboxes.
     """
 
+    # ============================================================
+    # Initialization
+    # ============================================================
+
     def __init__(self, ui_context: UiContext, vm: PlotViewModel,
                  plot_configuration: PlotWidgetConfiguration,
                  parent: QObject = None):
@@ -63,9 +67,9 @@ class PlotWidget(ViewMixin, QWidget):
 
         self.logger.debug(f"PlotWidget initialized (context={self._cfg.context})")
 
-    # -------------------------------------------------
+    # ============================================================
     # UI Initialization
-    # -------------------------------------------------
+    # ============================================================
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
         main_layout = self._create_page_layout()
@@ -157,9 +161,9 @@ class PlotWidget(ViewMixin, QWidget):
         self._series_layout = layout
         return layout
 
-    # -------------------------------------------------
+    # ============================================================
     # Signal / ViewModel Binding
-    # -------------------------------------------------
+    # ============================================================
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
         attributes: dict[PlotField, tuple[str, str, object]] = {
@@ -172,9 +176,9 @@ class PlotWidget(ViewMixin, QWidget):
             getattr(self.field_widgets[key], attr).connect(
                 partial(self._on_widget_changed, key, vm_attr, value_type=value_type))
 
-    # -------------------------------------------------
-    # ViewModel bindings (ViewModel → UI)
-    # -------------------------------------------------
+    # ============================================================
+    # ViewModel bindings (ViewModel -> UI)
+    # ============================================================
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
         # Thread-safe call to update plot
@@ -184,9 +188,9 @@ class PlotWidget(ViewMixin, QWidget):
         self._vm.xMinChanged.connect(partial(self._on_vm_changed, PlotField.X_MIN, "_vm.x_min"))
         self._vm.xMaxChanged.connect(partial(self._on_vm_changed, PlotField.X_MAX, "_vm.x_max"))
 
-    # -------------------------------------------------
+    # ============================================================
     # Translation
-    # -------------------------------------------------
+    # ============================================================
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._chk_grid.setText(self.tr("plot.grid"))
@@ -198,18 +202,18 @@ class PlotWidget(ViewMixin, QWidget):
         self._vm.retranslate_labels(self._enum_translation)
         self._update_plot()
 
-    # -------------------------------------------------
+    # ============================================================
     # Apply initial values
-    # -------------------------------------------------
+    # ============================================================
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
         self._txt_min.setText(self._format_value(self._vm.x_min))
         self._txt_max.setText(self._format_value(self._vm.x_max))
         self._chk_grid.setChecked(self._vm.grid)
 
-    # -------------------------------------------------
+    # ============================================================
     # Plot update
-    # -------------------------------------------------
+    # ============================================================
     def _update_plot(self) -> None:
         """Redraw the plot, including axes, legends, and grid."""
         self.logger.debug(
@@ -282,9 +286,9 @@ class PlotWidget(ViewMixin, QWidget):
 
         self._canvas.draw_idle()
 
-    # -------------------------------------------------
+    # ============================================================
     # Helper plotting method (override in subclass)
-    # -------------------------------------------------
+    # ============================================================
     def _plot_series_on_axes(self, axs, series: list) -> None:
         for i in range(len(axs)):
             for serie in series:
@@ -316,9 +320,9 @@ class PlotWidget(ViewMixin, QWidget):
                 legend = axs[i].legend(loc="best", frameon=False)
                 legend.set_draggable(True)
 
-    # -------------------------------------------------
+    # ============================================================
     # Series checkboxes synchronization
-    # -------------------------------------------------
+    # ============================================================
     def _sync_series_checkboxes(self, data: dict) -> None:
         """Synchronize UI checkboxes with current data series visibility."""
         existing_keys = set(self._series_checkboxes.keys())
@@ -360,9 +364,9 @@ class PlotWidget(ViewMixin, QWidget):
             checkbox.deleteLater()
             self.field_widgets.pop(f"plot_data_{key}", None)
 
-    # -------------------------------------------------
+    # ============================================================
     # UI event handlers
-    # -------------------------------------------------
+    # ============================================================
     def _on_series_checkbox_toggled(self, key: str, checked: bool) -> None:
         self.logger.debug(f"UI event: series visibility changed -> {key}={checked}")
         self._vm.set_data_visibility(key, checked)
@@ -372,9 +376,9 @@ class PlotWidget(ViewMixin, QWidget):
         self._canvas.draw_idle()
         super().resizeEvent(event)
 
-    # -------------------------------------------------
+    # ============================================================
     # Theme handling
-    # -------------------------------------------------
+    # ============================================================
     def _on_theme_applied(self) -> None:
         self._apply_toolbar_icons()
 
@@ -445,4 +449,3 @@ class _AspectCanvas(FigureCanvas):
         width = 500
         height = int(round(width / self._ratio))
         return QSize(width, max(1, height))
-

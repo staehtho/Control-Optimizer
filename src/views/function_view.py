@@ -15,6 +15,10 @@ from views.widgets import PlotWidget, PlotWidgetConfiguration, FunctionWidget, S
 class FunctionView(ViewMixin, QWidget):
     """View for selecting and configuring functions and displaying the plot."""
 
+    # ============================================================
+    # Initialization
+    # ============================================================
+
     def __init__(
             self,
             ui_context: UiContext,
@@ -31,9 +35,9 @@ class FunctionView(ViewMixin, QWidget):
 
         ViewMixin.__init__(self, ui_context)
 
-    # -------------------------------------------------
+    # ============================================================
     # UI Initialization
-    # -------------------------------------------------
+    # ============================================================
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
         main_layout = self._create_page_layout()
@@ -64,6 +68,7 @@ class FunctionView(ViewMixin, QWidget):
         self.setLayout(main_layout)
 
     def _create_function_frame(self) -> SectionFrame:
+        """Create the function configuration card."""
         frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
@@ -76,6 +81,7 @@ class FunctionView(ViewMixin, QWidget):
         return frame
 
     def _create_plot_frame(self) -> SectionFrame:
+        """Create the function plot card."""
         frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
@@ -93,54 +99,55 @@ class FunctionView(ViewMixin, QWidget):
 
         return frame
 
-    # -------------------------------------------------
+    # ============================================================
     # Signal / ViewModel Binding
-    # -------------------------------------------------
+    # ============================================================
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
         self._function_widget.functionChanged.connect(self._on_vm_function_changed)
 
-    # -------------------------------------------------
-    # ViewModel bindings (ViewModel → UI)
-    # -------------------------------------------------
+    # ============================================================
+    # ViewModel bindings (ViewModel -> UI)
+    # ============================================================
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
 
-        # Function ViewModel → View
+        # Function ViewModel -> View
         self._vm_function.computeFinished.connect(self._on_vm_compute_finished)
 
-        # Plot ViewModel → Function recomputation
+        # Plot ViewModel -> Function recomputation
         self._vm_plot.xMinChanged.connect(self._on_vm_time_changed)
         self._vm_plot.xMaxChanged.connect(self._on_vm_time_changed)
 
-    # -------------------------------------------------
+    # ============================================================
     # Translation
-    # -------------------------------------------------
+    # ============================================================
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("Excitation Function"))
         self._frm_function.set_title(self.tr("Function"))
         self._frm_plot.set_title(self.tr("Function Plot"))
 
-    # -------------------------------------------------
+    # ============================================================
     # Apply initial values
-    # -------------------------------------------------
+    # ============================================================
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
         t0 = self._vm_plot.x_min
         t1 = self._vm_plot.x_max
         self._vm_function.compute_function(t0, t1)
 
-    # -------------------------------------------------
+    # ============================================================
     # Applied theme
-    # -------------------------------------------------
+    # ============================================================
     def _on_theme_applied(self) -> None:
+        """Update theme-dependent UI elements."""
         icon = self._load_icon(Icons.excitation_function, self._titel_icon_size)
         self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
 
-    # -------------------------------------------------
+    # ============================================================
     # ViewModel change handlers
-    # -------------------------------------------------
+    # ============================================================
     def _on_vm_function_changed(self) -> None:
         """Rebuild parameter grid when selected function changes."""
         self.logger.info(f"Function changed to: {self._vm_function.selected_function.__class__.__name__}")
@@ -171,9 +178,3 @@ class FunctionView(ViewMixin, QWidget):
         t1 = self._vm_plot.x_max
         self.logger.debug(f"Time range changed: t0={t0}, t1={t1}")
         self._vm_function.compute_function(t0, t1)
-
-    # -------------------------------------------------
-    # UI event handlers
-    # -------------------------------------------------
-
-

@@ -1,9 +1,17 @@
+"""Reusable section frame with header and content area."""
+
 from PySide6.QtCore import Property, Qt, Signal
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 
 class SectionFrame(QFrame):
+    """Card-like frame with a titled header and a content layout."""
+
     titleChanged = Signal(str)
+
+    # ============================================================
+    # Initialization
+    # ============================================================
 
     def __init__(
             self,
@@ -29,7 +37,12 @@ class SectionFrame(QFrame):
 
         self._content_widget.setVisible(True)
 
+    # ============================================================
+    # UI Construction
+    # ============================================================
+
     def _create_header_widget(self, title: str) -> QWidget:
+        """Create the header row containing the section title."""
         widget = QWidget(self)
         widget.setFixedHeight(44)
 
@@ -46,23 +59,35 @@ class SectionFrame(QFrame):
 
         return widget
 
+    # ============================================================
+    # Content API
+    # ============================================================
+
     def add_widget(self, widget: QWidget) -> None:
+        """Add a widget to the content area."""
         self._content_layout.addWidget(widget)
 
     def add_layout(self, layout) -> None:
+        """Add a layout to the content area."""
         self._content_layout.addLayout(layout)
 
     def content_layout(self) -> QVBoxLayout:
+        """Return the content layout for direct manipulation."""
         return self._content_layout
 
+    # ============================================================
+    # Title API
+    # ============================================================
+
     def title(self) -> str:
+        """Return the current title text."""
         return self._title_label.text()
 
     def set_title(self, value: str) -> None:
+        """Set the title text and emit titleChanged if it changed."""
         if value == self._title_label.text():
             return
         self._title_label.setText(value)
         self.titleChanged.emit(value)
 
     title = Property(str, title, set_title, notify=titleChanged)
-

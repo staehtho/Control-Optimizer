@@ -1,9 +1,17 @@
+"""SVG widget that preserves aspect ratio while scaling to available space."""
+
 from PySide6.QtSvgWidgets import QSvgWidget
 from PySide6.QtCore import QRectF, QByteArray
 from PySide6.QtGui import QPainter
 
 
 class AspectRatioSvgWidget(QSvgWidget):
+    """Render SVG content with preserved aspect ratio and configurable initial scale."""
+
+    # ============================================================
+    # Initialization
+    # ============================================================
+
     def __init__(
             self,
             svg_file: str | None = None,
@@ -21,25 +29,25 @@ class AspectRatioSvgWidget(QSvgWidget):
         elif svg_file is not None:
             self.set_svg_file(svg_file)
 
-    # -----------------------
+    # ============================================================
     # Public API
-    # -----------------------
+    # ============================================================
 
-    def set_svg_file(self, path: str):
-        """Load SVG from file."""
+    def set_svg_file(self, path: str) -> None:
+        """Load SVG from a file path."""
         self._svg_file = path
         self._svg_bytes = None
         self.load(path)
         self.update()
 
-    def set_svg_bytes(self, data: bytes | bytearray):
+    def set_svg_bytes(self, data: bytes | bytearray) -> None:
         """Load SVG from raw bytes."""
         self._svg_bytes = bytes(data)
         self._svg_file = None
         self.load(QByteArray(self._svg_bytes))
         self.update()
 
-    def reload(self):
+    def reload(self) -> None:
         """Reload the current SVG source."""
         if self._svg_bytes is not None:
             self.load(QByteArray(self._svg_bytes))
@@ -47,14 +55,14 @@ class AspectRatioSvgWidget(QSvgWidget):
             self.load(self._svg_file)
         self.update()
 
-    def set_initial_scale(self, scale: float):
+    def set_initial_scale(self, scale: float) -> None:
         """Update the initial scale."""
         self.initial_scale = scale
         self.update()
 
-    # -----------------------
+    # ============================================================
     # Rendering
-    # -----------------------
+    # ============================================================
 
     def paintEvent(self, event):
         """Render SVG scaled and centered, preserving aspect ratio with initial_scale."""

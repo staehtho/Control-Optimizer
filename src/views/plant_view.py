@@ -1,5 +1,4 @@
-from PySide6.QtCore import QObject
-from PySide6.QtCore import QRegularExpression, Qt, QT_TRANSLATE_NOOP
+from PySide6.QtCore import QObject, QRegularExpression, Qt, QT_TRANSLATE_NOOP
 from PySide6.QtGui import QRegularExpressionValidator
 from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QScrollArea, QSizePolicy, QHBoxLayout
 from numpy import ndarray
@@ -14,6 +13,11 @@ from views.resources import Icons
 
 
 class PlantView(ViewMixin, QWidget):
+    """Plant view for editing a transfer function and showing its step response."""
+
+    # ============================================================
+    # Initialization
+    # ============================================================
 
     def __init__(
         self,
@@ -30,12 +34,11 @@ class PlantView(ViewMixin, QWidget):
 
         ViewMixin.__init__(self, ui_context)
 
-    # -------------------------------------------------
+    # ============================================================
     # UI Initialization
-    # -------------------------------------------------
+    # ============================================================
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
-
         main_layout = self._create_page_layout()
 
         # Title row (icon + title)
@@ -64,6 +67,7 @@ class PlantView(ViewMixin, QWidget):
         self.setLayout(main_layout)
 
     def _create_transfer_function_frame(self) -> SectionFrame:
+        """Create the transfer function input card."""
         frame: SectionFrame
         frame, frame_layout = self._create_card(self)
         grid_layout = QGridLayout()
@@ -128,6 +132,7 @@ class PlantView(ViewMixin, QWidget):
         return frame
 
     def _create_plot_frame(self) -> SectionFrame:
+        """Create the step response plot card."""
         frame: SectionFrame
         frame, frame_layout = self._create_card(self)
         plot_cfg = PlotWidgetConfiguration(
@@ -144,17 +149,17 @@ class PlantView(ViewMixin, QWidget):
 
         return frame
 
-    # -------------------------------------------------
+    # ============================================================
     # Signal / ViewModel Binding
-    # -------------------------------------------------
+    # ============================================================
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
         self._txt_num.textChanged.connect(self._on_txt_num_changed)
         self._txt_den.textChanged.connect(self._on_txt_den_changed)
 
-    # -------------------------------------------------
-    # ViewModel bindings (ViewModel → UI)
-    # -------------------------------------------------
+    # ============================================================
+    # ViewModel bindings (ViewModel -> UI)
+    # ============================================================
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
         # vm plant
@@ -167,9 +172,9 @@ class PlantView(ViewMixin, QWidget):
         self._vm_plot.xMinChanged.connect(self._on_plot_time_changed)
         self._vm_plot.xMaxChanged.connect(self._on_plot_time_changed)
 
-    # -------------------------------------------------
+    # ============================================================
     # Translation
-    # -------------------------------------------------
+    # ============================================================
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("Plant"))
@@ -184,25 +189,26 @@ class PlantView(ViewMixin, QWidget):
         self._txt_num.setToolTip(tooltip_text)
         self._txt_den.setToolTip(tooltip_text)
 
-    # -------------------------------------------------
+    # ============================================================
     # Apply initial values
-    # -------------------------------------------------
+    # ============================================================
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
         self._set_formula()
 
-    # -------------------------------------------------
+    # ============================================================
     # Applied theme
-    # -------------------------------------------------
+    # ============================================================
     def _on_theme_applied(self) -> None:
+        """Update theme-dependent UI elements."""
         icon = self._load_icon(Icons.plant, self._titel_icon_size)
         self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
 
         self._set_formula()
 
-    # -------------------------------------------------
+    # ============================================================
     # ViewModel change handlers
-    # -------------------------------------------------
+    # ============================================================
     def _on_vm_num_changed(self) -> None:
         """Update numerator input field when ViewModel changes."""
         if self._txt_num.text() != self._vm_plant.num:
@@ -222,6 +228,7 @@ class PlantView(ViewMixin, QWidget):
         self._vm_plant.compute_step_response(self._vm_plot.x_min, self._vm_plot.x_max)
 
     def _on_step_response_changed(self, t: ndarray, y: ndarray) -> None:
+        """Update plot series when the step response changes."""
         self._vm_plot.update_data(
             PlotData(
                 key=PlotLabels.PLANT.value,
@@ -232,9 +239,9 @@ class PlantView(ViewMixin, QWidget):
             )
         )
 
-    # -------------------------------------------------
+    # ============================================================
     # UI event handlers
-    # -------------------------------------------------
+    # ============================================================
     def _on_txt_num_changed(self) -> None:
         """Handle user changes in numerator input field."""
         text = self._txt_num.text()
@@ -249,9 +256,9 @@ class PlantView(ViewMixin, QWidget):
         self.logger.debug(f"UI event: txt_den changed (value={text})")
         self._vm_plant.update_den(text)
 
-    # -------------------------------------------------
-    # Internal handlers
-    # -------------------------------------------------
+    # ============================================================
+    # Internal helpers
+    # ============================================================
     def _set_formula(self) -> None:
+        """Update the LaTeX formula display from the ViewModel transfer function."""
         self._lbl_formula.set_formula(r"G(s) = " + self._vm_plant.get_tf())
-

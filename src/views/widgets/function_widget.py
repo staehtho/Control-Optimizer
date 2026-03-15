@@ -12,7 +12,13 @@ from .formula_widget import FormulaWidget
 
 
 class FunctionWidget(ViewMixin, QWidget):
+    """Widget for selecting a function and editing its parameters."""
+
     functionChanged = Signal()
+
+    # ============================================================
+    # Initialization
+    # ============================================================
 
     def __init__(
             self,
@@ -34,9 +40,9 @@ class FunctionWidget(ViewMixin, QWidget):
 
         ViewMixin.__init__(self, ui_context)
 
-    # -------------------------------------------------
+    # ============================================================
     # UI Initialization
-    # -------------------------------------------------
+    # ============================================================
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
         main_layout = self._create_page_layout()
@@ -48,6 +54,7 @@ class FunctionWidget(ViewMixin, QWidget):
         self.setLayout(main_layout)
 
     def _create_function_selector_layout(self) -> QWidget:
+        """Create the function selector container layout."""
         container = QWidget(self)
         frame_layout = QVBoxLayout(container)
         frame_layout.setContentsMargins(0, 0, 0, 0)
@@ -113,9 +120,9 @@ class FunctionWidget(ViewMixin, QWidget):
 
         return grid
 
-    # -------------------------------------------------
+    # ============================================================
     # Signal / ViewModel Binding
-    # -------------------------------------------------
+    # ============================================================
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
         self._cmb_function.currentIndexChanged.connect(self._on_cmb_func_index_changed)
@@ -129,17 +136,17 @@ class FunctionWidget(ViewMixin, QWidget):
             # Update ViewModel on editing finished
             txt.editingFinished.connect(partial(self._on_txt_param_edited, key))
 
-    # -------------------------------------------------
-    # ViewModel bindings (ViewModel → UI)
-    # -------------------------------------------------
+    # ============================================================
+    # ViewModel bindings (ViewModel -> UI)
+    # ============================================================
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
         self._vm_function.functionChanged.connect(self._on_vm_function_changed)
         self._vm_function.parameterChanged.connect(self._on_vm_param_changed)
 
-    # -------------------------------------------------
+    # ============================================================
     # Translation
-    # -------------------------------------------------
+    # ============================================================
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         function_labels = {
@@ -153,9 +160,9 @@ class FunctionWidget(ViewMixin, QWidget):
         if index >= 0:
             self._cmb_function.setCurrentIndex(index)
 
-    # -------------------------------------------------
+    # ============================================================
     # Apply initial values
-    # -------------------------------------------------
+    # ============================================================
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
         selected_type = resolve_function_type(self._vm_function.selected_function)
@@ -163,16 +170,16 @@ class FunctionWidget(ViewMixin, QWidget):
         if index >= 0:
             self._cmb_function.setCurrentIndex(index)
 
-    # -------------------------------------------------
+    # ============================================================
     # Applied theme
-    # -------------------------------------------------
+    # ============================================================
     def _on_theme_applied(self) -> None:
         for formula, label in self._lbl_function_params.items():
             label.set_formula(formula)
 
-    # -------------------------------------------------
+    # ============================================================
     # ViewModel change handlers
-    # -------------------------------------------------
+    # ============================================================
     def _on_vm_function_changed(self) -> None:
         """Rebuild parameter grid when selected function changes."""
         self.logger.info(f"Function changed to: {self._vm_function.selected_function.__class__.__name__}")
@@ -228,9 +235,9 @@ class FunctionWidget(ViewMixin, QWidget):
             txt.setText(formatted_value)
             self.functionChanged.emit()
 
-    # -------------------------------------------------
+    # ============================================================
     # UI event handlers
-    # -------------------------------------------------
+    # ============================================================
     def _on_cmb_func_index_changed(self) -> None:
         """Handle user selection of a different function."""
         if self.initializing:
@@ -256,11 +263,10 @@ class FunctionWidget(ViewMixin, QWidget):
         try:
             value = float(text)
         except ValueError:
-            # Invalid input → restore ViewModel value
+            # Invalid input -> restore ViewModel value
             value = self._vm_function.selected_function.get_param_value(key)
             txt.setText(self._format_value(value))
             return
 
         txt.setText(self._format_value(value))
         self._vm_function.update_param_value(key, value)
-

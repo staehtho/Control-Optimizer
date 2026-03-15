@@ -8,8 +8,7 @@ from .plot_widget import PlotWidget, PlotWidgetConfiguration, SubplotConfigurati
 
 
 class BodePlotWidget(PlotWidget):
-    """
-    Widget for displaying a Bode plot.
+    """Widget for displaying a Bode plot.
 
     The widget consists of two vertically stacked subplots:
         1. Margin plot (gain in dB)
@@ -23,9 +22,12 @@ class BodePlotWidget(PlotWidget):
         - plot_style: matplotlib styling configuration
     """
 
+    # ============================================================
+    # Initialization
+    # ============================================================
+
     def __init__(self, ui_context: UiContext, vm: PlotViewModel, parent: QObject = None):
-        """
-        Initialize the BodePlotWidget.
+        """Initialize the BodePlotWidget.
 
         Args:
             ui_context: Shared UI context used across the application.
@@ -57,9 +59,12 @@ class BodePlotWidget(PlotWidget):
 
         super().__init__(ui_context, vm, plt_cfg, parent)
 
+    # ============================================================
+    # Plotting
+    # ============================================================
+
     def _plot_series_on_axes(self, axs, series: list) -> None:
-        """
-        Plot all provided series on the Bode axes.
+        """Plot all provided series on the Bode axes.
 
         This method delegates the actual drawing to helper methods
         and ensures that legends are created if labels are available.
@@ -79,8 +84,7 @@ class BodePlotWidget(PlotWidget):
             legend.set_draggable(True)
 
     def _plot_margin_and_phase_on_axes(self, axs, series: list) -> None:
-        """
-        Plot margin and phase responses on the Bode axes.
+        """Plot margin and phase responses on the Bode axes.
 
         The margin curve is plotted on the first axis and the phase
         curve on the second axis using a logarithmic frequency scale.
@@ -117,7 +121,7 @@ class BodePlotWidget(PlotWidget):
 
             all_margin.append(serie.margin)
 
-            # Wrap phase into range [-180Â°, 180Â°]
+            # Wrap phase into range [-180°, 180°]
             phase = (serie.phase + 180) % 360 - 180
 
             # Plot phase curve
@@ -153,6 +157,3 @@ class BodePlotWidget(PlotWidget):
 
         # Standard phase tick spacing for Bode plots
         ax_phase.set_yticks(np.arange(-180, 181, 45))
-
-
-

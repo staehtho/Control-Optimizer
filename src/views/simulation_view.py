@@ -16,6 +16,12 @@ from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfigurat
 
 
 class SimulationView(ViewMixin, QWidget):
+    """View for simulating closed-loop response with excitation functions."""
+
+    # ============================================================
+    # Initialization
+    # ============================================================
+
     def __init__(
             self,
             ui_context: UiContext,
@@ -34,9 +40,9 @@ class SimulationView(ViewMixin, QWidget):
 
         ViewMixin.__init__(self, ui_context)
 
-    # -------------------------------------------------
+    # ============================================================
     # UI Initialization
-    # -------------------------------------------------
+    # ============================================================
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
 
@@ -68,6 +74,7 @@ class SimulationView(ViewMixin, QWidget):
         self.setLayout(main_layout)
 
     def _create_function_frame(self) -> SectionFrame:
+        """Create the excitation function tab card."""
         frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
@@ -91,6 +98,7 @@ class SimulationView(ViewMixin, QWidget):
         return frame
 
     def _create_cl_response_frame(self) -> SectionFrame:
+        """Create the closed-loop response plot card."""
         frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
@@ -121,16 +129,16 @@ class SimulationView(ViewMixin, QWidget):
 
         return frame
 
-    # -------------------------------------------------
+    # ============================================================
     # Signal / ViewModel Binding
-    # -------------------------------------------------
+    # ============================================================
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
         ...
 
-    # -------------------------------------------------
+    # ============================================================
     # ViewModel bindings (ViewModel -> UI)
-    # -------------------------------------------------
+    # ============================================================
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
         # Function ViewModel
@@ -150,9 +158,9 @@ class SimulationView(ViewMixin, QWidget):
         for key, vm in self._vm_functions.items():
             vm.functionChanged.connect(partial(self._on_vm_function_changed, key))
 
-    # -------------------------------------------------
+    # ============================================================
     # Translation
-    # -------------------------------------------------
+    # ============================================================
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("Simulation"))
@@ -164,23 +172,24 @@ class SimulationView(ViewMixin, QWidget):
             new_label = self._enum_translation(text)
             self._function_tab.setTabText(i, new_label)
 
-    # -------------------------------------------------
+    # ============================================================
     # Apply initial values
-    # -------------------------------------------------
+    # ============================================================
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
         self._on_vm_pso_simulation_finished()
 
-    # -------------------------------------------------
+    # ============================================================
     # Applied theme
-    # -------------------------------------------------
+    # ============================================================
     def _on_theme_applied(self) -> None:
+        """Update theme-dependent UI elements."""
         icon = self._load_icon(Icons.simulation, self._titel_icon_size)
         self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
 
-    # -------------------------------------------------
+    # ============================================================
     # ViewModel change handlers
-    # -------------------------------------------------
+    # ============================================================
     def _on_vm_function_compute_finished(self, key: str, t: ndarray, y: ndarray) -> None:
         self.logger.debug(
             "Function VM '%s' finished computation -> updating plot (samples=%d)",
@@ -283,9 +292,9 @@ class SimulationView(ViewMixin, QWidget):
         for vm in self._vm_functions.values():
             vm.compute_function(t0, t1)
 
-    # -------------------------------------------------
+    # ============================================================
     # UI event handlers
-    # -------------------------------------------------
+    # ============================================================
     def _on_vm_function_changed(self, key: str) -> None:
         t0 = self._vm_plot.x_min
         t1 = self._vm_plot.x_max
@@ -303,6 +312,3 @@ class SimulationView(ViewMixin, QWidget):
         """Sync plot time range from persisted evaluator state via evaluator VM."""
         self._vm_plot.x_min = self._vm_simulation.t0
         self._vm_plot.x_max = self._vm_simulation.t1
-
-
-

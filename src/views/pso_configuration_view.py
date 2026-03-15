@@ -43,9 +43,20 @@ FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
 
 
 class PsoConfigurationView(ViewMixin, QWidget):
-    def __init__(self, ui_context: UiContext, vm_plant: PlantViewModel, vm_function: FunctionViewModel,
-                 vm_pso: PsoConfigurationViewModel,
-                 parent: QObject = None):
+    """View for configuring PSO parameters and running simulations."""
+
+    # ============================================================
+    # Initialization
+    # ============================================================
+
+    def __init__(
+            self,
+            ui_context: UiContext,
+            vm_plant: PlantViewModel,
+            vm_function: FunctionViewModel,
+            vm_pso: PsoConfigurationViewModel,
+            parent: QObject = None,
+    ):
         QWidget.__init__(self, parent)
 
         self._vm_plant = vm_plant
@@ -54,9 +65,9 @@ class PsoConfigurationView(ViewMixin, QWidget):
 
         ViewMixin.__init__(self, ui_context)
 
-    # -------------------------------------------------
+    # ============================================================
     # UI Initialization
-    # -------------------------------------------------
+    # ============================================================
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
         main_layout = self._create_page_layout()
@@ -91,6 +102,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
         self.setLayout(main_layout)
 
     def _create_plant_frame(self) -> SectionFrame:
+        """Create the plant transfer function card."""
         frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
@@ -103,6 +115,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
         return frame
 
     def _create_function_frame(self) -> SectionFrame:
+        """Create the excitation function card."""
         frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
@@ -114,6 +127,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
         return frame
 
     def _create_controller_frame(self) -> SectionFrame:
+        """Create the controller optimization card."""
         frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
@@ -122,6 +136,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
         return frame
 
     def _create_run_pso_frame(self) -> SectionFrame:
+        """Create the PSO run control card."""
         frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
@@ -136,9 +151,9 @@ class PsoConfigurationView(ViewMixin, QWidget):
 
         return frame
 
-    # -------------------------------------------------
+    # ============================================================
     # Signal / ViewModel Binding
-    # -------------------------------------------------
+    # ============================================================
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
         attributes: dict[PsoField, tuple[str, str, object]] = {
@@ -160,9 +175,9 @@ class PsoConfigurationView(ViewMixin, QWidget):
 
         self.labels[PsoField.RUN_PSO].clicked.connect(self._on_btn_run_pso)
 
-    # -------------------------------------------------
-    # ViewModel bindings (ViewModel → UI)
-    # -------------------------------------------------
+    # ============================================================
+    # ViewModel bindings (ViewModel -> UI)
+    # ============================================================
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
         # Plant ViewModel
@@ -193,9 +208,9 @@ class PsoConfigurationView(ViewMixin, QWidget):
         self._vm_pso.psoProgressChanged.connect(self._on_vm_pso_progress_changed)
         self._vm_pso.psoSimulationFinished.connect(self._on_vm_pso_simulation_finished)
 
-    # -------------------------------------------------
+    # ============================================================
     # Translation
-    # -------------------------------------------------
+    # ============================================================
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("PSO Parameter"))
@@ -232,9 +247,9 @@ class PsoConfigurationView(ViewMixin, QWidget):
             data = {k: self._enum_translation(k) for k in value}
             self._cmb_add_item(self.field_widgets[key], data)
 
-    # -------------------------------------------------
+    # ============================================================
     # Apply initial values
-    # -------------------------------------------------
+    # ============================================================
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
         init_value = {
@@ -265,36 +280,42 @@ class PsoConfigurationView(ViewMixin, QWidget):
         self._set_formula_tf()
         self._set_formula_function()
 
-    # -------------------------------------------------
+    # ============================================================
     # Applied theme
-    # -------------------------------------------------
+    # ============================================================
     def _on_theme_applied(self) -> None:
+        """Update theme-dependent UI elements."""
         icon = self._load_icon(Icons.pso_parameter, self._titel_icon_size)
         self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
 
         self._set_formula_tf()
         self._set_formula_function()
 
-    # -------------------------------------------------
+    # ============================================================
     # ViewModel change handlers
-    # -------------------------------------------------
+    # ============================================================
     def _on_vm_plant_tf_changed(self) -> None:
+        """Update the plant transfer function formula when it changes."""
         self._set_formula_tf()
 
     def _on_vm_function_function_changed(self) -> None:
+        """Update the excitation function formula when it changes."""
         self._set_formula_function()
 
-    # -------------------------------------------------
+    # ============================================================
     # UI event handlers
-    # -------------------------------------------------
+    # ============================================================
     def _on_vm_plant_is_valid_changed(self) -> None:
+        """Enable or disable the PSO run button based on plant validity."""
         self.labels[PsoField.RUN_PSO].setEnabled(self._vm_plant.is_valid)
 
     def _on_vm_pso_progress_changed(self, iteration: int) -> None:
+        """Update the progress bar based on PSO iteration."""
         percent = int((iteration / self._vm_pso.get_pos_iteration()) * 100)
         self._progress_bar.setValue(percent)
 
     def _on_btn_run_pso(self) -> None:
+        """Start PSO simulation if the plant is valid."""
         if not self._vm_plant.is_valid:
             return
 
@@ -303,13 +324,16 @@ class PsoConfigurationView(ViewMixin, QWidget):
         self._vm_pso.run_pso_simulation()
 
     def _on_vm_pso_simulation_finished(self) -> None:
+        """Re-enable the run button after PSO simulation completes."""
         self.labels[PsoField.RUN_PSO].setEnabled(True)
 
-    # -------------------------------------------------
-    # Internal handlers
-    # -------------------------------------------------
+    # ============================================================
+    # Internal helpers
+    # ============================================================
     def _set_formula_tf(self) -> None:
+        """Update the plant transfer function formula display."""
         self._lbl_tf.set_formula(r"G(s) = " + self._vm_plant.get_tf())
 
     def _set_formula_function(self) -> None:
+        """Update the excitation function formula display."""
         self.field_widgets[PsoField.FUNCTION_FORMULA].set_formula(self._vm_function.selected_function.get_formula())

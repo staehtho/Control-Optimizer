@@ -37,6 +37,12 @@ FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
 
 
 class SettingsView(ViewMixin, QWidget):
+    """View for editing application settings (language, theme, solver, PSO)."""
+
+    # ============================================================
+    # Initialization
+    # ============================================================
+
     def __init__(self, ui_context: UiContext, parent: QWidget = None):
         QWidget.__init__(self, parent)
 
@@ -45,9 +51,9 @@ class SettingsView(ViewMixin, QWidget):
 
         ViewMixin.__init__(self, ui_context)
 
-    # -------------------------------------------------
+    # ============================================================
     # UI Initialization
-    # -------------------------------------------------
+    # ============================================================
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
         main_layout = self._create_page_layout()
@@ -87,15 +93,16 @@ class SettingsView(ViewMixin, QWidget):
         self.setLayout(main_layout)
 
     def _create_frame(self, key: str) -> QFrame:
+        """Create a settings section frame for the given key."""
         frame = QFrame(self)
         layout = self._create_grid(FIELDS.get(key), 2)
 
         frame.setLayout(layout)
         return frame
 
-    # -------------------------------------------------
+    # ============================================================
     # Signal / ViewModel Binding
-    # -------------------------------------------------
+    # ============================================================
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
         attributes: dict[SettingsField, tuple[str, str, object]] = {
@@ -115,16 +122,16 @@ class SettingsView(ViewMixin, QWidget):
             self._on_theme_index_changed
         )
 
-    # -------------------------------------------------
-    # ViewModel bindings (ViewModel → UI)
-    # -------------------------------------------------
+    # ============================================================
+    # ViewModel bindings (ViewModel -> UI)
+    # ============================================================
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
         ...
 
-    # -------------------------------------------------
+    # ============================================================
     # Translation
-    # -------------------------------------------------
+    # ============================================================
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("Settings"))
@@ -152,9 +159,9 @@ class SettingsView(ViewMixin, QWidget):
             data = {k: self._enum_translation(k) for k in value}
             self._cmb_add_item(self.field_widgets[key], data)
 
-    # -------------------------------------------------
+    # ============================================================
     # Apply initial values
-    # -------------------------------------------------
+    # ============================================================
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
         init_value = {
@@ -175,24 +182,25 @@ class SettingsView(ViewMixin, QWidget):
             if index >= 0:
                 self.field_widgets[key].setCurrentIndex(index)
 
-    # -------------------------------------------------
+    # ============================================================
     # Applied theme
-    # -------------------------------------------------
+    # ============================================================
     def _on_theme_applied(self) -> None:
+        """Update theme-dependent UI elements."""
         icon = self._load_icon(Icons.settings, self._titel_icon_size)
         self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
 
-    # -------------------------------------------------
+    # ============================================================
     # UI event handlers
-    # -------------------------------------------------
+    # ============================================================
     def _on_language_index_changed(self, index: int) -> None:
+        """Handle language selection changes."""
         widget = self.field_widgets.get(SettingsField.LANGUAGE)
         value = widget.itemData(index)
         self._vm_lang.set_language(LanguageType(value))
 
     def _on_theme_index_changed(self, index: int) -> None:
+        """Handle theme selection changes."""
         widget = self.field_widgets.get(SettingsField.THEME)
         value = widget.itemData(index)
         self._vm_theme.set_theme(ThemeType(value))
-
-

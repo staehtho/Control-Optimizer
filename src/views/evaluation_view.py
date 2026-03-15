@@ -37,6 +37,12 @@ FIELDS: list[FieldConfig] = [
 
 
 class EvaluationView(ViewMixin, QWidget):
+    """View for evaluating control performance and visualizing results."""
+
+    # ============================================================
+    # Initialization
+    # ============================================================
+
     def __init__(
             self,
             ui_context: UiContext,
@@ -57,9 +63,9 @@ class EvaluationView(ViewMixin, QWidget):
 
         ViewMixin.__init__(self, ui_context)
 
-    # -------------------------------------------------
+    # ============================================================
     # UI Initialization
-    # -------------------------------------------------
+    # ============================================================
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
 
@@ -92,6 +98,7 @@ class EvaluationView(ViewMixin, QWidget):
         self.setLayout(main_layout)
 
     def _create_result_frame(self) -> SectionFrame:
+        """Create the PSO result summary card."""
         frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
@@ -118,6 +125,7 @@ class EvaluationView(ViewMixin, QWidget):
         return frame
 
     def _create_plot_frame(self) -> SectionFrame:
+        """Create the plot card with time/frequency tabs and diagrams."""
         frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
@@ -143,7 +151,7 @@ class EvaluationView(ViewMixin, QWidget):
         return frame
 
     def _create_time_domain_widget(self) -> QWidget:
-
+        """Create the time-domain plot widget."""
         subplot_cfgs = {
             1: SubplotConfiguration(
                 x_label=str(QT_TRANSLATE_NOOP("EvaluationView", "Time [s]")),
@@ -170,12 +178,14 @@ class EvaluationView(ViewMixin, QWidget):
         return widget
 
     def _create_frequency_domain_widget(self) -> QWidget:
+        """Create the frequency-domain Bode plot widget."""
         widget = BodePlotWidget(self._ui_context, self._vm_plots.get(FREQUENCY_DOMAIN), parent=self._plot_tab)
         widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         return widget
 
     def _create_block_diagram_widget(self) -> QWidget:
+        """Create the closed-loop block diagram widget."""
         svgs = [
             (BlockDiagram.closed_loop, (0, 0)),
             (BlockDiagram.controller_base, (100, 0)),
@@ -206,7 +216,7 @@ class EvaluationView(ViewMixin, QWidget):
         return AspectRatioSvgWidget(svg_bytes=recolored.encode("utf-8"), initial_scale=2)
 
     def _create_transfer_function_widget(self) -> QWidget:
-
+        """Create the transfer function summary widget."""
         widget = QWidget(self)
 
         grid_layout = self._create_grid(FIELDS, 4)
@@ -231,16 +241,16 @@ class EvaluationView(ViewMixin, QWidget):
 
         return widget
 
-    # -------------------------------------------------
+    # ============================================================
     # Signal / ViewModel Binding
-    # -------------------------------------------------
+    # ============================================================
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
         ...
 
-    # -------------------------------------------------
+    # ============================================================
     # ViewModel bindings (ViewModel -> UI)
-    # -------------------------------------------------
+    # ============================================================
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
         # vm evaluator
@@ -257,9 +267,9 @@ class EvaluationView(ViewMixin, QWidget):
         self._vm_plots.get(FREQUENCY_DOMAIN).xMinChanged.connect(self._on_vm_frequency_changed)
         self._vm_plots.get(FREQUENCY_DOMAIN).xMaxChanged.connect(self._on_vm_frequency_changed)
 
-    # -------------------------------------------------
+    # ============================================================
     # Translation
-    # -------------------------------------------------
+    # ============================================================
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("Evaluation"))
@@ -276,9 +286,9 @@ class EvaluationView(ViewMixin, QWidget):
             if caption is not None:
                 caption.setText(self.tr(label))
 
-    # -------------------------------------------------
+    # ============================================================
     # Apply initial values
-    # -------------------------------------------------
+    # ============================================================
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
         self._sync_plot_time_window_from_model()
@@ -287,16 +297,17 @@ class EvaluationView(ViewMixin, QWidget):
         self._update_frequency_domain_plots()
         self._update_pso_result_values()
 
-    # -------------------------------------------------
+    # ============================================================
     # Applied theme
-    # -------------------------------------------------
+    # ============================================================
     def _on_theme_applied(self) -> None:
+        """Update theme-dependent UI elements."""
         icon = self._load_icon(Icons.evaluation, self._titel_icon_size)
         self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
 
-    # -------------------------------------------------
+    # ============================================================
     # ViewModel change handlers
-    # -------------------------------------------------
+    # ============================================================
     def _on_vm_compute_finished(self, t: ndarray, y: ndarray) -> None:
         self.logger.debug(
             "Function finished computation -> updating plot (samples=%d)",
@@ -405,17 +416,17 @@ class EvaluationView(ViewMixin, QWidget):
         self.logger.debug(f"Frequency range changed: {omega_min=}, {omega_max=}")
         self._update_frequency_domain_plots()
 
-    # -------------------------------------------------
+    # ============================================================
     # UI event handlers
-    # -------------------------------------------------
+    # ============================================================
     def _sync_plot_time_window_from_model(self) -> None:
         """Sync plot time range from persisted evaluator state via evaluator VM."""
         self._vm_plots.get(TIME_DOMAIN).x_min = self._vm_evaluator.t0
         self._vm_plots.get(TIME_DOMAIN).x_max = self._vm_evaluator.t1
 
-    # -------------------------------------------------
+    # ============================================================
     # Helpers
-    # -------------------------------------------------
+    # ============================================================
     def _update_time_domain_plots(self) -> None:
         t0 = self._vm_plots.get(TIME_DOMAIN).x_min
         t1 = self._vm_plots.get(TIME_DOMAIN).x_max
@@ -450,4 +461,3 @@ class EvaluationView(ViewMixin, QWidget):
             label = self._pso_value_labels.get(key)
             if label is not None:
                 label.setText(self._format_value(value))
-
