@@ -79,7 +79,6 @@ class FunctionView(BaseView, QWidget):
         frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
-        function_type = resolve_function_type(self._vm_function.selected_function)
         self._plot_cfg = PlotWidgetConfiguration(
             context="FunctionView",
             title=str(QT_TRANSLATE_NOOP("FunctionView", "Excitation Function")),

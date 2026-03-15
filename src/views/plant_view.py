@@ -108,9 +108,7 @@ class PlantView(BaseView, QWidget):
         # -------------------
         # Transfer function formula display
         # -------------------
-        self._lbl_formula = FormulaWidget(
-            r"G(s) = " + self._vm_plant.get_tf(), self._formula_font_size_scale, parent=frame
-        )
+        self._lbl_formula = FormulaWidget(font_size_scale=self._formula_font_size_scale, parent=frame)
 
         # --- Scroll area for label ---
         scroll_formula = QScrollArea(frame)
@@ -191,7 +189,7 @@ class PlantView(BaseView, QWidget):
     # -------------------------------------------------
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
-        ...
+        self._set_formula()
 
     # -------------------------------------------------
     # Applied theme
@@ -199,6 +197,8 @@ class PlantView(BaseView, QWidget):
     def _on_theme_applied(self) -> None:
         icon = self._load_icon(Icons.plant, self._titel_icon_size)
         self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
+
+        self._set_formula()
 
     # -------------------------------------------------
     # ViewModel change handlers
@@ -215,7 +215,7 @@ class PlantView(BaseView, QWidget):
 
     def _on_vm_formula_changed(self) -> None:
         """Update LaTeX formula label when ViewModel formula changes."""
-        self._lbl_formula.set_formula(r"G(s) = " + self._vm_plant.get_tf())
+        self._set_formula()
 
     def _on_plot_time_changed(self) -> None:
         """Update plot when start or end time changes."""
@@ -249,3 +249,8 @@ class PlantView(BaseView, QWidget):
         self._logger.debug(f"UI event: txt_den changed (value={text})")
         self._vm_plant.update_den(text)
 
+    # -------------------------------------------------
+    # Internal handlers
+    # -------------------------------------------------
+    def _set_formula(self) -> None:
+        self._lbl_formula.set_formula(r"G(s) = " + self._vm_plant.get_tf())

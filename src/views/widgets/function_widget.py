@@ -30,6 +30,7 @@ class FunctionWidget(BaseView, QWidget):
         self._excluded_function_types = excluded_function_types
 
         self._txt_function_params: dict[str, QLineEdit] = {}
+        self._lbl_function_params: dict[str, FormulaWidget] = {}
 
         BaseView.__init__(self, ui_context)
 
@@ -74,6 +75,10 @@ class FunctionWidget(BaseView, QWidget):
         grid.setColumnStretch(0, 1)  # extra space absorbs expansion
         grid.setColumnStretch(5, 1)  # extra space absorbs expansion
 
+        params = self._vm_function.selected_function.get_param()
+        self._lbl_function_params.clear()
+        self._txt_function_params.clear()
+
         row_offset = 0
         if show_formula:
             formula = self._vm_function.selected_function.get_formula()
@@ -83,9 +88,7 @@ class FunctionWidget(BaseView, QWidget):
             grid.addWidget(lbl_formula, 0, 0, 1, 6)
             row_offset = 1
 
-        self._txt_function_params.clear()
-
-        params = self._vm_function.selected_function.get_param()
+            self._lbl_function_params.setdefault(formula, lbl_formula)
 
         for i, (label, value) in enumerate(params.items()):
             row = i // 2 + row_offset
@@ -93,6 +96,7 @@ class FunctionWidget(BaseView, QWidget):
 
             lbl_param = FormulaWidget(f"{label}:", 1.5, parent=self._param_widget)
 
+            self._lbl_function_params.setdefault(label, lbl_param)
             grid.addWidget(lbl_param, row, col)
 
             txt_param = QLineEdit(self._param_widget)
@@ -100,7 +104,7 @@ class FunctionWidget(BaseView, QWidget):
             txt_param.setFixedWidth(80)
             txt_param.setText(self._format_value(value))
 
-            self._txt_function_params[label] = txt_param
+            self._txt_function_params.setdefault(label, txt_param)
             grid.addWidget(txt_param, row, col + 1)
 
         self._logger.debug(f"Parameter grid created with {len(params)} parameters")
@@ -158,6 +162,13 @@ class FunctionWidget(BaseView, QWidget):
         index = self._cmb_function.findData(selected_type)
         if index >= 0:
             self._cmb_function.setCurrentIndex(index)
+
+    # -------------------------------------------------
+    # Applied theme
+    # -------------------------------------------------
+    def _on_theme_applied(self) -> None:
+        for formula, label in self._lbl_function_params.items():
+            label.set_formula(formula)
 
     # -------------------------------------------------
     # ViewModel change handlers

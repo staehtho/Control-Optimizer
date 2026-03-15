@@ -94,9 +94,7 @@ class PsoConfigurationView(BaseView, QWidget):
         frame, frame_layout = self._create_card(self)
 
         # TF
-        self._lbl_tf = FormulaWidget(
-            r"G(s) = " + self._vm_plant.get_tf(), self._formula_font_size_scale, parent=frame
-        )
+        self._lbl_tf = FormulaWidget(font_size_scale=self._formula_font_size_scale, parent=frame)
         self._lbl_tf.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
         frame_layout.addWidget(self._lbl_tf)
@@ -111,7 +109,6 @@ class PsoConfigurationView(BaseView, QWidget):
 
         widget: FormulaWidget = self._field_widgets[PsoField.FUNCTION_FORMULA]
         widget.set_font_size(self._formula_font_size_scale)
-        widget.set_formula(self._vm_function.selected_function.get_formula())
 
         return frame
 
@@ -264,6 +261,9 @@ class PsoConfigurationView(BaseView, QWidget):
 
         self._labels[PsoField.RUN_PSO].setEnabled(self._vm_plant.is_valid)
 
+        self._set_formula_tf()
+        self._set_formula_function()
+
     # -------------------------------------------------
     # Applied theme
     # -------------------------------------------------
@@ -271,14 +271,17 @@ class PsoConfigurationView(BaseView, QWidget):
         icon = self._load_icon(Icons.pso_parameter, self._titel_icon_size)
         self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
 
+        self._set_formula_tf()
+        self._set_formula_function()
+
     # -------------------------------------------------
     # ViewModel change handlers
     # -------------------------------------------------
     def _on_vm_plant_tf_changed(self) -> None:
-        self._lbl_tf.set_formula(r"G(s) = " + self._vm_plant.get_tf())
+        self._set_formula_tf()
 
     def _on_vm_function_function_changed(self) -> None:
-        self._field_widgets[PsoField.FUNCTION_FORMULA].set_formula(self._vm_function.selected_function.get_formula())
+        self._set_formula_function()
 
     # -------------------------------------------------
     # UI event handlers
@@ -300,3 +303,12 @@ class PsoConfigurationView(BaseView, QWidget):
 
     def _on_vm_pso_simulation_finished(self) -> None:
         self._labels[PsoField.RUN_PSO].setEnabled(True)
+
+    # -------------------------------------------------
+    # Internal handlers
+    # -------------------------------------------------
+    def _set_formula_tf(self) -> None:
+        self._lbl_tf.set_formula(r"G(s) = " + self._vm_plant.get_tf())
+
+    def _set_formula_function(self) -> None:
+        self._field_widgets[PsoField.FUNCTION_FORMULA].set_formula(self._vm_function.selected_function.get_formula())
