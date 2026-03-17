@@ -368,6 +368,15 @@ class PlotWidget(ViewMixin, QWidget):
             checkbox.deleteLater()
             self.field_widgets.pop(f"plot_data_{key}", None)
 
+        # Hide the checkbox and label when there is only one series.
+        self._lbl_series.setVisible(len(self._series_checkboxes) > 1)
+
+        if len(self._series_checkboxes) == 1:
+            next(iter(self._series_checkboxes.values())).setVisible(False)
+        else:
+            for checkbox in self._series_checkboxes.values():
+                checkbox.setVisible(True)
+
     # ============================================================
     # UI event handlers
     # ============================================================
