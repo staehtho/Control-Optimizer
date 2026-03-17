@@ -76,7 +76,7 @@ class SimulationView(ViewMixin, QWidget):
     def _create_function_frame(self) -> SectionFrame:
         """Create the excitation function tab card."""
         frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
+        frame, frame_layout = self._create_card(parent=self)
 
         # Function Tab
         self._function_tab = QTabWidget(frame)
@@ -100,7 +100,7 @@ class SimulationView(ViewMixin, QWidget):
     def _create_cl_response_frame(self) -> SectionFrame:
         """Create the closed-loop response plot card."""
         frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
+        frame, frame_layout = self._create_card(parent=self)
 
         subplot_cfgs = {
             1: SubplotConfiguration(

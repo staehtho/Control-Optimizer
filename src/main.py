@@ -13,8 +13,8 @@ from views.main_view import MainView
 from views.resources import Icons
 
 # TODO: add buttons to switch to the next or previous view in the view it self
+# TODO: TabIndex
 
-# TODO: Plot: change layout to x min and x max in one column and function selection on the right side of the min max in a column
 # TODO: Plot: if the plot layout has some subplots, add the following behaviour: When all plots in on subplot are deselected,
 #  then hide the empty subplot.
 

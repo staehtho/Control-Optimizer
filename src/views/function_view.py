@@ -70,7 +70,7 @@ class FunctionView(ViewMixin, QWidget):
     def _create_function_frame(self) -> SectionFrame:
         """Create the function configuration card."""
         frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
+        frame, frame_layout = self._create_card(parent=self)
 
         excluded_function_types: list[FunctionTypes] = [
             FunctionTypes.NULL,
@@ -90,7 +90,7 @@ class FunctionView(ViewMixin, QWidget):
     def _create_plot_frame(self) -> SectionFrame:
         """Create the function plot card."""
         frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
+        frame, frame_layout = self._create_card(parent=self)
 
         self._plot_cfg = PlotWidgetConfiguration(
             context="FunctionView",

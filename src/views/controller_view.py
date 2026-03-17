@@ -68,7 +68,7 @@ class ControllerView(ViewMixin, QWidget):
     def _create_controller_frame(self) -> SectionFrame:
         """Create the controller configuration card."""
         frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
+        frame, frame_layout = self._create_card(parent=self)
 
         frame_layout.addLayout(self._create_grid(FIELDS))
 

@@ -2,10 +2,8 @@ from pathlib import Path
 from functools import partial
 from dataclasses import dataclass, field
 
-from PySide6.QtWidgets import (
-    QWidget, QHBoxLayout, QLabel, QCheckBox, QLineEdit, QSizePolicy
-)
-from PySide6.QtCore import QCoreApplication, QObject, QSize
+from PySide6.QtWidgets import QWidget, QLabel, QCheckBox, QLineEdit, QSizePolicy, QGridLayout
+from PySide6.QtCore import QCoreApplication, QObject, QSize, Qt
 from PySide6.QtGui import QDoubleValidator, QColor, QPainter, QPixmap, QIcon
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
@@ -16,7 +14,8 @@ from app_domain.ui_context import UiContext
 from app_types import PlotField
 from viewmodels import PlotViewModel
 from views import ViewMixin
-from views.widgets.toggle_switch import ToggleSwitch
+from views.widgets import SectionFrame
+from views.widgets.toggle_switch import ToggleSwitch, TextPosition
 
 
 @dataclass
@@ -37,7 +36,8 @@ class PlotWidgetConfiguration:
     y_label: str = ""
     subplot: tuple[int, int] = (1, 1)
     subplot_configuration: dict[int, SubplotConfiguration] = field(default_factory=dict)
-    show_x_min_max: bool = True
+    show_x_min: bool = True
+    show_x_max: bool = True
     # Width / height ratio for a fixed-size canvas. Set to None to allow free resizing.
     fixed_aspect_ratio: float | None = 500 / 350
 
@@ -81,10 +81,6 @@ class PlotWidget(ViewMixin, QWidget):
         header_layout = self._create_header()
         main_layout.addLayout(header_layout, 0)
 
-        # Series row (checkboxes for data visibility)
-        series_layout = self._create_series_row()
-        main_layout.addLayout(series_layout, 0)
-
         # Matplotlib figure and canvas
         self._figure = Figure(constrained_layout=True)
         if self._cfg.fixed_aspect_ratio:
@@ -111,56 +107,50 @@ class PlotWidget(ViewMixin, QWidget):
 
         self.setLayout(main_layout)
 
-    def _create_header(self) -> QHBoxLayout:
+    def _create_header(self) -> QGridLayout:
         """Create the header row with min/max x-values and grid checkbox."""
-        layout = QHBoxLayout()
-        show = self._cfg.show_x_min_max
+        layout = QGridLayout()
+        layout.setHorizontalSpacing(10)
+        layout.setVerticalSpacing(10)
+        layout.setContentsMargins(0, 0, 0, 0)
 
-        # Start time
-        self._lbl_min = QLabel("", self)
-        self._lbl_min.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        self._lbl_min.setVisible(show)
-        layout.addWidget(self._lbl_min)
+        row = 0
 
-        self._txt_min = QLineEdit(self)
-        self._txt_min.setFixedWidth(90)
-        self._txt_min.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        self._txt_min.setValidator(QDoubleValidator())
-        self._txt_min.setVisible(show)
-        layout.addWidget(self._txt_min)
-        self.field_widgets.setdefault(PlotField.X_MIN, self._txt_min)
-
-        # End time
-        self._lbl_max = QLabel("", self)
-        self._lbl_max.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        self._lbl_max.setVisible(show)
-        layout.addWidget(self._lbl_max)
-
-        self._txt_max = QLineEdit(self)
-        self._txt_max.setFixedWidth(90)
-        self._txt_max.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        self._txt_max.setValidator(QDoubleValidator())
-        self._txt_max.setVisible(show)
-        layout.addWidget(self._txt_max)
-        self.field_widgets.setdefault(PlotField.X_MAX, self._txt_max)
-
-        # Grid switch
-        self._chk_grid = ToggleSwitch("", self)
+        # Grid switch, left-aligned
+        self._chk_grid = ToggleSwitch("", TextPosition.Left, self)
         self._chk_grid.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        layout.addWidget(self._chk_grid)
+        layout.addWidget(self._chk_grid, row, 0, alignment=Qt.AlignmentFlag.AlignLeft)
         self.field_widgets.setdefault(PlotField.GRID, self._chk_grid)
 
-        layout.addStretch()  # keeps everything left-aligned
-        return layout
+        for key, show in zip([PlotField.X_MIN, PlotField.X_MAX], [self._cfg.show_x_min, self._cfg.show_x_max]):
+            row += 1
+            lbl = QLabel("", self)
+            lbl.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+            lbl.setVisible(show)
+            layout.addWidget(lbl, row, 0, alignment=Qt.AlignmentFlag.AlignLeft)
+            self.labels.setdefault(key, lbl)
 
-    def _create_series_row(self) -> QHBoxLayout:
-        """Create the series checkbox row."""
-        layout = QHBoxLayout()
-        self._lbl_series = QLabel("Data:", self)
-        self._lbl_series.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        layout.addWidget(self._lbl_series)
-        layout.addStretch()
-        self._series_layout = layout
+            txt = QLineEdit(self)
+            txt.setFixedWidth(90)
+            txt.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+            txt.setValidator(QDoubleValidator())
+            txt.setVisible(show)
+            layout.addWidget(txt, row, 1, alignment=Qt.AlignmentFlag.AlignLeft)
+            self.field_widgets.setdefault(key, txt)
+
+        # Series row (checkboxes for data visibility)
+        frame: SectionFrame
+        frame, frame_layout = self._create_card(parent=self)
+        self._series_layout = QGridLayout()
+        frame_layout.addLayout(self._series_layout)
+        layout.addWidget(frame, 0, 2, row + 2, 1, alignment=Qt.AlignmentFlag.AlignLeft)
+
+        self._series_frame = frame
+
+        # add a stretch column at the end to avoid extra spacing
+        layout.setColumnStretch(2, 1)
+        layout.setRowStretch(row + 1, 1)
+
         return layout
 
     # ============================================================
@@ -187,6 +177,8 @@ class PlotWidget(ViewMixin, QWidget):
         self._vm.validationFailed.connect(self._on_validation_failed)
         self._vm.gridChanged.connect(self._update_plot)
         self._vm.dataChanged.connect(self._update_plot)
+        self._vm.xMinChanged.connect(self._update_plot)
+        self._vm.xMaxChanged.connect(self._update_plot)
         self._vm.xMinChanged.connect(partial(self._on_vm_changed, PlotField.X_MIN, "_vm.x_min"))
         self._vm.xMaxChanged.connect(partial(self._on_vm_changed, PlotField.X_MAX, "_vm.x_max"))
 
@@ -196,10 +188,12 @@ class PlotWidget(ViewMixin, QWidget):
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._chk_grid.setText(self.tr("plot.grid"))
-        self._lbl_min.setText(self.tr("plot.start"))
-        self._lbl_max.setText(self.tr("plot.end"))
-        self._txt_min.setToolTip(self.tr("plot.start.tooltip"))
-        self._txt_max.setToolTip(self.tr("plot.end.tooltip"))
+        self.labels.get(PlotField.X_MIN).setText(self.tr("plot.start"))
+        self.labels.get(PlotField.X_MAX).setText(self.tr("plot.end"))
+        self.field_widgets.get(PlotField.X_MIN).setToolTip(self.tr("plot.start.tooltip"))
+        self.field_widgets.get(PlotField.X_MAX).setToolTip(self.tr("plot.end.tooltip"))
+
+        self._series_frame.set_title(self.tr("plot.legend"))
 
         self._vm.retranslate_labels(self._enum_translation)
         self._update_plot()
@@ -209,8 +203,8 @@ class PlotWidget(ViewMixin, QWidget):
     # ============================================================
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
-        self._txt_min.setText(self._format_value(self._vm.x_min))
-        self._txt_max.setText(self._format_value(self._vm.x_max))
+        self.field_widgets.get(PlotField.X_MIN).setText(self._format_value(self._vm.x_min))
+        self.field_widgets.get(PlotField.X_MAX).setText(self._format_value(self._vm.x_max))
         self._chk_grid.setChecked(self._vm.grid)
         # Ensure initial layout is consistent even with no data plotted yet.
         self._update_plot()
@@ -325,9 +319,9 @@ class PlotWidget(ViewMixin, QWidget):
     def _sync_series_checkboxes(self, data: dict) -> None:
         """Synchronize UI checkboxes with current data series visibility."""
         existing_keys = set(self._series_checkboxes.keys())
-        sorted_series = sorted(data.values(), key=lambda s: s.plot_style.z_order)
+        sorted_series = sorted(data.values(), key=lambda s: s.plot_style.plot_order)
 
-        insert_index = 1
+        insert_index = 0
         for series in sorted_series:
             if series.ignore_plot:
                 checkbox = self._series_checkboxes.pop(series.key, None)
@@ -352,7 +346,7 @@ class PlotWidget(ViewMixin, QWidget):
                 checkbox.setChecked(series.show)
 
             self._series_layout.removeWidget(checkbox)
-            self._series_layout.insertWidget(insert_index, checkbox)
+            self._series_layout.addWidget(checkbox, insert_index // 3, insert_index % 3)
             insert_index += 1
             existing_keys.discard(series.key)
 
@@ -364,13 +358,7 @@ class PlotWidget(ViewMixin, QWidget):
             self.field_widgets.pop(f"plot_data_{key}", None)
 
         # Hide the checkbox and label when there is only one series.
-        self._lbl_series.setVisible(len(self._series_checkboxes) > 1)
-
-        if len(self._series_checkboxes) == 1:
-            next(iter(self._series_checkboxes.values())).setVisible(False)
-        else:
-            for checkbox in self._series_checkboxes.values():
-                checkbox.setVisible(True)
+        self._series_frame.setVisible(len(self._series_checkboxes) > 1)
 
     # ============================================================
     # UI event handlers

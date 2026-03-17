@@ -149,9 +149,9 @@ class ViewMixin:
         return layout_helpers.create_page_layout()
 
     @staticmethod
-    def _create_card(parent: Optional[QWidget] = None) -> tuple[QFrame, QVBoxLayout]:
+    def _create_card(title: Optional[str] = "", parent: Optional[QWidget] = None) -> tuple[QFrame, QVBoxLayout]:
         """Create a themed card container using SectionFrame."""
-        return layout_helpers.create_card(parent)
+        return layout_helpers.create_card(title, parent)
 
     @staticmethod
     def _create_plain_card(parent: Optional[QWidget] = None) -> tuple[QFrame, QVBoxLayout]:

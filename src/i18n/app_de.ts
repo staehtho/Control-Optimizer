@@ -683,19 +683,19 @@
     <name>PlantView</name>
     <message>
         <location filename="../views/plant_view.py" line="85"/>
-        <location filename="../views/plant_view.py" line="183"/>
+        <location filename="../views/plant_view.py" line="184"/>
         <source>plant.num</source>
         <translation>Nenner</translation>
     </message>
     <message>
         <location filename="../views/plant_view.py" line="100"/>
-        <location filename="../views/plant_view.py" line="184"/>
+        <location filename="../views/plant_view.py" line="185"/>
         <source>plant.den</source>
         <translation>Zähler</translation>
     </message>
     <message>
         <location filename="../views/plant_view.py" line="140"/>
-        <location filename="../views/plant_view.py" line="182"/>
+        <location filename="../views/plant_view.py" line="183"/>
         <source>Step Response</source>
         <translation>Sprungantwort</translation>
     </message>
@@ -710,27 +710,27 @@
         <translation>Ausgang</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="180"/>
+        <location filename="../views/plant_view.py" line="181"/>
         <source>Plant</source>
         <translation>Regelstrecke</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="181"/>
+        <location filename="../views/plant_view.py" line="182"/>
         <source>Transfer function</source>
         <translation>Transferfunction</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="185"/>
+        <location filename="../views/plant_view.py" line="186"/>
         <source>e.g. 1  → 1</source>
         <translation>z.B. 1  → 1</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="186"/>
+        <location filename="../views/plant_view.py" line="187"/>
         <source>e.g. 1, 0, 0  → 1*s^2 + 0*s + 0</source>
         <translation>z.B. 1, 0, 0  → 1*s² + 0*s + 0</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="188"/>
+        <location filename="../views/plant_view.py" line="189"/>
         <source>tooltip_num_den</source>
         <translation>Verwenden Sie „.“ als Dezimaltrennzeichen.
 Die erste Zahl entspricht der höchsten Potenz von s.
@@ -835,34 +835,39 @@ Beispiel: 1, 0.5, 2 → 1·s² + 0,5·s + 2</translation>
 <context>
     <name>PlotWidget</name>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="196"/>
+        <location filename="../views/widgets/plot_widget.py" line="190"/>
         <source>plot.grid</source>
         <translation>Grid</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="197"/>
+        <location filename="../views/widgets/plot_widget.py" line="191"/>
         <source>plot.start</source>
         <translation>Startzeit</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="198"/>
+        <location filename="../views/widgets/plot_widget.py" line="192"/>
         <source>plot.end</source>
         <translation>Endzeit</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="199"/>
+        <location filename="../views/widgets/plot_widget.py" line="193"/>
         <source>plot.start.tooltip</source>
         <translation>Untere Grenze der x-Achse (x_min).
 Legt fest, wo die Zeitachse beginnt.
 Einheit: Sekunden (s).</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="200"/>
+        <location filename="../views/widgets/plot_widget.py" line="194"/>
         <source>plot.end.tooltip</source>
         <translation>Obere Grenze der x-Achse (x_max).
 Legt fest, wo die Zeitachse endet.
 Einheit: Sekunden (s).
 Muss grösser als die Startzeit sein.</translation>
+    </message>
+    <message>
+        <location filename="../views/widgets/plot_widget.py" line="196"/>
+        <source>plot.legend</source>
+        <translation>Legende</translation>
     </message>
     <message>
         <source>Invalid value: start ({x_min}) must be smaller than end ({x_max}).</source>

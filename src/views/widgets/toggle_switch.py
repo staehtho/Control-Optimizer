@@ -1,14 +1,23 @@
+from enum import Enum
+
 from PySide6.QtCore import Property, QPropertyAnimation, QEasingCurve, QRectF, QSize, Qt
 from PySide6.QtGui import QColor, QFontMetrics, QPainter, QPalette
 from PySide6.QtWidgets import QAbstractButton, QSizePolicy
 
 
+class TextPosition(Enum):
+    Left = 0
+    Right = 1
+
 class ToggleSwitch(QAbstractButton):
     """Custom switch with a sliding thumb."""
 
-    def __init__(self, text: str = "", parent=None) -> None:
+    def __init__(self, text: str = "", text_position: TextPosition = TextPosition.Right, parent=None) -> None:
         super().__init__(parent)
         self.setText(text)
+
+        self._text_position = text_position  # "left" or "right"
+
         self.setCheckable(True)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
@@ -19,15 +28,23 @@ class ToggleSwitch(QAbstractButton):
         self._animation.setEasingCurve(QEasingCurve.Type.InOutCubic)
         self.toggled.connect(self._animate_toggle)
 
+    def set_text_position(self, position: TextPosition) -> None:
+        if position not in ("left", "right"):
+            raise ValueError("text_position must be 'left' or 'right'")
+        self._text_position = position
+        self.update()
+
     def sizeHint(self) -> QSize:
         track_w = 36
         track_h = 20
+
         if self.text():
             fm = QFontMetrics(self.font())
             spacing = 6
             text_w = fm.horizontalAdvance(self.text())
             text_h = fm.height()
             return QSize(track_w + spacing + text_w, max(track_h, text_h))
+
         return QSize(track_w, track_h)
 
     def paintEvent(self, event) -> None:
@@ -38,8 +55,21 @@ class ToggleSwitch(QAbstractButton):
         track_w = 36
         track_h = 20
         radius = track_h / 2
+        spacing = 6
+
+        fm = QFontMetrics(self.font())
+        text_w = fm.horizontalAdvance(self.text()) if self.text() else 0
+
+        # Decide track position based on text placement
+        if self.text() and self._text_position == TextPosition.Left:
+            track_x = text_w + spacing
+            text_x = 0
+        else:
+            track_x = 0
+            text_x = track_w + spacing
+
         y = (rect.height() - track_h) / 2
-        track_rect = QRectF(0, y, track_w, track_h)
+        track_rect = QRectF(track_x, y, track_w, track_h)
 
         palette = self.palette()
         if self.isChecked():
@@ -76,10 +106,21 @@ class ToggleSwitch(QAbstractButton):
             if not self.isEnabled():
                 text_color = QColor(text_color)
                 text_color.setAlpha(140)
+
             painter.setPen(text_color)
-            text_x = track_w + 6
-            text_rect = QRectF(text_x, 0, rect.width() - text_x, rect.height())
-            painter.drawText(text_rect, Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft, self.text())
+
+            text_rect = QRectF(
+                text_x,
+                0,
+                rect.width() - text_x,
+                rect.height()
+            )
+
+            painter.drawText(
+                text_rect,
+                Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft,
+                self.text()
+            )
 
     def _animate_toggle(self, checked: bool) -> None:
         self._animation.stop()

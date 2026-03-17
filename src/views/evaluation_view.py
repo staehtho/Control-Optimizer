@@ -114,7 +114,7 @@ class EvaluationView(ViewMixin, QWidget):
     def _create_result_frame(self) -> SectionFrame:
         """Create the PSO result summary card."""
         frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
+        frame, frame_layout = self._create_card(parent=self)
 
         grid_layout = self._create_grid(FIELDS.get("result"))
 
@@ -125,7 +125,7 @@ class EvaluationView(ViewMixin, QWidget):
     def _create_plot_frame(self) -> SectionFrame:
         """Create the plot card with time/frequency tabs and diagrams."""
         frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
+        frame, frame_layout = self._create_card(parent=self)
 
         self._plot_tab = QTabWidget(frame)
         frame_layout.addWidget(self._plot_tab)

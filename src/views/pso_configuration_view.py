@@ -104,7 +104,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
     def _create_plant_frame(self) -> SectionFrame:
         """Create the plant transfer function card."""
         frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
+        frame, frame_layout = self._create_card(parent=self)
 
         # TF
         self._lbl_tf = FormulaWidget(font_size_scale=self._formula_font_size_scale, parent=frame)
@@ -117,7 +117,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
     def _create_function_frame(self) -> SectionFrame:
         """Create the excitation function card."""
         frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
+        frame, frame_layout = self._create_card(parent=self)
 
         frame_layout.addLayout(self._create_grid(FIELDS["excitation_target"], 4))
 
@@ -129,7 +129,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
     def _create_controller_frame(self) -> SectionFrame:
         """Create the controller optimization card."""
         frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
+        frame, frame_layout = self._create_card(parent=self)
 
         frame_layout.addLayout(self._create_grid(FIELDS["control"], 4))
 
@@ -138,7 +138,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
     def _create_run_pso_frame(self) -> SectionFrame:
         """Create the PSO run control card."""
         frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
+        frame, frame_layout = self._create_card(parent=self)
 
         self._progress_bar = QProgressBar(frame)
         self._progress_bar.setMinimum(0)

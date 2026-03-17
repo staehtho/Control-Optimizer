@@ -146,11 +146,11 @@ def create_page_layout() -> QVBoxLayout:
     return layout
 
 
-def create_card(parent: Optional[QWidget] = None) -> tuple[QFrame, QVBoxLayout]:
+def create_card(title: Optional[str], parent: Optional[QWidget] = None) -> tuple[QFrame, QVBoxLayout]:
     """Create a themed card container using SectionFrame."""
     from views.widgets import SectionFrame
 
-    frame = SectionFrame(parent=parent)
+    frame = SectionFrame(title=title, parent=parent)
     frame.setObjectName("card")
     frame_layout = frame.content_layout()
     frame_layout.setContentsMargins(16, 14, 16, 14)

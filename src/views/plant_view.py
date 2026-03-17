@@ -69,7 +69,7 @@ class PlantView(ViewMixin, QWidget):
     def _create_transfer_function_frame(self) -> SectionFrame:
         """Create the transfer function input card."""
         frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
+        frame, frame_layout = self._create_card(parent=self)
         grid_layout = QGridLayout()
         grid_layout.setHorizontalSpacing(10)
         grid_layout.setVerticalSpacing(10)
@@ -134,12 +134,13 @@ class PlantView(ViewMixin, QWidget):
     def _create_plot_frame(self) -> SectionFrame:
         """Create the step response plot card."""
         frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
+        frame, frame_layout = self._create_card(parent=self)
         plot_cfg = PlotWidgetConfiguration(
             context="PlantView",
             title=str(QT_TRANSLATE_NOOP("PlantView", "Step Response")),
             x_label=str(QT_TRANSLATE_NOOP("PlantView", "Time [s]")),
             y_label=str(QT_TRANSLATE_NOOP("PlantView", "Output")),
+            show_x_min=False
         )
 
         plot_view = PlotWidget(self._ui_context, self._vm_plot, plot_cfg, parent=self)
