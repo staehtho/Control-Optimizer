@@ -1,6 +1,7 @@
 from pathlib import Path
 from functools import partial
 from dataclasses import dataclass, field
+import math
 
 from PySide6.QtWidgets import QWidget, QLabel, QCheckBox, QLineEdit, QSizePolicy, QGridLayout
 from PySide6.QtCore import QCoreApplication, QObject, QSize, Qt
@@ -222,34 +223,40 @@ class PlotWidget(ViewMixin, QWidget):
         tr = lambda text: QCoreApplication.translate(context, text) if text else text
 
         self._figure.clear()
-        subplot = self._cfg.subplot
-        rows, cols = subplot
-        if rows < 1 or cols < 1:
-            self.logger.warning(f"Invalid subplot layout {subplot}, falling back to (1, 1)")
-            rows, cols = 1, 1
-        total_subplots = rows * cols
-        axs = [self._figure.add_subplot(rows, cols, i) for i in range(1, total_subplots + 1)]
-
         data = self._vm.get_data()
         self._sync_series_checkboxes(data)
         self.logger.debug(f"Plot contains {len(data)} data series")
 
         sorted_series = sorted(data.values(), key=lambda s: s.plot_style.plot_order)
+        active_positions = self._get_active_subplot_positions(sorted_series)
+        subplot = self._cfg.subplot
+        rows, cols = subplot
+        if rows < 1 or cols < 1:
+            self.logger.warning(f"Invalid subplot layout {subplot}, falling back to (1, 1)")
+            rows, cols = 1, 1
 
-        self._plot_series_on_axes(axs, sorted_series)
+        total_active = max(1, len(active_positions))
+        cols = min(cols, total_active)
+        rows = max(1, int(math.ceil(total_active / cols)))
+        axs = [self._figure.add_subplot(rows, cols, i) for i in range(1, total_active + 1)]
+        axis_positions = active_positions if active_positions else [1]
+        position_to_index = {pos: idx for idx, pos in enumerate(axis_positions)}
+
+        self._plot_series_on_axes(axs, sorted_series, position_to_index)
 
         translated_x_labels: list[str] = []
 
         for i in range(len(axs)):
-            if len(axs) == 1:
+            position = axis_positions[i]
+            subplot_cfg = self._cfg.subplot_configuration.get(position, SubplotConfiguration())
+            if len(axs) == 1 and not self._cfg.subplot_configuration:
                 x_label = self._cfg.x_label
                 y_label = self._cfg.y_label
             else:
-                subplot_cfg = self._cfg.subplot_configuration.get(i + 1, SubplotConfiguration())
                 x_label = subplot_cfg.x_label or self._cfg.x_label
                 y_label = subplot_cfg.y_label or self._cfg.y_label
 
-                axs[i].set_title(tr(subplot_cfg.title))
+            axs[i].set_title(tr(subplot_cfg.title))
 
             translated_x = tr(x_label)
             translated_y = tr(y_label)
@@ -279,7 +286,7 @@ class PlotWidget(ViewMixin, QWidget):
     # ============================================================
     # Helper plotting method (override in subclass)
     # ============================================================
-    def _plot_series_on_axes(self, axs, series: list) -> None:
+    def _plot_series_on_axes(self, axs, series: list, position_to_index: dict[int, int]) -> None:
         for i in range(len(axs)):
             for serie in series:
                 if not serie.show or serie.ignore_plot:
@@ -287,13 +294,10 @@ class PlotWidget(ViewMixin, QWidget):
 
                 if len(axs) != 1:
                     subplot_position = serie.subplot_position
-                    if subplot_position < 1 or subplot_position > len(axs):
-                        self.logger.warning(
-                            f"Series '{serie.key}' has invalid subplot position {subplot_position}; "
-                            "using subplot 1"
-                        )
-                        subplot_position = 1
-                    if subplot_position != i + 1:
+                    target_index = position_to_index.get(subplot_position)
+                    if target_index is None:
+                        continue
+                    if target_index != i:
                         continue
 
                 self.logger.debug(f"Plotting serie: {serie.key}")
@@ -309,6 +313,16 @@ class PlotWidget(ViewMixin, QWidget):
             if handles:
                 legend = axs[i].legend(loc="best", frameon=False)
                 legend.set_draggable(True)
+
+    def _get_active_subplot_positions(self, series: list) -> list[int]:
+        active_positions: list[int] = []
+        for serie in series:
+            if not serie.show or serie.ignore_plot:
+                continue
+            pos = serie.subplot_position if serie.subplot_position and serie.subplot_position > 0 else 1
+            if pos not in active_positions:
+                active_positions.append(pos)
+        return active_positions
 
     def _apply_grid(self, ax) -> None:
         ax.grid(self._vm.grid)
