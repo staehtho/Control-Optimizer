@@ -13,11 +13,6 @@
         <path id="arrow" class="fill" d=" M0 0 L-5 2 L-5 -2" transform="scale(1.5)"/>
     </defs>
 
-    <!-- Block -->
-    <defs>
-        <path id="block" class="block" d="M0 0 L0 50 L50 25 Z"/>
-    </defs>
-
     <!-- Input -->
     <g transform="translate(75 125)">
         <path class="line" d="M0 0 H45"/>
@@ -27,8 +22,8 @@
     <!-- P -->
     <g transform="translate(125, 125)">
         <g transform="translate(0, -25)">
-            <use href="#block"/>
-            <text class="text" x="15" y="30">Kp</text>
+            <rect class="block" height="50" width="50"/>
+            <text class="text" x="25" y="30">Kp</text>
         </g>
     </g>
 
