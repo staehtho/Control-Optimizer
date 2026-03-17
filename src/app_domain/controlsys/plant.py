@@ -122,7 +122,7 @@ class Plant:
 
     @property
     def t1(self) -> float:
-        """Dominant time constant (used for derivative filter)."""
+        """Dominant plant time constant derived from the slowest stable pole."""
         return self._t1
 
     def get_ABCD(self) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
