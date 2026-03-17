@@ -86,11 +86,12 @@ class PlotWidget(ViewMixin, QWidget):
         main_layout.addLayout(series_layout, 0)
 
         # Matplotlib figure and canvas
-        self._figure = Figure()
+        self._figure = Figure(constrained_layout=True)
         if self._cfg.fixed_aspect_ratio:
             self._canvas = _AspectCanvas(self._figure, self._cfg.fixed_aspect_ratio)
         else:
             self._canvas = FigureCanvas(self._figure)
+
         self._toolbar = NavigationToolbar(self._canvas, self)
         self._toolbar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         if self._cfg.fixed_aspect_ratio:
@@ -211,6 +212,8 @@ class PlotWidget(ViewMixin, QWidget):
         self._txt_min.setText(self._format_value(self._vm.x_min))
         self._txt_max.setText(self._format_value(self._vm.x_max))
         self._chk_grid.setChecked(self._vm.grid)
+        # Ensure initial layout is consistent even with no data plotted yet.
+        self._update_plot()
 
     # ============================================================
     # Plot update
@@ -276,15 +279,6 @@ class PlotWidget(ViewMixin, QWidget):
                     ax.tick_params(axis="x", which="both", labelbottom=True)
 
         self._figure.suptitle(QCoreApplication.translate(context, self._cfg.title))
-        # Reserve enough margin for x-axis labels in framed layouts.
-        bottom = 0.16
-        if len(axs) == 1:
-            hspace = 0.35
-        elif same_x_labels:
-            hspace = 0.20
-        else:
-            hspace = 0.60
-        self._figure.subplots_adjust(left=0.10, right=0.98, top=0.90, bottom=bottom, hspace=hspace)
 
         self._canvas.draw_idle()
 
