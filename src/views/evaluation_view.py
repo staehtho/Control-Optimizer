@@ -1,10 +1,13 @@
-from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QTabWidget, QHBoxLayout, QGridLayout
+from typing import Any
+
+from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QTabWidget, QHBoxLayout
 from PySide6.QtCore import QT_TRANSLATE_NOOP, Qt
 from numpy import ndarray
 
 from app_domain.controlsys import AntiWindup
 from app_domain.ui_context import UiContext
-from app_types import FrequencyResponse, EvaluationField, FieldConfig, PlotData, BodePlotData, PlotLabels
+from app_types import FrequencyResponse, EvaluationField, FieldConfig, PlotData, BodePlotData, PlotLabels, \
+    SectionConfig, PsoResultField
 from utils import SvgLayer, merge_svgs, recolor_svg
 from viewmodels import EvaluationViewModel, PlotViewModel
 from views import ViewMixin
@@ -18,22 +21,35 @@ FREQUENCY_DOMAIN = "frequency_domain"
 TRANSFER_FUNCTION = "transfer_function"
 BLOCK_DIAGRAM = "block_diagram"
 
-PSO_RESULT_FIELDS = [
-    ("simulation_time", QT_TRANSLATE_NOOP("EvaluationView", "Simulation Time [s]")),
-    ("kp", QT_TRANSLATE_NOOP("EvaluationView", "Kp")),
-    ("ti", QT_TRANSLATE_NOOP("EvaluationView", "Ti")),
-    ("td", QT_TRANSLATE_NOOP("EvaluationView", "Td")),
-    ("tf", QT_TRANSLATE_NOOP("EvaluationView", "Tf")),
-]
+FIELDS: dict[str, list[FieldConfig]] = {
+    "tf": [
+        FieldConfig(EvaluationField.PLANT, FormulaWidget),
+        FieldConfig(EvaluationField.CONTROLLER, FormulaWidget),
+        FieldConfig(EvaluationField.OPEN_LOOP, FormulaWidget),
+        FieldConfig(EvaluationField.CLOSED_LOOP, FormulaWidget),
+        FieldConfig(EvaluationField.SENSITIVITY, FormulaWidget),
+        FieldConfig(EvaluationField.COMPLEMENTARY_SENSITIVITY, FormulaWidget),
+    ],
+    "result": [
+        SectionConfig(PsoResultField.RUN_TIME, [
+            FieldConfig(PsoResultField.TIME, QLabel, False)
+        ]),
+        SectionConfig(PsoResultField.PARAMETERS, [
+            FieldConfig(PsoResultField.KP, QLabel, False),
+            FieldConfig(PsoResultField.TI, QLabel, False),
+            FieldConfig(PsoResultField.TD, QLabel, False),
+            FieldConfig(PsoResultField.TF, QLabel, False),
+        ])
+    ]
+}
 
-FIELDS: list[FieldConfig] = [
-    FieldConfig(EvaluationField.PLANT, FormulaWidget),
-    FieldConfig(EvaluationField.CONTROLLER, FormulaWidget),
-    FieldConfig(EvaluationField.OPEN_LOOP, FormulaWidget),
-    FieldConfig(EvaluationField.CLOSED_LOOP, FormulaWidget),
-    FieldConfig(EvaluationField.SENSITIVITY, FormulaWidget),
-    FieldConfig(EvaluationField.COMPLEMENTARY_SENSITIVITY, FormulaWidget),
-]
+PSO_RESULT_TEMPLATE: dict[PsoResultField, Any] = {
+    PsoResultField.TIME: QT_TRANSLATE_NOOP("EvaluationView", "PSO finished after %(time).1f seconds."),
+    PsoResultField.KP: QT_TRANSLATE_NOOP("EvaluationView", "Kp = %(kp).3f"),
+    PsoResultField.TI: QT_TRANSLATE_NOOP("EvaluationView", "Ti = %(ti).3f"),
+    PsoResultField.TD: QT_TRANSLATE_NOOP("EvaluationView", "Td = %(td).3f"),
+    PsoResultField.TF: QT_TRANSLATE_NOOP("EvaluationView", "Tf = %(tf).3f"),
+}
 
 
 class EvaluationView(ViewMixin, QWidget):
@@ -58,8 +74,6 @@ class EvaluationView(ViewMixin, QWidget):
         self._plot_tab_pages: dict[str, QWidget] = {}
 
         self._latex_labels: dict[str, QLabel] = {}
-        self._pso_caption_labels: dict[str, QLabel] = {}
-        self._pso_value_labels: dict[str, QLabel] = {}
 
         ViewMixin.__init__(self, ui_context)
 
@@ -102,24 +116,8 @@ class EvaluationView(ViewMixin, QWidget):
         frame: SectionFrame
         frame, frame_layout = self._create_card(self)
 
-        grid_layout = QGridLayout()
-        grid_layout.setContentsMargins(0, 0, 0, 0)
-        grid_layout.setHorizontalSpacing(12)
-        grid_layout.setVerticalSpacing(6)
+        grid_layout = self._create_grid(FIELDS.get("result"))
 
-        for row, (key, _label) in enumerate(PSO_RESULT_FIELDS):
-            caption = QLabel(frame)
-            value = QLabel(frame)
-            value.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
-
-            self._pso_caption_labels[key] = caption
-            self._pso_value_labels[key] = value
-
-            grid_layout.addWidget(caption, row, 0)
-            grid_layout.addWidget(value, row, 1)
-
-        grid_layout.setColumnStretch(0, 1)
-        grid_layout.setColumnStretch(1, 1)
         frame_layout.addLayout(grid_layout)
 
         return frame
@@ -219,7 +217,7 @@ class EvaluationView(ViewMixin, QWidget):
         """Create the transfer function summary widget."""
         widget = QWidget(self)
 
-        grid_layout = self._create_grid(FIELDS, 4)
+        grid_layout = self._create_grid(FIELDS.get("tf"), 4)
         widget.setLayout(grid_layout)
 
         tf: dict[EvaluationField, str] = {
@@ -281,10 +279,15 @@ class EvaluationView(ViewMixin, QWidget):
         self._plot_tab.setTabText(1, self.tr("Frequency Domain"))
         self._plot_tab.setTabText(2, self.tr("Block Diagram"))
 
-        for key, label in PSO_RESULT_FIELDS:
-            caption = self._pso_caption_labels.get(key)
-            if caption is not None:
-                caption.setText(self.tr(label))
+        labels = {
+            PsoResultField.RUN_TIME: self.tr("PSO run time"),
+            PsoResultField.PARAMETERS: self.tr("Controller Parameters"),
+        }
+
+        for key in labels.keys():
+            self.labels[key].setText(labels[key])
+
+        self._update_pso_result_values()
 
     # ============================================================
     # Apply initial values
@@ -445,19 +448,19 @@ class EvaluationView(ViewMixin, QWidget):
     def _update_pso_result_values(self) -> None:
         result = self._vm_evaluator.get_pso_result()
         if result is None:
-            for label in self._pso_value_labels.values():
-                label.setText("-")
+            for key in PSO_RESULT_TEMPLATE.keys():
+                self.field_widgets.get(key).setText("-")
             return
 
-        values = {
-            "simulation_time": result.simulation_time,
-            "kp": result.kp,
-            "ti": result.ti,
-            "td": result.td,
-            "tf": result.tf,
+        pso_result = self._vm_evaluator.get_pso_result()
+
+        text = {
+            PsoResultField.TIME: {"time": pso_result.simulation_time},
+            PsoResultField.KP: {"kp": pso_result.kp},
+            PsoResultField.TI: {"ti": pso_result.ti},
+            PsoResultField.TD: {"td": pso_result.td},
+            PsoResultField.TF: {"tf": pso_result.tf}
         }
 
-        for key, value in values.items():
-            label = self._pso_value_labels.get(key)
-            if label is not None:
-                label.setText(self._format_value(value))
+        for key, value in text.items():
+            self.field_widgets.get(key).setText(PSO_RESULT_TEMPLATE.get(key) % value)

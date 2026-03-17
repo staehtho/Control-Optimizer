@@ -18,21 +18,21 @@ FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
         FieldConfig(PsoField.FUNCTION_FORMULA, FormulaWidget),
     ],
     "control": [
-        SectionConfig(PsoField.SIMULATION_TIME, [
-            FieldConfig(PsoField.T0, QLineEdit),
-            FieldConfig(PsoField.T1, QLineEdit),
-        ]),
-        SectionConfig(PsoField.PERFORMANCE_INDEX, [
-            FieldConfig(PsoField.TIME_DOMAIN, QComboBox),
-        ]),
-
         SectionConfig(PsoField.KP_BOUNDS, [
             FieldConfig(PsoField.KP_MIN, QLineEdit),
             FieldConfig(PsoField.KP_MAX, QLineEdit),
         ]),
+        SectionConfig(PsoField.SIMULATION_TIME, [
+            FieldConfig(PsoField.T0, QLineEdit),
+            FieldConfig(PsoField.T1, QLineEdit),
+        ]),
         SectionConfig(PsoField.TI_BOUNDS, [
             FieldConfig(PsoField.TI_MIN, QLineEdit),
             FieldConfig(PsoField.TI_MAX, QLineEdit),
+        ]),
+        SectionConfig(PsoField.PERFORMANCE_INDEX, [
+            FieldConfig(PsoField.TIME_DOMAIN, QComboBox),
+            FieldConfig("", QLabel, False),
         ]),
         SectionConfig(PsoField.TD_BOUNDS, [
             FieldConfig(PsoField.TD_MIN, QLineEdit),

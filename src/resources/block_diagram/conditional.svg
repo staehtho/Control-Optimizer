@@ -18,11 +18,6 @@
         <rect id="rect" class="block" width="50" height="50"/>
     </defs>
 
-    <!-- Block -->
-    <defs>
-        <path id="block" class="block" d="M0 0 L0 50 L50 25 Z"/>
-    </defs>
-
     <!-- Integrator -->
     <defs>
         <g id="integrator">
@@ -69,8 +64,10 @@
     <!-- I -->
     <g transform="translate(125, 200)">
         <g transform="translate(0, -25)">
-            <use href="#block"/>
-            <text class="text" x="15" y="30">Ki</text>
+            <use href="#rect"/>
+            <text class="text" x="25" y="17.5">Kp</text>
+            <path class="line" d="M17.5 25 H32.5"/>
+            <text class="text" x="25" y="40">Ti</text>
         </g>
 
         <path class="line" d="M50 0 H65 V-15 H95"/>
