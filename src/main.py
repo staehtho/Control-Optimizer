@@ -12,15 +12,39 @@ from app_types import NavItem, NavLabels
 from views.main_view import MainView
 from views.resources import Icons
 
+# TODO: add buttons to switch to the next or previous view in the view it self
+
+# TODO: Plot: if only on function -> now function checkbox
+# TODO: Plot: change grid checkbox to switch
+# TODO: Plot: bottom and left boarder to large
+# TODO: Plot: change layout to x min and x max in one column and function selection on the right side of the min max in a column
+# TODO: Plot: if the plot layout has some subplots, add the following behaviour: When all plots in on subplot are deselected,
+#  then hide the empty subplot.
+
+# TODO: Plant: add zero-pol to define the plant
+
+# TODO: Function: change layout to: function selection and formula on the left side and the parameters on the right
+# TODO: Function: add a section for parameters
+
+# TODO: Controller: move the block diagram and the selection of the anti windup in one section called anti windup
+#  and call the selection method or so
+# TODO: Controller: how can be the constraint connected with the block diagram, so it's clear the constraint is
+#  the saturation constraint?
+
+# TODO: PSO: move the main plant and function section in one row, on the left side plant and on the right the function
+# TODO: PSO: made the pso run button not so big
+# TODO: PSO: add an interrupt button to interrupt the pso run
+# TODO: PSO: split the section called Controller Optimization Parameters in multiple section. One for simulation time,
+#  an other for PSO Bounds like the plant and the function and so on.
+
 if __name__ == '__main__':
 
     # init logging
-    # Verzeichnis prüfen oder erstellen
     log_dir = Path("log")
     log_file = log_dir / "app.log"
 
     log_dir.mkdir(parents=True, exist_ok=True)
-    # log_file löschen, falls vorhanden
+    # delete log file
     if log_file.exists():
         log_file.unlink()
 
@@ -35,7 +59,7 @@ if __name__ == '__main__':
                 "matplotlib.ticker"):
         logger = logging.getLogger(log)
         old_level = logger.level
-        logger.setLevel(logging.CRITICAL + 1)  # nichts wird mehr geloggt
+        logger.setLevel(logging.CRITICAL + 1)
 
     app = QApplication(sys.argv)
 
