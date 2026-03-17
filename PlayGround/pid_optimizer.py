@@ -74,7 +74,7 @@ def main():
     plant_num = [1]
     plant_den = [1, 0.1, 1]
 
-    use_freq_metrics = True
+    use_freq_metrics = False
     pm_min_deg = 0
     gm_min_db = 0
     ms_max = 20

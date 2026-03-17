@@ -2,10 +2,10 @@
 # Project:       PID Optimizer
 # Module:        PIDClosedLoop.py
 # Description:   Implements the PIDClosedLoop class, providing a closed-loop control system
-#                based on a PID controller in gain or time-constant form. Supports filtered
-#                derivative action, output constraints, anti-windup strategies, frequency-domain
-#                evaluation, and time-domain simulation via the plant model and compiled
-#                response function.
+#                based on an ideal/ISA PID controller parameterized either in parallel gain form
+#                or in ISA time-constant form. Supports filtered derivative action, output
+#                constraints, anti-windup strategies, frequency-domain evaluation, and time-domain
+#                simulation via the plant model and compiled response function.
 #
 # Authors:       Florin Büchi, Thomas Stähli
 # Created:       01.12.2025
@@ -30,11 +30,11 @@ class PIDClosedLoop(ClosedLoop):
     def __init__(self,
                  plant: Plant,
                  *,
-                 # Gain form
+                 # Parallel gain form
                  Kp: float = None,
                  Ki: float = None,
                  Kd: float = None,
-                 # Time-constant form
+                 # ISA time-constant form
                  Ti: float = None,
                  Td: float = None,
                  # Filter
@@ -44,17 +44,17 @@ class PIDClosedLoop(ClosedLoop):
                  ) -> None:
 
         """
-        Closed-loop control system using a PID controller in international form.
+        Closed-loop control system using an ideal/ISA PID controller.
 
-        The PID controller can be parameterized using either **gain form** or
-        **time-constant form**:
+        The controller can be parameterized using either **parallel gain form**
+        or **ISA time-constant form**:
 
-        Gain form:
+        Parallel gain form:
             - Kp: Proportional gain
             - Ki: Integral gain
             - Kd: Derivative gain
 
-        Time-constant form:
+        ISA time-constant form:
             - Kp: Proportional gain
             - Ti: Integral time constant
             - Td: Derivative time constant
@@ -66,18 +66,21 @@ class PIDClosedLoop(ClosedLoop):
         The derivative part of the PID controller is filtered using a first-order
         (PT1) filter with time constant `Tf`.
 
-        PID Transfer Function (international form):
+        Implemented transfer function (ideal/ISA form):
             Gc(s) = Kp * (1 + 1/(Ti * s) + (Td * s) / (Tf * s + 1))
+
+        In this project, "time-constant form" refers to the ISA/ideal additive
+        PID parameterization above, not to a product-series PID structure.
 
         Args:
             plant (Plant): The plant being controlled.
 
-            Kp (float, optional): Proportional gain (gain form).
-            Ki (float, optional): Integral gain (gain form).
-            Kd (float, optional): Derivative gain (gain form).
+            Kp (float, optional): Proportional gain (parallel gain form).
+            Ki (float, optional): Integral gain (parallel gain form).
+            Kd (float, optional): Derivative gain (parallel gain form).
 
-            Ti (float, optional): Integral time constant (time-constant form).
-            Td (float, optional): Derivative time constant (time-constant form).
+            Ti (float, optional): Integral time constant (ISA time-constant form).
+            Td (float, optional): Derivative time constant (ISA time-constant form).
 
             Tf (float, optional): Time constant of the derivative PT1 filter.
                 Defaults to 0.01.
@@ -91,8 +94,8 @@ class PIDClosedLoop(ClosedLoop):
                 Defaults to ``AntiWindup.CLAMPING``.
 
         Raises:
-            ValueError: If both parameterization methods (gain and time-constant
-                form) are provided or if neither is provided.
+            ValueError: If both parameterization methods (parallel gain and ISA
+                time-constant form) are provided or if neither is provided.
         """
 
         super().__init__(plant, control_constraint, anti_windup_method)
@@ -118,12 +121,12 @@ class PIDClosedLoop(ClosedLoop):
 
     @property
     def Ki(self) -> float:
-        """Integral gain."""
+        """Equivalent integral gain of the ISA controller."""
         return self._ki
 
     @property
     def Kd(self) -> float:
-        """Derivative gain."""
+        """Equivalent derivative gain of the ISA controller."""
         return self._kd
 
     @property
@@ -146,43 +149,46 @@ class PIDClosedLoop(ClosedLoop):
 
     def set_pid_param(self,
                       *,
-                      # Gain form
+                      # Parallel gain form
                       Kp: float = None,
                       Ki: float = None,
                       Kd: float = None,
-                      # Time-constant form
+                      # ISA time-constant form
                       Ti: float = None,
                       Td: float = None):
-        """Set PID controller parameters in either gain form or time-constant form.
+        """Set PID controller parameters in either parallel gain form or ISA time-constant form.
 
         This method allows parameterization of the PID controller using one of two
         mutually exclusive representations:
 
-        **Gain form**
+        **Parallel gain form**
             - ``Kp``: Proportional gain
             - ``Ki``: Integral gain
             - ``Kd``: Derivative gain
 
-        **Time-constant form**
+        **ISA time-constant form**
             - ``Kp``: Proportional gain
             - ``Ti``: Integral time constant (``Ti = Kp / Ki``)
             - ``Td``: Derivative time constant (``Td = Kd / Kp``)
 
+        Both representations describe the same ideal/ISA additive PID controller.
+        This method does not support product-series PID parameterizations.
+
         Only one representation may be provided. The method automatically converts
-        between both representations and stores all internal parameters:
+        between both representations and stores the equivalent internal parameters:
         ``Kp``, ``Ki``, ``Kd``, ``Ti``, and ``Td``.
 
         Args:
             Kp (float, optional):
                 Proportional gain. Required for both parameterizations.
             Ki (float, optional):
-                Integral gain. Used only when specifying the gain form.
+                Integral gain. Used only when specifying the parallel gain form.
             Kd (float, optional):
-                Derivative gain. Used only when specifying the gain form.
+                Derivative gain. Used only when specifying the parallel gain form.
             Ti (float, optional):
-                Integral time constant. Used only when specifying the time-constant form.
+                Integral time constant. Used only when specifying the ISA time-constant form.
             Td (float, optional):
-                Derivative time constant. Used only when specifying the time-constant form.
+                Derivative time constant. Used only when specifying the ISA time-constant form.
 
         Raises:
             ValueError:
@@ -197,7 +203,7 @@ class PIDClosedLoop(ClosedLoop):
         if gain_form and time_form:
             raise ValueError("Use either (Kp, Ki, Kd) or (Kp, Ti, Td), not both.")
         if not (gain_form or time_form):
-            raise ValueError("You must provide either the gain form or the time-constant form.")
+            raise ValueError("You must provide either the parallel gain form or the ISA time-constant form.")
 
         # --- Assign Parameters and Convert if Needed ---
         self._kp = Kp
@@ -232,30 +238,35 @@ class PIDClosedLoop(ClosedLoop):
         D = (self._td * s) / (self._tf * s + 1)
         return self._kp * (P + I + D)
 
-    def __format__(self, format_spec: str) -> str:
-        """
-        Format the PID-T1 controller as a MATLAB transfer function string.
-
-        Example:
-            >>> format(pid, "controller")
-            'tf([Td*Ti, Ti, 1], [Ti*Tf, Ti, 0]) * Kp'
-
-        Args:
-            format_spec (str): Format specifier ('controller' for MATLAB-style).
-
-        Returns:
-            str: Formatted MATLAB transfer function string.
-        """
-        format_spec = format_spec.strip().lower()
-        if format_spec == "controller":
-            num = f"[{self._ti * self._td} {self._ti} 1]"
-            den = f"[{self._ti * self._tf} {self._ti} 0]"
-            return f"tf({num}, {den}) * {self._kp}"
-        elif format_spec == "tf_num":
-            return "[1 0];"
-        elif format_spec == "tf_den":
-            return f"[{self._tf} 1];"
-        return super().__format__(format_spec)
+    # TODO(2026-03-18): Reactivate and fix __format__ only when symbolic MATLAB export
+    # is actually needed. The previous implementation was unused in the codebase and
+    # algebraically inconsistent with the implemented ISA PID-T1 controller
+    # C(s) = Kp * (1 + 1/(Ti*s) + (Td*s)/(Tf*s + 1)).
+    #
+    # def __format__(self, format_spec: str) -> str:
+    #     """
+    #     Format the PID-T1 controller as a MATLAB transfer function string.
+    #
+    #     Example:
+    #         >>> format(pid, "controller")
+    #         'tf([Td*Ti, Ti, 1], [Ti*Tf, Ti, 0]) * Kp'
+    #
+    #     Args:
+    #         format_spec (str): Format specifier ('controller' for MATLAB-style).
+    #
+    #     Returns:
+    #         str: Formatted MATLAB transfer function string.
+    #     """
+    #     format_spec = format_spec.strip().lower()
+    #     if format_spec == "controller":
+    #         num = f"[{self._ti * self._td} {self._ti} 1]"
+    #         den = f"[{self._ti * self._tf} {self._ti} 0]"
+    #         return f"tf({num}, {den}) * {self._kp}"
+    #     elif format_spec == "tf_num":
+    #         return "[1 0];"
+    #     elif format_spec == "tf_den":
+    #         return f"[{self._tf} 1];"
+    #     return super().__format__(format_spec)
 
     # -------------------- Time Domain --------------------
 

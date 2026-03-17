@@ -64,42 +64,47 @@ class Plant:
 
         self._A, self._B, self._C, self._D = tf2ss(self._num, self._den)
 
-    def __format__(self, format_spec: str) -> str:
-        """
-        Returns a formatted string representation of the transfer function.
-
-        Args:
-            format_spec (str): Format type. Supported values:
-                - "plant": MATLAB-style transfer function representation.
-                - "num": Numerator coefficients only.
-                - "den": Denominator coefficients only.
-
-        Returns:
-            str: Formatted transfer function string.
-
-        Raises:
-            NotImplementedError: If the format specifier is not supported.
-
-        Example:
-            >>> plant = Plant(num=[1], den=[1, 2, 1])
-            >>> format(plant, "plant")
-            'tf([1], [1 2 1])'
-        """
-        # Whitespace entfernen und lower() für Sicherheit
-        format_spec = format_spec.strip().lower()
-
-        if format_spec == "plant":
-            num_str = "[" + " ".join(map(str, self._num)) + "]"
-            den_str = "[" + " ".join(map(str, self._den)) + "]"
-            return f"tf({num_str}, {den_str})"
-        elif format_spec == "num":
-            num_str = "[" + " ".join(map(str, self._num)) + "];"
-            return num_str
-        elif format_spec == "den":
-            den_str = "[" + " ".join(map(str, self._den)) + "];"
-            return den_str
-        else:
-            raise NotImplementedError(f"Unsupported format specifier: '{format_spec}'")
+    # TODO(2026-03-18): Reactivate __format__ only when transfer-function string export
+    # is actually needed. The previous implementation was unused in the codebase, and
+    # the only closed-loop formatter that referenced plant formatting expected the
+    # unsupported specifier "system" instead of "plant".
+    #
+    # def __format__(self, format_spec: str) -> str:
+    #     """
+    #     Returns a formatted string representation of the transfer function.
+    #
+    #     Args:
+    #         format_spec (str): Format type. Supported values:
+    #             - "plant": MATLAB-style transfer function representation.
+    #             - "num": Numerator coefficients only.
+    #             - "den": Denominator coefficients only.
+    #
+    #     Returns:
+    #         str: Formatted transfer function string.
+    #
+    #     Raises:
+    #         NotImplementedError: If the format specifier is not supported.
+    #
+    #     Example:
+    #         >>> plant = Plant(num=[1], den=[1, 2, 1])
+    #         >>> format(plant, "plant")
+    #         'tf([1], [1 2 1])'
+    #     """
+    #     # Whitespace entfernen und lower() für Sicherheit
+    #     format_spec = format_spec.strip().lower()
+    #
+    #     if format_spec == "plant":
+    #         num_str = "[" + " ".join(map(str, self._num)) + "]"
+    #         den_str = "[" + " ".join(map(str, self._den)) + "]"
+    #         return f"tf({num_str}, {den_str})"
+    #     elif format_spec == "num":
+    #         num_str = "[" + " ".join(map(str, self._num)) + "];"
+    #         return num_str
+    #     elif format_spec == "den":
+    #         den_str = "[" + " ".join(map(str, self._den)) + "];"
+    #         return den_str
+    #     else:
+    #         raise NotImplementedError(f"Unsupported format specifier: '{format_spec}'")
 
     # ******************************
     # Attributes

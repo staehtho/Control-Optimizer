@@ -760,6 +760,11 @@ def pid_update(e: float, e_prev: float, d_filtered_prev: float, integral_prev: f
     The function computes proportional, integral and filtered derivative terms,
     applies the selected anti-windup strategy and returns the saturated control
     signal together with the updated integral and filtered derivative states.
+
+    The application-level controller representation remains the ISA
+    time-constant form ``(Kp, Ti, Td, Tf)``. Inside this numerical kernel, the
+    integral and derivative contributions are evaluated through the equivalent
+    local gain terms ``Ki = Kp / Ti`` and ``Kd = Kp * Td`` for efficiency.
     """
     # 1) Proportional
     P_term = Kp * e
@@ -770,6 +775,7 @@ def pid_update(e: float, e_prev: float, d_filtered_prev: float, integral_prev: f
     else:
         integral_candidate = integral_prev
 
+    # Local gain-equivalent evaluation of the ISA controller: Ki = Kp / Ti.
     I_term_previous = Kp * (1.0 / Ti) * integral_prev if Ti > 0 else 0.0
     I_term_candidate = Kp * (1.0 / Ti) * integral_candidate if Ti > 0 else 0.0
 
@@ -780,6 +786,7 @@ def pid_update(e: float, e_prev: float, d_filtered_prev: float, integral_prev: f
     else:
         d_filtered_updated = 0.0
 
+    # Local gain-equivalent evaluation of the ISA controller: Kd = Kp * Td.
     D_term = Kp * Td * d_filtered_updated
 
     # 4) Build u (unsat)

@@ -13,11 +13,14 @@ def pid_controller_freq_response(
     Tf: np.ndarray,
     s: np.ndarray,
 ) -> np.ndarray:
-    """Compute the frequency response of a PID controller with derivative filter.
+    """Compute the frequency response of an ideal/ISA PID controller with derivative filter.
 
     The controller transfer function is:
 
         C(s) = Kp * (1 + 1/(Ti*s) + (Td*s)/(Tf*s + 1))
+
+    This module expects the ISA time-constant parameterization ``(Kp, Ti, Td, Tf)``.
+    It does not use product-series PID semantics.
 
     This function is vectorized and supports broadcasting. Typical usage within
     batch evaluation:
@@ -305,10 +308,11 @@ def compute_loop_metrics_batch_from_frf(
     Td: np.ndarray,
     Tf: np.ndarray,
 ) -> dict[str, np.ndarray]:
-    """Compute loop stability metrics for a batch of PID candidates.
+    """Compute loop stability metrics for a batch of ISA-form PID candidates.
 
     The plant response ``G(jw)`` is assumed to be precomputed on the
-    frequency grid ``w``. All PID candidates are evaluated on that same grid.
+    frequency grid ``w``. All PID candidates are evaluated on that same grid
+    using the ISA time-constant parameterization ``(Kp, Ti, Td, Tf)``.
 
     Computed outputs:
         - ``pm_deg``: worst phase margin in degrees

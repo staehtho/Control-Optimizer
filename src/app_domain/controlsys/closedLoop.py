@@ -57,39 +57,44 @@ class ClosedLoop(ABC):
         self._control_constraint = control_constraint or [-5.0, 5.0]
         self._anti_windup_method = anti_windup_method
 
-    def __format__(self, format_spec: str) -> str:
-        """
-        Format the closed-loop system as a MATLAB-style transfer function string.
-
-        This produces the symbolic closed-loop transfer function:
-            G_cl(s) = (C(s) * G(s)) / (1 + C(s) * G(s))
-
-        The controller and system are formatted using their own __format__ methods:
-            - Controller:  f"{self:controller}"
-            - Plant:       f"{self._plant:system}"
-
-        Args:
-            format_spec (str): Format type.
-                - "cl": MATLAB-style closed-loop expression.
-
-        Returns:
-            str: MATLAB-formatted closed-loop transfer function string.
-
-        Raises:
-            NotImplementedError: If the format_spec is not supported.
-        """
-        # Formatstring bereinigen
-        format_spec = format_spec.strip().lower()
-
-        if format_spec == "cl":
-            controller_str = format(self, "controller")
-            system_str = format(self._plant, "system")
-
-            num_str = f"{controller_str} * {system_str}"
-            den_str = f"1 + {controller_str} * {system_str}"
-            return f"({num_str}) / ({den_str})"
-        else:
-            raise NotImplementedError(f"Unsupported format specifier: '{format_spec}'")
+    # TODO(2026-03-18): Reactivate and fix __format__ only when symbolic closed-loop
+    # transfer export is actually needed. The previous implementation was unused in
+    # the codebase and internally inconsistent because it referenced the unsupported
+    # plant format specifier "system".
+    #
+    # def __format__(self, format_spec: str) -> str:
+    #     """
+    #     Format the closed-loop system as a MATLAB-style transfer function string.
+    #
+    #     This produces the symbolic closed-loop transfer function:
+    #         G_cl(s) = (C(s) * G(s)) / (1 + C(s) * G(s))
+    #
+    #     The controller and system are formatted using their own __format__ methods:
+    #         - Controller:  f"{self:controller}"
+    #         - Plant:       f"{self._plant:system}"
+    #
+    #     Args:
+    #         format_spec (str): Format type.
+    #             - "cl": MATLAB-style closed-loop expression.
+    #
+    #     Returns:
+    #         str: MATLAB-formatted closed-loop transfer function string.
+    #
+    #     Raises:
+    #         NotImplementedError: If the format_spec is not supported.
+    #     """
+    #     # Formatstring bereinigen
+    #     format_spec = format_spec.strip().lower()
+    #
+    #     if format_spec == "cl":
+    #         controller_str = format(self, "controller")
+    #         system_str = format(self._plant, "system")
+    #
+    #         num_str = f"{controller_str} * {system_str}"
+    #         den_str = f"1 + {controller_str} * {system_str}"
+    #         return f"({num_str}) / ({den_str})"
+    #     else:
+    #         raise NotImplementedError(f"Unsupported format specifier: '{format_spec}'")
 
     @property
     def plant(self) -> Plant:
