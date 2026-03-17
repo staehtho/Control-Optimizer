@@ -16,6 +16,7 @@ from app_domain.ui_context import UiContext
 from app_types import PlotField
 from viewmodels import PlotViewModel
 from views import ViewMixin
+from views.widgets.toggle_switch import ToggleSwitch
 
 
 @dataclass
@@ -142,8 +143,8 @@ class PlotWidget(ViewMixin, QWidget):
         layout.addWidget(self._txt_max)
         self.field_widgets.setdefault(PlotField.X_MAX, self._txt_max)
 
-        # Grid checkbox
-        self._chk_grid = QCheckBox("", self)
+        # Grid switch
+        self._chk_grid = ToggleSwitch("", self)
         self._chk_grid.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         layout.addWidget(self._chk_grid)
         self.field_widgets.setdefault(PlotField.GRID, self._chk_grid)
@@ -169,7 +170,7 @@ class PlotWidget(ViewMixin, QWidget):
         attributes: dict[PlotField, tuple[str, str, object]] = {
             PlotField.X_MIN: ("editingFinished", "_vm.x_min", float),
             PlotField.X_MAX: ("editingFinished", "_vm.x_max", float),
-            PlotField.GRID: ("stateChanged", "_vm.grid", bool),
+            PlotField.GRID: ("toggled", "_vm.grid", bool),
         }
         for key, value in attributes.items():
             attr, vm_attr, value_type = value

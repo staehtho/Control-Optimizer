@@ -1,7 +1,7 @@
 """Widget binding helpers for Qt views."""
 from __future__ import annotations
 
-from PySide6.QtWidgets import QComboBox, QLineEdit, QSpinBox, QDoubleSpinBox, QCheckBox
+from PySide6.QtWidgets import QAbstractButton, QComboBox, QLineEdit, QSpinBox, QDoubleSpinBox
 
 from app_types import FieldType
 from . import validation_helpers
@@ -49,7 +49,7 @@ def extract_widget_value(view, key: str | FieldType, widget, *args, **kwargs):
     if isinstance(widget, (QSpinBox, QDoubleSpinBox)):
         return widget.value()
 
-    if isinstance(widget, QCheckBox):
+    if isinstance(widget, QAbstractButton) and widget.isCheckable():
         return widget.isChecked()
 
     view.logger.warning(f"Widget type {type(widget)} not handled for key '{key}'")
@@ -116,7 +116,7 @@ def on_vm_changed(view, key: str | FieldType, attribute: str) -> None:
         if widget.value() != value:
             widget.setValue(value)
 
-    elif isinstance(widget, QCheckBox):
+    elif isinstance(widget, QAbstractButton) and widget.isCheckable():
         if widget.isChecked() != bool(value):
             widget.setChecked(bool(value))
 
