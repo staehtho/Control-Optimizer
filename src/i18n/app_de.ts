@@ -654,6 +654,14 @@
     </message>
 </context>
 <context>
+    <name>FunctionWidget</name>
+    <message>
+        <location filename="../views/widgets/function_widget.py" line="164"/>
+        <source>Parameters</source>
+        <translation>Parameter</translation>
+    </message>
+</context>
+<context>
     <name>MainView</name>
     <message>
         <location filename="../views/main_view.py" line="90"/>
@@ -835,29 +843,29 @@ Beispiel: 1, 0.5, 2 → 1·s² + 0,5·s + 2</translation>
 <context>
     <name>PlotWidget</name>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="190"/>
+        <location filename="../views/widgets/plot_widget.py" line="191"/>
         <source>plot.grid</source>
         <translation>Grid</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="191"/>
+        <location filename="../views/widgets/plot_widget.py" line="192"/>
         <source>plot.start</source>
         <translation>Startzeit</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="192"/>
+        <location filename="../views/widgets/plot_widget.py" line="193"/>
         <source>plot.end</source>
         <translation>Endzeit</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="193"/>
+        <location filename="../views/widgets/plot_widget.py" line="194"/>
         <source>plot.start.tooltip</source>
         <translation>Untere Grenze der x-Achse (x_min).
 Legt fest, wo die Zeitachse beginnt.
 Einheit: Sekunden (s).</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="194"/>
+        <location filename="../views/widgets/plot_widget.py" line="195"/>
         <source>plot.end.tooltip</source>
         <translation>Obere Grenze der x-Achse (x_max).
 Legt fest, wo die Zeitachse endet.
@@ -865,7 +873,7 @@ Einheit: Sekunden (s).
 Muss grösser als die Startzeit sein.</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="196"/>
+        <location filename="../views/widgets/plot_widget.py" line="197"/>
         <source>plot.legend</source>
         <translation>Legende</translation>
     </message>

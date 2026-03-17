@@ -19,9 +19,6 @@ from views.resources import Icons
 
 # TODO: Plant: add zero-pol to define the plant
 
-# TODO: Function: change layout to: function selection and formula on the left side and the parameters on the right
-# TODO: Function: add a section for parameters
-
 # TODO: Controller: move the block diagram and the selection of the anti windup in one section called anti windup
 #  and call the selection method or so
 # TODO: Controller: how can be the constraint connected with the block diagram, so it's clear the constraint is
