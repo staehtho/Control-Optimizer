@@ -76,7 +76,7 @@ def main():
     plant_den = [1, 0.1, 1]
 
     use_freq_metrics = True
-    pm_min_deg = 80
+    pm_min_deg = 70
     gm_min_db = 10
     ms_max = 2
 
@@ -268,7 +268,7 @@ def main():
 
     match excitation_target:
         case "reference":
-            t_cl, y_cl = pid.step_response(
+            t_cl, _, y_cl = pid.step_response(
                 t0=start_time,
                 t1=end_time,
                 dt=time_step,
@@ -280,7 +280,7 @@ def main():
             plt.plot(t_cl, y_cl, label="Closed Loop")
 
         case "input_disturbance":
-            t_cl, y_cl = pid.step_response_l(
+            t_cl, _, y_cl = pid.step_response_l(
                 t0=start_time,
                 t1=end_time,
                 dt=time_step,
@@ -289,7 +289,7 @@ def main():
             plt.plot(t_cl, y_cl, label="Closed Loop input disturbance")
 
         case "measurement_disturbance":
-            t_cl, y_cl = pid.step_response_n(
+            t_cl, _, y_cl = pid.step_response_n(
                 t0=start_time,
                 t1=end_time,
                 dt=time_step,

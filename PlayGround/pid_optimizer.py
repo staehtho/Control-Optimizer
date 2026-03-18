@@ -269,7 +269,7 @@ def main():
             plt.plot(t_cl, y_cl, label="Closed Loop")
 
         case "input_disturbance":
-            t_cl, y_cl = pid.step_response_l(
+            t_cl, _, y_cl = pid.step_response_l(
                 t0=start_time,
                 t1=end_time,
                 dt=time_step,
@@ -278,7 +278,7 @@ def main():
             plt.plot(t_cl, y_cl, label="Closed Loop input disturbance")
 
         case "measurement_disturbance":
-            t_cl, y_cl = pid.step_response_n(
+            t_cl, _, y_cl = pid.step_response_n(
                 t0=start_time,
                 t1=end_time,
                 dt=time_step,
