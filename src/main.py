@@ -24,11 +24,9 @@ from views.resources import Icons
 # TODO: Controller: how can be the constraint connected with the block diagram, so it's clear the constraint is
 #  the saturation constraint?
 
-# TODO: PSO: move the main plant and function section in one row, on the left side plant and on the right the function
 # TODO: PSO: made the pso run button not so big
 # TODO: PSO: add an interrupt button to interrupt the pso run
-# TODO: PSO: split the section called Controller Optimization Parameters in multiple section. One for simulation time,
-#  an other for PSO Bounds like the plant and the function and so on.
+
 
 if __name__ == '__main__':
 

@@ -1,7 +1,7 @@
 from functools import partial
 
-from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QComboBox, QPushButton, QProgressBar, QHBoxLayout
-from PySide6.QtCore import QObject, Qt
+from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QComboBox, QPushButton, QProgressBar, QHBoxLayout, QGridLayout
+from PySide6.QtCore import QObject
 
 from app_domain.ui_context import UiContext
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
@@ -11,35 +11,38 @@ from views.view_mixin import ViewMixin
 from views.widgets import SectionFrame, FormulaWidget
 from views.resources import Icons
 
-
-FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
-    "excitation_target": [
+FIELDS: list[FieldConfig | SectionConfig] = [
+    SectionConfig(PsoField.PLANT, [
+        FieldConfig(PsoField.PLANT_TF, FormulaWidget, False),
+        FieldConfig("", QLabel, False),
+    ]),
+    SectionConfig(PsoField.EXCITATION, [
+        FieldConfig(PsoField.FUNCTION_FORMULA, FormulaWidget, False),
         FieldConfig(PsoField.EXCITATION_TARGET, QComboBox),
-        FieldConfig(PsoField.FUNCTION_FORMULA, FormulaWidget),
-    ],
-    "control": [
+    ]),
+    SectionConfig(PsoField.SIMULATION_TIME, [
+        FieldConfig(PsoField.T0, QLineEdit),
+        FieldConfig(PsoField.T1, QLineEdit),
+    ]),
+    SectionConfig(PsoField.PSO_BOUNDS, [
         SectionConfig(PsoField.KP_BOUNDS, [
             FieldConfig(PsoField.KP_MIN, QLineEdit),
             FieldConfig(PsoField.KP_MAX, QLineEdit),
-        ]),
-        SectionConfig(PsoField.SIMULATION_TIME, [
-            FieldConfig(PsoField.T0, QLineEdit),
-            FieldConfig(PsoField.T1, QLineEdit),
         ]),
         SectionConfig(PsoField.TI_BOUNDS, [
             FieldConfig(PsoField.TI_MIN, QLineEdit),
             FieldConfig(PsoField.TI_MAX, QLineEdit),
         ]),
-        SectionConfig(PsoField.PERFORMANCE_INDEX, [
-            FieldConfig(PsoField.TIME_DOMAIN, QComboBox),
-            FieldConfig("", QLabel, False),
-        ]),
         SectionConfig(PsoField.TD_BOUNDS, [
             FieldConfig(PsoField.TD_MIN, QLineEdit),
             FieldConfig(PsoField.TD_MAX, QLineEdit),
         ]),
-    ]
-}
+    ]),
+    SectionConfig(PsoField.PERFORMANCE_INDEX, [
+        FieldConfig(PsoField.TIME_DOMAIN, QComboBox),
+        FieldConfig("", QLabel, False),
+    ]),
+]
 
 
 class PsoConfigurationView(ViewMixin, QWidget):
@@ -89,51 +92,22 @@ class PsoConfigurationView(ViewMixin, QWidget):
         title_layout.addStretch()
         main_layout.addLayout(title_layout)
 
-        self._frm_plant = self._create_plant_frame()
-        main_layout.addWidget(self._frm_plant)
-        self._frm_function = self._create_function_frame()
-        main_layout.addWidget(self._frm_function)
-        self._frm_controller = self._create_controller_frame()
-        main_layout.addWidget(self._frm_controller)
+        main_layout.addLayout(self._create_field_grid())
+
         self._frm_run_pso = self._create_run_pso_frame()
         main_layout.addWidget(self._frm_run_pso)
 
         main_layout.addStretch()
         self.setLayout(main_layout)
 
-    def _create_plant_frame(self) -> SectionFrame:
-        """Create the plant transfer function card."""
-        frame: SectionFrame
-        frame, frame_layout = self._create_card(parent=self)
+    def _create_field_grid(self) -> QGridLayout:
 
-        # TF
-        self._lbl_tf = FormulaWidget(font_size_scale=self._formula_font_size_scale, parent=frame)
-        self._lbl_tf.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        grid = self._create_grid(FIELDS)
 
-        frame_layout.addWidget(self._lbl_tf)
+        self.field_widgets[PsoField.PLANT_TF].set_font_size(self._formula_font_size_scale)
+        self.field_widgets[PsoField.FUNCTION_FORMULA].set_font_size(self._formula_font_size_scale)
 
-        return frame
-
-    def _create_function_frame(self) -> SectionFrame:
-        """Create the excitation function card."""
-        frame: SectionFrame
-        frame, frame_layout = self._create_card(parent=self)
-
-        frame_layout.addLayout(self._create_grid(FIELDS["excitation_target"], 4))
-
-        widget: FormulaWidget = self.field_widgets[PsoField.FUNCTION_FORMULA]
-        widget.set_font_size(self._formula_font_size_scale)
-
-        return frame
-
-    def _create_controller_frame(self) -> SectionFrame:
-        """Create the controller optimization card."""
-        frame: SectionFrame
-        frame, frame_layout = self._create_card(parent=self)
-
-        frame_layout.addLayout(self._create_grid(FIELDS["control"], 4))
-
-        return frame
+        return grid
 
     def _create_run_pso_frame(self) -> SectionFrame:
         """Create the PSO run control card."""
@@ -157,8 +131,8 @@ class PsoConfigurationView(ViewMixin, QWidget):
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
         attributes: dict[PsoField, tuple[str, str, object]] = {
-            PsoField.T0: ("editingFinished", "_vm_pso.t0", float),
-            PsoField.T1: ("editingFinished", "_vm_pso.t1", float),
+            # PsoField.T0: ("editingFinished", "_vm_pso.t0", float),
+            # PsoField.T1: ("editingFinished", "_vm_pso.t1", float),
             PsoField.EXCITATION_TARGET: ("currentIndexChanged", "_vm_pso.excitation_target", ExcitationTarget),
             PsoField.TIME_DOMAIN: ("currentIndexChanged", "_vm_pso.performance_index", PerformanceIndex),
             PsoField.KP_MIN: ("editingFinished", "_vm_pso.kp_min", float),
@@ -214,26 +188,25 @@ class PsoConfigurationView(ViewMixin, QWidget):
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("PSO Parameter"))
-        self._frm_plant.set_title(self.tr("Plant"))
-        self._frm_function.set_title(self.tr("Excitation Function"))
-        self._frm_controller.set_title(self.tr("Controller Optimization Parameters"))
         self._frm_run_pso.set_title(self.tr("PSO Simulation"))
 
         labels = {
+            PsoField.PLANT: self.tr("Plant"),
+            PsoField.EXCITATION: self.tr("Excitation Function"),
+            PsoField.EXCITATION_TARGET: self.tr("Excitation Target"),
             PsoField.SIMULATION_TIME: self.tr("Simulation Time"),
             PsoField.T0: self.tr("Start Time"),
             PsoField.T1: self.tr("End Time"),
-            PsoField.EXCITATION_TARGET: self.tr("Excitation Target"),
-            PsoField.FUNCTION_FORMULA: self.tr("Function"),
             PsoField.PERFORMANCE_INDEX: self.tr("Performance Index"),
             PsoField.TIME_DOMAIN: self.tr("Time Domain"),
-            PsoField.KP_BOUNDS: self.tr("PSO Bounds: Kp"),
+            PsoField.PSO_BOUNDS: self.tr("PSO Bounds"),
+            PsoField.KP_BOUNDS: self.tr("Kp Bounds"),
             PsoField.KP_MIN: self.tr("Minimum"),
             PsoField.KP_MAX: self.tr("Maximum"),
-            PsoField.TI_BOUNDS: self.tr("PSO Bounds: Ti"),
+            PsoField.TI_BOUNDS: self.tr("Ti Bounds"),
             PsoField.TI_MIN: self.tr("Minimum"),
             PsoField.TI_MAX: self.tr("Maximum"),
-            PsoField.TD_BOUNDS: self.tr("PSO Bounds: Td"),
+            PsoField.TD_BOUNDS: self.tr("Td Bounds"),
             PsoField.TD_MIN: self.tr("Minimum"),
             PsoField.TD_MAX: self.tr("Maximum"),
             PsoField.RUN_PSO: self.tr("Start PSO Simulation"),
@@ -332,7 +305,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
     # ============================================================
     def _set_formula_tf(self) -> None:
         """Update the plant transfer function formula display."""
-        self._lbl_tf.set_formula(r"G(s) = " + self._vm_plant.get_tf())
+        self.field_widgets[PsoField.PLANT_TF].set_formula(r"G(s) = " + self._vm_plant.get_tf())
 
     def _set_formula_function(self) -> None:
         """Update the excitation function formula display."""
