@@ -62,7 +62,7 @@ def add_section(
     frame_layout.addLayout(inner_layout)
 
     # Calculate inner rows
-    inner_rows = len(section.fields) + 1
+    inner_rows = len(section)
 
     # Find first empty position for section
     row, col = find_next_cell(layout, columns)

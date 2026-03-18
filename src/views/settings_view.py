@@ -95,7 +95,7 @@ class SettingsView(ViewMixin, QWidget):
     def _create_frame(self, key: str) -> QFrame:
         """Create a settings section frame for the given key."""
         frame = QFrame(self)
-        layout = self._create_grid(FIELDS.get(key), 2)
+        layout = self._create_grid(FIELDS.get(key), 1)
 
         frame.setLayout(layout)
         return frame

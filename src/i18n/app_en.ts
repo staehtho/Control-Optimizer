@@ -888,96 +888,111 @@ Must be greater than the start time.</translation>
 <context>
     <name>PsoConfigurationView</name>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="216"/>
+        <location filename="../views/pso_configuration_view.py" line="191"/>
         <source>PSO Parameter</source>
         <translation>PSO Parameter</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="217"/>
+        <location filename="../views/pso_configuration_view.py" line="195"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="218"/>
+        <location filename="../views/pso_configuration_view.py" line="196"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="219"/>
         <source>Controller Optimization Parameters</source>
-        <translation>Controller Optimization Parameters</translation>
+        <translation type="vanished">Controller Optimization Parameters</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="220"/>
+        <location filename="../views/pso_configuration_view.py" line="192"/>
         <source>PSO Simulation</source>
         <translation>PSO Simulation</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="223"/>
+        <location filename="../views/pso_configuration_view.py" line="198"/>
         <source>Simulation Time</source>
         <translation>Simulation Time</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="224"/>
+        <location filename="../views/pso_configuration_view.py" line="199"/>
         <source>Start Time</source>
         <translation>Start Time</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="225"/>
+        <location filename="../views/pso_configuration_view.py" line="200"/>
         <source>End Time</source>
         <translation>End Time</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="226"/>
+        <location filename="../views/pso_configuration_view.py" line="203"/>
+        <source>PSO Bounds</source>
+        <translation>PSO Bounds</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="204"/>
+        <source>Kp Bounds</source>
+        <translation>Kp Bounds</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="207"/>
+        <source>Ti Bounds</source>
+        <translation>Ti Bounds</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="210"/>
+        <source>Td Bounds</source>
+        <translation>Td Bounds</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="197"/>
         <source>Excitation Target</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="227"/>
         <source>Function</source>
-        <translation>Function</translation>
+        <translation type="vanished">Function</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="228"/>
+        <location filename="../views/pso_configuration_view.py" line="201"/>
         <source>Performance Index</source>
         <translation>Performance Index</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="229"/>
+        <location filename="../views/pso_configuration_view.py" line="202"/>
         <source>Time Domain</source>
         <translation>Time Domain</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="230"/>
         <source>PSO Bounds: Kp</source>
-        <translation>PSO Bounds: Kp</translation>
+        <translation type="vanished">PSO Bounds: Kp</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="231"/>
-        <location filename="../views/pso_configuration_view.py" line="234"/>
-        <location filename="../views/pso_configuration_view.py" line="237"/>
+        <location filename="../views/pso_configuration_view.py" line="205"/>
+        <location filename="../views/pso_configuration_view.py" line="208"/>
+        <location filename="../views/pso_configuration_view.py" line="211"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="232"/>
-        <location filename="../views/pso_configuration_view.py" line="235"/>
-        <location filename="../views/pso_configuration_view.py" line="238"/>
+        <location filename="../views/pso_configuration_view.py" line="206"/>
+        <location filename="../views/pso_configuration_view.py" line="209"/>
+        <location filename="../views/pso_configuration_view.py" line="212"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="233"/>
         <source>PSO Bounds: Ti</source>
-        <translation>PSO Bounds: Ti</translation>
+        <translation type="vanished">PSO Bounds: Ti</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="236"/>
         <source>PSO Bounds: Td</source>
-        <translation>PSO Bounds: Td</translation>
+        <translation type="vanished">PSO Bounds: Td</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="239"/>
+        <location filename="../views/pso_configuration_view.py" line="213"/>
         <source>Start PSO Simulation</source>
         <translation>Start PSO Simulation</translation>
     </message>

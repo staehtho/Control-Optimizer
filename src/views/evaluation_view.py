@@ -217,7 +217,7 @@ class EvaluationView(ViewMixin, QWidget):
         """Create the transfer function summary widget."""
         widget = QWidget(self)
 
-        grid_layout = self._create_grid(FIELDS.get("tf"), 4)
+        grid_layout = self._create_grid(FIELDS.get("tf"))
         widget.setLayout(grid_layout)
 
         tf: dict[EvaluationField, str] = {

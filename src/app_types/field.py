@@ -12,17 +12,26 @@ class FieldConfig:
     create_label: bool = True
     validator: object = QDoubleValidator
 
+    def __len__(self) -> int:
+        return 1
+
 
 @dataclass
 class SectionConfig:
     key: str | FieldType
-    fields: list[FieldConfig]
+    fields: list[FieldConfig | SectionConfig]
     columns: int = 2
 
     def __post_init__(self):
         if self.columns % 2 != 0:
             raise ValueError(f"Columns {self.columns} must be even")
 
+    def __len__(self) -> int:
+        count = 0
+        for f in self.fields:
+            count += len(f)
+
+        return count // (self.columns // 2) + 1
 
 class FieldType(Enum):
     ...
@@ -55,6 +64,10 @@ class ControllerField(FieldType):
 
 # PsoConfigurationViewModel / PsoConfigurationView
 class PsoField(FieldType):
+    PLANT = "plant"
+    PLANT_TF = "plant_tf"
+
+    EXCITATION = "excitation"
     EXCITATION_TARGET = "excitation_target"
     FUNCTION_FORMULA = "function_formula"
 
@@ -65,14 +78,13 @@ class PsoField(FieldType):
     PERFORMANCE_INDEX = "performance_index"
     TIME_DOMAIN = "time_domain"
 
+    PSO_BOUNDS = "pso_bounds"
     KP_BOUNDS = "kp_bounds"
     KP_MIN = "kp_min"
     KP_MAX = "kp_max"
-
     TI_BOUNDS = "ti_bounds"
     TI_MIN = "ti_min"
     TI_MAX = "ti_max"
-
     TD_BOUNDS = "td_bounds"
     TD_MIN = "td_min"
     TD_MAX = "td_max"
