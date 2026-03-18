@@ -159,10 +159,27 @@ class SimulationService:
             return
 
         self._logger.info("Starting PsoSimulationWorker for asynchronous computation")
-        self._pso_simulation_worker = PsoSimulationWorker(self._pso_simulation_engine, pso_simulation_param)
-        self._pso_simulation_worker.resultReady.connect(callback)
-        self._pso_simulation_worker.progressChanged.connect(progress_callback)
-        self._pso_simulation_worker.start()
+        worker = PsoSimulationWorker(self._pso_simulation_engine, pso_simulation_param)
+        self._pso_simulation_worker = worker
+        worker.resultReady.connect(callback)
+        worker.progressChanged.connect(progress_callback)
+        worker.finished.connect(lambda w=worker: self._on_pso_worker_finished(w))
+        worker.start()
+
+    def stop_pso_simulation(self) -> None:
+        """Interrupt any running PSO simulation worker."""
+        if self._pso_simulation_worker is None or not self._pso_simulation_worker.isRunning():
+            return
+        self._logger.info("Interrupting PsoSimulationWorker.")
+        self._pso_simulation_worker.requestInterruption()
+        self._pso_simulation_worker.quit()
+
+    def _on_pso_worker_finished(self, worker: QThread | None) -> None:
+        if worker is None:
+            return
+        if worker is self._pso_simulation_worker:
+            self._pso_simulation_worker = None
+        worker.deleteLater()
 
     def compute_closed_loop_response(
             self,

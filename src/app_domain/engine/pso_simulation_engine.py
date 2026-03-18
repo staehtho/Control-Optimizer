@@ -1,4 +1,4 @@
-from typing import Callable, Tuple
+from typing import Callable, Tuple, Optional
 import logging
 import numpy as np
 import sys
@@ -26,7 +26,12 @@ class PsoSimulationEngine:
     # Public API
     # ==========================================================
 
-    def run_simulation(self, param: PsoSimulationParam, callback: Callable[[int], None]) -> PsoResult:
+    def run_simulation(
+            self,
+            param: PsoSimulationParam,
+            callback: Callable[[int], None],
+            should_stop: Optional[Callable[[], bool]] = None,
+    ) -> PsoResult:
         """Run full PSO optimization workflow."""
 
         self._logger.info("Starting PSO simulation.")
@@ -50,7 +55,7 @@ class PsoSimulationEngine:
 
         bounds = self._extract_bounds(param)
 
-        self._run_pso(param, objective, bounds, callback)
+        self._run_pso(param, objective, bounds, callback, should_stop)
 
         self._logger.info("PSO simulation finished.")
 
@@ -144,7 +149,14 @@ class PsoSimulationEngine:
     # PSO Execution
     # ==========================================================
 
-    def _run_pso(self, param: PsoSimulationParam, objective: PsoFunc, bounds, callback: Callable[[int], None]) -> None:
+    def _run_pso(
+            self,
+            param: PsoSimulationParam,
+            objective: PsoFunc,
+            bounds,
+            callback: Callable[[int], None],
+            should_stop: Optional[Callable[[], bool]] = None,
+    ) -> None:
         """Execute PSO optimization loop."""
 
         self._total_duration = 0.0
@@ -157,6 +169,9 @@ class PsoSimulationEngine:
         total_start = time.perf_counter()
 
         for iteration in range(param.pso_iteration):
+            if should_stop is not None and should_stop():
+                self._logger.info("PSO simulation interrupted before iteration %d.", iteration + 1)
+                raise InterruptedError("PSO simulation interrupted")
 
             iter_start = time.perf_counter()
 
@@ -182,6 +197,10 @@ class PsoSimulationEngine:
             )
 
             callback(iteration + 1)
+
+            if should_stop is not None and should_stop():
+                self._logger.info("PSO simulation interrupted after iteration %d.", iteration + 1)
+                raise InterruptedError("PSO simulation interrupted")
 
         self._total_duration = time.perf_counter() - total_start
 

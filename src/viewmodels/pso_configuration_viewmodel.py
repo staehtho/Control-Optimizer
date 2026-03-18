@@ -30,6 +30,7 @@ class PsoConfigurationViewModel(BaseViewModel):
     tdMaxChanged = Signal()
     psoProgressChanged = Signal(int)
     psoSimulationFinished = Signal()
+    psoSimulationInterrupted = Signal()
 
     def __init__(self, model_container: ModelContainer, simulation_service: SimulationService,
                  parent: QObject = None) -> None:
@@ -271,6 +272,13 @@ class PsoConfigurationViewModel(BaseViewModel):
         self._simulation_service.run_pso_simulation(
             self._get_pos_param(), self._on_pso_simulation_finished, self._on_pso_progress
         )
+
+    @Slot()
+    def interrupt_pso_simulation(self) -> None:
+        """Request interruption of the active PSO simulation."""
+        self.logger.debug("Interrupting PSO simulation")
+        self._simulation_service.stop_pso_simulation()
+        self.psoSimulationInterrupted.emit()
 
     def _get_pos_param(self) -> PsoSimulationParam:
         return PsoSimulationParam(

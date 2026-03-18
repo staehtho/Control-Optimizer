@@ -1,6 +1,16 @@
 from functools import partial
 
-from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QComboBox, QPushButton, QProgressBar, QHBoxLayout, QGridLayout
+from PySide6.QtWidgets import (
+    QWidget,
+    QLabel,
+    QLineEdit,
+    QComboBox,
+    QPushButton,
+    QProgressBar,
+    QHBoxLayout,
+    QSizePolicy,
+    QLayout,
+)
 from PySide6.QtCore import QObject
 
 from app_domain.ui_context import UiContext
@@ -100,7 +110,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
         main_layout.addStretch()
         self.setLayout(main_layout)
 
-    def _create_field_grid(self) -> QGridLayout:
+    def _create_field_grid(self) -> QLayout:
 
         grid = self._create_grid(FIELDS)
 
@@ -119,9 +129,28 @@ class PsoConfigurationView(ViewMixin, QWidget):
         self._progress_bar.setValue(0)
         frame_layout.addWidget(self._progress_bar)
 
-        btn_run_pso = QPushButton(frame)
-        frame_layout.addWidget(btn_run_pso)
-        self.labels[PsoField.RUN_PSO] = btn_run_pso
+        btn_layout = QHBoxLayout()
+        btn_layout.setContentsMargins(0, 0, 0, 0)
+        btn_layout.setSpacing(8)
+
+        self._btn_run_pso = QPushButton(frame)
+        self._btn_run_pso.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        btn_layout.addWidget(self._btn_run_pso)
+        self.labels[PsoField.RUN_PSO] = self._btn_run_pso
+
+        self._btn_interrupt_pso = QPushButton(frame)
+        self._btn_interrupt_pso.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self._btn_interrupt_pso.setEnabled(False)
+        btn_layout.addWidget(self._btn_interrupt_pso)
+        self.labels[PsoField.INTERRUPT_PSO] = self._btn_interrupt_pso
+
+        self._lbl_interrupt_status = QLabel(frame)
+        self._lbl_interrupt_status.setObjectName("statusText")
+        self._lbl_interrupt_status.setText("")
+        btn_layout.addWidget(self._lbl_interrupt_status)
+
+        btn_layout.addStretch()
+        frame_layout.addLayout(btn_layout)
 
         return frame
 
@@ -147,7 +176,8 @@ class PsoConfigurationView(ViewMixin, QWidget):
             getattr(self.field_widgets[key], attr).connect(
                 partial(self._on_widget_changed, key, vm_attr, value_type=value_type))
 
-        self.labels[PsoField.RUN_PSO].clicked.connect(self._on_btn_run_pso)
+        self._btn_run_pso.clicked.connect(self._on_btn_run_pso)
+        self._btn_interrupt_pso.clicked.connect(self._on_btn_interrupt_pso)
 
     # ============================================================
     # ViewModel bindings (ViewModel -> UI)
@@ -181,6 +211,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
 
         self._vm_pso.psoProgressChanged.connect(self._on_vm_pso_progress_changed)
         self._vm_pso.psoSimulationFinished.connect(self._on_vm_pso_simulation_finished)
+        self._vm_pso.psoSimulationInterrupted.connect(self._on_vm_pso_simulation_interrupted)
 
     # ============================================================
     # Translation
@@ -210,6 +241,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
             PsoField.TD_MIN: self.tr("Minimum"),
             PsoField.TD_MAX: self.tr("Maximum"),
             PsoField.RUN_PSO: self.tr("Start PSO Simulation"),
+            PsoField.INTERRUPT_PSO: self.tr("Interrupt"),
         }
 
         for key in labels.keys():
@@ -248,7 +280,8 @@ class PsoConfigurationView(ViewMixin, QWidget):
             if index >= 0:
                 self.field_widgets[key].setCurrentIndex(index)
 
-        self.labels[PsoField.RUN_PSO].setEnabled(self._vm_plant.is_valid)
+        self._btn_run_pso.setEnabled(self._vm_plant.is_valid)
+        self._btn_interrupt_pso.setEnabled(False)
 
         self._set_formula_tf()
         self._set_formula_function()
@@ -280,7 +313,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
     # ============================================================
     def _on_vm_plant_is_valid_changed(self) -> None:
         """Enable or disable the PSO run button based on plant validity."""
-        self.labels[PsoField.RUN_PSO].setEnabled(self._vm_plant.is_valid)
+        self._btn_run_pso.setEnabled(self._vm_plant.is_valid)
 
     def _on_vm_pso_progress_changed(self, iteration: int) -> None:
         """Update the progress bar based on PSO iteration."""
@@ -292,13 +325,28 @@ class PsoConfigurationView(ViewMixin, QWidget):
         if not self._vm_plant.is_valid:
             return
 
-        self.labels[PsoField.RUN_PSO].setEnabled(False)
+        self._btn_run_pso.setEnabled(False)
+        self._btn_interrupt_pso.setEnabled(True)
+        self._lbl_interrupt_status.setText("")
         self._progress_bar.setValue(0)
         self._vm_pso.run_pso_simulation()
 
+    def _on_btn_interrupt_pso(self) -> None:
+        """Interrupt the running PSO simulation."""
+        self._btn_interrupt_pso.setEnabled(False)
+        self._btn_run_pso.setEnabled(self._vm_plant.is_valid)
+        self._vm_pso.interrupt_pso_simulation()
+
     def _on_vm_pso_simulation_finished(self) -> None:
         """Re-enable the run button after PSO simulation completes."""
-        self.labels[PsoField.RUN_PSO].setEnabled(True)
+        self._btn_run_pso.setEnabled(True)
+        self._btn_interrupt_pso.setEnabled(False)
+
+    def _on_vm_pso_simulation_interrupted(self) -> None:
+        """Re-enable the run button after PSO simulation interruption."""
+        self._btn_run_pso.setEnabled(self._vm_plant.is_valid)
+        self._btn_interrupt_pso.setEnabled(False)
+        self._lbl_interrupt_status.setText(self.tr("Interrupted"))
 
     # ============================================================
     # Internal helpers

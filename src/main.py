@@ -24,10 +24,6 @@ from views.resources import Icons
 # TODO: Controller: how can be the constraint connected with the block diagram, so it's clear the constraint is
 #  the saturation constraint?
 
-# TODO: PSO: made the pso run button not so big
-# TODO: PSO: add an interrupt button to interrupt the pso run
-
-
 if __name__ == '__main__':
 
     # init logging

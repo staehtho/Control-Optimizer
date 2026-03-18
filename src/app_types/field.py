@@ -90,6 +90,7 @@ class PsoField(FieldType):
     TD_MAX = "td_max"
 
     RUN_PSO = "run_pso"
+    INTERRUPT_PSO = "interrupt_pso"
 
 
 # EvaluationViewModel / EvaluationView

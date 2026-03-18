@@ -888,17 +888,17 @@ Must be greater than the start time.</translation>
 <context>
     <name>PsoConfigurationView</name>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="190"/>
+        <location filename="../views/pso_configuration_view.py" line="221"/>
         <source>PSO Parameter</source>
         <translation>PSO Parameter</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="194"/>
+        <location filename="../views/pso_configuration_view.py" line="225"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="195"/>
+        <location filename="../views/pso_configuration_view.py" line="226"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
     </message>
@@ -907,47 +907,57 @@ Must be greater than the start time.</translation>
         <translation type="vanished">Controller Optimization Parameters</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="191"/>
+        <location filename="../views/pso_configuration_view.py" line="222"/>
         <source>PSO Simulation</source>
         <translation>PSO Simulation</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="197"/>
+        <location filename="../views/pso_configuration_view.py" line="228"/>
         <source>Simulation Time</source>
         <translation>Simulation Time</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="198"/>
+        <location filename="../views/pso_configuration_view.py" line="229"/>
         <source>Start Time</source>
         <translation>Start Time</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="199"/>
+        <location filename="../views/pso_configuration_view.py" line="230"/>
         <source>End Time</source>
         <translation>End Time</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="202"/>
+        <location filename="../views/pso_configuration_view.py" line="233"/>
         <source>PSO Bounds</source>
         <translation>PSO Bounds</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="203"/>
+        <location filename="../views/pso_configuration_view.py" line="234"/>
         <source>Kp Bounds</source>
         <translation>Kp Bounds</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="206"/>
+        <location filename="../views/pso_configuration_view.py" line="237"/>
         <source>Ti Bounds</source>
         <translation>Ti Bounds</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="209"/>
+        <location filename="../views/pso_configuration_view.py" line="240"/>
         <source>Td Bounds</source>
         <translation>Td Bounds</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="196"/>
+        <location filename="../views/pso_configuration_view.py" line="244"/>
+        <source>Interrupt</source>
+        <translation>Interrupt</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="349"/>
+        <source>Interrupted</source>
+        <translation>Interrupted</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="227"/>
         <source>Excitation Target</source>
         <translation></translation>
     </message>
@@ -956,12 +966,12 @@ Must be greater than the start time.</translation>
         <translation type="vanished">Function</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="200"/>
+        <location filename="../views/pso_configuration_view.py" line="231"/>
         <source>Performance Index</source>
         <translation>Performance Index</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="201"/>
+        <location filename="../views/pso_configuration_view.py" line="232"/>
         <source>Time Domain</source>
         <translation>Time Domain</translation>
     </message>
@@ -970,16 +980,16 @@ Must be greater than the start time.</translation>
         <translation type="vanished">PSO Bounds: Kp</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="204"/>
-        <location filename="../views/pso_configuration_view.py" line="207"/>
-        <location filename="../views/pso_configuration_view.py" line="210"/>
+        <location filename="../views/pso_configuration_view.py" line="235"/>
+        <location filename="../views/pso_configuration_view.py" line="238"/>
+        <location filename="../views/pso_configuration_view.py" line="241"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="205"/>
-        <location filename="../views/pso_configuration_view.py" line="208"/>
-        <location filename="../views/pso_configuration_view.py" line="211"/>
+        <location filename="../views/pso_configuration_view.py" line="236"/>
+        <location filename="../views/pso_configuration_view.py" line="239"/>
+        <location filename="../views/pso_configuration_view.py" line="242"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
@@ -992,7 +1002,7 @@ Must be greater than the start time.</translation>
         <translation type="vanished">PSO Bounds: Td</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="212"/>
+        <location filename="../views/pso_configuration_view.py" line="243"/>
         <source>Start PSO Simulation</source>
         <translation>Start PSO Simulation</translation>
     </message>
@@ -1189,26 +1199,26 @@ Tf   = %(tf).3f</translation>
 <context>
     <name>PsoConfigurationViewModel</name>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="66"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="67"/>
         <source>Invalid value: start time ({t0}) must be smaller than end time ({t1}).</source>
         <translation>Invalid value: start time ({t0}) must be smaller than end time ({t1}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="89"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="90"/>
         <source>Invalid value: end time ({t1}) must be greater than start time ({t0}).</source>
         <translation>Invalid value: end time ({t1}) must be greater than start time ({t0}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="130"/>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="176"/>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="222"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="131"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="177"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="223"/>
         <source>Invalid value: min ({value}) must be smaller than max ({max}).</source>
         <translation>Invalid value: min ({value}) must be smaller than max ({max}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="150"/>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="199"/>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="242"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="151"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="200"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="243"/>
         <source>Invalid value: max ({value}) must be greater than min ({min}).</source>
         <translation>Invalid value: max ({value}) must be greater than min ({min}).</translation>
     </message>
