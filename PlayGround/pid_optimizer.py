@@ -87,12 +87,12 @@ def main():
     time_step = 1e-4
     end_time = 10
 
-    anti_windup = AntiWindup.CLAMPING
+    anti_windup = AntiWindup.BACKCALCULATION
 
     excitation_target = "reference"
 
-    constraint_min = -100
-    constraint_max = 100
+    constraint_min = -1
+    constraint_max = 1
 
     performance_index = PerformanceIndex.ITAE
 
@@ -122,6 +122,7 @@ def main():
     else:
         t_dom = 1 / abs(p_dom)
         pid.set_filter(Tf=t_dom / 100)
+
 
     # generate function to be optimized
     r = lambda t: np.zeros_like(t)

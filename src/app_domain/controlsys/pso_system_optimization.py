@@ -817,8 +817,12 @@ def pid_update(e: float, e_prev: float, d_filtered_prev: float, integral_prev: f
     elif anti_windup_method == AntiWindupInt.BACKCALCULATION:
         u_sat_candidate = min(max(u_unsat_candidate, u_min), u_max)
 
+        # The application state integrates the unscaled integral state x_I
+        # with I_term = Ki * x_I and Ki = Kp / Ti. A block diagram that feeds
+        # the raw saturation error directly into the already scaled I-branch
+        # therefore maps to (u_sat - u_unsat) / Ki on this state.
         if Ti > 0.0 and Kp != 0.0:
-            integral_updated = integral_candidate + (dt / Kp) * (u_sat_candidate - u_unsat_candidate)
+            integral_updated = integral_candidate + dt * (Ti / Kp) * (u_sat_candidate - u_unsat_candidate)
         else:
             integral_updated = integral_candidate
 
