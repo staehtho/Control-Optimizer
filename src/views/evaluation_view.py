@@ -184,20 +184,26 @@ class EvaluationView(ViewMixin, QWidget):
 
     def _create_block_diagram_widget(self) -> QWidget:
         """Create the closed-loop block diagram widget."""
+
+        x_offset = 100
+        y = 125
+        node_x = 150
+        sum_x = 475
         svgs = [
             (BlockDiagram.closed_loop, (0, 0)),
-            (BlockDiagram.controller_base, (100, 0)),
-            (BlockDiagram.p_path, (100, 0)),
-            (BlockDiagram.d_path, (100, 0))
+            (BlockDiagram.controller_in, (x_offset, y)),
+            (BlockDiagram.controller_out, (sum_x + x_offset, y)),
+            (BlockDiagram.p_path, (node_x + x_offset, y)),
+            (BlockDiagram.d_path, (node_x + x_offset, y))
         ]
 
         match self._vm_evaluator.anti_windup:
             case AntiWindup.BACKCALCULATION:
-                svgs.append((BlockDiagram.backcalculation, (100, 0)))
+                svgs.append((BlockDiagram.backcalculation, (node_x + x_offset, y)))
             case AntiWindup.CLAMPING:
-                svgs.append((BlockDiagram.clamping, (100, 0)))
+                svgs.append((BlockDiagram.clamping, (node_x + x_offset, y)))
             case AntiWindup.CONDITIONAL:
-                svgs.append((BlockDiagram.conditional, (100, 0)))
+                svgs.append((BlockDiagram.conditional, (node_x + x_offset, y)))
             case unknown_value:
                 raise ValueError(
                     f"Unsupported anti-windup method: {unknown_value!r}. "

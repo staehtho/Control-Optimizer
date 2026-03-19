@@ -1,11 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="600" viewBox="0 0 550 300">
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="150" viewBox="-10 -75 400 150">
 
     <style>
         .fill { fill:#000000 }
         .line { stroke:#000000; stroke-width:2; fill:none; }
-        .block { stroke:#000000; stroke-width:2; fill:none; }
-        .text { fill:#000000; font-family:Arial, sans-serif; font-size:14px; text-anchor:middle;
-        dominant-baseline:middle; }
     </style>
 
     <!-- Arrow -->
@@ -14,22 +11,8 @@
     </defs>
 
     <!-- Input -->
-    <g transform="translate(75 125)">
-        <path class="line" d="M0 0 H45"/>
-        <use href="#arrow" transform="translate(50, 0)"/>
-    </g>
-
-    <!-- P -->
-    <g transform="translate(125, 125)">
-        <g transform="translate(0, -25)">
-            <rect class="block" height="50" width="50"/>
-            <text class="text" x="25" y="30">Kp</text>
-        </g>
-    </g>
-
-    <!-- Output -->
-    <g transform="translate(400 125)">
-        <path class="line" d="M-10 0 H-225"/>
-        <use href="#arrow" transform="translate(-5, 0)"/>
+    <g transform="translate(0 0)">
+        <path class="line" d="M0 0 H315"/>
+        <use href="#arrow" transform="translate(320, 0)"/>
     </g>
 </svg>

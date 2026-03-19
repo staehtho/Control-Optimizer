@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="600" viewBox="0 0 550 300">
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="150" viewBox="-10 -140 400 150">
 
     <style>
         .fill { fill:#000000 }
@@ -19,16 +19,16 @@
     </defs>
 
     <!-- Input -->
-    <g transform="translate(75 125)">
+    <g transform="translate(0 0)">
         <path class="line" d="M0 0 V-75 H45"/>
         <use href="#arrow" transform="translate(50 -75)"/>
     </g>
 
     <!-- D -->
-    <g transform="translate(125, 50)">
+    <g transform="translate(50, -75)">
         <g transform="translate(0, -25)">
             <rect class="block" height="50" width="50"/>
-            <text class="text" x="25" y="30">Kp&#xB7;Td</text>
+            <text class="text" x="25" y="30">Td</text>
         </g>
 
         <path class="line" d="M50 0 H95"/>
@@ -46,7 +46,7 @@
     </g>
 
     <!-- Output -->
-    <g transform="translate(400 125)">
+    <g transform="translate(325 0)">
         <path class="line" d="M0 -10 V-75 H-75"/>
         <use href="#arrow" transform="rotate(90 2.5 -2.5)"/>
     </g>

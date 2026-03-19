@@ -176,19 +176,24 @@ class ControllerView(ViewMixin, QWidget):
     # ============================================================
     def _load_block_diagram(self) -> None:
         """Build and recolor the controller block diagram SVG."""
+        y = 125
+        node_x = 150
+        sum_x = 475
         svgs = [
-            BlockDiagram.controller_base,
-            BlockDiagram.p_path,
-            BlockDiagram.d_path
+            (BlockDiagram.blank_base, (0, 0)),
+            (BlockDiagram.controller_in, (0, y)),
+            (BlockDiagram.controller_out, (sum_x, y)),
+            (BlockDiagram.p_path, (node_x, y)),
+            (BlockDiagram.d_path, (node_x, y))
         ]
 
         match self._vm_controller.anti_windup:
             case AntiWindup.BACKCALCULATION:
-                svgs.append(BlockDiagram.backcalculation)
+                svgs.append((BlockDiagram.backcalculation, (node_x, y)))
             case AntiWindup.CLAMPING:
-                svgs.append(BlockDiagram.clamping)
+                svgs.append((BlockDiagram.clamping, (node_x, y)))
             case AntiWindup.CONDITIONAL:
-                svgs.append(BlockDiagram.conditional)
+                svgs.append((BlockDiagram.conditional, (node_x, y)))
             case unknown_value:
                 raise ValueError(
                     f"Unsupported anti-windup method: {unknown_value!r}. "
@@ -196,9 +201,9 @@ class ControllerView(ViewMixin, QWidget):
                 )
 
         svg_layers = []
-        for svg in svgs:
+        for svg, translate in svgs:
             svg_path = BLOCK_DIAGRAM_DIR / svg
-            svg_layers.append(SvgLayer(svg_path.read_text(encoding="utf-8")))
+            svg_layers.append(SvgLayer(svg_path.read_text(encoding="utf-8"), translate=translate))
 
         merged_svg = merge_svgs(svg_layers)
         recolored = recolor_svg(merged_svg, self._vm_theme.get_svg_color_map())

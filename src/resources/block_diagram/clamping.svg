@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="600" viewBox="0 0 550 300">
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="150" viewBox="-10 -10 400 150">
 
     <style>
         .fill { fill:#000000 }
@@ -42,16 +42,16 @@
 
 
     <!-- Input -->
-    <g transform="translate(75 125)">
+    <g transform="translate(0 0)">
         <path class="line" d="M0 0 V75 H45"/>
         <use href="#arrow" transform="translate(50 75)"/>
     </g>
 
     <!-- I -->
-    <g transform="translate(125, 200)">
+    <g transform="translate(50, 75)">
         <g transform="translate(0, -25)">
             <use href="#rect"/>
-            <text class="text" x="25" y="17.5">Kp</text>
+            <text class="text" x="25" y="17.5">1</text>
             <path class="line" d="M17.5 25 H32.5"/>
             <text class="text" x="25" y="40">Ti</text>
         </g>
@@ -70,7 +70,7 @@
     </g>
 
     <!-- Output -->
-    <g transform="translate(400 125)">
+    <g transform="translate(325 0)">
         <path class="line" d="M0 10 V75 H-50"/>
         <use href="#arrow" transform="rotate(-90 2.5 2.5)"/>
     </g>
