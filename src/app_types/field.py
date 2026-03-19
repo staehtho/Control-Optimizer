@@ -46,8 +46,15 @@ class PlotField(FieldType):
 
 # PlantViewModel / PlantView
 class PlantField(FieldType):
+    POLYNOM = "polynom"
     NUM = "num"
     DEN = "den"
+    POLYNOM_FORMULA = "polynom_formula"
+
+    BINOMINAL = "binomial"
+    ZERO = "zero"
+    POLE = "pole"
+    BINOMINAL_FORMULA = "binomial_formula"
 
 
 # ControllerViewModel / ControllerView

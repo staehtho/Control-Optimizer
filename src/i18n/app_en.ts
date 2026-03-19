@@ -284,37 +284,37 @@
 <context>
     <name>ControllerView</name>
     <message>
-        <location filename="../views/controller_view.py" line="121"/>
+        <location filename="../views/controller_view.py" line="117"/>
         <source>Controller</source>
         <translation>Controller</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="122"/>
+        <location filename="../views/controller_view.py" line="118"/>
         <source>Parameters</source>
         <translation>Parameters</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="125"/>
+        <location filename="../views/controller_view.py" line="121"/>
         <source>Controller Type</source>
         <translation>Controller Type</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="126"/>
+        <location filename="../views/controller_view.py" line="122"/>
         <source>Anti Windup</source>
         <translation>Anti Windup</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="127"/>
+        <location filename="../views/controller_view.py" line="123"/>
         <source>Constraint</source>
         <translation>Constraint</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="128"/>
+        <location filename="../views/controller_view.py" line="124"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="129"/>
+        <location filename="../views/controller_view.py" line="125"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
@@ -431,50 +431,50 @@
         <translation>Tf = %(tf).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="155"/>
-        <location filename="../views/evaluation_view.py" line="160"/>
+        <location filename="../views/evaluation_view.py" line="149"/>
+        <location filename="../views/evaluation_view.py" line="154"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="156"/>
-        <location filename="../views/evaluation_view.py" line="161"/>
+        <location filename="../views/evaluation_view.py" line="150"/>
+        <location filename="../views/evaluation_view.py" line="155"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="168"/>
-        <location filename="../views/evaluation_view.py" line="275"/>
+        <location filename="../views/evaluation_view.py" line="162"/>
+        <location filename="../views/evaluation_view.py" line="248"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="273"/>
+        <location filename="../views/evaluation_view.py" line="246"/>
         <source>Evaluation</source>
         <translation>Evaluation</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="274"/>
+        <location filename="../views/evaluation_view.py" line="247"/>
         <source>PSO Result</source>
         <translation>PSO Result</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="278"/>
+        <location filename="../views/evaluation_view.py" line="251"/>
         <source>Time Domain</source>
         <translation>Time Domain</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="279"/>
+        <location filename="../views/evaluation_view.py" line="252"/>
         <source>Frequency Domain</source>
         <translation>Frequency Domain</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="280"/>
+        <location filename="../views/evaluation_view.py" line="253"/>
         <source>Block Diagram</source>
         <translation>Block Diagram</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="283"/>
+        <location filename="../views/evaluation_view.py" line="256"/>
         <source>PSO run time</source>
         <translation>PSO run time</translation>
     </message>
@@ -483,7 +483,7 @@
         <translation type="vanished">PSO runt time</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="284"/>
+        <location filename="../views/evaluation_view.py" line="257"/>
         <source>Controller Parameters</source>
         <translation>Controller Parameters</translation>
     </message>
@@ -686,55 +686,73 @@
 <context>
     <name>PlantView</name>
     <message>
-        <location filename="../views/plant_view.py" line="85"/>
-        <location filename="../views/plant_view.py" line="184"/>
+        <location filename="../views/plant_view.py" line="290"/>
         <source>plant.num</source>
         <translation>Numerator</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="100"/>
-        <location filename="../views/plant_view.py" line="185"/>
+        <location filename="../views/plant_view.py" line="291"/>
         <source>plant.den</source>
         <translation>Denumerator</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="140"/>
-        <location filename="../views/plant_view.py" line="183"/>
+        <location filename="../views/plant_view.py" line="233"/>
+        <location filename="../views/plant_view.py" line="284"/>
         <source>Step Response</source>
         <translation>Step Response</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="141"/>
+        <location filename="../views/plant_view.py" line="234"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="142"/>
+        <location filename="../views/plant_view.py" line="235"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="181"/>
+        <location filename="../views/plant_view.py" line="282"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="182"/>
+        <location filename="../views/plant_view.py" line="283"/>
         <source>Transfer function</source>
         <translation>Transfer function</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="186"/>
+        <location filename="../views/plant_view.py" line="287"/>
+        <source>Polynomial</source>
+        <translation>Polynomial</translation>
+    </message>
+    <message>
+        <location filename="../views/plant_view.py" line="288"/>
+        <source>Pole-Zeros</source>
+        <translation>Pole-Zeros</translation>
+    </message>
+    <message>
+        <location filename="../views/plant_view.py" line="292"/>
+        <source>plant.zero</source>
+        <translation>Zeros</translation>
+    </message>
+    <message>
+        <location filename="../views/plant_view.py" line="293"/>
+        <source>plant.pole</source>
+        <translation>Poles</translation>
+    </message>
+    <message>
+        <location filename="../views/plant_view.py" line="295"/>
         <source>e.g. 1  → 1</source>
         <translation>e.g. 1  → 1</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="187"/>
+        <location filename="../views/plant_view.py" line="296"/>
         <source>e.g. 1, 0, 0  → 1*s^2 + 0*s + 0</source>
         <translation>e.g. 1, 0, 0  → 1*s² + 0*s + 0</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="189"/>
+        <location filename="../views/plant_view.py" line="298"/>
         <source>tooltip_num_den</source>
         <translation>Enter coefficients separated by commas, spaces, or semicolons.
 Use &apos;.&apos; as the decimal point.
@@ -801,27 +819,27 @@ Example: 1, 0.5, 2 → 1*s^2 + 0.5*s + 2</translation>
 <context>
     <name>PlantViewModel</name>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="69"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="66"/>
         <source>Invalid numerator: enter at least one numeric coefficient.</source>
         <translation>Invalid numerator: enter at least one numeric coefficient.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="129"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="127"/>
         <source>Invalid denominator: enter at least one numeric coefficient.</source>
         <translation>Invalid denominator: enter at least one numeric coefficient.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="281"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="293"/>
         <source>Invalid numerator: first coefficient must be non-zero.</source>
         <translation>Invalid numerator: first coefficient must be non-zero.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="287"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="299"/>
         <source>Invalid denominator: first coefficient must be non-zero.</source>
         <translation>Invalid denominator: first coefficient must be non-zero.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="297"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="309"/>
         <source>Invalid transfer function: denominator order must be greater than or equal to numerator order.</source>
         <translation>Invalid transfer function: denominator order must be greater than or equal to numerator order.</translation>
     </message>

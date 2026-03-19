@@ -284,37 +284,37 @@
 <context>
     <name>ControllerView</name>
     <message>
-        <location filename="../views/controller_view.py" line="121"/>
+        <location filename="../views/controller_view.py" line="117"/>
         <source>Controller</source>
         <translation>Regler</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="122"/>
+        <location filename="../views/controller_view.py" line="118"/>
         <source>Parameters</source>
         <translation>Parameter</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="125"/>
+        <location filename="../views/controller_view.py" line="121"/>
         <source>Controller Type</source>
         <translation>Reglertyp</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="126"/>
+        <location filename="../views/controller_view.py" line="122"/>
         <source>Anti Windup</source>
         <translation>Windup</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="127"/>
+        <location filename="../views/controller_view.py" line="123"/>
         <source>Constraint</source>
         <translation>Begrenzung</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="128"/>
+        <location filename="../views/controller_view.py" line="124"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="129"/>
+        <location filename="../views/controller_view.py" line="125"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
@@ -435,50 +435,50 @@
         <translation>Tf = %(tf).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="155"/>
-        <location filename="../views/evaluation_view.py" line="160"/>
+        <location filename="../views/evaluation_view.py" line="149"/>
+        <location filename="../views/evaluation_view.py" line="154"/>
         <source>Time [s]</source>
         <translation>Zeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="156"/>
-        <location filename="../views/evaluation_view.py" line="161"/>
+        <location filename="../views/evaluation_view.py" line="150"/>
+        <location filename="../views/evaluation_view.py" line="155"/>
         <source>Output</source>
         <translation>Ausgang</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="168"/>
-        <location filename="../views/evaluation_view.py" line="275"/>
+        <location filename="../views/evaluation_view.py" line="162"/>
+        <location filename="../views/evaluation_view.py" line="248"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="273"/>
+        <location filename="../views/evaluation_view.py" line="246"/>
         <source>Evaluation</source>
         <translation>Auswertung</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="274"/>
+        <location filename="../views/evaluation_view.py" line="247"/>
         <source>PSO Result</source>
         <translation>PSO Ergebnis</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="278"/>
+        <location filename="../views/evaluation_view.py" line="251"/>
         <source>Time Domain</source>
         <translation>Zeitbereich</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="279"/>
+        <location filename="../views/evaluation_view.py" line="252"/>
         <source>Frequency Domain</source>
         <translation>Frequenzbereich</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="280"/>
+        <location filename="../views/evaluation_view.py" line="253"/>
         <source>Block Diagram</source>
         <translation>Blockschaltbild</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="283"/>
+        <location filename="../views/evaluation_view.py" line="256"/>
         <source>PSO run time</source>
         <translation>PSO Laufzeit</translation>
     </message>
@@ -487,7 +487,7 @@
         <translation type="vanished">PSO Laufzeit</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="284"/>
+        <location filename="../views/evaluation_view.py" line="257"/>
         <source>Controller Parameters</source>
         <translation>Reglerparameter</translation>
     </message>
@@ -690,55 +690,73 @@
 <context>
     <name>PlantView</name>
     <message>
-        <location filename="../views/plant_view.py" line="85"/>
-        <location filename="../views/plant_view.py" line="184"/>
+        <location filename="../views/plant_view.py" line="290"/>
         <source>plant.num</source>
         <translation>Nenner</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="100"/>
-        <location filename="../views/plant_view.py" line="185"/>
+        <location filename="../views/plant_view.py" line="291"/>
         <source>plant.den</source>
         <translation>Zähler</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="140"/>
-        <location filename="../views/plant_view.py" line="183"/>
+        <location filename="../views/plant_view.py" line="233"/>
+        <location filename="../views/plant_view.py" line="284"/>
         <source>Step Response</source>
         <translation>Sprungantwort</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="141"/>
+        <location filename="../views/plant_view.py" line="234"/>
         <source>Time [s]</source>
         <translation>Zeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="142"/>
+        <location filename="../views/plant_view.py" line="235"/>
         <source>Output</source>
         <translation>Ausgang</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="181"/>
+        <location filename="../views/plant_view.py" line="282"/>
         <source>Plant</source>
         <translation>Regelstrecke</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="182"/>
+        <location filename="../views/plant_view.py" line="283"/>
         <source>Transfer function</source>
         <translation>Transferfunction</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="186"/>
+        <location filename="../views/plant_view.py" line="287"/>
+        <source>Polynomial</source>
+        <translation>Polynom</translation>
+    </message>
+    <message>
+        <location filename="../views/plant_view.py" line="288"/>
+        <source>Pole-Zeros</source>
+        <translation>Pol-Nullstellen</translation>
+    </message>
+    <message>
+        <location filename="../views/plant_view.py" line="292"/>
+        <source>plant.zero</source>
+        <translation>Nullstellen</translation>
+    </message>
+    <message>
+        <location filename="../views/plant_view.py" line="293"/>
+        <source>plant.pole</source>
+        <translation>Polstellen</translation>
+    </message>
+    <message>
+        <location filename="../views/plant_view.py" line="295"/>
         <source>e.g. 1  → 1</source>
         <translation>z.B. 1  → 1</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="187"/>
+        <location filename="../views/plant_view.py" line="296"/>
         <source>e.g. 1, 0, 0  → 1*s^2 + 0*s + 0</source>
         <translation>z.B. 1, 0, 0  → 1*s² + 0*s + 0</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="189"/>
+        <location filename="../views/plant_view.py" line="298"/>
         <source>tooltip_num_den</source>
         <translation>Verwenden Sie „.“ als Dezimaltrennzeichen.
 Die erste Zahl entspricht der höchsten Potenz von s.
@@ -802,27 +820,27 @@ Beispiel: 1, 0.5, 2 → 1·s² + 0,5·s + 2</translation>
 <context>
     <name>PlantViewModel</name>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="69"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="66"/>
         <source>Invalid numerator: enter at least one numeric coefficient.</source>
         <translation>Ungültiger Zähler: Geben Sie mindestens einen numerischen Koeffizienten ein.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="129"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="127"/>
         <source>Invalid denominator: enter at least one numeric coefficient.</source>
         <translation>Ungültiger Nenner: Geben Sie mindestens einen numerischen Koeffizienten ein.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="281"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="293"/>
         <source>Invalid numerator: first coefficient must be non-zero.</source>
         <translation>Ungültiger Zähler: Der erste Koeffizient muss ungleich Null sein.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="287"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="299"/>
         <source>Invalid denominator: first coefficient must be non-zero.</source>
         <translation>Ungültiger Nenner: Der erste Koeffizient muss ungleich Null sein.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="297"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="309"/>
         <source>Invalid transfer function: denominator order must be greater than or equal to numerator order.</source>
         <translation>Ungültige Übertragungsfunktion: Die Ordnung des Nenners muss grösser oder gleich der Ordnung des Zählers sein.</translation>
     </message>

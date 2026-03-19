@@ -1,11 +1,12 @@
 from PySide6.QtCore import QObject, Signal, Slot, QTimer
 import numpy as np
 from numpy import ndarray
+from sympy import SympifyError
 
 from app_types import PlantResponseContext
 from models import ModelContainer, PlantModel, SettingsModel
 from service import SimulationService
-from utils import LatexRenderer, LoggedProperty, str2array
+from utils import LatexRenderer, LoggedProperty, str2array, expr2array, array2expr
 from app_types import PlantField, ValidationResult
 from .base_viewmodel import BaseViewModel
 
@@ -14,6 +15,7 @@ class PlantViewModel(BaseViewModel):
 
     numChanged = Signal()
     denChanged = Signal()
+    zeroChanged = Signal()
     isValidChanged = Signal()
     tfChanged = Signal()
     stepResponseChanged = Signal(ndarray, ndarray)
@@ -79,6 +81,7 @@ class PlantViewModel(BaseViewModel):
         was_valid = self._model_plant.is_valid
 
         with self.updating("plant_num"):
+            self._sync_poly_with_binom("num", "zero")
             self._model_plant.num = arr
             is_valid = self._model_plant.is_valid
 
@@ -156,6 +159,37 @@ class PlantViewModel(BaseViewModel):
     den = LoggedProperty(
         path="_den_input",
         signal="denChanged",
+        typ=str,
+        read_only=True,
+    )
+
+    @Slot(str)
+    def update_zero(self, value: str) -> None:
+        self.logger.debug(f"update_zero called (value={value})")
+
+        if self._zero_input == value:
+            self.logger.debug("Skipped 'zero' update (same string value)")
+            return
+
+        self._zero_input = value
+        self.logger.debug(f"Internal _zero_input updated (value={self._zero_input})")
+
+        arr = []
+        try:
+            arr = expr2array(value)
+
+            with self.updating("plant_zero"):
+                self._sync_poly_with_binom("num", "zero")
+                self._model_plant.num = arr
+
+        except SympifyError, AttributeError, TypeError:
+            print("can not convert")
+
+        print(arr)
+
+    zero = LoggedProperty(
+        path="_zero_input",
+        signal="zeroChanged",
         typ=str,
         read_only=True,
     )
@@ -277,3 +311,25 @@ class PlantViewModel(BaseViewModel):
             ),
         )
 
+    def _sync_poly_with_binom(self, poly_attr: str, binom_attr: str) -> None:
+        """sync the polynom representation with binomial representation of the plant"""
+
+        # check witch attribute has called the methode -> sync the oter attribute
+        # poly to binom
+        if not self.check_update_allowed(f"plant_{poly_attr}"):
+            arr = str2array(getattr(self, f"_{poly_attr}_input"))
+            expr = array2expr(arr)
+
+            setattr(self, f"_{binom_attr}_input", expr)
+            getattr(self, f"{binom_attr}Changed").emit()
+
+        if not self.check_update_allowed(f"plant_{binom_attr}"):
+            try:
+                arr = expr2array(getattr(self, f"_{binom_attr}_input"))
+
+                arr_str = f"{arr}".replace(",", "").replace("[", "").replace("]", "")
+
+                setattr(self, f"_{poly_attr}_input", arr_str)
+                getattr(self, f"{poly_attr}Changed").emit()
+            except SympifyError:
+                self.logger.warning("Error while building poly representation")
