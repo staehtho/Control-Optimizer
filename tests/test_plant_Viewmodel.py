@@ -25,21 +25,6 @@ def plant_vm(model_container: ModelContainer, mock_simulation_service: MagicMock
     return PlantViewModel(model_container, mock_simulation_service)
 
 
-@pytest.mark.parametrize(
-    ("text", "expected"),
-    [
-        ("1, 2, 3", [1.0, 2.0, 3.0]),
-        ("1 2 3", [1.0, 2.0, 3.0]),
-        ("1; 2; 3", [1.0, 2.0, 3.0]),
-        ("1.8 2.8, 3.4", [1.8, 2.8, 3.4]),
-        ("", []),
-        ("abc", []),
-    ],
-)
-def test_str2array_parsing(plant_vm: PlantViewModel, text: str, expected: list[float]) -> None:
-    assert plant_vm._str2array(text) == expected
-
-
 def test_update_num_emits_and_updates_model(plant_vm: PlantViewModel, model_container: ModelContainer) -> None:
     spy = QSignalSpy(plant_vm.numChanged)
 

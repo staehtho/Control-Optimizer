@@ -1,5 +1,3 @@
-import re
-
 from PySide6.QtCore import QObject, Signal, Slot, QTimer
 import numpy as np
 from numpy import ndarray
@@ -7,7 +5,7 @@ from numpy import ndarray
 from app_types import PlantResponseContext
 from models import ModelContainer, PlantModel, SettingsModel
 from service import SimulationService
-from utils import LatexRenderer, LoggedProperty
+from utils import LatexRenderer, LoggedProperty, str2array
 from app_types import PlantField, ValidationResult
 from .base_viewmodel import BaseViewModel
 
@@ -33,17 +31,14 @@ class PlantViewModel(BaseViewModel):
         self._num_input: str = ""
         self._den_input: str = ""
 
+        self._zero_input: str = ""
+        self._pole_input: str = ""
+
         self._step_time: tuple[float, float] = (0, 10)
 
         self._recalc_timer = QTimer()
         self._recalc_timer.setSingleShot(True)
         self._recalc_timer.timeout.connect(self._compute_step_response_delayed)
-
-        self._connect_signals()
-
-    def _connect_signals(self) -> None:
-        # No model signals to connect (passive model)
-        ...
 
     # -------------------
     # num
@@ -59,7 +54,7 @@ class PlantViewModel(BaseViewModel):
         self._num_input = value
         self.logger.debug(f"Internal _num_input updated (value={self._num_input})")
 
-        arr = self._str2array(value)
+        arr = str2array(value)
 
         if len(arr) == 0:
             self._verify(
@@ -119,7 +114,7 @@ class PlantViewModel(BaseViewModel):
         self._den_input = value
         self.logger.debug(f"Internal _den_input updated (value={self._den_input})")
 
-        arr = self._str2array(value)
+        arr = str2array(value)
 
         if len(arr) == 0:
             self._verify(
@@ -248,23 +243,6 @@ class PlantViewModel(BaseViewModel):
     # -------------------
     # Helper methods
     # -------------------
-    def _str2array(self, text: str) -> list[float]:
-        if not text.strip():
-            return []
-
-        try:
-            # Separators: whitespace, comma, semicolon.
-            parts = re.split(r"[,\s;]+", text.strip())
-
-            result = [float(p.replace(",", ".")) for p in parts if p]
-
-            self.logger.debug(f"Parsed '{text}' -> {result}")
-            return result
-
-        except ValueError:
-            self.logger.debug(f"Cannot parse '{text}'")
-            return []
-
     @staticmethod
     def _validate_non_empty_array(*, arr: list[float], message: str) -> ValidationResult:
         if len(arr) == 0:
