@@ -40,11 +40,8 @@ def expr2array(expr: str) -> list[float]:
     return [float(c) for c in coefficients]
 
 
-def array2binominal(coefficients: list[float]) -> str:
+def array2expr(coefficients: list[float]) -> str:
     s = symbols('s')
-
-    # convert all floats to float
-    coefficients = [float(c) for c in coefficients]
 
     # create polynomial
     poly = Poly(coefficients, s).as_expr()
@@ -82,6 +79,9 @@ def array2binominal(coefficients: list[float]) -> str:
             final_gain *= lc
 
     normalized_factors = _clean_factors(normalized_factors)
+    if len(normalized_factors) == 0:
+        return f"{final_gain}"
+
     # format final gain
     if float(final_gain) == 1.0:
         gain_str = ''
@@ -92,9 +92,7 @@ def array2binominal(coefficients: list[float]) -> str:
 
     # join factors
     result = ''.join(normalized_factors)
-    result = f"{gain_str}{result}"
-    # remove (*)
-    return re.sub(r'^\((.*)\)$', r'\1', result)
+    return f"{gain_str}{result}"
 
 def _clean_factors(factor_list: list[str]) -> list[str]:
     cleaned = []

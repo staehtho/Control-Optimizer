@@ -1,6 +1,6 @@
 import pytest
 
-from utils.converters import str2array, expr2array, array2binominal
+from utils.converters import str2array, expr2array, array2expr
 
 
 @pytest.mark.parametrize(
@@ -35,8 +35,8 @@ def test_expr2array(expr, expected):
         ([1, 2, 1], "(s + 1)**2"),
         ([1, 3, 3, 1], "(s + 1)**3"),
         ([1, 1, 0], "s(s + 1)"),
-        ([1, 1.2, 1], "s**2 + 1.2*s + 1")
+        ([1, 1.2, 1], "(s**2 + 1.2*s + 1)")
     ]
 )
 def test_array2binominal(expr, expected):
-    assert array2binominal(expr) == expected
+    assert array2expr(expr) == expected
