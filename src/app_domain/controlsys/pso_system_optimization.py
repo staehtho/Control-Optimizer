@@ -804,6 +804,7 @@ def pid_update(e: float, e_prev: float, d_filtered_prev: float, integral_prev: f
             integral_updated = integral_prev
             u_unsat_updated = u_unsat_previous
 
+    # TODO FLO: eventuell faktor ka hinzufügen...
     elif anti_windup_method == AntiWindupInt.CLAMPING:
         if (u_min < I_term_candidate < u_max) or \
                 (I_term_candidate >= u_max and e < 0.0) or \
