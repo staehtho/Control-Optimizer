@@ -216,6 +216,11 @@ class EvaluationView(ViewMixin, QWidget):
             svg_layers.append(SvgLayer(svg_path.read_text(encoding="utf-8"), translate=translate))
 
         merged_svg = merge_svgs(svg_layers)
+
+        # set min and max constraint
+        merged_svg = merged_svg.replace("min: ###", f"min: {self._vm_evaluator.constraint_min}")
+        merged_svg = merged_svg.replace("max: ###", f"max: {self._vm_evaluator.constraint_max}")
+
         recolored = recolor_svg(merged_svg, self._vm_theme.get_svg_color_map())
         return AspectRatioSvgWidget(svg_bytes=recolored.encode("utf-8"), initial_scale=2)
 

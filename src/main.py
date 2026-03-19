@@ -21,10 +21,6 @@ from views.resources import Icons
 
 # TODO: Controller: move the block diagram and the selection of the anti windup in one section called anti windup
 #  and call the selection method or so
-# TODO: Controller: how can be the constraint connected with the block diagram, so it's clear the constraint is
-#  the saturation constraint? -> add in the svg the constraint as a variable and replace it, when the constraint has changed.
-#  Two options: first in the saturation block, second add the constraint at the right side of the saturation block.
-
 
 # TODO: Evaluation: block diagram add l and n input
 # TODO: Evaluation: TF with L and N

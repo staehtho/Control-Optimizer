@@ -4,6 +4,8 @@
         .fill { fill:#000000 }
         .line { stroke:#000000; stroke-width:2; fill:none; }
         .block { stroke:#000000; stroke-width:2; fill:none; }
+        .text { fill:#000000; font-family:Arial, sans-serif; font-size:14px; text-anchor:middle;
+        dominant-baseline:middle; }
     </style>
 
     <!-- Arrow -->
@@ -23,6 +25,10 @@
             <path class="line" d="M7 40 H20 L30 10 H43"/>
             <path class="line" d="M5 25 H45" style="stroke-width:0.7"/>
             <path class="line" d="M25 5 V45" style="stroke-width:0.7"/>
+
+            <!-- min max -->
+            <text class="text" x="0" y="-8" style="font-size:10px; text-anchor:start">max: ###</text>
+            <text class="text" x="0" y="65" style="font-size:10px; text-anchor:start">min: ###</text>
         </g>
     </defs>
 

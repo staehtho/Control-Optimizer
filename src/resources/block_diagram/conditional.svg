@@ -28,16 +28,6 @@
         </g>
     </defs>
 
-    <!-- Constraint -->
-    <defs>
-        <g id="constraint">
-            <use href="#rect"/>
-            <path class="line" d="M7 40 H20 L30 10 H43"/>
-            <path class="line" d="M5 25 H45" style="stroke-width:0.7"/>
-            <path class="line" d="M25 5 V45" style="stroke-width:0.7"/>
-        </g>
-    </defs>
-
     <!-- Decider -->
     <defs>
         <g id="decider">

@@ -76,6 +76,18 @@ class EvaluationViewModel(BaseViewModel):
         read_only=True
     )
 
+    constraint_min = LoggedProperty(
+        path="_pso_snapshot.controller_constraint_min",
+        typ=float,
+        read_only=True
+    )
+
+    constraint_max = LoggedProperty(
+        path="_pso_snapshot.controller_constraint_max",
+        typ=float,
+        read_only=True
+    )
+
     def _on_pso_simulation_finished(self) -> None:
         self._pos_result = self._vm_pso.get_pso_result()
         self._pso_snapshot = self._vm_pso.get_pso_snapshot()

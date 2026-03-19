@@ -103,12 +103,8 @@ class ControllerView(ViewMixin, QWidget):
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
         self._vm_controller.validationFailed.connect(self._on_validation_failed)
-        self._vm_controller.constraintMinChanged.connect(
-            partial(self._on_vm_changed, ControllerField.CONSTRAINT_MIN, "_vm_controller.constraint_min")
-        )
-        self._vm_controller.constraintMaxChanged.connect(
-            partial(self._on_vm_changed, ControllerField.CONSTRAINT_MAX, "_vm_controller.constraint_max")
-        )
+        self._vm_controller.constraintMinChanged.connect(self._on_vm_constraint_min_changed)
+        self._vm_controller.constraintMaxChanged.connect(self._on_vm_constraint_max_changed)
         self._vm_controller.antiWindupChanged.connect(
             partial(self._on_vm_changed, ControllerField.ANTI_WINDUP, "_vm_controller.anti_windup")
         )
@@ -162,6 +158,19 @@ class ControllerView(ViewMixin, QWidget):
         self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
 
     # ============================================================
+    # ViewModel change handlers
+    # ============================================================
+    def _on_vm_constraint_min_changed(self) -> None:
+        """Handle VM constraint minimum changed."""
+        self._on_vm_changed(ControllerField.CONSTRAINT_MIN, "_vm_controller.constraint_min")
+        self._load_block_diagram()
+
+    def _on_vm_constraint_max_changed(self) -> None:
+        """Handle VM constraint maximum changed."""
+        self._on_vm_changed(ControllerField.CONSTRAINT_MAX, "_vm_controller.constraint_max")
+        self._load_block_diagram()
+
+    # ============================================================
     # UI event handlers
     # ============================================================
     def _on_index_changed_anti_windup(self, index: int) -> None:
@@ -206,5 +215,10 @@ class ControllerView(ViewMixin, QWidget):
             svg_layers.append(SvgLayer(svg_path.read_text(encoding="utf-8"), translate=translate))
 
         merged_svg = merge_svgs(svg_layers)
+
+        # set min and max constraint
+        merged_svg = merged_svg.replace("min: ###", f"min: {self._vm_controller.constraint_min}")
+        merged_svg = merged_svg.replace("max: ###", f"max: {self._vm_controller.constraint_max}")
+
         recolored = recolor_svg(merged_svg, self._vm_theme.get_svg_color_map())
         self.field_widgets.get(ControllerField.BLOCK_DIAGRAM).set_svg_bytes(recolored.encode("utf-8"))
