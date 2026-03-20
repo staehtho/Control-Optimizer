@@ -3,11 +3,12 @@ from functools import partial
 from PySide6.QtCore import QObject, QRegularExpression, Qt, QT_TRANSLATE_NOOP
 from PySide6.QtGui import QRegularExpressionValidator
 from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QScrollArea, QSizePolicy, QHBoxLayout, QTabWidget
+from typing import Callable
 from numpy import ndarray
 
 from app_domain.ui_context import UiContext
 from viewmodels import PlantViewModel, PlotViewModel
-from app_types import PlotData, PlantField, PlotLabels
+from app_types import PlotData, PlantField, PlotLabels, PlotField
 from views import ViewMixin
 from views.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, SectionFrame, FormulaWidget
@@ -248,9 +249,18 @@ class PlantView(ViewMixin, QWidget):
     # ============================================================
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
-        self.field_widgets.get(PlantField.NUM).textChanged.connect(self._on_txt_num_changed)
-        self.field_widgets.get(PlantField.DEN).textChanged.connect(self._on_txt_den_changed)
-        self.field_widgets.get(PlantField.ZERO).textChanged.connect(self._on_txt_zero_changed)
+        self.field_widgets.get(PlantField.NUM).textChanged.connect(
+            partial(self._on_txt_changed, key=PlantField.NUM, update=self._vm_plant.update_num)
+        )
+        self.field_widgets.get(PlantField.DEN).textChanged.connect(
+            partial(self._on_txt_changed, key=PlantField.DEN, update=self._vm_plant.update_den)
+        )
+        self.field_widgets.get(PlantField.ZERO).textChanged.connect(
+            partial(self._on_txt_changed, key=PlantField.ZERO, update=self._vm_plant.update_zero)
+        )
+        self.field_widgets.get(PlantField.POLE).textChanged.connect(
+            partial(self._on_txt_changed, key=PlantField.POLE, update=self._vm_plant.update_pole)
+        )
 
     # ============================================================
     # ViewModel bindings (ViewModel -> UI)
@@ -268,7 +278,10 @@ class PlantView(ViewMixin, QWidget):
         self._vm_plant.zeroChanged.connect(
             partial(self._on_vm_changed, PlantField.ZERO, "_vm_plant.zero")
         )
-        self._vm_plant.tfChanged.connect(self._on_vm_formula_changed)
+        self._vm_plant.poleChanged.connect(
+            partial(self._on_vm_changed, PlantField.POLE, "_vm_plant.pole")
+        )
+        self._vm_plant.polyTfChanged.connect(self._on_vm_formula_changed)
         self._vm_plant.stepResponseChanged.connect(self._on_step_response_changed)
         # vm plot
         self._vm_plot.xMinChanged.connect(self._on_plot_time_changed)
@@ -342,30 +355,16 @@ class PlantView(ViewMixin, QWidget):
     # ============================================================
     # UI event handlers
     # ============================================================
-    def _on_txt_num_changed(self) -> None:
-        """Handle user changes in numerator input field."""
-        text = self.field_widgets.get(PlantField.NUM).text()
-        self._clear_input_error(self.field_widgets.get(PlantField.NUM))
-        self.logger.debug(f"UI event: txt_num changed (value={text})")
-        self._vm_plant.update_num(text)
-
-    def _on_txt_den_changed(self) -> None:
-        """Handle user changes in denominator input field."""
-        text = self.field_widgets.get(PlantField.DEN).text()
-        self._clear_input_error(self.field_widgets.get(PlantField.DEN))
-        self.logger.debug(f"UI event: txt_den changed (value={text})")
-        self._vm_plant.update_den(text)
-
-    def _on_txt_zero_changed(self) -> None:
-        """Handle user changes in denominator input field."""
-        text = self.field_widgets.get(PlantField.ZERO).text()
-        self._clear_input_error(self.field_widgets.get(PlantField.ZERO))
-        self.logger.debug(f"UI event: txt_zero changed (value={text})")
-        self._vm_plant.update_zero(text)
+    def _on_txt_changed(self, value: str, key: PlotField, update: Callable[[str], None]) -> None:
+        """Handle user changes in QLineEdit field."""
+        self._clear_input_error(self.field_widgets.get(key))
+        self.logger.debug(f"UI event: txt_change changed (value={value})")
+        update(value)
 
     # ============================================================
     # Internal helpers
     # ============================================================
     def _set_formula(self) -> None:
         """Update the LaTeX formula display from the ViewModel transfer function."""
-        self.field_widgets.get(PlantField.POLYNOM_FORMULA).set_formula(r"G(s) = " + self._vm_plant.get_tf())
+        # TODO: formula for zero-pole
+        self.field_widgets.get(PlantField.POLYNOM_FORMULA).set_formula(r"G(s) = " + self._vm_plant.get_poly_tf())

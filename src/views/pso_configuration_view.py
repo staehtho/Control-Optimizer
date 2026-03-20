@@ -185,7 +185,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
         # Plant ViewModel
-        self._vm_plant.tfChanged.connect(self._on_vm_plant_tf_changed)
+        self._vm_plant.polyTfChanged.connect(self._on_vm_plant_tf_changed)
         self._vm_plant.isValidChanged.connect(self._on_vm_plant_is_valid_changed)
         # Function ViewModel
         self._vm_function.functionChanged.connect(self._on_vm_function_function_changed)
@@ -353,7 +353,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
     # ============================================================
     def _set_formula_tf(self) -> None:
         """Update the plant transfer function formula display."""
-        self.field_widgets[PsoField.PLANT_TF].set_formula(r"G(s) = " + self._vm_plant.get_tf())
+        self.field_widgets[PsoField.PLANT_TF].set_formula(r"G(s) = " + self._vm_plant.get_poly_tf())
 
     def _set_formula_function(self) -> None:
         """Update the excitation function formula display."""

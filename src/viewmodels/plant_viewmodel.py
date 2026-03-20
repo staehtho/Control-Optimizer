@@ -3,11 +3,10 @@ import numpy as np
 from numpy import ndarray
 from sympy import SympifyError
 
-from app_types import PlantResponseContext
+from app_types import PlantResponseContext, PlantField, ValidationResult
 from models import ModelContainer, PlantModel, SettingsModel
 from service import SimulationService
 from utils import LatexRenderer, LoggedProperty, str2array, expr2array, array2expr
-from app_types import PlantField, ValidationResult
 from .base_viewmodel import BaseViewModel
 
 
@@ -16,8 +15,9 @@ class PlantViewModel(BaseViewModel):
     numChanged = Signal()
     denChanged = Signal()
     zeroChanged = Signal()
+    poleChanged = Signal()
     isValidChanged = Signal()
-    tfChanged = Signal()
+    polyTfChanged = Signal()
     stepResponseChanged = Signal(ndarray, ndarray)
 
     def __init__(self, model_container: ModelContainer, simulation_service: SimulationService, parent: QObject = None):
@@ -29,6 +29,8 @@ class PlantViewModel(BaseViewModel):
         self._simulation_service = simulation_service
 
         self._last_tf = self._model_plant.tf
+
+        self._was_valid: bool = False
 
         self._num_input: str = ""
         self._den_input: str = ""
@@ -69,7 +71,7 @@ class PlantViewModel(BaseViewModel):
             self.logger.debug("Skipped 'num' update (string -> array conversion failed)")
             return
 
-        if not self._validate_num_den_candidate(num=arr, den=self._model_plant.den, field=PlantField.NUM):
+        if not self._validate_poly_candidate(num=arr, den=self._model_plant.den, field=PlantField.NUM):
             self.logger.debug("Skipped 'num' update (num/den relation validation failed)")
             return
 
@@ -78,23 +80,15 @@ class PlantViewModel(BaseViewModel):
             return
 
         self.logger.debug(f"Updating model.num with {arr}")
-        was_valid = self._model_plant.is_valid
 
         with self.updating("plant_num"):
-            self._sync_poly_with_binom("num", "zero")
             self._model_plant.num = arr
-            is_valid = self._model_plant.is_valid
+            self._validate_model()
 
-            if is_valid != was_valid:
-                self.logger.debug(f"Emitting isValidChanged after num update ({was_valid} -> {is_valid})")
-                self.isValidChanged.emit()
-
-            if is_valid:
-                self._on_model_changed()
-
-            self.logger.debug("Emitting numChanged after model update")
-            self._update_tf()
+            self._update_poly_tf()
             self.numChanged.emit()
+
+            self._sync_poly_with_binom("num", "zero")
 
     num = LoggedProperty(
         path="_num_input",
@@ -130,7 +124,7 @@ class PlantViewModel(BaseViewModel):
             self.logger.debug("Skipped 'den' update (string -> array conversion failed)")
             return
 
-        if not self._validate_num_den_candidate(num=self._model_plant.num, den=arr, field=PlantField.DEN):
+        if not self._validate_poly_candidate(num=self._model_plant.num, den=arr, field=PlantField.DEN):
             self.logger.debug("Skipped 'den' update (num/den relation validation failed)")
             return
 
@@ -139,21 +133,11 @@ class PlantViewModel(BaseViewModel):
             return
 
         self.logger.debug(f"Updating model.den with {arr}")
-        was_valid = self._model_plant.is_valid
 
         with self.updating("plant_den"):
             self._model_plant.den = arr
-            is_valid = self._model_plant.is_valid
-
-            if is_valid != was_valid:
-                self.logger.debug(f"Emitting isValidChanged after den update ({was_valid} -> {is_valid})")
-                self.isValidChanged.emit()
-
-            if is_valid:
-                self._on_model_changed()
-
-            self.logger.debug("Emitting denChanged after model update")
-            self._update_tf()
+            self._validate_model()
+            self._update_poly_tf()
             self.denChanged.emit()
 
     den = LoggedProperty(
@@ -174,22 +158,71 @@ class PlantViewModel(BaseViewModel):
         self._zero_input = value
         self.logger.debug(f"Internal _zero_input updated (value={self._zero_input})")
 
-        arr = []
         try:
             arr = expr2array(value)
 
+            if self._model_plant.num == arr:
+                self.logger.debug("Skipped 'zero' update (model already has same array value)")
+                return
+
             with self.updating("plant_zero"):
-                self._sync_poly_with_binom("num", "zero")
                 self._model_plant.num = arr
+                self._validate_model()
+
+                self.zeroChanged.emit()
+
+                self._sync_poly_with_binom("num", "zero")
 
         except SympifyError, AttributeError, TypeError:
-            print("can not convert")
+            self._verify(
+                PlantField.ZERO,
+                ValidationResult(False, message=self.tr("Invalid expression: enter a valid expression."))
+            )
 
-        print(arr)
 
     zero = LoggedProperty(
         path="_zero_input",
         signal="zeroChanged",
+        typ=str,
+        read_only=True,
+    )
+
+    @Slot(str)
+    def update_pole(self, value: str) -> None:
+        self.logger.debug(f"update_pole called (value={value})")
+
+        if self._pole_input == value:
+            self.logger.debug("Skipped 'pole' update (same string value)")
+            return
+
+        self._pole_input = value
+        self.logger.debug(f"Internal _pole_input updated (value={self._pole_input})")
+
+        try:
+            arr = expr2array(value)
+
+            if self._model_plant.den == arr:
+                self.logger.debug("Skipped 'pole' update (model already has same array value)")
+                return
+
+            with self.updating("plant_pole"):
+                self._model_plant.den = arr
+                self._validate_model()
+
+                self.poleChanged.emit()
+
+                self._sync_poly_with_binom("den", "pole")
+
+        except SympifyError, AttributeError, TypeError:
+            self._verify(
+                PlantField.POLE,
+                ValidationResult(False, message=self.tr("Invalid expression: enter a valid expression."))
+            )
+
+
+    pole = LoggedProperty(
+        path="_pole_input",
+        signal="poleChanged",
         typ=str,
         read_only=True,
     )
@@ -207,16 +240,16 @@ class PlantViewModel(BaseViewModel):
     # -------------------
     # formula
     # -------------------
-    def get_tf(self) -> str:
+    def get_poly_tf(self) -> str:
         return self._model_plant.tf
 
-    def _update_tf(self) -> None:
-        self.logger.debug("Updating transfer function ...")
+    def _update_poly_tf(self) -> None:
+        self.logger.debug("Updating polynomial transfer function ...")
 
         if not self._model_plant.is_valid:
-            self.logger.debug("Model is not valid -> using last valid transfer function")
+            self.logger.debug("Model is not valid -> using last valid polynomial transfer function")
             self._model_plant.tf = self._last_tf
-            self.tfChanged.emit()
+            self.polyTfChanged.emit()
             return
 
         try:
@@ -235,7 +268,7 @@ class PlantViewModel(BaseViewModel):
             self.logger.exception("Error while building transfer function")
             self._model_plant.tf = self._last_tf
 
-        self.tfChanged.emit()
+        self.polyTfChanged.emit()
 
     # -------------------
     # step_response
@@ -277,13 +310,26 @@ class PlantViewModel(BaseViewModel):
     # -------------------
     # Helper methods
     # -------------------
+    def _validate_model(self) -> None:
+
+        is_valid = self._model_plant.is_valid
+
+        if is_valid != self._was_valid:
+            self.logger.debug(f"Emitting isValidChanged after den update ({self._was_valid} -> {is_valid})")
+            self.isValidChanged.emit()
+
+        if is_valid:
+            self._on_model_changed()
+
+        self._was_valid = is_valid
+
     @staticmethod
     def _validate_non_empty_array(*, arr: list[float], message: str) -> ValidationResult:
         if len(arr) == 0:
             return ValidationResult(False, message)
         return ValidationResult(True)
 
-    def _validate_num_den_candidate(self, *, num: list[float], den: list[float], field: PlantField) -> bool:
+    def _validate_poly_candidate(self, *, num: list[float], den: list[float], field: PlantField) -> bool:
         if len(num) == 0 or len(den) == 0:
             return True
 
@@ -331,5 +377,7 @@ class PlantViewModel(BaseViewModel):
 
                 setattr(self, f"_{poly_attr}_input", arr_str)
                 getattr(self, f"{poly_attr}Changed").emit()
+                self._update_poly_tf()
+
             except SympifyError:
                 self.logger.warning("Error while building poly representation")
