@@ -6,7 +6,7 @@ from sympy import SympifyError
 from app_types import PlantResponseContext, PlantField, ValidationResult
 from models import ModelContainer, PlantModel, SettingsModel
 from service import SimulationService
-from utils import LatexRenderer, LoggedProperty, str2array, expr2array, array2expr
+from utils import LatexRenderer, LoggedProperty, str2array, expr2array, array2expr, expr2latex, array2latex
 from .base_viewmodel import BaseViewModel
 
 
@@ -18,6 +18,7 @@ class PlantViewModel(BaseViewModel):
     poleChanged = Signal()
     isValidChanged = Signal()
     polyTfChanged = Signal()
+    binomTfChanged = Signal()
     stepResponseChanged = Signal(ndarray, ndarray)
 
     def __init__(self, model_container: ModelContainer, simulation_service: SimulationService, parent: QObject = None):
@@ -28,7 +29,10 @@ class PlantViewModel(BaseViewModel):
         self._settings: SettingsModel = model_container.model_settings
         self._simulation_service = simulation_service
 
-        self._last_tf = self._model_plant.tf
+        self._last_tf_poly = self._model_plant.tf_poly
+        self._last_tf_binom = self._model_plant.tf_binom
+
+        self._active_tf_tab: int = 0
 
         self._was_valid: bool = False
 
@@ -85,7 +89,7 @@ class PlantViewModel(BaseViewModel):
             self._model_plant.num = arr
             self._validate_model()
 
-            self._update_poly_tf()
+            self._update_transfer_functions()
             self.numChanged.emit()
 
             self._sync_poly_with_binom("num", "zero")
@@ -137,8 +141,11 @@ class PlantViewModel(BaseViewModel):
         with self.updating("plant_den"):
             self._model_plant.den = arr
             self._validate_model()
-            self._update_poly_tf()
+
+            self._update_transfer_functions()
             self.denChanged.emit()
+
+            self._sync_poly_with_binom("den", "pole")
 
     den = LoggedProperty(
         path="_den_input",
@@ -169,6 +176,7 @@ class PlantViewModel(BaseViewModel):
                 self._model_plant.num = arr
                 self._validate_model()
 
+                self._update_transfer_functions()
                 self.zeroChanged.emit()
 
                 self._sync_poly_with_binom("num", "zero")
@@ -209,6 +217,7 @@ class PlantViewModel(BaseViewModel):
                 self._model_plant.den = arr
                 self._validate_model()
 
+                self._update_transfer_functions()
                 self.poleChanged.emit()
 
                 self._sync_poly_with_binom("den", "pole")
@@ -241,34 +250,83 @@ class PlantViewModel(BaseViewModel):
     # formula
     # -------------------
     def get_poly_tf(self) -> str:
+        return self._model_plant.tf_poly
+
+    def get_binom_tf(self) -> str:
+        return self._model_plant.tf_binom
+
+    def get_current_tf(self) -> str:
         return self._model_plant.tf
+
+    @Slot(int)
+    def update_tf_tab(self, index: int) -> None:
+        if self._active_tf_tab == index:
+            return
+        self._active_tf_tab = index
+        self._sync_current_tf()
+        self.polyTfChanged.emit()
+        self.binomTfChanged.emit()
 
     def _update_poly_tf(self) -> None:
         self.logger.debug("Updating polynomial transfer function ...")
 
         if not self._model_plant.is_valid:
             self.logger.debug("Model is not valid -> using last valid polynomial transfer function")
-            self._model_plant.tf = self._last_tf
-            self.polyTfChanged.emit()
+            self._model_plant.tf_poly = self._last_tf_poly
             return
 
         try:
             self.logger.debug(f"Numerator raw: {self._model_plant.num}")
             self.logger.debug(f"Denominator raw: {self._model_plant.den}")
 
-            num = LatexRenderer.array2polynom(self._model_plant.num)
-            den = LatexRenderer.array2polynom(self._model_plant.den)
+            num = array2latex(self._model_plant.num)
+            den = array2latex(self._model_plant.den)
 
-            self._model_plant.tf = rf"\frac{{{num}}}{{{den}}}"
-            self._last_tf = self._model_plant.tf
+            self._model_plant.tf_poly = rf"\frac{{{num}}}{{{den}}}"
+            self._last_tf_poly = self._model_plant.tf_poly
 
-            self.logger.debug(f"Generated transfer function: {self._model_plant.tf}")
+            self.logger.debug(f"Generated transfer function (poly): {self._model_plant.tf_poly}")
 
         except ValueError:
             self.logger.exception("Error while building transfer function")
-            self._model_plant.tf = self._last_tf
+            self._model_plant.tf_poly = self._last_tf_poly
 
+    def _update_binom_tf(self) -> None:
+        self.logger.debug("Updating binomial transfer function ...")
+
+        if not self._model_plant.is_valid:
+            self.logger.debug("Model is not valid -> using last valid binomial transfer function")
+            self._model_plant.tf_binom = self._last_tf_binom
+            return
+
+        try:
+            num_expr = array2expr(self._model_plant.num)
+            den_expr = array2expr(self._model_plant.den)
+
+            num = expr2latex(num_expr)
+            den = expr2latex(den_expr)
+
+            self._model_plant.tf_binom = rf"\frac{{{num}}}{{{den}}}"
+            self._last_tf_binom = self._model_plant.tf_binom
+
+            self.logger.debug(f"Generated transfer function (binom): {self._model_plant.tf_binom}")
+
+        except Exception:
+            self.logger.exception("Error while building binomial transfer function")
+            self._model_plant.tf_binom = self._last_tf_binom
+
+    def _update_transfer_functions(self) -> None:
+        self._update_poly_tf()
+        self._update_binom_tf()
+        self._sync_current_tf()
         self.polyTfChanged.emit()
+        self.binomTfChanged.emit()
+
+    def _sync_current_tf(self) -> None:
+        if self._active_tf_tab == 1:
+            self._model_plant.tf = self._model_plant.tf_binom
+        else:
+            self._model_plant.tf = self._model_plant.tf_poly
 
     # -------------------
     # step_response
@@ -377,7 +435,6 @@ class PlantViewModel(BaseViewModel):
 
                 setattr(self, f"_{poly_attr}_input", arr_str)
                 getattr(self, f"{poly_attr}Changed").emit()
-                self._update_poly_tf()
 
             except SympifyError:
                 self.logger.warning("Error while building poly representation")

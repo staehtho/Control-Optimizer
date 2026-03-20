@@ -6,6 +6,8 @@ class PlantModel:
     num: list[float] = field(default_factory=list)
     den: list[float] = field(default_factory=list)
     tf: str = r"\frac{b_q s^q + b_{q-1}s^{q-1} + \ldots + b_1 s + b_0}{a_n s^n + a_{n-1}s^{n-1} + \ldots + a_1 s + a_0}"
+    tf_poly: str = r"\frac{b_q s^q + b_{q-1}s^{q-1} + \ldots + b_1 s + b_0}{a_n s^n + a_{n-1}s^{n-1} + \ldots + a_1 s + a_0}"
+    tf_binom: str = r"\frac{(s - z_1)(s - z_2)\ldots}{(s - p_1)(s - p_2)\ldots}"
 
     @property
     def is_valid(self) -> bool:

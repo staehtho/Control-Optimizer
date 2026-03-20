@@ -6,7 +6,7 @@
     <message>
         <location filename="../viewmodels/bode_plot_viewmodel.py" line="22"/>
         <source>Invalid value: omega min ({x_min}) must be smaller than omega max ({x_max}).</source>
-        <translation>Ungültiger Wert: Omega min ({x_min}) muss kleiner als Omega max ({x_max}) sein.</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../viewmodels/bode_plot_viewmodel.py" line="31"/>
@@ -690,75 +690,110 @@
 <context>
     <name>PlantView</name>
     <message>
-        <location filename="../views/plant_view.py" line="290"/>
+        <location filename="../views/plant_view.py" line="304"/>
         <source>plant.num</source>
         <translation>Nenner</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="291"/>
+        <location filename="../views/plant_view.py" line="305"/>
         <source>plant.den</source>
         <translation>Zähler</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="233"/>
-        <location filename="../views/plant_view.py" line="284"/>
+        <location filename="../views/plant_view.py" line="234"/>
+        <location filename="../views/plant_view.py" line="298"/>
         <source>Step Response</source>
         <translation>Sprungantwort</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="234"/>
+        <location filename="../views/plant_view.py" line="235"/>
         <source>Time [s]</source>
         <translation>Zeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="235"/>
+        <location filename="../views/plant_view.py" line="236"/>
         <source>Output</source>
         <translation>Ausgang</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="282"/>
+        <location filename="../views/plant_view.py" line="296"/>
         <source>Plant</source>
         <translation>Regelstrecke</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="283"/>
+        <location filename="../views/plant_view.py" line="297"/>
         <source>Transfer function</source>
         <translation>Transferfunction</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="287"/>
+        <location filename="../views/plant_view.py" line="301"/>
         <source>Polynomial</source>
         <translation>Polynom</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="288"/>
+        <location filename="../views/plant_view.py" line="302"/>
         <source>Pole-Zeros</source>
         <translation>Pol-Nullstellen</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="292"/>
+        <location filename="../views/plant_view.py" line="306"/>
         <source>plant.zero</source>
         <translation>Nullstellen</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="293"/>
+        <location filename="../views/plant_view.py" line="307"/>
         <source>plant.pole</source>
         <translation>Polstellen</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="295"/>
+        <location filename="../views/plant_view.py" line="309"/>
+        <location filename="../views/plant_view.py" line="311"/>
         <source>e.g. 1  → 1</source>
         <translation>z.B. 1  → 1</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="296"/>
-        <source>e.g. 1, 0, 0  → 1*s^2 + 0*s + 0</source>
-        <translation>z.B. 1, 0, 0  → 1*s² + 0*s + 0</translation>
+        <location filename="../views/plant_view.py" line="310"/>
+        <source>e.g. 1, 2, 1  → 1s² + 2s + 1</source>
+        <translation>z.B. 1, 2, 1  → 1s² + 2s + 1</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="298"/>
+        <source>e.g. 1, 0, 0  → 1s² + 0s + 0</source>
+        <translation type="vanished">z.B. 1, 0, 0  → 1s² + 0s + 0</translation>
+    </message>
+    <message>
+        <location filename="../views/plant_view.py" line="312"/>
+        <source>e.g. (s + 1)^2  → (s + 1)²</source>
+        <translation>z.B. (s + 1)^2  → (s + 1)²</translation>
+    </message>
+    <message>
+        <source>e.g. 1, 0, 0  → 1*s^2 + 0*s + 0</source>
+        <translation type="vanished">z.B. 1, 0, 0  → 1*s² + 0*s + 0</translation>
+    </message>
+    <message>
+        <location filename="../views/plant_view.py" line="314"/>
+        <source>Enter coefficients separated by commas, spaces, or semicolons.
+        Use &apos;.&apos; as the decimal point.
+        The first number corresponds to the highest power of s.
+        Example: 1, 0.5, 2 → 1*s² + 0.5*s + 2</source>
+        <translation>Geben Sie die Koeffizienten durch Kommas, Leerzeichen oder Semikolons getrennt ein.
+Verwenden Sie „.“ als Dezimalpunkt.
+Die erste Zahl entspricht der höchsten Potenz von s.
+Beispiel: 1, 0,5, 2 → 1*s² + 0,5*s + 2</translation>
+    </message>
+    <message>
+        <location filename="../views/plant_view.py" line="321"/>
+        <source>Enter a polynomial expression in s (factors or expanded form).
+        Use parentheses for factors. Multiplication can be implicit.
+        Use &apos;^&apos; for powers.
+        Example: (s+1)(s+2) or s^2 + 3*s + 2</source>
+        <translation>Geben Sie einen Polynomausdruck in s ein (in Faktorform oder in erweiterter Form).
+Verwenden Sie Klammern für Faktoren. Multiplikationen können implizit sein.
+Verwenden Sie „^“ für Potenzen.
+Beispiel: (s+1)(s+2) oder s² + 3s + 2</translation>
+    </message>
+    <message>
         <source>tooltip_num_den</source>
-        <translation>Verwenden Sie „.“ als Dezimaltrennzeichen.
+        <translation type="vanished">Verwenden Sie „.“ als Dezimaltrennzeichen.
 Die erste Zahl entspricht der höchsten Potenz von s.
 Beispiel: 1, 0.5, 2 → 1·s² + 0,5·s + 2</translation>
     </message>
@@ -820,27 +855,33 @@ Beispiel: 1, 0.5, 2 → 1·s² + 0,5·s + 2</translation>
 <context>
     <name>PlantViewModel</name>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="66"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="72"/>
         <source>Invalid numerator: enter at least one numeric coefficient.</source>
         <translation>Ungültiger Zähler: Geben Sie mindestens einen numerischen Koeffizienten ein.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="127"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="125"/>
         <source>Invalid denominator: enter at least one numeric coefficient.</source>
         <translation>Ungültiger Nenner: Geben Sie mindestens einen numerischen Koeffizienten ein.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="293"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="187"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="228"/>
+        <source>Invalid expression: enter a valid expression.</source>
+        <translation>Ungültiger Ausdruck: Geben Sie einen gültigen Ausdruck ein.</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/plant_viewmodel.py" line="397"/>
         <source>Invalid numerator: first coefficient must be non-zero.</source>
         <translation>Ungültiger Zähler: Der erste Koeffizient muss ungleich Null sein.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="299"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="403"/>
         <source>Invalid denominator: first coefficient must be non-zero.</source>
         <translation>Ungültiger Nenner: Der erste Koeffizient muss ungleich Null sein.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="309"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="413"/>
         <source>Invalid transfer function: denominator order must be greater than or equal to numerator order.</source>
         <translation>Ungültige Übertragungsfunktion: Die Ordnung des Nenners muss grösser oder gleich der Ordnung des Zählers sein.</translation>
     </message>

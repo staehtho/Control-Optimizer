@@ -249,6 +249,7 @@ class PlantView(ViewMixin, QWidget):
     # ============================================================
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
+        self._tf_tab.currentChanged.connect(self._vm_plant.update_tf_tab)
         self.field_widgets.get(PlantField.NUM).textChanged.connect(
             partial(self._on_txt_changed, key=PlantField.NUM, update=self._vm_plant.update_num)
         )
@@ -306,11 +307,23 @@ class PlantView(ViewMixin, QWidget):
         self.labels.get(PlantField.POLE).setText(self.tr("plant.pole"))
 
         self.field_widgets.get(PlantField.NUM).setPlaceholderText(self.tr("e.g. 1  → 1"))
-        self.field_widgets.get(PlantField.DEN).setPlaceholderText(self.tr("e.g. 1, 0, 0  → 1*s^2 + 0*s + 0"))
+        self.field_widgets.get(PlantField.DEN).setPlaceholderText(self.tr("e.g. 1, 2, 1  → 1s² + 2s + 1"))
+        self.field_widgets.get(PlantField.ZERO).setPlaceholderText(self.tr("e.g. 1  → 1"))
+        self.field_widgets.get(PlantField.POLE).setPlaceholderText(self.tr("e.g. (s + 1)^2  → (s + 1)²"))
 
-        tooltip_text = self.tr("tooltip_num_den")
-        self.field_widgets.get(PlantField.NUM).setToolTip(tooltip_text)
-        self.field_widgets.get(PlantField.DEN).setToolTip(tooltip_text)
+        tooltip_text_nd = self.tr("""Enter coefficients separated by commas, spaces, or semicolons.
+        Use '.' as the decimal point.
+        The first number corresponds to the highest power of s.
+        Example: 1, 0.5, 2 → 1*s² + 0.5*s + 2""")
+        self.field_widgets.get(PlantField.NUM).setToolTip(tooltip_text_nd)
+        self.field_widgets.get(PlantField.DEN).setToolTip(tooltip_text_nd)
+
+        tooltip_text_zp = self.tr("""Enter a polynomial expression in s (factors or expanded form).
+        Use parentheses for factors. Multiplication can be implicit.
+        Use '^' for powers.
+        Example: (s+1)(s+2) or s^2 + 3*s + 2""")
+        self.field_widgets.get(PlantField.ZERO).setToolTip(tooltip_text_zp)
+        self.field_widgets.get(PlantField.POLE).setToolTip(tooltip_text_zp)
 
     # ============================================================
     # Apply initial values
@@ -318,6 +331,7 @@ class PlantView(ViewMixin, QWidget):
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
         self._set_formula()
+        self._vm_plant.update_tf_tab(self._tf_tab.currentIndex())
 
     # ============================================================
     # Applied theme
@@ -366,5 +380,5 @@ class PlantView(ViewMixin, QWidget):
     # ============================================================
     def _set_formula(self) -> None:
         """Update the LaTeX formula display from the ViewModel transfer function."""
-        # TODO: formula for zero-pole
         self.field_widgets.get(PlantField.POLYNOM_FORMULA).set_formula(r"G(s) = " + self._vm_plant.get_poly_tf())
+        self.field_widgets.get(PlantField.BINOMINAL_FORMULA).set_formula(r"G(s) = " + self._vm_plant.get_binom_tf())

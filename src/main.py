@@ -17,8 +17,6 @@ from views.resources import Icons
 
 # TODO: BodePlot: when all plots are disabled, the y-axis should not be rescaled. now it scale to 99999 or so :)
 
-# TODO: Plant: add zero-pol to define the plant
-
 # TODO: Controller: move the block diagram and the selection of the anti windup in one section called anti windup
 #  and call the selection method or so
 

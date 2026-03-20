@@ -353,7 +353,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
     # ============================================================
     def _set_formula_tf(self) -> None:
         """Update the plant transfer function formula display."""
-        self.field_widgets[PsoField.PLANT_TF].set_formula(r"G(s) = " + self._vm_plant.get_poly_tf())
+        self.field_widgets[PsoField.PLANT_TF].set_formula(r"G(s) = " + self._vm_plant.get_current_tf())
 
     def _set_formula_function(self) -> None:
         """Update the excitation function formula display."""
