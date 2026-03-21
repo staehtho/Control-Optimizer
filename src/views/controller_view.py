@@ -92,7 +92,7 @@ class ControllerView(ViewMixin, QWidget):
         for key, value in attributes.items():
             attr, vm_attr, value_type = value
             widget = self.field_widgets[key]
-            getattr(widget, attr).connect(partial(self._on_widget_changed, widget, key, vm_attr, value_type))
+            getattr(widget, attr).connect(partial(self._on_widget_changed, widget, key, vm_attr, value_type=value_type))
 
         self.field_widgets.get(ControllerField.ANTI_WINDUP).currentIndexChanged.connect(
             self._on_index_changed_anti_windup)

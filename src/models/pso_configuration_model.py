@@ -18,6 +18,8 @@ class PsoConfigurationModel:
     td_min: float = 0.0
     td_max: float = 10.0
 
+    overshoot_control: float = 0.0
+    overshoot_control_enabled: bool = True
     gain_margin: float = 0.0
     gain_margin_enabled: bool = True
     phase_margin: float = 0.0

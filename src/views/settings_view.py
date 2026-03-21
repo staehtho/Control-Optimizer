@@ -29,8 +29,8 @@ FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
     ],
     "pso": [
         SectionConfig(SettingsField.PSO, [
-            FieldConfig(SettingsField.PSO_ITERATIONS, QLineEdit, validator=QIntValidator),
-            FieldConfig(SettingsField.PSO_PARTICLES, QLineEdit, validator=QIntValidator),
+            FieldConfig(SettingsField.PSO_ITERATIONS, QLineEdit, validator=QIntValidator()),
+            FieldConfig(SettingsField.PSO_PARTICLES, QLineEdit, validator=QIntValidator()),
         ]),
     ],
 }
@@ -113,7 +113,7 @@ class SettingsView(ViewMixin, QWidget):
         for key, value in attributes.items():
             attr, vm_attr, value_type = value
             widget = self.field_widgets[key]
-            getattr(widget, attr).connect(partial(self._on_widget_changed, widget, key, vm_attr, value_type))
+            getattr(widget, attr).connect(partial(self._on_widget_changed, widget, key, vm_attr, value_type=value_type))
 
         self.field_widgets.get(SettingsField.LANGUAGE).currentIndexChanged.connect(
             self._on_language_index_changed
