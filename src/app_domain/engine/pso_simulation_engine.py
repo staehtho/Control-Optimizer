@@ -39,6 +39,8 @@ class PsoSimulationEngine:
         pid_cl, tf = self._create_controller(param)
         r, l, n = self._configure_excitation(param)
 
+        use_freq_metrics = param.gain_margin_enabled or param.phase_margin_enabled or param.stability_margin_enabled
+
         objective = PsoFunc(
             controller=pid_cl,
             t0=param.t0,
@@ -50,7 +52,16 @@ class PsoSimulationEngine:
             solver=param.solver,
             performance_index=param.error_criterion,
             swarm_size=param.swarm_size,
-            pre_compiling=False
+            pre_compiling=False,
+            use_freq_metrics=use_freq_metrics,
+            freq_low_exp=-5,  # TODO temp value
+            freq_high_exp=5,  # TODO temp value
+            freq_points=450,  # TODO temp value
+            gm_min_db=param.gain_margin if param.gain_margin_enabled else 0,
+            pm_min_deg=param.phase_margin if param.phase_margin_enabled else 0,
+            ms_max=param.stability_margin if param.stability_margin_enabled else 0,
+            use_overshoot_control=param.overshoot_control_enabled,
+            allowed_overshoot_pct=param.overshoot_control if param.overshoot_control_enabled else 0,
         )
 
         bounds = self._extract_bounds(param)

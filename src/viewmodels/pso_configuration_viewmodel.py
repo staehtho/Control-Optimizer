@@ -28,6 +28,8 @@ class PsoConfigurationViewModel(BaseViewModel):
     tiMaxChanged = Signal()
     tdMinChanged = Signal()
     tdMaxChanged = Signal()
+    overshootControlChanged = Signal()
+    overshootControlEnabledChanged = Signal()
     gainMarginChanged = Signal()
     gainMarginEnabledChanged = Signal()
     phaseMarginChanged = Signal()
@@ -260,6 +262,20 @@ class PsoConfigurationViewModel(BaseViewModel):
     )
 
     # -------------------
+    # overshoot control
+    # -------------------
+    overshoot_control: float = LoggedProperty(
+        path="_model_pso.overshoot_control",
+        signal="overshootControlChanged",
+        typ=float,
+    )
+    overshoot_control_enabled: bool = LoggedProperty(
+        path="_model_pso.overshoot_control_enabled",
+        signal="overshootControlEnabledChanged",
+        typ=bool
+    )
+
+    # -------------------
     # gain margin
     # -------------------
     gain_margin: float = LoggedProperty(
@@ -348,7 +364,15 @@ class PsoConfigurationViewModel(BaseViewModel):
             ti=(self.ti_min, self.ti_max),
             td=(self.td_min, self.td_max),
             swarm_size=self._settings.get_pso_particle(),
-            pso_iteration=self._pos_iteration
+            pso_iteration=self._pos_iteration,
+            overshoot_control=self._model_pso.overshoot_control,
+            overshoot_control_enabled=self._model_pso.overshoot_control_enabled,
+            gain_margin=self._model_pso.gain_margin,
+            gain_margin_enabled=self._model_pso.gain_margin_enabled,
+            phase_margin=self._model_pso.phase_margin,
+            phase_margin_enabled=self._model_pso.phase_margin_enabled,
+            stability_margin=self._model_pso.stability_margin,
+            stability_margin_enabled=self._model_pso.stability_margin_enabled
         )
 
     def _on_pso_simulation_finished(self, result: PsoResult):

@@ -33,6 +33,7 @@ class LoggedProperty:
         return obj
 
     def setter(self, instance, value):
+        value = self.typ(value)
         obj, field = self._resolve(instance)
         old_value = getattr(obj, field)
 

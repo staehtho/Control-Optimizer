@@ -10,7 +10,7 @@ class FieldConfig:
     key: str | FieldType
     widget_type: Type[QWidget] = QLabel
     create_label: bool = True
-    validator: object = QDoubleValidator
+    validator: object = QDoubleValidator()
     toggleable: bool = False
     toggle_default: bool = True
 
@@ -88,6 +88,7 @@ class PsoField(FieldType):
     PERFORMANCE_INDEX = "performance_index"
     TIME_DOMAIN = "time_domain"
     ERROR_CRITERION = "error_criterion"
+    OVERSHOOT_CONTROL = "overshoot_control"
     FREQUENCY_DOMAIN = "frequency_domain"
     GAIN_MARGIN = "gain_margin"
     PHASE_MARGIN = "phase_margin"

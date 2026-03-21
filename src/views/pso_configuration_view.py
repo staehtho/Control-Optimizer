@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
     QLayout, QGraphicsOpacityEffect,
 )
 from PySide6.QtCore import QObject
+from PySide6.QtGui import QDoubleValidator
 
 from app_domain.ui_context import UiContext
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
@@ -51,11 +52,13 @@ FIELDS: list[FieldConfig | SectionConfig] = [
     SectionConfig(PsoField.PERFORMANCE_INDEX, [
         SectionConfig(PsoField.TIME_DOMAIN, [
             FieldConfig(PsoField.ERROR_CRITERION, QComboBox),
+            FieldConfig(PsoField.OVERSHOOT_CONTROL, QLineEdit, validator=QDoubleValidator(0.0, 1e9, 6),
+                        toggleable=True),
         ]),
         SectionConfig(PsoField.FREQUENCY_DOMAIN, [
-            FieldConfig(PsoField.GAIN_MARGIN, QLineEdit, toggleable=True),
-            FieldConfig(PsoField.PHASE_MARGIN, QLineEdit, toggleable=True),
-            FieldConfig(PsoField.STABILITY_MARGIN, QLineEdit, toggleable=True)
+            FieldConfig(PsoField.GAIN_MARGIN, QLineEdit, validator=QDoubleValidator(0.0, 1e9, 6), toggleable=True),
+            FieldConfig(PsoField.PHASE_MARGIN, QLineEdit, validator=QDoubleValidator(0.0, 1e9, 6), toggleable=True),
+            FieldConfig(PsoField.STABILITY_MARGIN, QLineEdit, validator=QDoubleValidator(0.0, 1e9, 6), toggleable=True)
         ])
     ]),
 ]
@@ -168,6 +171,9 @@ class PsoConfigurationView(ViewMixin, QWidget):
         attributes: dict[PsoField, tuple[str, str, object]] = {
             PsoField.EXCITATION_TARGET: ("currentIndexChanged", "_vm_pso.excitation_target", ExcitationTarget),
             PsoField.ERROR_CRITERION: ("currentIndexChanged", "_vm_pso.error_criterion", PerformanceIndex),
+            PsoField.T0: ("editingFinished", "_vm_pso.t0", float),
+            PsoField.T1: ("editingFinished", "_vm_pso.t1", float),
+            PsoField.OVERSHOOT_CONTROL: ("editingFinished", "_vm_pso.overshoot_control", float),
             PsoField.GAIN_MARGIN: ("editingFinished", "_vm_pso.gain_margin", float),
             PsoField.PHASE_MARGIN: ("editingFinished", "_vm_pso.phase_margin", float),
             PsoField.STABILITY_MARGIN: ("editingFinished", "_vm_pso.stability_margin", float),
@@ -181,9 +187,10 @@ class PsoConfigurationView(ViewMixin, QWidget):
         for key, value in attributes.items():
             attr, vm_attr, value_type = value
             widget = self.field_widgets[key]
-            getattr(widget, attr).connect(partial(self._on_widget_changed, widget, key, vm_attr, value_type))
+            getattr(widget, attr).connect(partial(self._on_widget_changed, widget, key, vm_attr, value_type=value_type))
 
         attributes: dict[PsoField, tuple[str, str, object]] = {
+            PsoField.OVERSHOOT_CONTROL: ("toggled", "_vm_pso.overshoot_control_enabled", bool),
             PsoField.GAIN_MARGIN: ("toggled", "_vm_pso.gain_margin_enabled", bool),
             PsoField.PHASE_MARGIN: ("toggled", "_vm_pso.phase_margin_enabled", bool),
             PsoField.STABILITY_MARGIN: ("toggled", "_vm_pso.stability_margin_enabled", bool)
@@ -191,7 +198,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
         for key, value in attributes.items():
             attr, vm_attr, value_type = value
             widget = self.labels[key]
-            getattr(widget, attr).connect(partial(self._on_widget_changed, widget, key, vm_attr, value_type))
+            getattr(widget, attr).connect(partial(self._on_widget_changed, widget, key, vm_attr, value_type=value_type))
 
         self._btn_run_pso.clicked.connect(self._on_btn_run_pso)
         self._btn_interrupt_pso.clicked.connect(self._on_btn_interrupt_pso)
@@ -213,6 +220,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
             PsoField.T1: ("t1Changed", "_vm_pso.t1"),
             PsoField.EXCITATION_TARGET: ("excitationTargetChanged", "_vm_pso.excitation_target"),
             PsoField.ERROR_CRITERION: ("performanceIndexChanged", "_vm_pso.error_criterion"),
+            PsoField.OVERSHOOT_CONTROL: ("overshootControlChanged", "_vm_pso.overshoot_control"),
             PsoField.GAIN_MARGIN: ("gainMarginChanged", "_vm_pso.gain_margin"),
             PsoField.PHASE_MARGIN: ("phaseMarginChanged", "_vm_pso.phase_margin"),
             PsoField.STABILITY_MARGIN: ("stabilityMarginChanged", "_vm_pso.stability_margin"),
@@ -230,6 +238,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
             )
 
         attributes: dict[PsoField, tuple[str, str]] = {
+            PsoField.OVERSHOOT_CONTROL: ("overshootControlEnabledChanged", "_vm_pso.overshoot_control_enabled"),
             PsoField.GAIN_MARGIN: ("gainMarginEnabledChanged", "_vm_pso.gain_margin_enabled"),
             PsoField.PHASE_MARGIN: ("phaseMarginEnabledChanged", "_vm_pso.phase_margin_enabled"),
             PsoField.STABILITY_MARGIN: ("stabilityMarginEnabledChanged", "_vm_pso.stability_margin_enabled"),
@@ -260,6 +269,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
             PsoField.PERFORMANCE_INDEX: self.tr("Performance Index"),
             PsoField.TIME_DOMAIN: self.tr("Time Domain"),
             PsoField.ERROR_CRITERION: self.tr("Error Criterion"),
+            PsoField.OVERSHOOT_CONTROL: self.tr("Overshoot Control"),
             PsoField.FREQUENCY_DOMAIN: self.tr("Frequency Domain"),
             PsoField.GAIN_MARGIN: self.tr("Gain Margin"),
             PsoField.PHASE_MARGIN: self.tr("Phase Margin"),
@@ -294,6 +304,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
         init_value = {
             PsoField.T0: self._vm_pso.t0,
             PsoField.T1: self._vm_pso.t1,
+            PsoField.OVERSHOOT_CONTROL: self._vm_pso.overshoot_control,
             PsoField.GAIN_MARGIN: self._vm_pso.gain_margin,
             PsoField.PHASE_MARGIN: self._vm_pso.phase_margin,
             PsoField.STABILITY_MARGIN: self._vm_pso.stability_margin,
@@ -324,7 +335,8 @@ class PsoConfigurationView(ViewMixin, QWidget):
         self._set_formula_function()
 
         attributes: dict[PsoField, str] = {
-            PsoField.GAIN_MARGIN: "_vm_pso.stability_margin_enabled",
+            PsoField.OVERSHOOT_CONTROL: "_vm_pso.overshoot_control_enabled",
+            PsoField.GAIN_MARGIN: "_vm_pso.gain_margin_enabled",
             PsoField.PHASE_MARGIN: "_vm_pso.phase_margin_enabled",
             PsoField.STABILITY_MARGIN: "_vm_pso.stability_margin_enabled",
         }

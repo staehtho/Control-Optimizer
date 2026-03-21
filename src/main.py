@@ -20,6 +20,8 @@ from views.resources import Icons
 # TODO: Controller: move the block diagram and the selection of the anti windup in one section called anti windup
 #  and call the selection method or so
 
+# TODO: PSO: overshoot only for step
+
 # TODO: Evaluation: block diagram add l and n input
 # TODO: Evaluation: TF with L and N
 # TODO: Evaluation: clean TF of C, G, etc.

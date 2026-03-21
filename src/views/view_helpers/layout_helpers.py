@@ -102,7 +102,7 @@ def create_widget(field: FieldConfig, parent_widget: Optional[QWidget]) -> QWidg
         if parent_widget is not None and widget.parent() is None:
             widget.setParent(parent_widget)
     if isinstance(widget, QLineEdit):
-        widget.setValidator(field.validator())
+        widget.setValidator(field.validator)
     return widget
 
 
