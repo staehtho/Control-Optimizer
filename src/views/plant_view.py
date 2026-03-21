@@ -294,8 +294,8 @@ class PlantView(ViewMixin, QWidget):
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("Plant"))
-        self._frm_tf.set_title(self.tr("Transfer function"))
-        self._frm_plot.set_title(self.tr("Step Response"))
+        self._frm_tf.setText(self.tr("Transfer function"))
+        self._frm_plot.setText(self.tr("Step Response"))
 
         # translate pages
         self._tf_tab.setTabText(0, self.tr("Polynomial"))

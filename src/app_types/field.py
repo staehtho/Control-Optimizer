@@ -21,6 +21,7 @@ class SectionConfig:
     key: str | FieldType
     fields: list[FieldConfig | SectionConfig]
     columns: int = 2
+    toggleable: bool = False
 
     def __post_init__(self):
         if self.columns % 2 != 0:

@@ -88,15 +88,15 @@ class SectionFrame(QFrame):
     # Title API
     # ============================================================
 
-    def title(self) -> str:
+    def _title(self) -> str:
         """Return the current title text."""
         return self._title_label.text()
 
-    def set_title(self, value: str) -> None:
+    def setText(self, value: str) -> None:
         """Set the title text and emit titleChanged if it changed."""
         if value == self._title_label.text():
             return
         self._title_label.setText(value)
         self.titleChanged.emit(value)
 
-    title = Property(str, title, set_title, notify=titleChanged)
+    title = Property(str, _title, setText, notify=titleChanged)

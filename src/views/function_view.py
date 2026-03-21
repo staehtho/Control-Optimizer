@@ -132,8 +132,8 @@ class FunctionView(ViewMixin, QWidget):
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("Excitation Function"))
-        self._frm_function.set_title(self.tr("Function"))
-        self._frm_plot.set_title(self.tr("Function Plot"))
+        self._frm_function.setText(self.tr("Function"))
+        self._frm_plot.setText(self.tr("Function Plot"))
 
     # ============================================================
     # Apply initial values

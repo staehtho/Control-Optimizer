@@ -244,8 +244,8 @@ class EvaluationView(ViewMixin, QWidget):
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("Evaluation"))
-        self._frm_result.set_title(self.tr("PSO Result"))
-        self._frm_plot.set_title(self.tr("Closed Loop"))
+        self._frm_result.setText(self.tr("PSO Result"))
+        self._frm_plot.setText(self.tr("Closed Loop"))
 
         # translate pages
         self._plot_tab.setTabText(0, self.tr("Time Domain"))

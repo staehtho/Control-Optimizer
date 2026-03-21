@@ -49,14 +49,8 @@ def add_section(
         columns: int,
         parent_widget: Optional[QWidget],
 ) -> None:
-    frame = QFrame(parent_widget)
-    frame.setObjectName("card")
-
-    frame_layout = QVBoxLayout(frame)
-    label = QLabel(frame)
-    label.setObjectName("sectionTitle")
-    frame_layout.addWidget(label)
-    view.labels[section.key] = label
+    frame, frame_layout = create_card("", toggleable=section.toggleable, parent=parent_widget)
+    view.labels[section.key] = frame
 
     inner_layout = create_grid(view, section.fields, section.columns)
     frame_layout.addLayout(inner_layout)
@@ -146,11 +140,19 @@ def create_page_layout() -> QVBoxLayout:
     return layout
 
 
-def create_card(title: Optional[str], parent: Optional[QWidget] = None) -> tuple[QFrame, QVBoxLayout]:
+def create_card(
+        title: Optional[str],
+        toggleable: Optional[bool] = False,
+        parent: Optional[QWidget] = None
+) -> tuple[QFrame, QVBoxLayout]:
     """Create a themed card container using SectionFrame."""
-    from views.widgets import SectionFrame
+    if not toggleable:
+        from views.widgets import SectionFrame
+        frame = SectionFrame(title=title, parent=parent)
+    else:
+        from views.widgets import ToggleableSectionFrame
+        frame = ToggleableSectionFrame(title=title, parent=parent)
 
-    frame = SectionFrame(title=title, parent=parent)
     frame.setObjectName("card")
     frame_layout = frame.content_layout()
     frame_layout.setContentsMargins(16, 14, 16, 14)

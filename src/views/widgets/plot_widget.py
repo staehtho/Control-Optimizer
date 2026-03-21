@@ -194,7 +194,7 @@ class PlotWidget(ViewMixin, QWidget):
         self.field_widgets.get(PlotField.X_MIN).setToolTip(self.tr("plot.start.tooltip"))
         self.field_widgets.get(PlotField.X_MAX).setToolTip(self.tr("plot.end.tooltip"))
 
-        self._series_frame.set_title(self.tr("plot.legend"))
+        self._series_frame.setText(self.tr("plot.legend"))
 
         self._vm.retranslate_labels(self._enum_translation)
         self._update_plot()

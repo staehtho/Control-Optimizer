@@ -115,7 +115,7 @@ class ControllerView(ViewMixin, QWidget):
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("Controller"))
-        self._frm_controller.set_title(self.tr("Parameters"))
+        self._frm_controller.setText(self.tr("Parameters"))
 
         labels = {
             ControllerField.CONTROLLER_TYPE: self.tr("Controller Type"),

@@ -88,7 +88,7 @@ class FunctionWidget(ViewMixin, QWidget):
     def _create_param_frame(self) -> SectionFrame:
         """Create the parameter widget container layout."""
         frame: SectionFrame
-        frame, layout = self._create_card()
+        frame, layout = self._create_card(parent=self)
 
         grid = self._create_param_grid(frame)
         layout.addLayout(grid)
@@ -161,7 +161,7 @@ class FunctionWidget(ViewMixin, QWidget):
     # ============================================================
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
-        self._frm_param.set_title(self.tr("Parameters"))
+        self._frm_param.setText(self.tr("Parameters"))
         function_labels = {
             key: self._enum_translation(key) for key in FunctionTypes
             if key not in self._excluded_function_types

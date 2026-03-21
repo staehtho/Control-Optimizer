@@ -219,7 +219,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("PSO Parameter"))
-        self._frm_run_pso.set_title(self.tr("PSO Simulation"))
+        self._frm_run_pso.setText(self.tr("PSO Simulation"))
 
         labels = {
             PsoField.PLANT: self.tr("Plant"),

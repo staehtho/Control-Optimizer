@@ -164,8 +164,8 @@ class SimulationView(ViewMixin, QWidget):
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("Simulation"))
-        self._frm_function.set_title(self.tr("Excitation Function"))
-        self._frm_response.set_title(self.tr("Closed Loop"))
+        self._frm_function.setText(self.tr("Excitation Function"))
+        self._frm_response.setText(self.tr("Closed Loop"))
 
         # translate pages
         for text, i in zip(ExcitationTarget, range(self._function_tab.count())):
