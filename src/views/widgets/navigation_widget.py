@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (
     QToolButton,
     QSizePolicy,
     QFrame,
+    QGraphicsOpacityEffect,
 )
 
 from app_domain.ui_context import UiContext
@@ -45,6 +46,7 @@ class NavigationWidget(ViewMixin, QWidget):
         self._collapsed = self._vm_settings.get_nav_collapsed()
         self._field_widgets: dict[NavLabels, QToolButton] = {}
         self._active_bar_frames: dict[NavLabels, QFrame] = {}
+        self._inactive_effects: dict[NavLabels, QGraphicsOpacityEffect] = {}
 
         ViewMixin.__init__(self, ui_context)
 
@@ -115,10 +117,14 @@ class NavigationWidget(ViewMixin, QWidget):
             btn.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
             btn.setStyleSheet("text-align:left; padding-left:6px;")
             btn.setObjectName(f"navBtn_{item.key}")
+            effect = QGraphicsOpacityEffect(btn)
+            effect.setOpacity(1.0)
+            btn.setGraphicsEffect(effect)
 
             row.addWidget(btn)
 
             self._field_widgets[item.key] = btn
+            self._inactive_effects[item.key] = effect
             self._on_btn_clicked(self._init_item)
 
             # Add to top or bottom layout
@@ -204,8 +210,11 @@ class NavigationWidget(ViewMixin, QWidget):
     def set_nav_item_enabled(self, key: NavLabels, enabled: bool) -> None:
         """Enable or disable a navigation button."""
         btn = self._field_widgets.get(key)
+        effect = self._inactive_effects.get(key)
         if btn:
             btn.setEnabled(enabled)
+        if effect:
+            effect.setOpacity(1.0 if enabled else 0.45)
 
     def is_nav_item_enabled(self, key: NavLabels) -> bool:
         """Return whether a navigation button is enabled."""
