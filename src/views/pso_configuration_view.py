@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QProgressBar,
     QHBoxLayout,
     QSizePolicy,
-    QLayout,
+    QLayout, QGraphicsOpacityEffect,
 )
 from PySide6.QtCore import QObject
 
@@ -52,6 +52,11 @@ FIELDS: list[FieldConfig | SectionConfig] = [
         SectionConfig(PsoField.TIME_DOMAIN, [
             FieldConfig(PsoField.ERROR_CRITERION, QComboBox),
         ]),
+        SectionConfig(PsoField.FREQUENCY_DOMAIN, [
+            FieldConfig(PsoField.GAIN_MARGIN, QLineEdit, toggleable=True),
+            FieldConfig(PsoField.PHASE_MARGIN, QLineEdit, toggleable=True),
+            FieldConfig(PsoField.STABILITY_MARGIN, QLineEdit, toggleable=True)
+        ])
     ]),
 ]
 
@@ -163,6 +168,9 @@ class PsoConfigurationView(ViewMixin, QWidget):
         attributes: dict[PsoField, tuple[str, str, object]] = {
             PsoField.EXCITATION_TARGET: ("currentIndexChanged", "_vm_pso.excitation_target", ExcitationTarget),
             PsoField.ERROR_CRITERION: ("currentIndexChanged", "_vm_pso.error_criterion", PerformanceIndex),
+            PsoField.GAIN_MARGIN: ("editingFinished", "_vm_pso.gain_margin", float),
+            PsoField.PHASE_MARGIN: ("editingFinished", "_vm_pso.phase_margin", float),
+            PsoField.STABILITY_MARGIN: ("editingFinished", "_vm_pso.stability_margin", float),
             PsoField.KP_MIN: ("editingFinished", "_vm_pso.kp_min", float),
             PsoField.KP_MAX: ("editingFinished", "_vm_pso.kp_max", float),
             PsoField.TI_MIN: ("editingFinished", "_vm_pso.ti_min", float),
@@ -172,8 +180,18 @@ class PsoConfigurationView(ViewMixin, QWidget):
         }
         for key, value in attributes.items():
             attr, vm_attr, value_type = value
-            getattr(self.field_widgets[key], attr).connect(
-                partial(self._on_widget_changed, key, vm_attr, value_type=value_type))
+            widget = self.field_widgets[key]
+            getattr(widget, attr).connect(partial(self._on_widget_changed, widget, key, vm_attr, value_type))
+
+        attributes: dict[PsoField, tuple[str, str, object]] = {
+            PsoField.GAIN_MARGIN: ("toggled", "_vm_pso.gain_margin_enabled", bool),
+            PsoField.PHASE_MARGIN: ("toggled", "_vm_pso.phase_margin_enabled", bool),
+            PsoField.STABILITY_MARGIN: ("toggled", "_vm_pso.stability_margin_enabled", bool)
+        }
+        for key, value in attributes.items():
+            attr, vm_attr, value_type = value
+            widget = self.labels[key]
+            getattr(widget, attr).connect(partial(self._on_widget_changed, widget, key, vm_attr, value_type))
 
         self._btn_run_pso.clicked.connect(self._on_btn_run_pso)
         self._btn_interrupt_pso.clicked.connect(self._on_btn_interrupt_pso)
@@ -195,6 +213,9 @@ class PsoConfigurationView(ViewMixin, QWidget):
             PsoField.T1: ("t1Changed", "_vm_pso.t1"),
             PsoField.EXCITATION_TARGET: ("excitationTargetChanged", "_vm_pso.excitation_target"),
             PsoField.ERROR_CRITERION: ("performanceIndexChanged", "_vm_pso.error_criterion"),
+            PsoField.GAIN_MARGIN: ("gainMarginChanged", "_vm_pso.gain_margin"),
+            PsoField.PHASE_MARGIN: ("phaseMarginChanged", "_vm_pso.phase_margin"),
+            PsoField.STABILITY_MARGIN: ("stabilityMarginChanged", "_vm_pso.stability_margin"),
             PsoField.KP_MIN: ("kpMinChanged", "_vm_pso.kp_min"),
             PsoField.KP_MAX: ("kpMaxChanged", "_vm_pso.kp_max"),
             PsoField.TI_MIN: ("tiMinChanged", "_vm_pso.ti_min"),
@@ -207,6 +228,15 @@ class PsoConfigurationView(ViewMixin, QWidget):
             getattr(self._vm_pso, signal).connect(
                 partial(self._on_vm_changed, key, attr)
             )
+
+        attributes: dict[PsoField, tuple[str, str]] = {
+            PsoField.GAIN_MARGIN: ("gainMarginEnabledChanged", "_vm_pso.gain_margin_enabled"),
+            PsoField.PHASE_MARGIN: ("phaseMarginEnabledChanged", "_vm_pso.phase_margin_enabled"),
+            PsoField.STABILITY_MARGIN: ("stabilityMarginEnabledChanged", "_vm_pso.stability_margin_enabled"),
+        }
+        for key, value in attributes.items():
+            s, attr = value
+            getattr(self._vm_pso, s).connect(partial(self._on_vm_field_enabled_changed, key, attr))
 
         self._vm_pso.psoProgressChanged.connect(self._on_vm_pso_progress_changed)
         self._vm_pso.psoSimulationFinished.connect(self._on_vm_pso_simulation_finished)
@@ -230,6 +260,10 @@ class PsoConfigurationView(ViewMixin, QWidget):
             PsoField.PERFORMANCE_INDEX: self.tr("Performance Index"),
             PsoField.TIME_DOMAIN: self.tr("Time Domain"),
             PsoField.ERROR_CRITERION: self.tr("Error Criterion"),
+            PsoField.FREQUENCY_DOMAIN: self.tr("Frequency Domain"),
+            PsoField.GAIN_MARGIN: self.tr("Gain Margin"),
+            PsoField.PHASE_MARGIN: self.tr("Phase Margin"),
+            PsoField.STABILITY_MARGIN: self.tr("Sensitivity"),
             PsoField.PSO_BOUNDS: self.tr("PSO Bounds"),
             PsoField.KP_BOUNDS: self.tr("Kp Bounds"),
             PsoField.KP_MIN: self.tr("Minimum"),
@@ -260,6 +294,9 @@ class PsoConfigurationView(ViewMixin, QWidget):
         init_value = {
             PsoField.T0: self._vm_pso.t0,
             PsoField.T1: self._vm_pso.t1,
+            PsoField.GAIN_MARGIN: self._vm_pso.gain_margin,
+            PsoField.PHASE_MARGIN: self._vm_pso.phase_margin,
+            PsoField.STABILITY_MARGIN: self._vm_pso.stability_margin,
             PsoField.KP_MIN: self._vm_pso.kp_min,
             PsoField.KP_MAX: self._vm_pso.kp_max,
             PsoField.TI_MIN: self._vm_pso.ti_min,
@@ -285,6 +322,14 @@ class PsoConfigurationView(ViewMixin, QWidget):
 
         self._set_formula_tf()
         self._set_formula_function()
+
+        attributes: dict[PsoField, str] = {
+            PsoField.GAIN_MARGIN: "_vm_pso.stability_margin_enabled",
+            PsoField.PHASE_MARGIN: "_vm_pso.phase_margin_enabled",
+            PsoField.STABILITY_MARGIN: "_vm_pso.stability_margin_enabled",
+        }
+        for key, attr in attributes.items():
+            self._on_vm_field_enabled_changed(key, attr)
 
     # ============================================================
     # Applied theme
@@ -348,6 +393,26 @@ class PsoConfigurationView(ViewMixin, QWidget):
         self._btn_interrupt_pso.setEnabled(False)
         self._lbl_interrupt_status.setText(self.tr("Interrupted"))
 
+    def _on_vm_field_enabled_changed(self, key: PsoField, attribute: str) -> None:
+        attr = self
+        for attr_name in attribute.split("."):
+            attr = getattr(attr, attr_name)
+        enabled = attr
+
+        toggle = self.labels.get(key)
+        if toggle is not None and toggle.isChecked() != enabled:
+            toggle.blockSignals(True)
+            toggle.setChecked(enabled)
+            toggle.blockSignals(False)
+        widget = self.field_widgets.get(key)
+        if widget is not None:
+            effect = widget.graphicsEffect()
+            if not isinstance(effect, QGraphicsOpacityEffect):
+                effect = QGraphicsOpacityEffect(widget)
+                widget.setGraphicsEffect(effect)
+
+            effect.setOpacity(1.0 if enabled else 0.45)
+
     # ============================================================
     # Internal helpers
     # ============================================================
@@ -358,3 +423,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
     def _set_formula_function(self) -> None:
         """Update the excitation function formula display."""
         self.field_widgets[PsoField.FUNCTION_FORMULA].set_formula(self._vm_function.selected_function.get_formula())
+
+    def _on_field_toggle_changed(self, checked: bool) -> None:
+        """Handle gain margin toggle state changes."""
+        self._vm_pso.gain_margin_enabled = checked

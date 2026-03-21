@@ -28,6 +28,8 @@ def create_grid(view, fields: list[FieldConfig | SectionConfig], columns: int = 
     layout.setHorizontalSpacing(10)
     layout.setVerticalSpacing(10)
     layout.setContentsMargins(0, 0, 0, 0)
+    for i in range(columns):
+        layout.setColumnStretch(i, 1)
     parent_widget = view if isinstance(view, QWidget) else None
 
     for col in range(columns):
@@ -74,8 +76,15 @@ def add_field(
     widget = create_widget(field, parent_widget)
     view.field_widgets[field.key] = widget
 
-    if field.create_label:
-        label = QLabel(parent_widget)
+    if field.create_label or field.toggleable:
+        if field.toggleable:
+            from views.widgets.toggle_switch import ToggleSwitch, TextPosition
+            label = ToggleSwitch("", TextPosition.Right, parent_widget)
+            label.setChecked(field.toggle_default)
+            widget.setEnabled(field.toggle_default)
+            label.toggled.connect(widget.setEnabled)
+        else:
+            label = QLabel(parent_widget)
         layout.addWidget(label, row, col)
         view.labels[field.key] = label
 

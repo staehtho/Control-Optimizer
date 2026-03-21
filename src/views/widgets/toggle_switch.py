@@ -20,7 +20,6 @@ class ToggleSwitch(QAbstractButton):
 
         self.setCheckable(True)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self._offset = 1.0 if self.isChecked() else 0.0
 
         self._animation = QPropertyAnimation(self, b"offset", self)

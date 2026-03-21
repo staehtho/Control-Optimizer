@@ -112,8 +112,8 @@ class SettingsView(ViewMixin, QWidget):
         }
         for key, value in attributes.items():
             attr, vm_attr, value_type = value
-            getattr(self.field_widgets[key], attr).connect(
-                partial(self._on_widget_changed, key, vm_attr, value_type=value_type))
+            widget = self.field_widgets[key]
+            getattr(widget, attr).connect(partial(self._on_widget_changed, widget, key, vm_attr, value_type))
 
         self.field_widgets.get(SettingsField.LANGUAGE).currentIndexChanged.connect(
             self._on_language_index_changed

@@ -171,9 +171,9 @@ class ViewMixin:
     # Widget ? ViewModel Synchronization
     # ============================================================
 
-    def _on_widget_changed(self, key: str | FieldType, attribute: str, *args, **kwargs) -> None:
+    def _on_widget_changed(self, widget: QWidget, key: str | FieldType, attribute: str, *args, **kwargs) -> None:
         """Handle changes from various input widgets and update the corresponding attribute."""
-        return widget_binding.on_widget_changed(self, key, attribute, *args, **kwargs)
+        return widget_binding.on_widget_changed(self, widget, key, attribute, *args, **kwargs)
 
     @staticmethod
     def _format_value(value):

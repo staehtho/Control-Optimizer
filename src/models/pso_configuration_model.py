@@ -17,3 +17,10 @@ class PsoConfigurationModel:
     ti_max: float = 10.0
     td_min: float = 0.0
     td_max: float = 10.0
+
+    gain_margin: float = 0.0
+    gain_margin_enabled: bool = True
+    phase_margin: float = 0.0
+    phase_margin_enabled: bool = True
+    stability_margin: float = 0.0
+    stability_margin_enabled: bool = True

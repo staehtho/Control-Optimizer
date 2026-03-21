@@ -83,13 +83,10 @@ class ToggleableSectionFrame(SectionFrame):
         self.set_active(checked)
 
     def _apply_active_state(self, active: bool) -> None:
-        for index in range(self._main_layout.count()):
-            item = self._main_layout.itemAt(index)
-            widget = item.widget()
-            if not widget or widget is self._header_widget:
-                continue
-            widget.setEnabled(active)
-        self._inactive_effect.setOpacity(1.0 if active else 0.45)
+        for child in self._content_widget.findChildren(QWidget):
+            effect = QGraphicsOpacityEffect(child)
+            effect.setOpacity(1.0 if active else 0.45)
+            child.setGraphicsEffect(effect)
 
     def _sync_toggle_checked(self, active: bool) -> None:
         if self._toggle_switch.isChecked() == active:

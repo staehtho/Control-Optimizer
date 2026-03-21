@@ -11,6 +11,8 @@ class FieldConfig:
     widget_type: Type[QWidget] = QLabel
     create_label: bool = True
     validator: object = QDoubleValidator
+    toggleable: bool = False
+    toggle_default: bool = True
 
     def __len__(self) -> int:
         return 1
@@ -86,6 +88,10 @@ class PsoField(FieldType):
     PERFORMANCE_INDEX = "performance_index"
     TIME_DOMAIN = "time_domain"
     ERROR_CRITERION = "error_criterion"
+    FREQUENCY_DOMAIN = "frequency_domain"
+    GAIN_MARGIN = "gain_margin"
+    PHASE_MARGIN = "phase_margin"
+    STABILITY_MARGIN = "stability_margin"
 
     PSO_BOUNDS = "pso_bounds"
     KP_BOUNDS = "kp_bounds"

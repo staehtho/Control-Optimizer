@@ -28,6 +28,12 @@ class PsoConfigurationViewModel(BaseViewModel):
     tiMaxChanged = Signal()
     tdMinChanged = Signal()
     tdMaxChanged = Signal()
+    gainMarginChanged = Signal()
+    gainMarginEnabledChanged = Signal()
+    phaseMarginChanged = Signal()
+    phaseMarginEnabledChanged = Signal()
+    stabilityMarginChanged = Signal()
+    stabilityMarginEnabledChanged = Signal()
     psoProgressChanged = Signal(int)
     psoSimulationFinished = Signal()
     psoSimulationInterrupted = Signal()
@@ -251,6 +257,48 @@ class PsoConfigurationViewModel(BaseViewModel):
         signal="tdMaxChanged",
         typ=float,
         custom_setter=_verify_td_max
+    )
+
+    # -------------------
+    # gain margin
+    # -------------------
+    gain_margin: float = LoggedProperty(
+        path="_model_pso.gain_margin",
+        signal="gainMarginChanged",
+        typ=float,
+    )
+    gain_margin_enabled: bool = LoggedProperty(
+        path="_model_pso.gain_margin_enabled",
+        signal="gainMarginEnabledChanged",
+        typ=bool
+    )
+
+    # -------------------
+    # phase margin
+    # -------------------
+    phase_margin: float = LoggedProperty(
+        path="_model_pso.phase_margin",
+        signal="phaseMarginChanged",
+        typ=float
+    )
+    phase_margin_enabled: bool = LoggedProperty(
+        path="_model_pso.phase_margin_enabled",
+        signal="phaseMarginEnabledChanged",
+        typ=bool
+    )
+
+    # -------------------
+    # stability margin
+    # -------------------
+    stability_margin: float = LoggedProperty(
+        path="_model_pso.stability_margin",
+        signal="stabilityMarginChanged",
+        typ=float
+    )
+    stability_margin_enabled: bool = LoggedProperty(
+        path="_model_pso.stability_margin_enabled",
+        signal="stabilityMarginEnabledChanged",
+        typ=bool
     )
 
     # -------------------
