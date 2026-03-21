@@ -85,6 +85,7 @@ class PsoField(FieldType):
 
     PERFORMANCE_INDEX = "performance_index"
     TIME_DOMAIN = "time_domain"
+    ERROR_CRITERION = "error_criterion"
 
     PSO_BOUNDS = "pso_bounds"
     KP_BOUNDS = "kp_bounds"

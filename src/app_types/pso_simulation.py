@@ -22,7 +22,7 @@ class PsoSimulationParam:
 
     excitation_target: ExcitationTarget
     function: BaseFunction
-    performance_index: PerformanceIndex
+    error_criterion: PerformanceIndex
 
     kp: tuple[float, float]
     ti: tuple[float, float]

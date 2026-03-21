@@ -49,8 +49,9 @@ FIELDS: list[FieldConfig | SectionConfig] = [
         ]),
     ]),
     SectionConfig(PsoField.PERFORMANCE_INDEX, [
-        FieldConfig(PsoField.TIME_DOMAIN, QComboBox),
-        FieldConfig("", QLabel, False),
+        SectionConfig(PsoField.TIME_DOMAIN, [
+            FieldConfig(PsoField.ERROR_CRITERION, QComboBox),
+        ]),
     ]),
 ]
 
@@ -160,10 +161,8 @@ class PsoConfigurationView(ViewMixin, QWidget):
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
         attributes: dict[PsoField, tuple[str, str, object]] = {
-            # PsoField.T0: ("editingFinished", "_vm_pso.t0", float),
-            # PsoField.T1: ("editingFinished", "_vm_pso.t1", float),
             PsoField.EXCITATION_TARGET: ("currentIndexChanged", "_vm_pso.excitation_target", ExcitationTarget),
-            PsoField.TIME_DOMAIN: ("currentIndexChanged", "_vm_pso.performance_index", PerformanceIndex),
+            PsoField.ERROR_CRITERION: ("currentIndexChanged", "_vm_pso.error_criterion", PerformanceIndex),
             PsoField.KP_MIN: ("editingFinished", "_vm_pso.kp_min", float),
             PsoField.KP_MAX: ("editingFinished", "_vm_pso.kp_max", float),
             PsoField.TI_MIN: ("editingFinished", "_vm_pso.ti_min", float),
@@ -195,7 +194,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
             PsoField.T0: ("t0Changed", "_vm_pso.t0"),
             PsoField.T1: ("t1Changed", "_vm_pso.t1"),
             PsoField.EXCITATION_TARGET: ("excitationTargetChanged", "_vm_pso.excitation_target"),
-            PsoField.TIME_DOMAIN: ("performanceIndexChanged", "_vm_pso.performance_index"),
+            PsoField.ERROR_CRITERION: ("performanceIndexChanged", "_vm_pso.error_criterion"),
             PsoField.KP_MIN: ("kpMinChanged", "_vm_pso.kp_min"),
             PsoField.KP_MAX: ("kpMaxChanged", "_vm_pso.kp_max"),
             PsoField.TI_MIN: ("tiMinChanged", "_vm_pso.ti_min"),
@@ -230,6 +229,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
             PsoField.T1: self.tr("End Time"),
             PsoField.PERFORMANCE_INDEX: self.tr("Performance Index"),
             PsoField.TIME_DOMAIN: self.tr("Time Domain"),
+            PsoField.ERROR_CRITERION: self.tr("Error Criterion"),
             PsoField.PSO_BOUNDS: self.tr("PSO Bounds"),
             PsoField.KP_BOUNDS: self.tr("Kp Bounds"),
             PsoField.KP_MIN: self.tr("Minimum"),
@@ -247,7 +247,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
         for key in labels.keys():
             self.labels[key].setText(labels[key])
 
-        enums = {PsoField.EXCITATION_TARGET: ExcitationTarget, PsoField.TIME_DOMAIN: PerformanceIndex}
+        enums = {PsoField.EXCITATION_TARGET: ExcitationTarget, PsoField.ERROR_CRITERION: PerformanceIndex}
         for key, value in enums.items():
             data = {k: self._enum_translation(k) for k in value}
             self._cmb_add_item(self.field_widgets[key], data)
@@ -273,7 +273,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
 
         attributes: dict[PsoField, str] = {
             PsoField.EXCITATION_TARGET: "excitation_target",
-            PsoField.TIME_DOMAIN: "performance_index",
+            PsoField.ERROR_CRITERION: "error_criterion",
         }
         for key, attr in attributes.items():
             index = self.field_widgets[key].findData(getattr(self._vm_pso, attr))

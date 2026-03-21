@@ -110,10 +110,10 @@ class PsoConfigurationViewModel(BaseViewModel):
     )
 
     # -------------------
-    # performance_index
+    # error_criterion
     # -------------------
-    performance_index: PerformanceIndex = LoggedProperty(
-        path="_model_pso.performance_index",
+    error_criterion: PerformanceIndex = LoggedProperty(
+        path="_model_pso.error_criterion",
         signal="performanceIndexChanged",
         typ=PerformanceIndex
     )
@@ -295,7 +295,7 @@ class PsoConfigurationViewModel(BaseViewModel):
             ),
             excitation_target=self.excitation_target,
             function=self._model_function.selected_function.copy(),
-            performance_index=self.performance_index,
+            error_criterion=self.error_criterion,
             kp=(self.kp_min, self.kp_max),
             ti=(self.ti_min, self.ti_max),
             td=(self.td_min, self.td_max),

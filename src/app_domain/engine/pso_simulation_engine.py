@@ -48,7 +48,7 @@ class PsoSimulationEngine:
             l=l,
             n=n,
             solver=param.solver,
-            performance_index=param.performance_index,
+            performance_index=param.error_criterion,
             swarm_size=param.swarm_size,
             pre_compiling=False
         )

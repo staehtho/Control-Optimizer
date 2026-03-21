@@ -9,7 +9,7 @@ class PsoConfigurationModel:
     t1: float = 10.0
 
     excitation_target: ExcitationTarget = ExcitationTarget.REFERENCE
-    performance_index: PerformanceIndex = PerformanceIndex.ITAE
+    error_criterion: PerformanceIndex = PerformanceIndex.ITAE
 
     kp_min: float = 0.0
     kp_max: float = 10.0

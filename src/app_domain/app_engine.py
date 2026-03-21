@@ -187,7 +187,7 @@ class AppEngine:
             constraint=(-5, 5),
             excitation_target=ExcitationTarget.REFERENCE,
             function=StepFunction(),
-            performance_index=PerformanceIndex.ITAE,
+            error_criterion=PerformanceIndex.ITAE,
             kp=(0, 10),
             ti=(1e-9, 10),
             td=(0, 10),
