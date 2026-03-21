@@ -1,7 +1,7 @@
 """Widget binding helpers for Qt views."""
 from __future__ import annotations
 
-from PySide6.QtWidgets import QComboBox, QLineEdit, QSpinBox, QDoubleSpinBox, QCheckBox
+from PySide6.QtWidgets import QAbstractButton, QComboBox, QLineEdit, QSpinBox, QDoubleSpinBox, QWidget
 
 from app_types import FieldType
 from . import validation_helpers
@@ -11,12 +11,11 @@ from . import validation_helpers
 # Widget <-> ViewModel Synchronization
 # ============================================================
 
-def on_widget_changed(view, key: str | FieldType, attribute: str, *args, **kwargs) -> None:
+def on_widget_changed(view, widget: QWidget, key: str | FieldType, attribute: str, *args, **kwargs) -> None:
     """Handle changes from widgets and update the corresponding attribute."""
     if view.initializing:
         return
 
-    widget = view.field_widgets[key]
     validation_helpers.clear_input_error(widget)
 
     value = extract_widget_value(view, key, widget, *args, **kwargs)
@@ -28,7 +27,7 @@ def on_widget_changed(view, key: str | FieldType, attribute: str, *args, **kwarg
     set_attr_path(view, attribute, value)
 
 
-def extract_widget_value(view, key: str | FieldType, widget, *args, **kwargs):
+def extract_widget_value(view, key: str | FieldType, widget: QWidget, *args, **kwargs):
     """Extract a value from a supported widget type."""
     if isinstance(widget, QComboBox):
         # For QComboBox, Qt signals pass the index
@@ -49,7 +48,7 @@ def extract_widget_value(view, key: str | FieldType, widget, *args, **kwargs):
     if isinstance(widget, (QSpinBox, QDoubleSpinBox)):
         return widget.value()
 
-    if isinstance(widget, QCheckBox):
+    if isinstance(widget, QAbstractButton) and widget.isCheckable():
         return widget.isChecked()
 
     view.logger.warning(f"Widget type {type(widget)} not handled for key '{key}'")
@@ -116,7 +115,7 @@ def on_vm_changed(view, key: str | FieldType, attribute: str) -> None:
         if widget.value() != value:
             widget.setValue(value)
 
-    elif isinstance(widget, QCheckBox):
+    elif isinstance(widget, QAbstractButton) and widget.isCheckable():
         if widget.isChecked() != bool(value):
             widget.setChecked(bool(value))
 

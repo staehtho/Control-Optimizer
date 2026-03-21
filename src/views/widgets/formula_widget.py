@@ -35,6 +35,11 @@ class FormulaWidget(QLabel):
         self._formula = formula
         self._update_formula()
 
+    def clear_formula(self) -> None:
+        """Clear the formula string and refresh the pixmap."""
+        self._formula = ""
+        self._update_formula()
+
     def set_font_size(self, font_size: float) -> None:
         """Set the font size scale and refresh the pixmap."""
         self._font_size_scale = font_size

@@ -1,4 +1,4 @@
-from typing import Callable, Tuple
+from typing import Callable, Tuple, Optional
 import logging
 import numpy as np
 import sys
@@ -26,13 +26,20 @@ class PsoSimulationEngine:
     # Public API
     # ==========================================================
 
-    def run_simulation(self, param: PsoSimulationParam, callback: Callable[[int], None]) -> PsoResult:
+    def run_simulation(
+            self,
+            param: PsoSimulationParam,
+            callback: Callable[[int], None],
+            should_stop: Optional[Callable[[], bool]] = None,
+    ) -> PsoResult:
         """Run full PSO optimization workflow."""
 
         self._logger.info("Starting PSO simulation.")
 
         pid_cl, tf = self._create_controller(param)
         r, l, n = self._configure_excitation(param)
+
+        use_freq_metrics = param.gain_margin_enabled or param.phase_margin_enabled or param.stability_margin_enabled
 
         objective = PsoFunc(
             controller=pid_cl,
@@ -43,14 +50,23 @@ class PsoSimulationEngine:
             l=l,
             n=n,
             solver=param.solver,
-            performance_index=param.performance_index,
+            performance_index=param.error_criterion,
             swarm_size=param.swarm_size,
-            pre_compiling=False
+            pre_compiling=False,
+            use_freq_metrics=use_freq_metrics,
+            freq_low_exp=-5,  # TODO temp value
+            freq_high_exp=5,  # TODO temp value
+            freq_points=450,  # TODO temp value
+            gm_min_db=param.gain_margin if param.gain_margin_enabled else 0,
+            pm_min_deg=param.phase_margin if param.phase_margin_enabled else 0,
+            ms_max=param.stability_margin if param.stability_margin_enabled else 0,
+            use_overshoot_control=param.overshoot_control_enabled,
+            allowed_overshoot_pct=param.overshoot_control if param.overshoot_control_enabled else 0,
         )
 
         bounds = self._extract_bounds(param)
 
-        self._run_pso(param, objective, bounds, callback)
+        self._run_pso(param, objective, bounds, callback, should_stop)
 
         self._logger.info("PSO simulation finished.")
 
@@ -144,7 +160,14 @@ class PsoSimulationEngine:
     # PSO Execution
     # ==========================================================
 
-    def _run_pso(self, param: PsoSimulationParam, objective: PsoFunc, bounds, callback: Callable[[int], None]) -> None:
+    def _run_pso(
+            self,
+            param: PsoSimulationParam,
+            objective: PsoFunc,
+            bounds,
+            callback: Callable[[int], None],
+            should_stop: Optional[Callable[[], bool]] = None,
+    ) -> None:
         """Execute PSO optimization loop."""
 
         self._total_duration = 0.0
@@ -157,6 +180,9 @@ class PsoSimulationEngine:
         total_start = time.perf_counter()
 
         for iteration in range(param.pso_iteration):
+            if should_stop is not None and should_stop():
+                self._logger.info("PSO simulation interrupted before iteration %d.", iteration + 1)
+                raise InterruptedError("PSO simulation interrupted")
 
             iter_start = time.perf_counter()
 
@@ -182,6 +208,10 @@ class PsoSimulationEngine:
             )
 
             callback(iteration + 1)
+
+            if should_stop is not None and should_stop():
+                self._logger.info("PSO simulation interrupted after iteration %d.", iteration + 1)
+                raise InterruptedError("PSO simulation interrupted")
 
         self._total_duration = time.perf_counter() - total_start
 

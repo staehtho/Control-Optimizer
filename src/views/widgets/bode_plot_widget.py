@@ -64,7 +64,7 @@ class BodePlotWidget(PlotWidget):
     # Plotting
     # ============================================================
 
-    def _plot_series_on_axes(self, axs, series: list) -> None:
+    def _plot_series_on_axes(self, axs, series: list, position_to_index: dict[int, int] | None = None) -> None:
         """Plot all provided series on the Bode axes.
 
         This method delegates the actual drawing to helper methods
@@ -73,6 +73,7 @@ class BodePlotWidget(PlotWidget):
         Args:
             axs: List of matplotlib axes (margin axis, phase axis).
             series: List of data series to plot.
+            position_to_index: Optional mapping of subplot position to axis index (unused).
         """
 
         # Plot margin and phase curves
@@ -85,15 +86,18 @@ class BodePlotWidget(PlotWidget):
             legend.set_draggable(True)
 
     def _apply_grid(self, ax) -> None:
-        # Major ticks at 10^n
-        ax.xaxis.set_major_locator(LogLocator(base=10))
+        if self._vm.grid:
+            # Major ticks at 10^n
+            ax.xaxis.set_major_locator(LogLocator(base=10))
 
-        # Minor ticks at 2–9 * 10^n
-        ax.xaxis.set_minor_locator(LogLocator(base=10, subs=np.arange(2, 10) * 0.1))
+            # Minor ticks at 2–9 * 10^n
+            ax.xaxis.set_minor_locator(LogLocator(base=10, subs=np.arange(2, 10) * 0.1))
 
-        # Gridlines
-        ax.grid(self._vm.grid, which='major', linestyle='-')
-        ax.grid(self._vm.grid, which='minor', linestyle='--', alpha=0.5)
+            # Gridlines
+            ax.grid(True, which='major', linestyle='-')
+            ax.grid(True, which='minor', linestyle='--', alpha=0.5)
+        else:
+            ax.grid(False)
 
 
     def _plot_margin_and_phase_on_axes(self, axs, series: list) -> None:
@@ -170,3 +174,7 @@ class BodePlotWidget(PlotWidget):
 
         # Standard phase tick spacing for Bode plots
         ax_phase.set_yticks(np.arange(-180, 181, 45))
+
+    def _get_active_subplot_positions(self, series: list) -> list[int]:
+        # Bode plot always needs margin + phase axes even if no data is visible.
+        return [1, 2]

@@ -76,7 +76,7 @@ class SimulationView(ViewMixin, QWidget):
     def _create_function_frame(self) -> SectionFrame:
         """Create the excitation function tab card."""
         frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
+        frame, frame_layout = self._create_card(parent=self)
 
         # Function Tab
         self._function_tab = QTabWidget(frame)
@@ -100,7 +100,7 @@ class SimulationView(ViewMixin, QWidget):
     def _create_cl_response_frame(self) -> SectionFrame:
         """Create the closed-loop response plot card."""
         frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
+        frame, frame_layout = self._create_card(parent=self)
 
         subplot_cfgs = {
             1: SubplotConfiguration(
@@ -164,8 +164,8 @@ class SimulationView(ViewMixin, QWidget):
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("Simulation"))
-        self._frm_function.set_title(self.tr("Excitation Function"))
-        self._frm_response.set_title(self.tr("Closed Loop"))
+        self._frm_function.setText(self.tr("Excitation Function"))
+        self._frm_response.setText(self.tr("Closed Loop"))
 
         # translate pages
         for text, i in zip(ExcitationTarget, range(self._function_tab.count())):

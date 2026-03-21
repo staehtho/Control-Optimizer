@@ -12,7 +12,9 @@ BLOCK_DIAGRAM_DIR = RESOURCES_DIR / "block_diagram"
 
 @dataclass(frozen=True)
 class BlockDiagram:
-    controller_base: str = "controller_base.svg"
+    blank_base: str = "blank_base.svg"
+    controller_in: str = "controller_in.svg"
+    controller_out: str = "controller_out.svg"
     p_path: str = "p_path.svg"
     d_path: str = "d_path.svg"
     i_path: str = "i_path.svg"

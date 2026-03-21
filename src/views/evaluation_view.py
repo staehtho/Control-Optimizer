@@ -71,8 +71,6 @@ class EvaluationView(ViewMixin, QWidget):
         self._vm_evaluator = vm_evaluator
         self._vm_plots = vm_plots
 
-        self._plot_tab_pages: dict[str, QWidget] = {}
-
         self._latex_labels: dict[str, QLabel] = {}
 
         ViewMixin.__init__(self, ui_context)
@@ -114,7 +112,7 @@ class EvaluationView(ViewMixin, QWidget):
     def _create_result_frame(self) -> SectionFrame:
         """Create the PSO result summary card."""
         frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
+        frame, frame_layout = self._create_card(parent=self)
 
         grid_layout = self._create_grid(FIELDS.get("result"))
 
@@ -125,25 +123,21 @@ class EvaluationView(ViewMixin, QWidget):
     def _create_plot_frame(self) -> SectionFrame:
         """Create the plot card with time/frequency tabs and diagrams."""
         frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
+        frame, frame_layout = self._create_card(parent=self)
 
         self._plot_tab = QTabWidget(frame)
         frame_layout.addWidget(self._plot_tab)
 
         widget_time_domain = self._create_time_domain_widget()
-        self._plot_tab_pages.setdefault(TIME_DOMAIN, widget_time_domain)
         self._plot_tab.addTab(widget_time_domain, TIME_DOMAIN)
 
         widget_frequency_domain = self._create_frequency_domain_widget()
-        self._plot_tab_pages.setdefault(FREQUENCY_DOMAIN, widget_frequency_domain)
         self._plot_tab.addTab(widget_frequency_domain, FREQUENCY_DOMAIN)
 
         widget_blockdiagram = self._create_block_diagram_widget()
-        self._plot_tab_pages.setdefault(BLOCK_DIAGRAM, widget_blockdiagram)
         self._plot_tab.addTab(widget_blockdiagram, BLOCK_DIAGRAM)
 
         widget_tf = self._create_transfer_function_widget()
-        self._plot_tab_pages.setdefault(TRANSFER_FUNCTION, widget_tf)
         self._plot_tab.addTab(widget_tf, TRANSFER_FUNCTION)
 
         return frame
@@ -184,40 +178,19 @@ class EvaluationView(ViewMixin, QWidget):
 
     def _create_block_diagram_widget(self) -> QWidget:
         """Create the closed-loop block diagram widget."""
-        svgs = [
-            (BlockDiagram.closed_loop, (0, 0)),
-            (BlockDiagram.controller_base, (100, 0)),
-            (BlockDiagram.p_path, (100, 0)),
-            (BlockDiagram.d_path, (100, 0))
-        ]
 
-        match self._vm_evaluator.anti_windup:
-            case AntiWindup.BACKCALCULATION:
-                svgs.append((BlockDiagram.backcalculation, (100, 0)))
-            case AntiWindup.CLAMPING:
-                svgs.append((BlockDiagram.clamping, (100, 0)))
-            case AntiWindup.CONDITIONAL:
-                svgs.append((BlockDiagram.conditional, (100, 0)))
-            case unknown_value:
-                raise ValueError(
-                    f"Unsupported anti-windup method: {unknown_value!r}. "
-                    "Expected one of: BACKCALCULATION, CLAMPING, CONDITIONAL."
-                )
+        svg_widget = AspectRatioSvgWidget()
+        svg_widget.set_initial_scale(2)
+        self.field_widgets.setdefault(BLOCK_DIAGRAM, svg_widget)
+        self._load_block_diagram()
 
-        svg_layers = []
-        for svg, translate in svgs:
-            svg_path = BLOCK_DIAGRAM_DIR / svg
-            svg_layers.append(SvgLayer(svg_path.read_text(encoding="utf-8"), translate=translate))
-
-        merged_svg = merge_svgs(svg_layers)
-        recolored = recolor_svg(merged_svg, self._vm_theme.get_svg_color_map())
-        return AspectRatioSvgWidget(svg_bytes=recolored.encode("utf-8"), initial_scale=2)
+        return svg_widget
 
     def _create_transfer_function_widget(self) -> QWidget:
         """Create the transfer function summary widget."""
         widget = QWidget(self)
 
-        grid_layout = self._create_grid(FIELDS.get("tf"), 4)
+        grid_layout = self._create_grid(FIELDS.get("tf"))
         widget.setLayout(grid_layout)
 
         tf: dict[EvaluationField, str] = {
@@ -271,8 +244,8 @@ class EvaluationView(ViewMixin, QWidget):
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("Evaluation"))
-        self._frm_result.set_title(self.tr("PSO Result"))
-        self._frm_plot.set_title(self.tr("Closed Loop"))
+        self._frm_result.setText(self.tr("PSO Result"))
+        self._frm_plot.setText(self.tr("Closed Loop"))
 
         # translate pages
         self._plot_tab.setTabText(0, self.tr("Time Domain"))
@@ -307,6 +280,7 @@ class EvaluationView(ViewMixin, QWidget):
         """Update theme-dependent UI elements."""
         icon = self._load_icon(Icons.evaluation, self._titel_icon_size)
         self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
+        self._load_block_diagram()
 
     # ============================================================
     # ViewModel change handlers
@@ -464,3 +438,44 @@ class EvaluationView(ViewMixin, QWidget):
 
         for key, value in text.items():
             self.field_widgets.get(key).setText(PSO_RESULT_TEMPLATE.get(key) % value)
+
+    def _load_block_diagram(self) -> None:
+        """Build and recolor the closed loop block diagram SVG."""
+        x_offset = 100
+        y = 125
+        node_x = 150
+        sum_x = 475
+        svgs = [
+            (BlockDiagram.closed_loop, (0, 0)),
+            (BlockDiagram.controller_in, (x_offset, y)),
+            (BlockDiagram.controller_out, (sum_x + x_offset, y)),
+            (BlockDiagram.p_path, (node_x + x_offset, y)),
+            (BlockDiagram.d_path, (node_x + x_offset, y))
+        ]
+
+        match self._vm_evaluator.anti_windup:
+            case AntiWindup.BACKCALCULATION:
+                svgs.append((BlockDiagram.backcalculation, (node_x + x_offset, y)))
+            case AntiWindup.CLAMPING:
+                svgs.append((BlockDiagram.clamping, (node_x + x_offset, y)))
+            case AntiWindup.CONDITIONAL:
+                svgs.append((BlockDiagram.conditional, (node_x + x_offset, y)))
+            case unknown_value:
+                raise ValueError(
+                    f"Unsupported anti-windup method: {unknown_value!r}. "
+                    "Expected one of: BACKCALCULATION, CLAMPING, CONDITIONAL."
+                )
+
+        svg_layers = []
+        for svg, translate in svgs:
+            svg_path = BLOCK_DIAGRAM_DIR / svg
+            svg_layers.append(SvgLayer(svg_path.read_text(encoding="utf-8"), translate=translate))
+
+        merged_svg = merge_svgs(svg_layers)
+
+        # set min and max constraint
+        merged_svg = merged_svg.replace("min: ###", f"min: {self._vm_evaluator.constraint_min}")
+        merged_svg = merged_svg.replace("max: ###", f"max: {self._vm_evaluator.constraint_max}")
+
+        recolored = recolor_svg(merged_svg, self._vm_theme.get_svg_color_map())
+        self.field_widgets.get(BLOCK_DIAGRAM).set_svg_bytes(recolored.encode("utf-8"))

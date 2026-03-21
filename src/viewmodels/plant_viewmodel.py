@@ -1,14 +1,12 @@
-import re
-
 from PySide6.QtCore import QObject, Signal, Slot, QTimer
 import numpy as np
 from numpy import ndarray
+from sympy import SympifyError
 
-from app_types import PlantResponseContext
+from app_types import PlantResponseContext, PlantField, ValidationResult
 from models import ModelContainer, PlantModel, SettingsModel
 from service import SimulationService
-from utils import LatexRenderer, LoggedProperty
-from app_types import PlantField, ValidationResult
+from utils import LatexRenderer, LoggedProperty, str2array, expr2array, array2expr, expr2latex, array2latex
 from .base_viewmodel import BaseViewModel
 
 
@@ -16,8 +14,11 @@ class PlantViewModel(BaseViewModel):
 
     numChanged = Signal()
     denChanged = Signal()
+    zeroChanged = Signal()
+    poleChanged = Signal()
     isValidChanged = Signal()
-    tfChanged = Signal()
+    polyTfChanged = Signal()
+    binomTfChanged = Signal()
     stepResponseChanged = Signal(ndarray, ndarray)
 
     def __init__(self, model_container: ModelContainer, simulation_service: SimulationService, parent: QObject = None):
@@ -28,22 +29,24 @@ class PlantViewModel(BaseViewModel):
         self._settings: SettingsModel = model_container.model_settings
         self._simulation_service = simulation_service
 
-        self._last_tf = self._model_plant.tf
+        self._last_tf_poly = self._model_plant.tf_poly
+        self._last_tf_binom = self._model_plant.tf_binom
+
+        self._active_tf_tab: int = 0
+
+        self._was_valid: bool = False
 
         self._num_input: str = ""
         self._den_input: str = ""
+
+        self._zero_input: str = ""
+        self._pole_input: str = ""
 
         self._step_time: tuple[float, float] = (0, 10)
 
         self._recalc_timer = QTimer()
         self._recalc_timer.setSingleShot(True)
         self._recalc_timer.timeout.connect(self._compute_step_response_delayed)
-
-        self._connect_signals()
-
-    def _connect_signals(self) -> None:
-        # No model signals to connect (passive model)
-        ...
 
     # -------------------
     # num
@@ -59,7 +62,7 @@ class PlantViewModel(BaseViewModel):
         self._num_input = value
         self.logger.debug(f"Internal _num_input updated (value={self._num_input})")
 
-        arr = self._str2array(value)
+        arr = str2array(value)
 
         if len(arr) == 0:
             self._verify(
@@ -72,7 +75,7 @@ class PlantViewModel(BaseViewModel):
             self.logger.debug("Skipped 'num' update (string -> array conversion failed)")
             return
 
-        if not self._validate_num_den_candidate(num=arr, den=self._model_plant.den, field=PlantField.NUM):
+        if not self._validate_poly_candidate(num=arr, den=self._model_plant.den, field=PlantField.NUM):
             self.logger.debug("Skipped 'num' update (num/den relation validation failed)")
             return
 
@@ -81,22 +84,15 @@ class PlantViewModel(BaseViewModel):
             return
 
         self.logger.debug(f"Updating model.num with {arr}")
-        was_valid = self._model_plant.is_valid
 
         with self.updating("plant_num"):
             self._model_plant.num = arr
-            is_valid = self._model_plant.is_valid
+            self._validate_model()
 
-            if is_valid != was_valid:
-                self.logger.debug(f"Emitting isValidChanged after num update ({was_valid} -> {is_valid})")
-                self.isValidChanged.emit()
-
-            if is_valid:
-                self._on_model_changed()
-
-            self.logger.debug("Emitting numChanged after model update")
-            self._update_tf()
+            self._update_transfer_functions()
             self.numChanged.emit()
+
+            self._sync_poly_with_binom("num", "zero")
 
     num = LoggedProperty(
         path="_num_input",
@@ -119,7 +115,7 @@ class PlantViewModel(BaseViewModel):
         self._den_input = value
         self.logger.debug(f"Internal _den_input updated (value={self._den_input})")
 
-        arr = self._str2array(value)
+        arr = str2array(value)
 
         if len(arr) == 0:
             self._verify(
@@ -132,7 +128,7 @@ class PlantViewModel(BaseViewModel):
             self.logger.debug("Skipped 'den' update (string -> array conversion failed)")
             return
 
-        if not self._validate_num_den_candidate(num=self._model_plant.num, den=arr, field=PlantField.DEN):
+        if not self._validate_poly_candidate(num=self._model_plant.num, den=arr, field=PlantField.DEN):
             self.logger.debug("Skipped 'den' update (num/den relation validation failed)")
             return
 
@@ -141,26 +137,101 @@ class PlantViewModel(BaseViewModel):
             return
 
         self.logger.debug(f"Updating model.den with {arr}")
-        was_valid = self._model_plant.is_valid
 
         with self.updating("plant_den"):
             self._model_plant.den = arr
-            is_valid = self._model_plant.is_valid
+            self._validate_model()
 
-            if is_valid != was_valid:
-                self.logger.debug(f"Emitting isValidChanged after den update ({was_valid} -> {is_valid})")
-                self.isValidChanged.emit()
-
-            if is_valid:
-                self._on_model_changed()
-
-            self.logger.debug("Emitting denChanged after model update")
-            self._update_tf()
+            self._update_transfer_functions()
             self.denChanged.emit()
+
+            self._sync_poly_with_binom("den", "pole")
 
     den = LoggedProperty(
         path="_den_input",
         signal="denChanged",
+        typ=str,
+        read_only=True,
+    )
+
+    @Slot(str)
+    def update_zero(self, value: str) -> None:
+        self.logger.debug(f"update_zero called (value={value})")
+
+        if self._zero_input == value:
+            self.logger.debug("Skipped 'zero' update (same string value)")
+            return
+
+        self._zero_input = value
+        self.logger.debug(f"Internal _zero_input updated (value={self._zero_input})")
+
+        try:
+            arr = expr2array(value)
+
+            if self._model_plant.num == arr:
+                self.logger.debug("Skipped 'zero' update (model already has same array value)")
+                return
+
+            with self.updating("plant_zero"):
+                self._model_plant.num = arr
+                self._validate_model()
+
+                self._update_transfer_functions()
+                self.zeroChanged.emit()
+
+                self._sync_poly_with_binom("num", "zero")
+
+        except SympifyError, AttributeError, TypeError:
+            self._verify(
+                PlantField.ZERO,
+                ValidationResult(False, message=self.tr("Invalid expression: enter a valid expression."))
+            )
+
+
+    zero = LoggedProperty(
+        path="_zero_input",
+        signal="zeroChanged",
+        typ=str,
+        read_only=True,
+    )
+
+    @Slot(str)
+    def update_pole(self, value: str) -> None:
+        self.logger.debug(f"update_pole called (value={value})")
+
+        if self._pole_input == value:
+            self.logger.debug("Skipped 'pole' update (same string value)")
+            return
+
+        self._pole_input = value
+        self.logger.debug(f"Internal _pole_input updated (value={self._pole_input})")
+
+        try:
+            arr = expr2array(value)
+
+            if self._model_plant.den == arr:
+                self.logger.debug("Skipped 'pole' update (model already has same array value)")
+                return
+
+            with self.updating("plant_pole"):
+                self._model_plant.den = arr
+                self._validate_model()
+
+                self._update_transfer_functions()
+                self.poleChanged.emit()
+
+                self._sync_poly_with_binom("den", "pole")
+
+        except SympifyError, AttributeError, TypeError:
+            self._verify(
+                PlantField.POLE,
+                ValidationResult(False, message=self.tr("Invalid expression: enter a valid expression."))
+            )
+
+
+    pole = LoggedProperty(
+        path="_pole_input",
+        signal="poleChanged",
         typ=str,
         read_only=True,
     )
@@ -178,35 +249,84 @@ class PlantViewModel(BaseViewModel):
     # -------------------
     # formula
     # -------------------
-    def get_tf(self) -> str:
+    def get_poly_tf(self) -> str:
+        return self._model_plant.tf_poly
+
+    def get_binom_tf(self) -> str:
+        return self._model_plant.tf_binom
+
+    def get_current_tf(self) -> str:
         return self._model_plant.tf
 
-    def _update_tf(self) -> None:
-        self.logger.debug("Updating transfer function ...")
+    @Slot(int)
+    def update_tf_tab(self, index: int) -> None:
+        if self._active_tf_tab == index:
+            return
+        self._active_tf_tab = index
+        self._sync_current_tf()
+        self.polyTfChanged.emit()
+        self.binomTfChanged.emit()
+
+    def _update_poly_tf(self) -> None:
+        self.logger.debug("Updating polynomial transfer function ...")
 
         if not self._model_plant.is_valid:
-            self.logger.debug("Model is not valid -> using last valid transfer function")
-            self._model_plant.tf = self._last_tf
-            self.tfChanged.emit()
+            self.logger.debug("Model is not valid -> using last valid polynomial transfer function")
+            self._model_plant.tf_poly = self._last_tf_poly
             return
 
         try:
             self.logger.debug(f"Numerator raw: {self._model_plant.num}")
             self.logger.debug(f"Denominator raw: {self._model_plant.den}")
 
-            num = LatexRenderer.array2polynom(self._model_plant.num)
-            den = LatexRenderer.array2polynom(self._model_plant.den)
+            num = array2latex(self._model_plant.num)
+            den = array2latex(self._model_plant.den)
 
-            self._model_plant.tf = rf"\frac{{{num}}}{{{den}}}"
-            self._last_tf = self._model_plant.tf
+            self._model_plant.tf_poly = rf"\frac{{{num}}}{{{den}}}"
+            self._last_tf_poly = self._model_plant.tf_poly
 
-            self.logger.debug(f"Generated transfer function: {self._model_plant.tf}")
+            self.logger.debug(f"Generated transfer function (poly): {self._model_plant.tf_poly}")
 
         except ValueError:
             self.logger.exception("Error while building transfer function")
-            self._model_plant.tf = self._last_tf
+            self._model_plant.tf_poly = self._last_tf_poly
 
-        self.tfChanged.emit()
+    def _update_binom_tf(self) -> None:
+        self.logger.debug("Updating binomial transfer function ...")
+
+        if not self._model_plant.is_valid:
+            self.logger.debug("Model is not valid -> using last valid binomial transfer function")
+            self._model_plant.tf_binom = self._last_tf_binom
+            return
+
+        try:
+            num_expr = array2expr(self._model_plant.num)
+            den_expr = array2expr(self._model_plant.den)
+
+            num = expr2latex(num_expr)
+            den = expr2latex(den_expr)
+
+            self._model_plant.tf_binom = rf"\frac{{{num}}}{{{den}}}"
+            self._last_tf_binom = self._model_plant.tf_binom
+
+            self.logger.debug(f"Generated transfer function (binom): {self._model_plant.tf_binom}")
+
+        except Exception:
+            self.logger.exception("Error while building binomial transfer function")
+            self._model_plant.tf_binom = self._last_tf_binom
+
+    def _update_transfer_functions(self) -> None:
+        self._update_poly_tf()
+        self._update_binom_tf()
+        self._sync_current_tf()
+        self.polyTfChanged.emit()
+        self.binomTfChanged.emit()
+
+    def _sync_current_tf(self) -> None:
+        if self._active_tf_tab == 1:
+            self._model_plant.tf = self._model_plant.tf_binom
+        else:
+            self._model_plant.tf = self._model_plant.tf_poly
 
     # -------------------
     # step_response
@@ -248,22 +368,18 @@ class PlantViewModel(BaseViewModel):
     # -------------------
     # Helper methods
     # -------------------
-    def _str2array(self, text: str) -> list[float]:
-        if not text.strip():
-            return []
+    def _validate_model(self) -> None:
 
-        try:
-            # Separators: whitespace, comma, semicolon.
-            parts = re.split(r"[,\s;]+", text.strip())
+        is_valid = self._model_plant.is_valid
 
-            result = [float(p.replace(",", ".")) for p in parts if p]
+        if is_valid != self._was_valid:
+            self.logger.debug(f"Emitting isValidChanged after den update ({self._was_valid} -> {is_valid})")
+            self.isValidChanged.emit()
 
-            self.logger.debug(f"Parsed '{text}' -> {result}")
-            return result
+        if is_valid:
+            self._on_model_changed()
 
-        except ValueError:
-            self.logger.debug(f"Cannot parse '{text}'")
-            return []
+        self._was_valid = is_valid
 
     @staticmethod
     def _validate_non_empty_array(*, arr: list[float], message: str) -> ValidationResult:
@@ -271,7 +387,7 @@ class PlantViewModel(BaseViewModel):
             return ValidationResult(False, message)
         return ValidationResult(True)
 
-    def _validate_num_den_candidate(self, *, num: list[float], den: list[float], field: PlantField) -> bool:
+    def _validate_poly_candidate(self, *, num: list[float], den: list[float], field: PlantField) -> bool:
         if len(num) == 0 or len(den) == 0:
             return True
 
@@ -299,3 +415,26 @@ class PlantViewModel(BaseViewModel):
             ),
         )
 
+    def _sync_poly_with_binom(self, poly_attr: str, binom_attr: str) -> None:
+        """sync the polynom representation with binomial representation of the plant"""
+
+        # check witch attribute has called the methode -> sync the oter attribute
+        # poly to binom
+        if not self.check_update_allowed(f"plant_{poly_attr}"):
+            arr = str2array(getattr(self, f"_{poly_attr}_input"))
+            expr = array2expr(arr)
+
+            setattr(self, f"_{binom_attr}_input", expr)
+            getattr(self, f"{binom_attr}Changed").emit()
+
+        if not self.check_update_allowed(f"plant_{binom_attr}"):
+            try:
+                arr = expr2array(getattr(self, f"_{binom_attr}_input"))
+
+                arr_str = f"{arr}".replace(",", "").replace("[", "").replace("]", "")
+
+                setattr(self, f"_{poly_attr}_input", arr_str)
+                getattr(self, f"{poly_attr}Changed").emit()
+
+            except SympifyError:
+                self.logger.warning("Error while building poly representation")

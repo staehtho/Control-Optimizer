@@ -187,12 +187,20 @@ class AppEngine:
             constraint=(-5, 5),
             excitation_target=ExcitationTarget.REFERENCE,
             function=StepFunction(),
-            performance_index=PerformanceIndex.ITAE,
+            error_criterion=PerformanceIndex.ITAE,
             kp=(0, 10),
             ti=(1e-9, 10),
             td=(0, 10),
             swarm_size=40,
-            pso_iteration=1  # only one iteration for warmup
+            pso_iteration=1,  # only one iteration for warmup
+            overshoot_control=5,
+            overshoot_control_enabled=True,
+            gain_margin=16,
+            gain_margin_enabled=True,
+            phase_margin=60,
+            phase_margin_enabled=True,
+            stability_margin=2,
+            stability_margin_enabled=True
         )
 
         self.logger.info("Starting PSO engine warmup.")

@@ -10,19 +10,31 @@ class FieldConfig:
     key: str | FieldType
     widget_type: Type[QWidget] = QLabel
     create_label: bool = True
-    validator: object = QDoubleValidator
+    validator: object = QDoubleValidator()
+    toggleable: bool = False
+    toggle_default: bool = True
+
+    def __len__(self) -> int:
+        return 1
 
 
 @dataclass
 class SectionConfig:
     key: str | FieldType
-    fields: list[FieldConfig]
+    fields: list[FieldConfig | SectionConfig]
     columns: int = 2
+    toggleable: bool = False
 
     def __post_init__(self):
         if self.columns % 2 != 0:
             raise ValueError(f"Columns {self.columns} must be even")
 
+    def __len__(self) -> int:
+        count = 0
+        for f in self.fields:
+            count += len(f)
+
+        return count // (self.columns // 2) + 1
 
 class FieldType(Enum):
     ...
@@ -37,8 +49,15 @@ class PlotField(FieldType):
 
 # PlantViewModel / PlantView
 class PlantField(FieldType):
+    POLYNOM = "polynom"
     NUM = "num"
     DEN = "den"
+    POLYNOM_FORMULA = "polynom_formula"
+
+    BINOMINAL = "binomial"
+    ZERO = "zero"
+    POLE = "pole"
+    BINOMINAL_FORMULA = "binomial_formula"
 
 
 # ControllerViewModel / ControllerView
@@ -55,6 +74,10 @@ class ControllerField(FieldType):
 
 # PsoConfigurationViewModel / PsoConfigurationView
 class PsoField(FieldType):
+    PLANT = "plant"
+    PLANT_TF = "plant_tf"
+
+    EXCITATION = "excitation"
     EXCITATION_TARGET = "excitation_target"
     FUNCTION_FORMULA = "function_formula"
 
@@ -64,20 +87,26 @@ class PsoField(FieldType):
 
     PERFORMANCE_INDEX = "performance_index"
     TIME_DOMAIN = "time_domain"
+    ERROR_CRITERION = "error_criterion"
+    OVERSHOOT_CONTROL = "overshoot_control"
+    FREQUENCY_DOMAIN = "frequency_domain"
+    GAIN_MARGIN = "gain_margin"
+    PHASE_MARGIN = "phase_margin"
+    STABILITY_MARGIN = "stability_margin"
 
+    PSO_BOUNDS = "pso_bounds"
     KP_BOUNDS = "kp_bounds"
     KP_MIN = "kp_min"
     KP_MAX = "kp_max"
-
     TI_BOUNDS = "ti_bounds"
     TI_MIN = "ti_min"
     TI_MAX = "ti_max"
-
     TD_BOUNDS = "td_bounds"
     TD_MIN = "td_min"
     TD_MAX = "td_max"
 
     RUN_PSO = "run_pso"
+    INTERRUPT_PSO = "interrupt_pso"
 
 
 # EvaluationViewModel / EvaluationView

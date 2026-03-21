@@ -28,6 +28,8 @@ def create_grid(view, fields: list[FieldConfig | SectionConfig], columns: int = 
     layout.setHorizontalSpacing(10)
     layout.setVerticalSpacing(10)
     layout.setContentsMargins(0, 0, 0, 0)
+    for i in range(columns):
+        layout.setColumnStretch(i, 1)
     parent_widget = view if isinstance(view, QWidget) else None
 
     for col in range(columns):
@@ -49,20 +51,14 @@ def add_section(
         columns: int,
         parent_widget: Optional[QWidget],
 ) -> None:
-    frame = QFrame(parent_widget)
-    frame.setObjectName("card")
-
-    frame_layout = QVBoxLayout(frame)
-    label = QLabel(frame)
-    label.setObjectName("sectionTitle")
-    frame_layout.addWidget(label)
-    view.labels[section.key] = label
+    frame, frame_layout = create_card("", toggleable=section.toggleable, parent=parent_widget)
+    view.labels[section.key] = frame
 
     inner_layout = create_grid(view, section.fields, section.columns)
     frame_layout.addLayout(inner_layout)
 
     # Calculate inner rows
-    inner_rows = len(section.fields) + 1
+    inner_rows = len(section)
 
     # Find first empty position for section
     row, col = find_next_cell(layout, columns)
@@ -80,8 +76,15 @@ def add_field(
     widget = create_widget(field, parent_widget)
     view.field_widgets[field.key] = widget
 
-    if field.create_label:
-        label = QLabel(parent_widget)
+    if field.create_label or field.toggleable:
+        if field.toggleable:
+            from views.widgets.toggle_switch import ToggleSwitch, TextPosition
+            label = ToggleSwitch("", TextPosition.Right, parent_widget)
+            label.setChecked(field.toggle_default)
+            widget.setEnabled(field.toggle_default)
+            label.toggled.connect(widget.setEnabled)
+        else:
+            label = QLabel(parent_widget)
         layout.addWidget(label, row, col)
         view.labels[field.key] = label
 
@@ -99,7 +102,7 @@ def create_widget(field: FieldConfig, parent_widget: Optional[QWidget]) -> QWidg
         if parent_widget is not None and widget.parent() is None:
             widget.setParent(parent_widget)
     if isinstance(widget, QLineEdit):
-        widget.setValidator(field.validator())
+        widget.setValidator(field.validator)
     return widget
 
 
@@ -146,11 +149,19 @@ def create_page_layout() -> QVBoxLayout:
     return layout
 
 
-def create_card(parent: Optional[QWidget] = None) -> tuple[QFrame, QVBoxLayout]:
+def create_card(
+        title: Optional[str],
+        toggleable: Optional[bool] = False,
+        parent: Optional[QWidget] = None
+) -> tuple[QFrame, QVBoxLayout]:
     """Create a themed card container using SectionFrame."""
-    from views.widgets import SectionFrame
+    if not toggleable:
+        from views.widgets import SectionFrame
+        frame = SectionFrame(title=title, parent=parent)
+    else:
+        from views.widgets import ToggleableSectionFrame
+        frame = ToggleableSectionFrame(title=title, parent=parent)
 
-    frame = SectionFrame(parent=parent)
     frame.setObjectName("card")
     frame_layout = frame.content_layout()
     frame_layout.setContentsMargins(16, 14, 16, 14)

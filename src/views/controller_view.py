@@ -68,7 +68,7 @@ class ControllerView(ViewMixin, QWidget):
     def _create_controller_frame(self) -> SectionFrame:
         """Create the controller configuration card."""
         frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
+        frame, frame_layout = self._create_card(parent=self)
 
         frame_layout.addLayout(self._create_grid(FIELDS))
 
@@ -91,8 +91,8 @@ class ControllerView(ViewMixin, QWidget):
         }
         for key, value in attributes.items():
             attr, vm_attr, value_type = value
-            getattr(self.field_widgets[key], attr).connect(
-                partial(self._on_widget_changed, key, vm_attr, value_type=value_type))
+            widget = self.field_widgets[key]
+            getattr(widget, attr).connect(partial(self._on_widget_changed, widget, key, vm_attr, value_type=value_type))
 
         self.field_widgets.get(ControllerField.ANTI_WINDUP).currentIndexChanged.connect(
             self._on_index_changed_anti_windup)
@@ -103,12 +103,8 @@ class ControllerView(ViewMixin, QWidget):
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
         self._vm_controller.validationFailed.connect(self._on_validation_failed)
-        self._vm_controller.constraintMinChanged.connect(
-            partial(self._on_vm_changed, ControllerField.CONSTRAINT_MIN, "_vm_controller.constraint_min")
-        )
-        self._vm_controller.constraintMaxChanged.connect(
-            partial(self._on_vm_changed, ControllerField.CONSTRAINT_MAX, "_vm_controller.constraint_max")
-        )
+        self._vm_controller.constraintMinChanged.connect(self._on_vm_constraint_min_changed)
+        self._vm_controller.constraintMaxChanged.connect(self._on_vm_constraint_max_changed)
         self._vm_controller.antiWindupChanged.connect(
             partial(self._on_vm_changed, ControllerField.ANTI_WINDUP, "_vm_controller.anti_windup")
         )
@@ -119,7 +115,7 @@ class ControllerView(ViewMixin, QWidget):
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("Controller"))
-        self._frm_controller.set_title(self.tr("Parameters"))
+        self._frm_controller.setText(self.tr("Parameters"))
 
         labels = {
             ControllerField.CONTROLLER_TYPE: self.tr("Controller Type"),
@@ -162,6 +158,19 @@ class ControllerView(ViewMixin, QWidget):
         self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
 
     # ============================================================
+    # ViewModel change handlers
+    # ============================================================
+    def _on_vm_constraint_min_changed(self) -> None:
+        """Handle VM constraint minimum changed."""
+        self._on_vm_changed(ControllerField.CONSTRAINT_MIN, "_vm_controller.constraint_min")
+        self._load_block_diagram()
+
+    def _on_vm_constraint_max_changed(self) -> None:
+        """Handle VM constraint maximum changed."""
+        self._on_vm_changed(ControllerField.CONSTRAINT_MAX, "_vm_controller.constraint_max")
+        self._load_block_diagram()
+
+    # ============================================================
     # UI event handlers
     # ============================================================
     def _on_index_changed_anti_windup(self, index: int) -> None:
@@ -176,19 +185,24 @@ class ControllerView(ViewMixin, QWidget):
     # ============================================================
     def _load_block_diagram(self) -> None:
         """Build and recolor the controller block diagram SVG."""
+        y = 125
+        node_x = 150
+        sum_x = 475
         svgs = [
-            BlockDiagram.controller_base,
-            BlockDiagram.p_path,
-            BlockDiagram.d_path
+            (BlockDiagram.blank_base, (0, 0)),
+            (BlockDiagram.controller_in, (0, y)),
+            (BlockDiagram.controller_out, (sum_x, y)),
+            (BlockDiagram.p_path, (node_x, y)),
+            (BlockDiagram.d_path, (node_x, y))
         ]
 
         match self._vm_controller.anti_windup:
             case AntiWindup.BACKCALCULATION:
-                svgs.append(BlockDiagram.backcalculation)
+                svgs.append((BlockDiagram.backcalculation, (node_x, y)))
             case AntiWindup.CLAMPING:
-                svgs.append(BlockDiagram.clamping)
+                svgs.append((BlockDiagram.clamping, (node_x, y)))
             case AntiWindup.CONDITIONAL:
-                svgs.append(BlockDiagram.conditional)
+                svgs.append((BlockDiagram.conditional, (node_x, y)))
             case unknown_value:
                 raise ValueError(
                     f"Unsupported anti-windup method: {unknown_value!r}. "
@@ -196,10 +210,15 @@ class ControllerView(ViewMixin, QWidget):
                 )
 
         svg_layers = []
-        for svg in svgs:
+        for svg, translate in svgs:
             svg_path = BLOCK_DIAGRAM_DIR / svg
-            svg_layers.append(SvgLayer(svg_path.read_text(encoding="utf-8")))
+            svg_layers.append(SvgLayer(svg_path.read_text(encoding="utf-8"), translate=translate))
 
         merged_svg = merge_svgs(svg_layers)
+
+        # set min and max constraint
+        merged_svg = merged_svg.replace("min: ###", f"min: {self._vm_controller.constraint_min}")
+        merged_svg = merged_svg.replace("max: ###", f"max: {self._vm_controller.constraint_max}")
+
         recolored = recolor_svg(merged_svg, self._vm_theme.get_svg_color_map())
         self.field_widgets.get(ControllerField.BLOCK_DIAGRAM).set_svg_bytes(recolored.encode("utf-8"))

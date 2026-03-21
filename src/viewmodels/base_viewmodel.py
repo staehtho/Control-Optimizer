@@ -113,8 +113,6 @@ class BaseViewModel(QObject):
             ValidationResult indicating whether the constraint is satisfied.
         """
 
-        valid = True
-
         if relation == "<":
             valid = value < other
         elif relation == ">":

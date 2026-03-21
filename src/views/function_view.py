@@ -70,7 +70,7 @@ class FunctionView(ViewMixin, QWidget):
     def _create_function_frame(self) -> SectionFrame:
         """Create the function configuration card."""
         frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
+        frame, frame_layout = self._create_card(parent=self)
 
         excluded_function_types: list[FunctionTypes] = [
             FunctionTypes.NULL,
@@ -90,7 +90,7 @@ class FunctionView(ViewMixin, QWidget):
     def _create_plot_frame(self) -> SectionFrame:
         """Create the function plot card."""
         frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
+        frame, frame_layout = self._create_card(parent=self)
 
         self._plot_cfg = PlotWidgetConfiguration(
             context="FunctionView",
@@ -132,8 +132,8 @@ class FunctionView(ViewMixin, QWidget):
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("Excitation Function"))
-        self._frm_function.set_title(self.tr("Function"))
-        self._frm_plot.set_title(self.tr("Function Plot"))
+        self._frm_function.setText(self.tr("Function"))
+        self._frm_plot.setText(self.tr("Function Plot"))
 
     # ============================================================
     # Apply initial values

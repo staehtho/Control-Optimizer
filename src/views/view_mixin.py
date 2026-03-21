@@ -149,9 +149,13 @@ class ViewMixin:
         return layout_helpers.create_page_layout()
 
     @staticmethod
-    def _create_card(parent: Optional[QWidget] = None) -> tuple[QFrame, QVBoxLayout]:
+    def _create_card(
+            title: Optional[str] = "",
+            toggleable: Optional[bool] = False,
+            parent: Optional[QWidget] = None
+    ) -> tuple[QFrame, QVBoxLayout]:
         """Create a themed card container using SectionFrame."""
-        return layout_helpers.create_card(parent)
+        return layout_helpers.create_card(title, toggleable, parent)
 
     @staticmethod
     def _create_plain_card(parent: Optional[QWidget] = None) -> tuple[QFrame, QVBoxLayout]:
@@ -167,9 +171,9 @@ class ViewMixin:
     # Widget ? ViewModel Synchronization
     # ============================================================
 
-    def _on_widget_changed(self, key: str | FieldType, attribute: str, *args, **kwargs) -> None:
+    def _on_widget_changed(self, widget: QWidget, key: str | FieldType, attribute: str, *args, **kwargs) -> None:
         """Handle changes from various input widgets and update the corresponding attribute."""
-        return widget_binding.on_widget_changed(self, key, attribute, *args, **kwargs)
+        return widget_binding.on_widget_changed(self, widget, key, attribute, *args, **kwargs)
 
     @staticmethod
     def _format_value(value):

@@ -28,8 +28,17 @@ class PsoConfigurationViewModel(BaseViewModel):
     tiMaxChanged = Signal()
     tdMinChanged = Signal()
     tdMaxChanged = Signal()
+    overshootControlChanged = Signal()
+    overshootControlEnabledChanged = Signal()
+    gainMarginChanged = Signal()
+    gainMarginEnabledChanged = Signal()
+    phaseMarginChanged = Signal()
+    phaseMarginEnabledChanged = Signal()
+    stabilityMarginChanged = Signal()
+    stabilityMarginEnabledChanged = Signal()
     psoProgressChanged = Signal(int)
     psoSimulationFinished = Signal()
+    psoSimulationInterrupted = Signal()
 
     def __init__(self, model_container: ModelContainer, simulation_service: SimulationService,
                  parent: QObject = None) -> None:
@@ -109,10 +118,10 @@ class PsoConfigurationViewModel(BaseViewModel):
     )
 
     # -------------------
-    # performance_index
+    # error_criterion
     # -------------------
-    performance_index: PerformanceIndex = LoggedProperty(
-        path="_model_pso.performance_index",
+    error_criterion: PerformanceIndex = LoggedProperty(
+        path="_model_pso.error_criterion",
         signal="performanceIndexChanged",
         typ=PerformanceIndex
     )
@@ -253,6 +262,62 @@ class PsoConfigurationViewModel(BaseViewModel):
     )
 
     # -------------------
+    # overshoot control
+    # -------------------
+    overshoot_control: float = LoggedProperty(
+        path="_model_pso.overshoot_control",
+        signal="overshootControlChanged",
+        typ=float,
+    )
+    overshoot_control_enabled: bool = LoggedProperty(
+        path="_model_pso.overshoot_control_enabled",
+        signal="overshootControlEnabledChanged",
+        typ=bool
+    )
+
+    # -------------------
+    # gain margin
+    # -------------------
+    gain_margin: float = LoggedProperty(
+        path="_model_pso.gain_margin",
+        signal="gainMarginChanged",
+        typ=float,
+    )
+    gain_margin_enabled: bool = LoggedProperty(
+        path="_model_pso.gain_margin_enabled",
+        signal="gainMarginEnabledChanged",
+        typ=bool
+    )
+
+    # -------------------
+    # phase margin
+    # -------------------
+    phase_margin: float = LoggedProperty(
+        path="_model_pso.phase_margin",
+        signal="phaseMarginChanged",
+        typ=float
+    )
+    phase_margin_enabled: bool = LoggedProperty(
+        path="_model_pso.phase_margin_enabled",
+        signal="phaseMarginEnabledChanged",
+        typ=bool
+    )
+
+    # -------------------
+    # stability margin
+    # -------------------
+    stability_margin: float = LoggedProperty(
+        path="_model_pso.stability_margin",
+        signal="stabilityMarginChanged",
+        typ=float
+    )
+    stability_margin_enabled: bool = LoggedProperty(
+        path="_model_pso.stability_margin_enabled",
+        signal="stabilityMarginEnabledChanged",
+        typ=bool
+    )
+
+    # -------------------
     # run PSO
     # -------------------
     @Slot()
@@ -272,6 +337,13 @@ class PsoConfigurationViewModel(BaseViewModel):
             self._get_pos_param(), self._on_pso_simulation_finished, self._on_pso_progress
         )
 
+    @Slot()
+    def interrupt_pso_simulation(self) -> None:
+        """Request interruption of the active PSO simulation."""
+        self.logger.debug("Interrupting PSO simulation")
+        self._simulation_service.stop_pso_simulation()
+        self.psoSimulationInterrupted.emit()
+
     def _get_pos_param(self) -> PsoSimulationParam:
         return PsoSimulationParam(
             num=self._model_plant.num,
@@ -287,12 +359,20 @@ class PsoConfigurationViewModel(BaseViewModel):
             ),
             excitation_target=self.excitation_target,
             function=self._model_function.selected_function.copy(),
-            performance_index=self.performance_index,
+            error_criterion=self.error_criterion,
             kp=(self.kp_min, self.kp_max),
             ti=(self.ti_min, self.ti_max),
             td=(self.td_min, self.td_max),
             swarm_size=self._settings.get_pso_particle(),
-            pso_iteration=self._pos_iteration
+            pso_iteration=self._pos_iteration,
+            overshoot_control=self._model_pso.overshoot_control,
+            overshoot_control_enabled=self._model_pso.overshoot_control_enabled,
+            gain_margin=self._model_pso.gain_margin,
+            gain_margin_enabled=self._model_pso.gain_margin_enabled,
+            phase_margin=self._model_pso.phase_margin,
+            phase_margin_enabled=self._model_pso.phase_margin_enabled,
+            stability_margin=self._model_pso.stability_margin,
+            stability_margin_enabled=self._model_pso.stability_margin_enabled
         )
 
     def _on_pso_simulation_finished(self, result: PsoResult):

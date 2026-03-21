@@ -24,10 +24,23 @@ class PsoSimulationWorker(QThread):
         """Execute the optimization and emit ``resultReady`` when done."""
         self._logger.info("PSO worker started.")
 
-        result = self._engine.run_simulation(
-            self._pso_simulation_param,
-            callback=self._on_iteration_progress,
-        )
+        if self.isInterruptionRequested():
+            self._logger.info("PSO worker interrupted before start.")
+            return
+
+        try:
+            result = self._engine.run_simulation(
+                self._pso_simulation_param,
+                callback=self._on_iteration_progress,
+                should_stop=self.isInterruptionRequested,
+            )
+        except InterruptedError:
+            self._logger.info("PSO worker interrupted.")
+            return
+
+        if self.isInterruptionRequested():
+            self._logger.info("PSO worker interrupted after run.")
+            return
 
         self._logger.info("PSO worker finished successfully.")
         self.resultReady.emit(result)

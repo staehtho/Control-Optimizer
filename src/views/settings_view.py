@@ -29,8 +29,8 @@ FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
     ],
     "pso": [
         SectionConfig(SettingsField.PSO, [
-            FieldConfig(SettingsField.PSO_ITERATIONS, QLineEdit, validator=QIntValidator),
-            FieldConfig(SettingsField.PSO_PARTICLES, QLineEdit, validator=QIntValidator),
+            FieldConfig(SettingsField.PSO_ITERATIONS, QLineEdit, validator=QIntValidator()),
+            FieldConfig(SettingsField.PSO_PARTICLES, QLineEdit, validator=QIntValidator()),
         ]),
     ],
 }
@@ -95,7 +95,7 @@ class SettingsView(ViewMixin, QWidget):
     def _create_frame(self, key: str) -> QFrame:
         """Create a settings section frame for the given key."""
         frame = QFrame(self)
-        layout = self._create_grid(FIELDS.get(key), 2)
+        layout = self._create_grid(FIELDS.get(key), 1)
 
         frame.setLayout(layout)
         return frame
@@ -112,8 +112,8 @@ class SettingsView(ViewMixin, QWidget):
         }
         for key, value in attributes.items():
             attr, vm_attr, value_type = value
-            getattr(self.field_widgets[key], attr).connect(
-                partial(self._on_widget_changed, key, vm_attr, value_type=value_type))
+            widget = self.field_widgets[key]
+            getattr(widget, attr).connect(partial(self._on_widget_changed, widget, key, vm_attr, value_type=value_type))
 
         self.field_widgets.get(SettingsField.LANGUAGE).currentIndexChanged.connect(
             self._on_language_index_changed

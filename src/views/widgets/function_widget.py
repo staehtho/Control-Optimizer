@@ -1,15 +1,26 @@
 from functools import partial
+from typing import Optional
 
 from PySide6.QtCore import Signal
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QComboBox, QGridLayout, QLineEdit
-from PySide6.QtGui import QDoubleValidator
+from PySide6.QtWidgets import (
+    QWidget,
+    QComboBox,
+    QGridLayout,
+    QLineEdit,
+    QLayout,
+    QHBoxLayout,
+    QGraphicsOpacityEffect,
+)
+from PySide6.QtGui import QDoubleValidator, Qt
 
 from app_domain.ui_context import UiContext
 from app_domain.functions import resolve_function_type, FunctionTypes
 from viewmodels import FunctionViewModel
 from views import ViewMixin
+from . import SectionFrame
 from .formula_widget import FormulaWidget
 
+FORMULA = "formula"
 
 class FunctionWidget(ViewMixin, QWidget):
     """Widget for selecting a function and editing its parameters."""
@@ -37,6 +48,7 @@ class FunctionWidget(ViewMixin, QWidget):
 
         self._txt_function_params: dict[str, QLineEdit] = {}
         self._lbl_function_params: dict[str, FormulaWidget] = {}
+        self._param_frame_opacity: QGraphicsOpacityEffect | None = None
 
         ViewMixin.__init__(self, ui_context)
 
@@ -46,73 +58,73 @@ class FunctionWidget(ViewMixin, QWidget):
     def _init_ui(self) -> None:
         """Create and configure all UI components."""
         main_layout = self._create_page_layout()
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(16, 14, 16, 14)
+        layout.setSpacing(10)
+        main_layout.addLayout(layout)
 
-        frame = self._create_function_selector_layout()
-        main_layout.addWidget(frame)
+        layout.addLayout(self._create_function_selector_layout(), 1)
+
+        self._frm_param = self._create_param_frame()
+        layout.addWidget(self._frm_param, 1)
+        self._set_param_frame_visible(self._show_formula())
 
         main_layout.addStretch()
         self.setLayout(main_layout)
 
-    def _create_function_selector_layout(self) -> QWidget:
+    def _create_function_selector_layout(self) -> QLayout:
         """Create the function selector container layout."""
-        container = QWidget(self)
-        frame_layout = QVBoxLayout(container)
-        frame_layout.setContentsMargins(0, 0, 0, 0)
-        frame_layout.setSpacing(10)
+        layout = self._create_page_layout()
 
-        self._cmb_function = QComboBox(container)
-        frame_layout.addWidget(self._cmb_function)
+        self._cmb_function = QComboBox(self)
+        layout.addWidget(self._cmb_function)
 
-        self._param_widget = QWidget(container)
-        show_formula = resolve_function_type(self._vm_function.selected_function) != FunctionTypes.NULL
-        self._param_grid = self._create_param_grid(show_formula=show_formula)
-        self._param_widget.setLayout(self._param_grid)
-        frame_layout.addWidget(self._param_widget)
+        lbl_formula = FormulaWidget(font_size_scale=self._formula_font_size_scale, parent=self)
+        layout.addWidget(lbl_formula, alignment=Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
+        self.field_widgets.setdefault(FORMULA, lbl_formula)
 
-        self._function_layout = frame_layout
-        return container
+        return layout
 
-    def _create_param_grid(self, show_formula: bool = True) -> QGridLayout:
+    def _create_param_frame(self) -> SectionFrame:
+        """Create the parameter widget container layout."""
+        frame: SectionFrame
+        frame, layout = self._create_card(parent=self)
+
+        grid = self._create_param_grid(frame)
+        layout.addLayout(grid)
+
+        return frame
+
+    def _create_param_grid(self, parent: Optional[QWidget] = None) -> QGridLayout:
         """Create and populate the parameter grid."""
         self.logger.debug(
             f"Building parameter grid for function: {self._vm_function.selected_function.__class__.__name__}"
         )
 
         grid = QGridLayout()
-        grid.setColumnStretch(0, 1)  # extra space absorbs expansion
-        grid.setColumnStretch(5, 1)  # extra space absorbs expansion
 
         params = self._vm_function.selected_function.get_param()
         self._lbl_function_params.clear()
         self._txt_function_params.clear()
 
         row_offset = 0
-        if show_formula:
-            formula = self._vm_function.selected_function.get_formula()
-
-            lbl_formula = FormulaWidget(formula, 1.5, parent=self._param_widget)
-
-            grid.addWidget(lbl_formula, 0, 0, 1, 6)
-            row_offset = 1
-
-            self._lbl_function_params.setdefault(formula, lbl_formula)
 
         for i, (label, value) in enumerate(params.items()):
             row = i // 2 + row_offset
-            col = (i % 2) * 2 + 1
+            col = (i % 2) * 2
 
-            lbl_param = FormulaWidget(f"{label}:", 1.5, parent=self._param_widget)
+            lbl_param = FormulaWidget(label + ":", self._formula_font_size_scale, parent=parent)
 
             self._lbl_function_params.setdefault(label, lbl_param)
-            grid.addWidget(lbl_param, row, col)
+            grid.addWidget(lbl_param, row, col, alignment=Qt.AlignmentFlag.AlignRight)
 
-            txt_param = QLineEdit(self._param_widget)
+            txt_param = QLineEdit(parent)
             txt_param.setValidator(QDoubleValidator())
-            txt_param.setFixedWidth(80)
+            txt_param.setFixedWidth(220)
             txt_param.setText(self._format_value(value))
 
             self._txt_function_params.setdefault(label, txt_param)
-            grid.addWidget(txt_param, row, col + 1)
+            grid.addWidget(txt_param, row, col + 1, alignment=Qt.AlignmentFlag.AlignLeft)
 
         self.logger.debug(f"Parameter grid created with {len(params)} parameters")
 
@@ -149,6 +161,7 @@ class FunctionWidget(ViewMixin, QWidget):
     # ============================================================
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
+        self._frm_param.setText(self.tr("Parameters"))
         function_labels = {
             key: self._enum_translation(key) for key in FunctionTypes
             if key not in self._excluded_function_types
@@ -170,12 +183,15 @@ class FunctionWidget(ViewMixin, QWidget):
         if index >= 0:
             self._cmb_function.setCurrentIndex(index)
 
+        self._update_formula()
+        self._set_param_frame_visible(self._show_formula())
+
     # ============================================================
     # Applied theme
     # ============================================================
     def _on_theme_applied(self) -> None:
         for formula, label in self._lbl_function_params.items():
-            label.set_formula(formula)
+            label.set_formula(f"{formula}:")
 
     # ============================================================
     # ViewModel change handlers
@@ -197,25 +213,15 @@ class FunctionWidget(ViewMixin, QWidget):
         if index >= 0:
             self._cmb_function.setCurrentIndex(index)
 
-        self.setUpdatesEnabled(False)
-        try:
-            if self._param_grid is not None:
-                self._clear_layout(self._param_grid)
+        self._update_formula()
 
-            old_param_widget = self._param_widget
+        self._set_param_frame_visible(self._show_formula())
 
-            self._param_widget = QWidget(self)
-            show_formula = resolve_function_type(self._vm_function.selected_function) != FunctionTypes.NULL
-            self._param_grid = self._create_param_grid(show_formula=show_formula)
-            self._param_widget.setLayout(self._param_grid)
+        if self._frm_param.content_layout() is not None:
+            self._frm_param.clear_layout()
 
-            self._function_layout.insertWidget(1, self._param_widget)
-            self._function_layout.removeWidget(old_param_widget)
-            old_param_widget.hide()
-            old_param_widget.deleteLater()
-        finally:
-            self.setUpdatesEnabled(True)
-            self.update()
+        grid = self._create_param_grid()
+        self._frm_param.add_layout(grid)
 
         self.functionChanged.emit()
 
@@ -270,3 +276,28 @@ class FunctionWidget(ViewMixin, QWidget):
 
         txt.setText(self._format_value(value))
         self._vm_function.update_param_value(key, value)
+
+    # ============================================================
+    # UI helpers
+    # ============================================================
+    def _update_formula(self) -> None:
+        widget: FormulaWidget = self.field_widgets.get(FORMULA)
+
+        if self._show_formula():
+            formula = self._vm_function.selected_function.get_formula()
+            widget.set_formula(formula)
+
+        else:
+            widget.clear_formula()
+
+    def _show_formula(self) -> bool:
+        return resolve_function_type(self._vm_function.selected_function) != FunctionTypes.NULL
+
+    def _set_param_frame_visible(self, visible: bool) -> None:
+        if self._param_frame_opacity is None:
+            self._param_frame_opacity = QGraphicsOpacityEffect(self._frm_param)
+            self._frm_param.setGraphicsEffect(self._param_frame_opacity)
+
+        self._param_frame_opacity.setOpacity(1.0 if visible else 0.0)
+        self._frm_param.setEnabled(visible)
+        self._frm_param.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, not visible)

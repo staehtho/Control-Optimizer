@@ -22,7 +22,7 @@ class PsoSimulationParam:
 
     excitation_target: ExcitationTarget
     function: BaseFunction
-    performance_index: PerformanceIndex
+    error_criterion: PerformanceIndex
 
     kp: tuple[float, float]
     ti: tuple[float, float]
@@ -30,6 +30,15 @@ class PsoSimulationParam:
 
     swarm_size: int
     pso_iteration: int
+
+    overshoot_control: float
+    overshoot_control_enabled: bool
+    gain_margin: float
+    gain_margin_enabled: bool
+    phase_margin: float
+    phase_margin_enabled: bool
+    stability_margin: float
+    stability_margin_enabled: bool
 
 
 @dataclass

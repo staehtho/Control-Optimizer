@@ -1,7 +1,18 @@
 from functools import partial
 
-from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QComboBox, QPushButton, QProgressBar, QHBoxLayout
-from PySide6.QtCore import QObject, Qt
+from PySide6.QtWidgets import (
+    QWidget,
+    QLabel,
+    QLineEdit,
+    QComboBox,
+    QPushButton,
+    QProgressBar,
+    QHBoxLayout,
+    QSizePolicy,
+    QLayout, QGraphicsOpacityEffect,
+)
+from PySide6.QtCore import QObject
+from PySide6.QtGui import QDoubleValidator
 
 from app_domain.ui_context import UiContext
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
@@ -11,35 +22,46 @@ from views.view_mixin import ViewMixin
 from views.widgets import SectionFrame, FormulaWidget
 from views.resources import Icons
 
-
-FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
-    "excitation_target": [
+FIELDS: list[FieldConfig | SectionConfig] = [
+    SectionConfig(PsoField.PLANT, [
+        FieldConfig(PsoField.PLANT_TF, FormulaWidget, False),
+        FieldConfig("", QLabel, False),
+    ]),
+    SectionConfig(PsoField.EXCITATION, [
+        FieldConfig(PsoField.FUNCTION_FORMULA, FormulaWidget, False),
         FieldConfig(PsoField.EXCITATION_TARGET, QComboBox),
-        FieldConfig(PsoField.FUNCTION_FORMULA, FormulaWidget),
-    ],
-    "control": [
+    ]),
+    SectionConfig(PsoField.SIMULATION_TIME, [
+        FieldConfig(PsoField.T0, QLineEdit),
+        FieldConfig(PsoField.T1, QLineEdit),
+    ]),
+    SectionConfig(PsoField.PSO_BOUNDS, [
         SectionConfig(PsoField.KP_BOUNDS, [
             FieldConfig(PsoField.KP_MIN, QLineEdit),
             FieldConfig(PsoField.KP_MAX, QLineEdit),
-        ]),
-        SectionConfig(PsoField.SIMULATION_TIME, [
-            FieldConfig(PsoField.T0, QLineEdit),
-            FieldConfig(PsoField.T1, QLineEdit),
         ]),
         SectionConfig(PsoField.TI_BOUNDS, [
             FieldConfig(PsoField.TI_MIN, QLineEdit),
             FieldConfig(PsoField.TI_MAX, QLineEdit),
         ]),
-        SectionConfig(PsoField.PERFORMANCE_INDEX, [
-            FieldConfig(PsoField.TIME_DOMAIN, QComboBox),
-            FieldConfig("", QLabel, False),
-        ]),
         SectionConfig(PsoField.TD_BOUNDS, [
             FieldConfig(PsoField.TD_MIN, QLineEdit),
             FieldConfig(PsoField.TD_MAX, QLineEdit),
         ]),
-    ]
-}
+    ]),
+    SectionConfig(PsoField.PERFORMANCE_INDEX, [
+        SectionConfig(PsoField.TIME_DOMAIN, [
+            FieldConfig(PsoField.ERROR_CRITERION, QComboBox),
+            FieldConfig(PsoField.OVERSHOOT_CONTROL, QLineEdit, validator=QDoubleValidator(0.0, 1e9, 6),
+                        toggleable=True),
+        ]),
+        SectionConfig(PsoField.FREQUENCY_DOMAIN, [
+            FieldConfig(PsoField.GAIN_MARGIN, QLineEdit, validator=QDoubleValidator(0.0, 1e9, 6), toggleable=True),
+            FieldConfig(PsoField.PHASE_MARGIN, QLineEdit, validator=QDoubleValidator(0.0, 1e9, 6), toggleable=True),
+            FieldConfig(PsoField.STABILITY_MARGIN, QLineEdit, validator=QDoubleValidator(0.0, 1e9, 6), toggleable=True)
+        ])
+    ]),
+]
 
 
 class PsoConfigurationView(ViewMixin, QWidget):
@@ -89,65 +111,55 @@ class PsoConfigurationView(ViewMixin, QWidget):
         title_layout.addStretch()
         main_layout.addLayout(title_layout)
 
-        self._frm_plant = self._create_plant_frame()
-        main_layout.addWidget(self._frm_plant)
-        self._frm_function = self._create_function_frame()
-        main_layout.addWidget(self._frm_function)
-        self._frm_controller = self._create_controller_frame()
-        main_layout.addWidget(self._frm_controller)
+        main_layout.addLayout(self._create_field_grid())
+
         self._frm_run_pso = self._create_run_pso_frame()
         main_layout.addWidget(self._frm_run_pso)
 
         main_layout.addStretch()
         self.setLayout(main_layout)
 
-    def _create_plant_frame(self) -> SectionFrame:
-        """Create the plant transfer function card."""
-        frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
+    def _create_field_grid(self) -> QLayout:
 
-        # TF
-        self._lbl_tf = FormulaWidget(font_size_scale=self._formula_font_size_scale, parent=frame)
-        self._lbl_tf.setAlignment(Qt.AlignmentFlag.AlignHCenter)
+        grid = self._create_grid(FIELDS)
 
-        frame_layout.addWidget(self._lbl_tf)
+        self.field_widgets[PsoField.PLANT_TF].set_font_size(self._formula_font_size_scale)
+        self.field_widgets[PsoField.FUNCTION_FORMULA].set_font_size(self._formula_font_size_scale)
 
-        return frame
-
-    def _create_function_frame(self) -> SectionFrame:
-        """Create the excitation function card."""
-        frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
-
-        frame_layout.addLayout(self._create_grid(FIELDS["excitation_target"], 4))
-
-        widget: FormulaWidget = self.field_widgets[PsoField.FUNCTION_FORMULA]
-        widget.set_font_size(self._formula_font_size_scale)
-
-        return frame
-
-    def _create_controller_frame(self) -> SectionFrame:
-        """Create the controller optimization card."""
-        frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
-
-        frame_layout.addLayout(self._create_grid(FIELDS["control"], 4))
-
-        return frame
+        return grid
 
     def _create_run_pso_frame(self) -> SectionFrame:
         """Create the PSO run control card."""
         frame: SectionFrame
-        frame, frame_layout = self._create_card(self)
+        frame, frame_layout = self._create_card(parent=self)
 
         self._progress_bar = QProgressBar(frame)
         self._progress_bar.setMinimum(0)
         self._progress_bar.setValue(0)
         frame_layout.addWidget(self._progress_bar)
 
-        btn_run_pso = QPushButton(frame)
-        frame_layout.addWidget(btn_run_pso)
-        self.labels[PsoField.RUN_PSO] = btn_run_pso
+        btn_layout = QHBoxLayout()
+        btn_layout.setContentsMargins(0, 0, 0, 0)
+        btn_layout.setSpacing(8)
+
+        self._btn_run_pso = QPushButton(frame)
+        self._btn_run_pso.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        btn_layout.addWidget(self._btn_run_pso)
+        self.labels[PsoField.RUN_PSO] = self._btn_run_pso
+
+        self._btn_interrupt_pso = QPushButton(frame)
+        self._btn_interrupt_pso.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self._btn_interrupt_pso.setEnabled(False)
+        btn_layout.addWidget(self._btn_interrupt_pso)
+        self.labels[PsoField.INTERRUPT_PSO] = self._btn_interrupt_pso
+
+        self._lbl_interrupt_status = QLabel(frame)
+        self._lbl_interrupt_status.setObjectName("statusText")
+        self._lbl_interrupt_status.setText("")
+        btn_layout.addWidget(self._lbl_interrupt_status)
+
+        btn_layout.addStretch()
+        frame_layout.addLayout(btn_layout)
 
         return frame
 
@@ -157,10 +169,14 @@ class PsoConfigurationView(ViewMixin, QWidget):
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
         attributes: dict[PsoField, tuple[str, str, object]] = {
+            PsoField.EXCITATION_TARGET: ("currentIndexChanged", "_vm_pso.excitation_target", ExcitationTarget),
+            PsoField.ERROR_CRITERION: ("currentIndexChanged", "_vm_pso.error_criterion", PerformanceIndex),
             PsoField.T0: ("editingFinished", "_vm_pso.t0", float),
             PsoField.T1: ("editingFinished", "_vm_pso.t1", float),
-            PsoField.EXCITATION_TARGET: ("currentIndexChanged", "_vm_pso.excitation_target", ExcitationTarget),
-            PsoField.TIME_DOMAIN: ("currentIndexChanged", "_vm_pso.performance_index", PerformanceIndex),
+            PsoField.OVERSHOOT_CONTROL: ("editingFinished", "_vm_pso.overshoot_control", float),
+            PsoField.GAIN_MARGIN: ("editingFinished", "_vm_pso.gain_margin", float),
+            PsoField.PHASE_MARGIN: ("editingFinished", "_vm_pso.phase_margin", float),
+            PsoField.STABILITY_MARGIN: ("editingFinished", "_vm_pso.stability_margin", float),
             PsoField.KP_MIN: ("editingFinished", "_vm_pso.kp_min", float),
             PsoField.KP_MAX: ("editingFinished", "_vm_pso.kp_max", float),
             PsoField.TI_MIN: ("editingFinished", "_vm_pso.ti_min", float),
@@ -170,10 +186,22 @@ class PsoConfigurationView(ViewMixin, QWidget):
         }
         for key, value in attributes.items():
             attr, vm_attr, value_type = value
-            getattr(self.field_widgets[key], attr).connect(
-                partial(self._on_widget_changed, key, vm_attr, value_type=value_type))
+            widget = self.field_widgets[key]
+            getattr(widget, attr).connect(partial(self._on_widget_changed, widget, key, vm_attr, value_type=value_type))
 
-        self.labels[PsoField.RUN_PSO].clicked.connect(self._on_btn_run_pso)
+        attributes: dict[PsoField, tuple[str, str, object]] = {
+            PsoField.OVERSHOOT_CONTROL: ("toggled", "_vm_pso.overshoot_control_enabled", bool),
+            PsoField.GAIN_MARGIN: ("toggled", "_vm_pso.gain_margin_enabled", bool),
+            PsoField.PHASE_MARGIN: ("toggled", "_vm_pso.phase_margin_enabled", bool),
+            PsoField.STABILITY_MARGIN: ("toggled", "_vm_pso.stability_margin_enabled", bool)
+        }
+        for key, value in attributes.items():
+            attr, vm_attr, value_type = value
+            widget = self.labels[key]
+            getattr(widget, attr).connect(partial(self._on_widget_changed, widget, key, vm_attr, value_type=value_type))
+
+        self._btn_run_pso.clicked.connect(self._on_btn_run_pso)
+        self._btn_interrupt_pso.clicked.connect(self._on_btn_interrupt_pso)
 
     # ============================================================
     # ViewModel bindings (ViewModel -> UI)
@@ -181,7 +209,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
         # Plant ViewModel
-        self._vm_plant.tfChanged.connect(self._on_vm_plant_tf_changed)
+        self._vm_plant.polyTfChanged.connect(self._on_vm_plant_tf_changed)
         self._vm_plant.isValidChanged.connect(self._on_vm_plant_is_valid_changed)
         # Function ViewModel
         self._vm_function.functionChanged.connect(self._on_vm_function_function_changed)
@@ -191,7 +219,11 @@ class PsoConfigurationView(ViewMixin, QWidget):
             PsoField.T0: ("t0Changed", "_vm_pso.t0"),
             PsoField.T1: ("t1Changed", "_vm_pso.t1"),
             PsoField.EXCITATION_TARGET: ("excitationTargetChanged", "_vm_pso.excitation_target"),
-            PsoField.TIME_DOMAIN: ("performanceIndexChanged", "_vm_pso.performance_index"),
+            PsoField.ERROR_CRITERION: ("performanceIndexChanged", "_vm_pso.error_criterion"),
+            PsoField.OVERSHOOT_CONTROL: ("overshootControlChanged", "_vm_pso.overshoot_control"),
+            PsoField.GAIN_MARGIN: ("gainMarginChanged", "_vm_pso.gain_margin"),
+            PsoField.PHASE_MARGIN: ("phaseMarginChanged", "_vm_pso.phase_margin"),
+            PsoField.STABILITY_MARGIN: ("stabilityMarginChanged", "_vm_pso.stability_margin"),
             PsoField.KP_MIN: ("kpMinChanged", "_vm_pso.kp_min"),
             PsoField.KP_MAX: ("kpMaxChanged", "_vm_pso.kp_max"),
             PsoField.TI_MIN: ("tiMinChanged", "_vm_pso.ti_min"),
@@ -205,8 +237,19 @@ class PsoConfigurationView(ViewMixin, QWidget):
                 partial(self._on_vm_changed, key, attr)
             )
 
+        attributes: dict[PsoField, tuple[str, str]] = {
+            PsoField.OVERSHOOT_CONTROL: ("overshootControlEnabledChanged", "_vm_pso.overshoot_control_enabled"),
+            PsoField.GAIN_MARGIN: ("gainMarginEnabledChanged", "_vm_pso.gain_margin_enabled"),
+            PsoField.PHASE_MARGIN: ("phaseMarginEnabledChanged", "_vm_pso.phase_margin_enabled"),
+            PsoField.STABILITY_MARGIN: ("stabilityMarginEnabledChanged", "_vm_pso.stability_margin_enabled"),
+        }
+        for key, value in attributes.items():
+            s, attr = value
+            getattr(self._vm_pso, s).connect(partial(self._on_vm_field_enabled_changed, key, attr))
+
         self._vm_pso.psoProgressChanged.connect(self._on_vm_pso_progress_changed)
         self._vm_pso.psoSimulationFinished.connect(self._on_vm_pso_simulation_finished)
+        self._vm_pso.psoSimulationInterrupted.connect(self._on_vm_pso_simulation_interrupted)
 
     # ============================================================
     # Translation
@@ -214,35 +257,41 @@ class PsoConfigurationView(ViewMixin, QWidget):
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("PSO Parameter"))
-        self._frm_plant.set_title(self.tr("Plant"))
-        self._frm_function.set_title(self.tr("Excitation Function"))
-        self._frm_controller.set_title(self.tr("Controller Optimization Parameters"))
-        self._frm_run_pso.set_title(self.tr("PSO Simulation"))
+        self._frm_run_pso.setText(self.tr("PSO Simulation"))
 
         labels = {
+            PsoField.PLANT: self.tr("Plant"),
+            PsoField.EXCITATION: self.tr("Excitation Function"),
+            PsoField.EXCITATION_TARGET: self.tr("Excitation Target"),
             PsoField.SIMULATION_TIME: self.tr("Simulation Time"),
             PsoField.T0: self.tr("Start Time"),
             PsoField.T1: self.tr("End Time"),
-            PsoField.EXCITATION_TARGET: self.tr("Excitation Target"),
-            PsoField.FUNCTION_FORMULA: self.tr("Function"),
             PsoField.PERFORMANCE_INDEX: self.tr("Performance Index"),
             PsoField.TIME_DOMAIN: self.tr("Time Domain"),
-            PsoField.KP_BOUNDS: self.tr("PSO Bounds: Kp"),
+            PsoField.ERROR_CRITERION: self.tr("Error Criterion"),
+            PsoField.OVERSHOOT_CONTROL: self.tr("Overshoot Control"),
+            PsoField.FREQUENCY_DOMAIN: self.tr("Frequency Domain"),
+            PsoField.GAIN_MARGIN: self.tr("Gain Margin"),
+            PsoField.PHASE_MARGIN: self.tr("Phase Margin"),
+            PsoField.STABILITY_MARGIN: self.tr("Sensitivity"),
+            PsoField.PSO_BOUNDS: self.tr("PSO Bounds"),
+            PsoField.KP_BOUNDS: self.tr("Kp Bounds"),
             PsoField.KP_MIN: self.tr("Minimum"),
             PsoField.KP_MAX: self.tr("Maximum"),
-            PsoField.TI_BOUNDS: self.tr("PSO Bounds: Ti"),
+            PsoField.TI_BOUNDS: self.tr("Ti Bounds"),
             PsoField.TI_MIN: self.tr("Minimum"),
             PsoField.TI_MAX: self.tr("Maximum"),
-            PsoField.TD_BOUNDS: self.tr("PSO Bounds: Td"),
+            PsoField.TD_BOUNDS: self.tr("Td Bounds"),
             PsoField.TD_MIN: self.tr("Minimum"),
             PsoField.TD_MAX: self.tr("Maximum"),
             PsoField.RUN_PSO: self.tr("Start PSO Simulation"),
+            PsoField.INTERRUPT_PSO: self.tr("Interrupt"),
         }
 
         for key in labels.keys():
             self.labels[key].setText(labels[key])
 
-        enums = {PsoField.EXCITATION_TARGET: ExcitationTarget, PsoField.TIME_DOMAIN: PerformanceIndex}
+        enums = {PsoField.EXCITATION_TARGET: ExcitationTarget, PsoField.ERROR_CRITERION: PerformanceIndex}
         for key, value in enums.items():
             data = {k: self._enum_translation(k) for k in value}
             self._cmb_add_item(self.field_widgets[key], data)
@@ -255,6 +304,10 @@ class PsoConfigurationView(ViewMixin, QWidget):
         init_value = {
             PsoField.T0: self._vm_pso.t0,
             PsoField.T1: self._vm_pso.t1,
+            PsoField.OVERSHOOT_CONTROL: self._vm_pso.overshoot_control,
+            PsoField.GAIN_MARGIN: self._vm_pso.gain_margin,
+            PsoField.PHASE_MARGIN: self._vm_pso.phase_margin,
+            PsoField.STABILITY_MARGIN: self._vm_pso.stability_margin,
             PsoField.KP_MIN: self._vm_pso.kp_min,
             PsoField.KP_MAX: self._vm_pso.kp_max,
             PsoField.TI_MIN: self._vm_pso.ti_min,
@@ -268,17 +321,27 @@ class PsoConfigurationView(ViewMixin, QWidget):
 
         attributes: dict[PsoField, str] = {
             PsoField.EXCITATION_TARGET: "excitation_target",
-            PsoField.TIME_DOMAIN: "performance_index",
+            PsoField.ERROR_CRITERION: "error_criterion",
         }
         for key, attr in attributes.items():
             index = self.field_widgets[key].findData(getattr(self._vm_pso, attr))
             if index >= 0:
                 self.field_widgets[key].setCurrentIndex(index)
 
-        self.labels[PsoField.RUN_PSO].setEnabled(self._vm_plant.is_valid)
+        self._btn_run_pso.setEnabled(self._vm_plant.is_valid)
+        self._btn_interrupt_pso.setEnabled(False)
 
         self._set_formula_tf()
         self._set_formula_function()
+
+        attributes: dict[PsoField, str] = {
+            PsoField.OVERSHOOT_CONTROL: "_vm_pso.overshoot_control_enabled",
+            PsoField.GAIN_MARGIN: "_vm_pso.gain_margin_enabled",
+            PsoField.PHASE_MARGIN: "_vm_pso.phase_margin_enabled",
+            PsoField.STABILITY_MARGIN: "_vm_pso.stability_margin_enabled",
+        }
+        for key, attr in attributes.items():
+            self._on_vm_field_enabled_changed(key, attr)
 
     # ============================================================
     # Applied theme
@@ -307,7 +370,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
     # ============================================================
     def _on_vm_plant_is_valid_changed(self) -> None:
         """Enable or disable the PSO run button based on plant validity."""
-        self.labels[PsoField.RUN_PSO].setEnabled(self._vm_plant.is_valid)
+        self._btn_run_pso.setEnabled(self._vm_plant.is_valid)
 
     def _on_vm_pso_progress_changed(self, iteration: int) -> None:
         """Update the progress bar based on PSO iteration."""
@@ -319,21 +382,60 @@ class PsoConfigurationView(ViewMixin, QWidget):
         if not self._vm_plant.is_valid:
             return
 
-        self.labels[PsoField.RUN_PSO].setEnabled(False)
+        self._btn_run_pso.setEnabled(False)
+        self._btn_interrupt_pso.setEnabled(True)
+        self._lbl_interrupt_status.setText("")
         self._progress_bar.setValue(0)
         self._vm_pso.run_pso_simulation()
 
+    def _on_btn_interrupt_pso(self) -> None:
+        """Interrupt the running PSO simulation."""
+        self._btn_interrupt_pso.setEnabled(False)
+        self._btn_run_pso.setEnabled(self._vm_plant.is_valid)
+        self._vm_pso.interrupt_pso_simulation()
+
     def _on_vm_pso_simulation_finished(self) -> None:
         """Re-enable the run button after PSO simulation completes."""
-        self.labels[PsoField.RUN_PSO].setEnabled(True)
+        self._btn_run_pso.setEnabled(True)
+        self._btn_interrupt_pso.setEnabled(False)
+
+    def _on_vm_pso_simulation_interrupted(self) -> None:
+        """Re-enable the run button after PSO simulation interruption."""
+        self._btn_run_pso.setEnabled(self._vm_plant.is_valid)
+        self._btn_interrupt_pso.setEnabled(False)
+        self._lbl_interrupt_status.setText(self.tr("Interrupted"))
+
+    def _on_vm_field_enabled_changed(self, key: PsoField, attribute: str) -> None:
+        attr = self
+        for attr_name in attribute.split("."):
+            attr = getattr(attr, attr_name)
+        enabled = attr
+
+        toggle = self.labels.get(key)
+        if toggle is not None and toggle.isChecked() != enabled:
+            toggle.blockSignals(True)
+            toggle.setChecked(enabled)
+            toggle.blockSignals(False)
+        widget = self.field_widgets.get(key)
+        if widget is not None:
+            effect = widget.graphicsEffect()
+            if not isinstance(effect, QGraphicsOpacityEffect):
+                effect = QGraphicsOpacityEffect(widget)
+                widget.setGraphicsEffect(effect)
+
+            effect.setOpacity(1.0 if enabled else 0.45)
 
     # ============================================================
     # Internal helpers
     # ============================================================
     def _set_formula_tf(self) -> None:
         """Update the plant transfer function formula display."""
-        self._lbl_tf.set_formula(r"G(s) = " + self._vm_plant.get_tf())
+        self.field_widgets[PsoField.PLANT_TF].set_formula(r"G(s) = " + self._vm_plant.get_current_tf())
 
     def _set_formula_function(self) -> None:
         """Update the excitation function formula display."""
         self.field_widgets[PsoField.FUNCTION_FORMULA].set_formula(self._vm_function.selected_function.get_formula())
+
+    def _on_field_toggle_changed(self, checked: bool) -> None:
+        """Handle gain margin toggle state changes."""
+        self._vm_pso.gain_margin_enabled = checked

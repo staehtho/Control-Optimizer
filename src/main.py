@@ -13,29 +13,18 @@ from views.main_view import MainView
 from views.resources import Icons
 
 # TODO: add buttons to switch to the next or previous view in the view it self
+# TODO: TabIndex
 
-# TODO: Plot: if only on function -> now function checkbox
-# TODO: Plot: change grid checkbox to switch
-# TODO: Plot: bottom and left boarder to large
-# TODO: Plot: change layout to x min and x max in one column and function selection on the right side of the min max in a column
-# TODO: Plot: if the plot layout has some subplots, add the following behaviour: When all plots in on subplot are deselected,
-#  then hide the empty subplot.
-
-# TODO: Plant: add zero-pol to define the plant
-
-# TODO: Function: change layout to: function selection and formula on the left side and the parameters on the right
-# TODO: Function: add a section for parameters
+# TODO: BodePlot: when all plots are disabled, the y-axis should not be rescaled. now it scale to 99999 or so :)
 
 # TODO: Controller: move the block diagram and the selection of the anti windup in one section called anti windup
 #  and call the selection method or so
-# TODO: Controller: how can be the constraint connected with the block diagram, so it's clear the constraint is
-#  the saturation constraint?
 
-# TODO: PSO: move the main plant and function section in one row, on the left side plant and on the right the function
-# TODO: PSO: made the pso run button not so big
-# TODO: PSO: add an interrupt button to interrupt the pso run
-# TODO: PSO: split the section called Controller Optimization Parameters in multiple section. One for simulation time,
-#  an other for PSO Bounds like the plant and the function and so on.
+# TODO: PSO: overshoot only for step
+
+# TODO: Evaluation: block diagram add l and n input
+# TODO: Evaluation: TF with L and N
+# TODO: Evaluation: clean TF of C, G, etc.
 
 if __name__ == '__main__':
 
