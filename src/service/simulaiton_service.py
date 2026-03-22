@@ -42,7 +42,7 @@ class SimulationService:
 
         self._plant_workers: list[PlantResponseWorker] = []
         self._function_workers: list[FunctionWorker] = []
-        self._pso_simulation_worker: PsoSimulationWorker | None = None
+        self._pso_simulation_workers: list[PsoSimulationWorker] = []
         self._closed_loop_workers: list[ClosedLoopResponseWorker] = []
         self._plant_transfer_worker: PlantFrequencyWorker | None = None
         self._closed_loop_frequency_worker: ClosedLoopFrequencyWorker | None = None
@@ -76,8 +76,9 @@ class SimulationService:
             self._stop_worker(worker, f"FunctionWorker[{id(worker)}]")
         self._function_workers.clear()
 
-        self._stop_worker(self._pso_simulation_worker, "PsoSimulationWorker")
-        self._pso_simulation_worker = None
+        for worker in list(self._pso_simulation_workers):
+            self._stop_worker(worker, f"PsoSimulationWorker[{id(worker)}]")
+        self._pso_simulation_workers.clear()
 
         for worker in list(self._closed_loop_workers):
             self._stop_worker(worker, f"ClosedLoopResponseWorker[{id(worker)}]")
@@ -157,31 +158,30 @@ class SimulationService:
             callback: Function invoked with the final ``PsoResult``.
             progress_callback: Function invoked with the current iteration index.
         """
-        if self._pso_simulation_worker and self._pso_simulation_worker.isRunning():
-            self._logger.warning("PsoSimulationWorker is busy. Ignoring request.")
-            return
-
         self._logger.info("Starting PsoSimulationWorker for asynchronous computation")
         worker = PsoSimulationWorker(self._pso_simulation_engine, pso_simulation_param)
-        self._pso_simulation_worker = worker
         worker.resultReady.connect(callback)
         worker.progressChanged.connect(progress_callback)
         worker.finished.connect(lambda w=worker: self._on_pso_worker_finished(w))
+        self._pso_simulation_workers.append(worker)
         worker.start()
 
     def stop_pso_simulation(self) -> None:
-        """Interrupt any running PSO simulation worker."""
-        if self._pso_simulation_worker is None or not self._pso_simulation_worker.isRunning():
+        """Interrupt any running PSO simulation workers."""
+        if not self._pso_simulation_workers:
             return
-        self._logger.info("Interrupting PsoSimulationWorker.")
-        self._pso_simulation_worker.requestInterruption()
-        self._pso_simulation_worker.quit()
+        self._logger.info("Interrupting PsoSimulationWorkers.")
+        for worker in list(self._pso_simulation_workers):
+            if not worker.isRunning():
+                continue
+            worker.requestInterruption()
+            worker.quit()
 
     def _on_pso_worker_finished(self, worker: QThread | None) -> None:
         if worker is None:
             return
-        if worker is self._pso_simulation_worker:
-            self._pso_simulation_worker = None
+        if worker in self._pso_simulation_workers:
+            self._pso_simulation_workers.remove(worker)
         worker.deleteLater()
 
     def compute_closed_loop_response(
