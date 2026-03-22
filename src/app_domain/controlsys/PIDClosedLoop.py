@@ -40,7 +40,8 @@ class PIDClosedLoop(ClosedLoop):
                  # Filter
                  Tf: float = 0.01,
                  control_constraint: list[float] = None,
-                 anti_windup_method: AntiWindup = AntiWindup.CLAMPING
+                 anti_windup_method: AntiWindup = AntiWindup.CLAMPING,
+                 ka: float = 1.0,
                  ) -> None:
 
         """
@@ -92,13 +93,16 @@ class PIDClosedLoop(ClosedLoop):
             anti_windup_method (AntiWindup, optional):
                 The anti-windup strategy used to handle saturation effects.
                 Defaults to ``AntiWindup.CLAMPING``.
+            ka (float, optional):
+                Scaling factor for the back-calculation anti-windup feedback.
+                Defaults to ``1.0``.
 
         Raises:
             ValueError: If both parameterization methods (parallel gain and ISA
                 time-constant form) are provided or if neither is provided.
         """
 
-        super().__init__(plant, control_constraint, anti_windup_method)
+        super().__init__(plant, control_constraint, anti_windup_method, ka)
 
         self._kp: float = 0
         self._ki: float = 0
@@ -334,7 +338,8 @@ class PIDClosedLoop(ClosedLoop):
             - Supported anti-windup methods are:
                 - `"conditional"`: Update the integrator only when output is within limits or reduces saturation.
                 - `"clamping"`: Clamp the integrator term when the actuator saturates.
-                - `"backcalculation"`: Unwind the integrator using actuator saturation feedback.
+                - `"backcalculation"`: Unwind the integrator using actuator saturation feedback scaled by ``ka``.
+            - The controller's ``ka`` value is forwarded to ``pid_system_response()``.
             - Internally calls the compiled function `pid_system_response()` for performance.
         """
         from .pso_system_optimization import pid_system_response
@@ -374,5 +379,6 @@ class PIDClosedLoop(ClosedLoop):
                                 r_eval=r_eval, l_eval=l_eval, n_eval=n_eval,
                                 x=x0, control_constraint=np.array(self._control_constraint, dtype=np.float64),
                                 anti_windup_method=map_enum_to_int(self._anti_windup_method),
+                                ka=float(self.ka),
                                 A=A, B=B, C=C, D=D, solver=map_enum_to_int(solver))
         return t_eval, u, y

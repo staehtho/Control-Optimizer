@@ -91,6 +91,8 @@ class PsoFunc:
 
         Args:
             controller: PID controller instance to be optimized.
+                Anti-windup configuration, including ``ka`` for
+                ``BACKCALCULATION``, is taken from this controller.
             t0: Simulation start time.
             t1: Simulation end time.
             dt: Simulation time step.
@@ -179,6 +181,7 @@ class PsoFunc:
         self.performance_index = map_enum_to_int(performance_index)
         self.control_constraint = np.array(self.controller.control_constraint, dtype=np.float64)
         self.anti_windup_method = map_enum_to_int(self.controller.anti_windup_method)
+        self.ka = float(self.controller.ka)
         self.solver = map_enum_to_int(solver)
 
         self.swarm_size = swarm_size
@@ -583,6 +586,7 @@ class PsoFunc:
                 self.controller.Tf,
                 self.control_constraint,
                 self.anti_windup_method,
+                self.ka,
                 self.solver,
                 self.performance_index,
                 1 if self.use_overshoot_control else 0,
@@ -747,13 +751,14 @@ def dot1D(x: np.ndarray, y: np.ndarray) -> float:
 # =============================================================================
 @njit(
     types.UniTuple(float64, 3)(
-        float64, float64, float64, float64, float64, float64, float64, float64, float64, float64, float64, int64
+        float64, float64, float64, float64, float64, float64, float64, float64, float64, float64, float64, int64,
+        float64
     ),
     inline="always"
 )
 def pid_update(e: float, e_prev: float, d_filtered_prev: float, integral_prev: float,
                Kp: float, Ti: float, Td: float, Tf: float, dt: float, u_min: float, u_max: float,
-               anti_windup_method: int) -> tuple[float, float, float]:
+               anti_windup_method: int, ka: float) -> tuple[float, float, float]:
     """
     Perform a single PID controller update including anti-windup.
 
@@ -765,6 +770,21 @@ def pid_update(e: float, e_prev: float, d_filtered_prev: float, integral_prev: f
     time-constant form ``(Kp, Ti, Td, Tf)``. Inside this numerical kernel, the
     integral and derivative contributions are evaluated through the equivalent
     local gain terms ``Ki = Kp / Ti`` and ``Kd = Kp * Td`` for efficiency.
+
+    Args:
+        e: Current control error.
+        e_prev: Previous control error.
+        d_filtered_prev: Previous filtered derivative state.
+        integral_prev: Previous integral state.
+        Kp: Proportional gain.
+        Ti: Integral time constant.
+        Td: Derivative time constant.
+        Tf: Derivative filter time constant.
+        dt: Simulation time step.
+        u_min: Lower actuator limit.
+        u_max: Upper actuator limit.
+        anti_windup_method: Selected anti-windup method.
+        ka: Scaling factor for the back-calculation feedback path.
     """
     # 1) Proportional
     P_term = Kp * e
@@ -804,7 +824,6 @@ def pid_update(e: float, e_prev: float, d_filtered_prev: float, integral_prev: f
             integral_updated = integral_prev
             u_unsat_updated = u_unsat_previous
 
-    # TODO FLO: eventuell faktor ka hinzufügen...
     elif anti_windup_method == AntiWindupInt.CLAMPING:
         if (u_min < I_term_candidate < u_max) or \
                 (I_term_candidate >= u_max and e < 0.0) or \
@@ -820,10 +839,10 @@ def pid_update(e: float, e_prev: float, d_filtered_prev: float, integral_prev: f
 
         # The application state integrates the unscaled integral state x_I
         # with I_term = Ki * x_I and Ki = Kp / Ti. A block diagram that feeds
-        # the raw saturation error directly into the already scaled I-branch
-        # therefore maps to (u_sat - u_unsat) / Ki on this state.
+        # the saturation error through the scaling factor ka into the already
+        # scaled I-branch therefore maps to ka * (u_sat - u_unsat) / Ki on this state.
         if Ti > 0.0 and Kp != 0.0:
-            integral_updated = integral_candidate + dt * (Ti / Kp) * (u_sat_candidate - u_unsat_candidate)
+            integral_updated = integral_candidate + dt * ka * (Ti / Kp) * (u_sat_candidate - u_unsat_candidate)
         else:
             integral_updated = integral_candidate
 
@@ -927,7 +946,7 @@ def pid_system_response(Kp: float, Ti: float, Td: float, Tf: float,
                         t_eval: np.ndarray, dt: float,
                         r_eval: np.ndarray, l_eval: np.ndarray, n_eval: np.ndarray,
                         x: np.ndarray, control_constraint: np.ndarray,
-                        anti_windup_method: int,
+                        anti_windup_method: int, ka: float,
                         A: np.ndarray, B: np.ndarray, C: np.ndarray, D: float, solver: int
                         ) -> tuple[np.ndarray, np.ndarray]:
     """
@@ -948,7 +967,8 @@ def pid_system_response(Kp: float, Ti: float, Td: float, Tf: float,
         n_eval: Disturbance at measurement/output (Z2).
         x: Initial state vector.
         control_constraint: Control limits [u_min, u_max].
-        anti_windup_method: Anti-windup strategy (0 = Conditional, 1 = Clamping).
+        anti_windup_method: Anti-windup strategy enum value.
+        ka: Scaling factor applied to the back-calculation feedback term.
         A: Plant state matrix.
         B: Input matrix.
         C: Output matrix.
@@ -984,7 +1004,7 @@ def pid_system_response(Kp: float, Ti: float, Td: float, Tf: float,
 
         u, integral, filtered_prev = pid_update(
             e, e_prev, filtered_prev, integral, Kp, Ti, Td, Tf,
-            dt, u_min, u_max, anti_windup_method
+            dt, u_min, u_max, anti_windup_method, ka
         )
 
         if solver == MySolverInt.RK4:
@@ -1015,6 +1035,7 @@ def pid_simulate_metrics(
     x: np.ndarray,
     control_constraint: np.ndarray,
     anti_windup_method: int,
+    ka: float,
     A: np.ndarray,
     B: np.ndarray,
     C: np.ndarray,
@@ -1030,6 +1051,8 @@ def pid_simulate_metrics(
     """Simulate one PID candidate and return (performance_index_value, overshoot_pct).
 
     Overshoot is tracked only from the precomputed step start index onward.
+    Anti-windup behavior, including back-calculation scaling via ``ka``,
+    is applied in the internal PID update step.
     """
     e_prev = 0.0
     filtered_prev = 0.0
@@ -1054,7 +1077,7 @@ def pid_simulate_metrics(
 
         u, integral, filtered_prev = pid_update(
             e, e_prev, filtered_prev, integral, Kp, Ti, Td, Tf,
-            dt, u_min, u_max, anti_windup_method
+            dt, u_min, u_max, anti_windup_method, ka
         )
 
         if solver == MySolverInt.RK4:
@@ -1102,7 +1125,7 @@ def pid_simulate_metrics(
 def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarray, l_eval: np.ndarray,
                   n_eval: np.ndarray, A: np.ndarray, B: np.ndarray, C: np.ndarray, D: float,
                   system_order: int, Tf: float, control_constraint: np.ndarray, anti_windup_method: int,
-                  solver: int, performance_index: int,
+                  ka: float, solver: int, performance_index: int,
                   use_overshoot_control: int, overshoot_step_amplitude_abs: float,
                   overshoot_step_start_idx: int, overshoot_step_sign: float,
                   overshoot_r_final: float, swarm_size: int) -> tuple[np.ndarray, np.ndarray]:
@@ -1121,7 +1144,7 @@ def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarr
             t_eval, dt,
             r_eval, l_eval, n_eval,
             x, control_constraint,
-            anti_windup_method, A, B, C, D, solver,
+            anti_windup_method, ka, A, B, C, D, solver,
             performance_index,
             use_overshoot_control,
             overshoot_step_amplitude_abs,

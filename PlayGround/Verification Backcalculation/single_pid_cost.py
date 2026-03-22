@@ -36,7 +36,8 @@ t0 = 0.0
 t1 = 20.0
 dt = 1e-4
 control_constraint = (-2.0, 2.0)
-anti_windup = AntiWindup.CLAMPING
+anti_windup = AntiWindup.BACKCALCULATION
+ka = 1/10.0
 solver = MySolver.RK4
 performance_index = PerformanceIndex.ITAE
 
@@ -51,6 +52,7 @@ def main() -> None:
         Tf=Tf,
         control_constraint=list(control_constraint),
         anti_windup_method=anti_windup,
+        ka=ka,
     )
 
     r = lambda t: np.ones_like(t)
@@ -92,6 +94,7 @@ def main() -> None:
     print(f"  Tf = {Tf}")
     print("Setup:")
     print(f"  anti_windup       = {anti_windup.name}")
+    print(f"  ka                = {ka}")
     print(f"  performance_index = {performance_index.name}")
     print(f"  constraint        = {control_constraint}")
     print(f"  t0, t1, dt        = {t0}, {t1}, {dt}")

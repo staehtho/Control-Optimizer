@@ -88,6 +88,7 @@ def main():
     end_time = 10
 
     anti_windup = AntiWindup.BACKCALCULATION
+    ka = 1.0
 
     excitation_target = "reference"
 
@@ -113,7 +114,8 @@ def main():
     # generate closed loop
     pid: PIDClosedLoop = PIDClosedLoop(plant, Kp=10, Ti=5, Td=3,
                                        control_constraint=[constraint_min, constraint_max],
-                                       anti_windup_method=anti_windup)
+                                       anti_windup_method=anti_windup,
+                                       ka=ka)
 
     p_dom = dominant_pole_realpart(plant.den)
 
@@ -200,6 +202,7 @@ def main():
         "pid": pid,
 
         "anti_windup_method": anti_windup,
+        "ka": ka,
         "constraint_min": constraint_min,
         "constraint_max": constraint_max,
 

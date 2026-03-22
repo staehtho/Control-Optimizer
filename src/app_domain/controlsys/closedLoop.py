@@ -29,7 +29,8 @@ class ClosedLoop(ABC):
             self,
             plant: Plant,
             control_constraint: list[float] = None,
-            anti_windup_method: AntiWindup = AntiWindup.CLAMPING
+            anti_windup_method: AntiWindup = AntiWindup.CLAMPING,
+            ka: float = 1.0,
     ):
         """
         Initializes a closed-loop control system.
@@ -44,6 +45,9 @@ class ClosedLoop(ABC):
             anti_windup_method (AntiWindup, optional):
                 The anti-windup strategy used to handle saturation effects.
                 Defaults to ``AntiWindup.CLAMPING``.
+            ka (float, optional):
+                Back-calculation scaling factor used when the selected anti-windup
+                strategy is ``BACKCALCULATION``. Defaults to ``1.0``.
 
         Attributes:
             plant (Plant):
@@ -52,10 +56,13 @@ class ClosedLoop(ABC):
                 Saturation limits applied to the control output.
             anti_windup_method (AntiWindup):
                 Selected anti-windup technique for the controller.
+            ka (float):
+                Back-calculation scaling factor stored with the controller.
         """
         self._plant = plant
         self._control_constraint = control_constraint or [-5.0, 5.0]
         self._anti_windup_method = anti_windup_method
+        self._ka = float(ka)
 
     # TODO(2026-03-18): Reactivate and fix __format__ only when symbolic closed-loop
     # transfer export is actually needed. The previous implementation was unused in
@@ -107,6 +114,11 @@ class ClosedLoop(ABC):
     @property
     def anti_windup_method(self) -> AntiWindup:
         return self._anti_windup_method
+
+    @property
+    def ka(self) -> float:
+        """Back-calculation scaling factor."""
+        return self._ka
 
     @abstractmethod
     def controller(self, s: complex | np.ndarray) -> complex | np.ndarray:

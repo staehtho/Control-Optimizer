@@ -9,8 +9,7 @@ Ti = 9.5608;
 Td = 0.2972;
 Tf = 0.01;
 filter = s / ( Tf * s + 1); 
-ka = 1 /(sqrt(Ti * Td));
-ka = 1;
+ka = 1/10;
 
 sim('Vorlage_clamping')
 
