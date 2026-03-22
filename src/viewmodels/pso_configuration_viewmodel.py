@@ -1,21 +1,19 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from PySide6.QtCore import QObject, Signal, Slot
 
-from service import SimulationService
-from app_types import PsoSimulationParam, PsoResult
+from app_types import PsoSimulationParam
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
-from models import (
-    ModelContainer,
-    PsoConfigurationModel,
-    SettingsModel,
-    PlantModel,
-    FunctionModel,
-    ControllerModel,
-    PsoSimulationSnapshot,
-)
 from utils import LoggedProperty
+from models import PsoSimulationSnapshot
 from .base_viewmodel import BaseViewModel
 from app_types import PsoField
 
+if TYPE_CHECKING:
+    from service import SimulationService
+    from app_types import PsoResult
+    from models import ModelContainer, PsoConfigurationModel, SettingsModel, PlantModel, FunctionModel, ControllerModel
 
 class PsoConfigurationViewModel(BaseViewModel):
     t0Changed = Signal()

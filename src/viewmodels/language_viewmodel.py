@@ -1,9 +1,13 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from PySide6.QtCore import QObject, QCoreApplication, QTranslator, Signal, Slot
 
-from models import SettingsModel
 from utils import LoggedProperty
 from .base_viewmodel import BaseViewModel
 from app_types import LanguageType
+
+if TYPE_CHECKING:
+    from models import SettingsModel
 
 
 class LanguageViewModel(BaseViewModel):

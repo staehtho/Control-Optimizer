@@ -1,20 +1,26 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING, Any
 
 from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QTabWidget, QHBoxLayout
 from PySide6.QtCore import QT_TRANSLATE_NOOP, Qt
 from numpy import ndarray
 
 from app_domain.controlsys import AntiWindup
-from app_domain.ui_context import UiContext
-from app_types import FrequencyResponse, EvaluationField, FieldConfig, PlotData, BodePlotData, PlotLabels, \
-    SectionConfig, PsoResultField
+from app_types import EvaluationField, SectionConfig, FieldConfig, PlotData, BodePlotData, PlotLabels, PsoResultField
 from utils import SvgLayer, merge_svgs, recolor_svg
-from viewmodels import EvaluationViewModel, PlotViewModel
 from views import ViewMixin
 from views.plot_style import PLOT_STYLE
-from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, SectionFrame, FormulaWidget, \
-    BodePlotWidget, AspectRatioSvgWidget
+from views.widgets import (
+    PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, BodePlotWidget, AspectRatioSvgWidget, FormulaWidget
+)
 from views.resources import BLOCK_DIAGRAM_DIR, BlockDiagram, Icons
+
+if TYPE_CHECKING:
+    from app_domain.ui_context import UiContext
+    from app_types import FrequencyResponse
+    from viewmodels import EvaluationViewModel, PlotViewModel
+    from views.widgets import SectionFrame
+
 
 TIME_DOMAIN = "time_domain"
 FREQUENCY_DOMAIN = "frequency_domain"

@@ -1,8 +1,12 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 import logging
 import numpy as np
 
 from app_domain.controlsys import Plant, PIDClosedLoop
-from app_types import ClosedLoopResponseContext
+
+if TYPE_CHECKING:
+    from app_types import ClosedLoopResponseContext
 
 class ClosedLoopResponseEngine:
     """Domain engine for closed-loop response simulation."""

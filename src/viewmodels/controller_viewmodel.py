@@ -1,10 +1,14 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from PySide6.QtCore import QObject, Signal
 
 from app_domain.controlsys import AntiWindup
-from models import ControllerModel
 from .base_viewmodel import BaseViewModel
 from app_types import ControllerField
 from utils import LoggedProperty
+
+if TYPE_CHECKING:
+    from models import ControllerModel
 
 
 class ControllerViewModel(BaseViewModel):

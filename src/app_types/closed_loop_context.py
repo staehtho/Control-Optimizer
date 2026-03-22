@@ -1,9 +1,10 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING, Callable
 from dataclasses import dataclass
-from typing import Callable
 import numpy as np
 
-from app_domain.controlsys import AntiWindup, MySolver
-
+if TYPE_CHECKING:
+    from app_domain.controlsys import AntiWindup, MySolver
 
 @dataclass
 class ClosedLoopResponseContext:

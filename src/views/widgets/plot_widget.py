@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from pathlib import Path
 from functools import partial
 from dataclasses import dataclass, field
@@ -11,12 +13,14 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib import cbook
 
-from app_domain.ui_context import UiContext
 from app_types import PlotField
-from viewmodels import PlotViewModel
 from views import ViewMixin
-from views.widgets import SectionFrame
 from views.widgets.toggle_switch import ToggleSwitch, TextPosition
+
+if TYPE_CHECKING:
+    from app_domain.ui_context import UiContext
+    from viewmodels import PlotViewModel
+    from views.widgets import SectionFrame
 
 
 @dataclass
@@ -39,7 +43,7 @@ class PlotWidgetConfiguration:
     subplot_configuration: dict[int, SubplotConfiguration] = field(default_factory=dict)
     show_x_min: bool = True
     show_x_max: bool = True
-    # Width / height ratio for a fixed-size canvas. Set to None to allow free resizing.
+    # Width / height ratio for a fixed-size canvas. Set None to allow free resizing.
     fixed_aspect_ratio: float | None = 500 / 350
 
 

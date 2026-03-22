@@ -1,9 +1,13 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from PySide6.QtCore import QObject, Signal, Property, QByteArray, Slot
 
 from app_domain.controlsys import MySolver
-
-from models import SettingsModel
 from .base_viewmodel import BaseViewModel
+
+if TYPE_CHECKING:
+    from models import SettingsModel
 
 
 class SettingsViewModel(BaseViewModel):

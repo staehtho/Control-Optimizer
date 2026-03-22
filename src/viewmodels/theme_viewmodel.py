@@ -1,11 +1,16 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 import re
+
 from PySide6.QtCore import QObject, Signal, Slot
 from PySide6.QtGui import QColor
 
-from models import SettingsModel
 from utils import LoggedProperty
 from app_types import ThemeType
 from .base_viewmodel import BaseViewModel
+
+if TYPE_CHECKING:
+    from models import SettingsModel
 
 
 class ThemeViewModel(BaseViewModel):

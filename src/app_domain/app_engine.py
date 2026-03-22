@@ -1,4 +1,6 @@
+from __future__ import annotations
 import logging
+from typing import TYPE_CHECKING, TypeVar, Callable
 
 from app_types import PlantResponseContext, PsoSimulationParam
 from app_domain.controlsys import MySolver, AntiWindup, ExcitationTarget, PerformanceIndex
@@ -6,143 +8,211 @@ from app_domain.functions import StepFunction
 from models import ModelContainer
 from service import SimulationService
 from .ui_context import UiContext
-from viewmodels import (
-    PlantViewModel, LanguageViewModel, ThemeViewModel, PlotViewModel, FunctionViewModel, SettingsViewModel,
-    ControllerViewModel, PsoConfigurationViewModel, EvaluationViewModel, SimulationViewModel, BodePlotViewModel
-)
+
+if TYPE_CHECKING:
+    from viewmodels import (
+        PlotViewModel, BodePlotViewModel, FunctionViewModel,
+        LanguageViewModel, ThemeViewModel, PlantViewModel,
+        ControllerViewModel, PsoConfigurationViewModel,
+        EvaluationViewModel, SimulationViewModel, SettingsViewModel
+    )
+
+T = TypeVar("T")
 
 
 class AppEngine:
-    """Main application engine that initializes domain services and ViewModels.
+    """
+    Central application engine and composition root for MVVM architecture.
 
     Responsibilities:
-        - Initialize logging
-        - Initialize simulation services
-        - Perform PSO warmup
-        - Instantiate ViewModels and model containers
+        - Initialize core services (logging, simulation, models)
+        - Provide lazy factories for all ViewModels
+        - Cache ViewModels for singleton access
+        - Reduce startup time via deferred instantiation
+        - Serve as dependency provider for the UI layer
     """
 
+    # ==========================================================
+    # Initialization
+    # ==========================================================
     def __init__(self, run_warmup: bool = True, warmup_runs: int = 2):
-        """Initialize the application engine."""
+        """
+        Initialize the application engine.
+
+        Args:
+            run_warmup: Whether to execute warmup routines
+            warmup_runs: Number of warmup iterations
+        """
         # ------------------------------
         # Logger
         # ------------------------------
         self.logger = logging.getLogger(f"AppEngine.{self.__class__.__name__}")
-        self.logger.info("Starting new Application Engine.")
+        self.logger.info("Starting Application Engine...")
 
         # ------------------------------
-        # Simulation services
+        # Core services
         # ------------------------------
         self.simulation_service = SimulationService()
 
         # ------------------------------
-        # Warmup
+        # Optional warmup
         # ------------------------------
         if run_warmup:
             self.run_warmup(warmup_runs)
 
         # ------------------------------
-        # Model containers
+        # Domain models
         # ------------------------------
         self.model_container = ModelContainer()
 
         # ------------------------------
-        # ViewModels
+        # Typed singleton ViewModel attributes (lazy)
         # ------------------------------
-        # Cache for PlotViewModel instances keyed by plot type.
+        self._vm_language: LanguageViewModel | None = None
+        self._vm_theme: ThemeViewModel | None = None
+        self._vm_settings: SettingsViewModel | None = None
+        self._vm_plant: PlantViewModel | None = None
+        self._vm_controller: ControllerViewModel | None = None
+        self._vm_pso: PsoConfigurationViewModel | None = None
+        self._vm_evaluator: EvaluationViewModel | None = None
+        self._vm_simulation: SimulationViewModel | None = None
+
+        # ------------------------------
+        # Keyed ViewModel caches
+        # ------------------------------
         self._vm_plots: dict[str, PlotViewModel] = {}
-        # Cache for BodePlotViewModel instances keyed by plot type.
         self._vm_bode_plots: dict[str, BodePlotViewModel] = {}
-        # Cache for FunctionViewModel instances keyed by plot type.
         self._vm_functions: dict[str, FunctionViewModel] = {}
 
-        # Language ViewModel (e.g., for translations)
-        self.vm_lang = LanguageViewModel(self.model_container.model_settings)
-        # Theme ViewModel (e.g., for UI styles)
-        self.vm_theme = ThemeViewModel(self.model_container.model_settings)
-
-        # Plant
-        self.vm_plant = PlantViewModel(self.model_container, self.simulation_service)
-
-        # Controller ViewModel
-        self.vm_controller = ControllerViewModel(self.model_container.model_controller)
-
-        # PSO configuration ViewModel
-        self.vm_pso = PsoConfigurationViewModel(self.model_container, self.simulation_service)
-
-        # Evaluation ViewModel
-        self.vm_evaluator = EvaluationViewModel(self.model_container.model_settings, self.vm_pso,
-                                                self.simulation_service)
-
-        # Simulation ViewModel
-        model_functions = {i.name: self.model_container.ensure_function_model(i.name) for i in ExcitationTarget}
-        self.vm_simulation = SimulationViewModel(
-            model_functions, self.model_container.model_settings, self.vm_pso, self.simulation_service
-        )
-
-        self.vm_settings = SettingsViewModel(self.model_container.model_settings)
-
+        # ------------------------------
+        # UI context (uses lazy factories)
+        # ------------------------------
         self.ui_context = UiContext(
-            settings=self.vm_settings,
-            vm_lang=self.vm_lang,
-            vm_theme=self.vm_theme,
+            settings=self.ensure_settings_viewmodel(),
+            vm_lang=self.ensure_language_viewmodel(),
+            vm_theme=self.ensure_theme_viewmodel(),
         )
 
-        self.logger.info("Application Engine initialization completed.")
+        self.logger.info("Application Engine initialized.")
 
-    def ensure_plot_viewmodel(self, key: str) -> PlotViewModel:
+    # ==========================================================
+    # Generic factory helper
+    # ==========================================================
+    @staticmethod
+    def _get_or_create(cache: dict[str, T], key: str, factory: Callable[[], T]) -> T:
         """
-        Ensure a PlotViewModel exists for the given key, creating and caching it if necessary.
-
-        Implements a lazy-initializing factory with caching:
-        - Returns the existing PlotViewModel if present.
-        - Otherwise, creates, caches, and returns a new PlotViewModel.
+        Retrieve an instance from cache or create it lazily.
 
         Args:
-            key (str): Identifier for the plot (e.g., "plant", "function").
+            cache: Dictionary storing instances
+            key: Unique identifier for the instance
+            factory: Callable that creates the instance
 
         Returns:
-            PlotViewModel: The cached or newly created PlotViewModel instance.
+            Cached or newly created instance
         """
-        return self._vm_plots.setdefault(key, PlotViewModel())
+        vm = cache.get(key)
+        if vm is None:
+            vm = factory()
+            cache[key] = vm
+        return vm
+
+    # ==========================================================
+    # Generic lazy helper for typed singletons
+    # ==========================================================
+    def _ensure(self, attr_name: str, factory: Callable[[], T]) -> T:
+        """
+        Retrieve a cached ViewModel or create it lazily.
+
+        Args:
+            attr_name: Name of the attribute storing the ViewModel
+            factory: Callable that creates the ViewModel if missing
+
+        Returns:
+            The cached or newly created ViewModel instance
+        """
+        vm = getattr(self, attr_name)
+        if vm is None:
+            vm = factory()
+            setattr(self, attr_name, vm)
+        return vm
+
+    # ==========================================================
+    # Singleton-style ViewModel factories
+    # ==========================================================
+    def ensure_language_viewmodel(self) -> LanguageViewModel:
+        from viewmodels import LanguageViewModel
+        return self._ensure("_vm_language", lambda: LanguageViewModel(self.model_container.model_settings))
+
+    def ensure_theme_viewmodel(self) -> ThemeViewModel:
+        from viewmodels import ThemeViewModel
+        return self._ensure("_vm_theme", lambda: ThemeViewModel(self.model_container.model_settings))
+
+    def ensure_settings_viewmodel(self) -> SettingsViewModel:
+        from viewmodels import SettingsViewModel
+        return self._ensure("_vm_settings", lambda: SettingsViewModel(self.model_container.model_settings))
+
+    def ensure_plant_viewmodel(self) -> PlantViewModel:
+        from viewmodels import PlantViewModel
+        return self._ensure("_vm_plant", lambda: PlantViewModel(self.model_container, self.simulation_service))
+
+    def ensure_controller_viewmodel(self) -> ControllerViewModel:
+        from viewmodels import ControllerViewModel
+        return self._ensure("_vm_controller", lambda: ControllerViewModel(self.model_container.model_controller))
+
+    def ensure_pso_viewmodel(self) -> PsoConfigurationViewModel:
+        from viewmodels import PsoConfigurationViewModel
+        return self._ensure("_vm_pso", lambda: PsoConfigurationViewModel(self.model_container, self.simulation_service))
+
+    def ensure_evaluator_viewmodel(self) -> EvaluationViewModel:
+        from viewmodels import EvaluationViewModel
+        return self._ensure(
+            "_vm_evaluator",
+            lambda: EvaluationViewModel(
+                self.model_container.model_settings,
+                self.ensure_pso_viewmodel(),
+                self.simulation_service
+            )
+        )
+
+    def ensure_simulation_viewmodel(self) -> SimulationViewModel:
+        from viewmodels import SimulationViewModel
+        def factory():
+            model_functions = {
+                i.name: self.model_container.ensure_function_model(i.name)
+                for i in ExcitationTarget
+            }
+            return SimulationViewModel(
+                model_functions,
+                self.model_container.model_settings,
+                self.ensure_pso_viewmodel(),
+                self.simulation_service
+            )
+
+        return self._ensure("_vm_simulation", factory)
+
+    # ==========================================================
+    # Keyed ViewModel factories
+    # ==========================================================
+    def ensure_plot_viewmodel(self, key: str) -> PlotViewModel:
+        from viewmodels.plot_viewmodel import PlotViewModel
+        return self._get_or_create(self._vm_plots, key, PlotViewModel)
 
     def ensure_bode_plot_viewmodel(self, key: str) -> BodePlotViewModel:
-        """
-        Ensure a BodePlotViewModel exists for the given key, creating and caching it if necessary.
-
-        Implements a lazy-initializing factory with caching:
-        - Returns the existing BodePlotViewModel if present.
-        - Otherwise, creates, caches, and returns a new BodePlotViewModel.
-
-        Args:
-            key (str): Identifier for the plot (e.g., "plant").
-
-        Returns:
-            BodePlotViewModel: The cached or newly created BodePlotViewModel instance.
-        """
-        return self._vm_bode_plots.setdefault(key, BodePlotViewModel())
+        from viewmodels.bode_plot_viewmodel import BodePlotViewModel
+        return self._get_or_create(self._vm_bode_plots, key, BodePlotViewModel)
 
     def ensure_function_viewmodel(self, key: str) -> FunctionViewModel:
-        """
-        Ensure a FunctionViewModel exists for the given key, creating and caching it if necessary.
-
-        Implements a lazy-initializing factory with caching:
-        - Returns the existing FunctionViewModel if present.
-        - Otherwise, creates, caches, and returns a new FunctionViewModel.
-
-        Args:
-            key (str): Identifier for the function (e.g., "plant", "function").
-
-        Returns:
-            FunctionViewModel: The cached or newly created FunctionViewModel instance.
-        """
-        return self._vm_functions.setdefault(
-            key, FunctionViewModel(self.model_container.ensure_function_model(key), self.simulation_service)
+        from viewmodels.function_viewmodel import FunctionViewModel
+        return self._get_or_create(
+            self._vm_functions,
+            key,
+            lambda: FunctionViewModel(self.model_container.ensure_function_model(key), self.simulation_service)
         )
 
-    # ------------------------------
-    # Step Response Warmup Method
-    # ------------------------------
+    # ==========================================================
+    # Step Response Warmup routine
+    # ==========================================================
     def step_response_warmup(self):
         """Perform a minimal step response to warm up the engine.
 
@@ -165,9 +235,9 @@ class AppEngine:
         self.simulation_service.compute_plant_response(context, callback=lambda t, y: self.logger.info(
             "Step response warmup completed successfully."))
 
-    # ------------------------------
-    # PSO Warmup Method
-    # ------------------------------
+    # ==========================================================
+    # PSO Warmup routine
+    # ==========================================================
     def pso_warmup(self):
         """Perform a minimal PSO simulation to warm up the engine.
 

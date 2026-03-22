@@ -1,8 +1,12 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 import logging
 from numpy import ndarray
 
 from app_domain.controlsys import Plant, PIDClosedLoop
-from app_types import ControllerTransferContext
+
+if TYPE_CHECKING:
+    from app_types import ControllerTransferContext
 
 
 class ControllerTransferEngine:

@@ -1,5 +1,6 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING, Optional
 from functools import partial
-from typing import Optional
 
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
@@ -13,12 +14,14 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QDoubleValidator, Qt
 
-from app_domain.ui_context import UiContext
 from app_domain.functions import resolve_function_type, FunctionTypes
-from viewmodels import FunctionViewModel
 from views import ViewMixin
-from . import SectionFrame
 from .formula_widget import FormulaWidget
+
+if TYPE_CHECKING:
+    from .section_frame import SectionFrame
+    from app_domain.ui_context import UiContext
+    from viewmodels import FunctionViewModel
 
 FORMULA = "formula"
 

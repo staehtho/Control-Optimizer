@@ -1,12 +1,18 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QStackedWidget
 from PySide6.QtGui import QCloseEvent, QIcon
 
-from app_domain.ui_context import UiContext
-from app_types import NavLabels, NavItem
-from viewmodels import PsoConfigurationViewModel
+from app_types import NavLabels
 from views import ViewMixin
 from views.resources import Icons, ICONS_DIR
 from views.widgets import NavigationWidget
+
+if TYPE_CHECKING:
+    from app_domain.ui_context import UiContext
+    from viewmodels import PsoConfigurationViewModel
+    from app_types import NavItem
 
 
 class MainView(ViewMixin, QMainWindow):

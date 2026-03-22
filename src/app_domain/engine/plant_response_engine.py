@@ -1,9 +1,13 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 import logging
 
 from numpy import ndarray
 
 from app_domain.controlsys import Plant
-from app_types import PlantResponseContext
+
+if TYPE_CHECKING:
+    from app_types import PlantResponseContext
 
 class PlantResponseEngine:
     """Domain engine that computes a plant response.

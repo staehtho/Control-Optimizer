@@ -2,7 +2,7 @@ from enum import Enum
 from dataclasses import dataclass
 from typing import Type
 from PySide6.QtWidgets import QWidget, QLabel
-from PySide6.QtGui import QDoubleValidator
+from PySide6.QtGui import QDoubleValidator, QValidator
 
 
 @dataclass
@@ -10,7 +10,7 @@ class FieldConfig:
     key: str | FieldType
     widget_type: Type[QWidget] = QLabel
     create_label: bool = True
-    validator: object = QDoubleValidator()
+    validator: QValidator = QDoubleValidator()
     toggleable: bool = False
     toggle_default: bool = True
 

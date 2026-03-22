@@ -1,13 +1,17 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from functools import partial
 
 from PySide6.QtWidgets import QWidget, QComboBox, QLineEdit, QFrame, QLabel, QGridLayout, QHBoxLayout
 from PySide6.QtGui import QIntValidator
 
-from app_domain import UiContext
 from app_domain.controlsys import MySolver
 from app_types import SettingsField, LanguageType, ThemeType, FieldConfig, SectionConfig
 from views.view_mixin import ViewMixin
 from views.resources import Icons
+
+if TYPE_CHECKING:
+    from app_domain import UiContext
 
 
 FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {

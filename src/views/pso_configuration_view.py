@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from functools import partial
 
 from PySide6.QtWidgets import (
@@ -14,13 +16,17 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import QObject
 from PySide6.QtGui import QDoubleValidator
 
-from app_domain.ui_context import UiContext
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
 from app_types import PsoField, FieldConfig, SectionConfig
-from viewmodels import PlantViewModel, FunctionViewModel, PsoConfigurationViewModel
 from views.view_mixin import ViewMixin
-from views.widgets import SectionFrame, FormulaWidget
+from views.widgets import FormulaWidget
 from views.resources import Icons
+
+if TYPE_CHECKING:
+    from app_domain.ui_context import UiContext
+    from viewmodels import PlantViewModel, FunctionViewModel, PsoConfigurationViewModel
+    from views.widgets import SectionFrame
+
 
 FIELDS: list[FieldConfig | SectionConfig] = [
     SectionConfig(PsoField.PLANT, [

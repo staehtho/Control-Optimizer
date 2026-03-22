@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from functools import partial
 
 from PySide6.QtCore import Qt, Signal, QSize, QPropertyAnimation
@@ -11,10 +13,14 @@ from PySide6.QtWidgets import (
     QGraphicsOpacityEffect,
 )
 
-from app_domain.ui_context import UiContext
-from app_types import NavItem, NavLabels, ThemeType
+from app_types import ThemeType
 from views import ViewMixin
 from views.resources import Icons
+
+if TYPE_CHECKING:
+    from app_domain.ui_context import UiContext
+    from app_types import NavLabels, NavItem
+
 
 MENU_ICONS = {ThemeType.DARK: "menu_dark.svg", ThemeType.LIGHT: "menu_light.svg"}
 
@@ -22,7 +28,7 @@ MENU_ICONS = {ThemeType.DARK: "menu_dark.svg", ThemeType.LIGHT: "menu_light.svg"
 class NavigationWidget(ViewMixin, QWidget):
     """Sidebar navigation widget with collapsible behavior."""
 
-    viewSelected = Signal(NavLabels)
+    viewSelected = Signal(object)
 
     COLLAPSED_WIDTH = 70
     EXPANDED_WIDTH = 220

@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from functools import partial
 
 from PySide6.QtCore import QObject, QRegularExpression, Qt, QT_TRANSLATE_NOOP
@@ -6,13 +8,18 @@ from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QScrollAr
 from typing import Callable
 from numpy import ndarray
 
-from app_domain.ui_context import UiContext
-from viewmodels import PlantViewModel, PlotViewModel
-from app_types import PlotData, PlantField, PlotLabels, PlotField
+from app_types import PlotData, PlantField, PlotLabels
 from views import ViewMixin
 from views.plot_style import PLOT_STYLE
-from views.widgets import PlotWidget, PlotWidgetConfiguration, SectionFrame, FormulaWidget
+from views.widgets import PlotWidget, PlotWidgetConfiguration, FormulaWidget
 from views.resources import Icons
+
+if TYPE_CHECKING:
+    from app_domain.ui_context import UiContext
+    from app_types import PlotField
+    from viewmodels import PlantViewModel, PlotViewModel
+    from views.widgets import SectionFrame
+
 
 TXT_WIDTH = 220
 

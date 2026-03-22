@@ -1,19 +1,24 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 import sys
-
-from PySide6.QtCore import QObject, Signal, Slot
 from numpy import ndarray, linspace
 
-from service import SimulationService
+from PySide6.QtCore import QObject, Signal, Slot
+
 from app_types import (
-    PlantResponseContext, ClosedLoopResponseContext, PsoResult, PlantTransferContext, ControllerTransferContext
+    PlantResponseContext, ClosedLoopResponseContext, PlantTransferContext, ControllerTransferContext
 )
 from app_domain.controlsys import ExcitationTarget, AntiWindup
-from app_domain.functions import NullFunction, BaseFunction
-from models import SettingsModel, PsoSimulationSnapshot
+from app_domain.functions import NullFunction
 from utils import LoggedProperty
 from .base_viewmodel import BaseViewModel
-from .pso_configuration_viewmodel import PsoConfigurationViewModel
 
+if TYPE_CHECKING:
+    from service import SimulationService
+    from app_types import PsoResult
+    from app_domain.functions import BaseFunction
+    from models import SettingsModel, PsoSimulationSnapshot
+    from viewmodels import PsoConfigurationViewModel
 
 class EvaluationViewModel(BaseViewModel):
     """Exposes controller evaluation values and keeps them synced with PSO output."""
@@ -41,6 +46,7 @@ class EvaluationViewModel(BaseViewModel):
         self._simulation_service = simulation_service
 
         self._connect_signals()
+        self._on_pso_simulation_finished()
 
     def _connect_signals(self) -> None:
         # Pull fresh evaluation values whenever a new PSO run completes.

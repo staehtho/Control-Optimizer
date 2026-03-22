@@ -1,10 +1,12 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING, Callable
 import logging
-from typing import Callable
-
 from numpy import ndarray
+
 from PySide6.QtCore import QThread, Signal
 
-from app_domain.engine import FunctionEngine
+if TYPE_CHECKING:
+    from app_domain.engine import FunctionEngine
 
 
 class FunctionWorker(QThread):

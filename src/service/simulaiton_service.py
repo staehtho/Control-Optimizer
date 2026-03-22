@@ -1,4 +1,5 @@
-from typing import Callable
+from __future__ import annotations
+from typing import TYPE_CHECKING, Callable
 import logging
 from numpy import ndarray
 from PySide6.QtCore import QThread
@@ -7,14 +8,16 @@ from app_domain.engine import (
     PlantResponseEngine, FunctionEngine, PsoSimulationEngine, ClosedLoopResponseEngine, PlantTransferEngine,
     ControllerTransferEngine, FrequencyGridEngine, FrequencyResponseEngine
 )
-from app_types import (
-    PlantResponseContext, PsoSimulationParam, PsoResult, ClosedLoopResponseContext, PlantTransferContext,
-    FrequencyResponse, ControllerTransferContext
-)
 from infrastructure import (
     PlantResponseWorker, FunctionWorker, PsoSimulationWorker, ClosedLoopResponseWorker, PlantFrequencyWorker,
     ClosedLoopFrequencyWorker
 )
+
+if TYPE_CHECKING:
+    from app_types import (
+        PlantResponseContext, PsoSimulationParam, PsoResult, ClosedLoopResponseContext, PlantTransferContext,
+        FrequencyResponse, ControllerTransferContext
+    )
 
 
 class SimulationService:

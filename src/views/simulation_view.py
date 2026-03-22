@@ -1,18 +1,23 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from functools import partial
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QTabWidget, QSizePolicy, QHBoxLayout
 from PySide6.QtCore import QT_TRANSLATE_NOOP
-from numpy import ndarray
 
 from app_domain.functions import resolve_function_type, FunctionTypes
-from app_domain.ui_context import UiContext
 from app_domain.controlsys import ExcitationTarget
 from app_types import PlotData, PlotLabels
-from viewmodels import FunctionViewModel, PlotViewModel, SimulationViewModel
 from views.view_mixin import ViewMixin
 from views.plot_style import PLOT_STYLE
 from views.resources import Icons
-from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, SectionFrame, FunctionWidget
+from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, FunctionWidget
+
+if TYPE_CHECKING:
+    from numpy import ndarray
+    from app_domain.ui_context import UiContext
+    from viewmodels import FunctionViewModel, PlotViewModel, SimulationViewModel
+    from views.widgets import SectionFrame
 
 
 class SimulationView(ViewMixin, QWidget):

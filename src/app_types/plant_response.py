@@ -1,9 +1,11 @@
-from typing import Callable
+from __future__ import annotations
+from typing import TYPE_CHECKING, Callable
 
 from numpy import ndarray
 from dataclasses import dataclass
 
-from app_domain.controlsys import MySolver
+if TYPE_CHECKING:
+    from app_domain.controlsys import MySolver
 
 
 @dataclass

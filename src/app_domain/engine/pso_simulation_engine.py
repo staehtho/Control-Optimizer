@@ -1,4 +1,5 @@
-from typing import Callable, Tuple, Optional
+from __future__ import annotations
+from typing import TYPE_CHECKING, Callable, Tuple, Optional
 import logging
 import numpy as np
 import sys
@@ -6,8 +7,10 @@ import time
 
 from app_domain.controlsys import ExcitationTarget, Plant, PIDClosedLoop, PsoFunc, dominant_pole_realpart
 from app_domain.PSO import Swarm
-from app_types import PsoResult, PsoSimulationParam
+from app_types import PsoResult
 
+if TYPE_CHECKING:
+    from app_types import PsoSimulationParam
 
 class PsoSimulationEngine:
     """Domain-layer engine for PSO-based PID optimization."""

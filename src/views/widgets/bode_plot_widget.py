@@ -1,12 +1,16 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from PySide6.QtCore import QObject, QT_TRANSLATE_NOOP
 import numpy as np
 from matplotlib.ticker import LogLocator
 
-from app_domain.ui_context import UiContext
-from viewmodels import PlotViewModel
 from app_types import BodePlotData
 from .plot_widget import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration
 
+if TYPE_CHECKING:
+    from app_domain.ui_context import UiContext
+    from viewmodels import PlotViewModel
 
 class BodePlotWidget(PlotWidget):
     """Widget for displaying a Bode plot.

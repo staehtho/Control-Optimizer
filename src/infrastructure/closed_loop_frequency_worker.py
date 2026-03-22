@@ -1,11 +1,18 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 import logging
-from PySide6.QtCore import QThread, Signal
 from numpy import ndarray
 
-from app_domain.engine import ControllerTransferEngine, FrequencyResponseEngine, FrequencyGridEngine, \
-    PlantTransferEngine
-from app_types import PlantTransferContext, ControllerTransferContext, FrequencyResponse
-from app_types import PlotLabels
+from PySide6.QtCore import QThread, Signal
+
+from app_types import PlotLabels, FrequencyResponse
+
+if TYPE_CHECKING:
+    from app_types import PlantTransferContext, ControllerTransferContext
+    from app_domain.engine import (
+        ControllerTransferEngine, FrequencyResponseEngine, FrequencyGridEngine, PlantTransferEngine
+    )
+
 
 class ClosedLoopFrequencyWorker(QThread):
     """Worker thread to compute frequency-domain responses of a closed-loop system.
@@ -16,10 +23,10 @@ class ClosedLoopFrequencyWorker(QThread):
     and emits the results via the `resultReady` signal.
 
     Signals:
-        resultReady (FrequencyResponse): Emitted when the computation is complete.
+        resultReady (object): Emitted when the computation is complete.
     """
 
-    resultReady = Signal(FrequencyResponse)
+    resultReady = Signal(object)
 
     def __init__(
             self,

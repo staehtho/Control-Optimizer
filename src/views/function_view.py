@@ -1,15 +1,21 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from PySide6.QtCore import QObject, QT_TRANSLATE_NOOP
 from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QSizePolicy, QHBoxLayout
 from numpy import ndarray
 
-from app_domain.ui_context import UiContext
 from app_domain.functions import FunctionTypes, resolve_function_type
 from app_types import PlotData, PlotLabels
-from viewmodels import FunctionViewModel, PlotViewModel
 from views import ViewMixin
 from views.plot_style import PLOT_STYLE
 from views.resources import Icons
-from views.widgets import PlotWidget, PlotWidgetConfiguration, FunctionWidget, SectionFrame
+from views.widgets import PlotWidget, PlotWidgetConfiguration, FunctionWidget
+
+if TYPE_CHECKING:
+    from app_domain.ui_context import UiContext
+    from viewmodels import FunctionViewModel, PlotViewModel
+    from views.widgets import SectionFrame
 
 
 class FunctionView(ViewMixin, QWidget):

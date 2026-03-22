@@ -1,14 +1,21 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from functools import partial
+
 from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit, QHBoxLayout
 
-from app_domain.ui_context import UiContext
 from app_domain.controlsys import AntiWindup
 from utils import recolor_svg, merge_svgs, SvgLayer
-from viewmodels import ControllerViewModel
 from app_types import ControllerField, FieldConfig, SectionConfig
 from .view_mixin import ViewMixin
-from views.widgets import SectionFrame, AspectRatioSvgWidget
+from views.widgets import AspectRatioSvgWidget
 from views.resources import BLOCK_DIAGRAM_DIR, BlockDiagram, Icons
+
+if TYPE_CHECKING:
+    from app_domain.ui_context import UiContext
+    from viewmodels import ControllerViewModel
+    from views.widgets import SectionFrame
+
 
 FIELDS: list[FieldConfig] = [
     SectionConfig(ControllerField.CONSTRAINT, [

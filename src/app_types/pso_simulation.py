@@ -1,7 +1,10 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from dataclasses import dataclass
 
-from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex, MySolver
-from app_domain.functions import BaseFunction
+if TYPE_CHECKING:
+    from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex, MySolver
+    from app_domain.functions import BaseFunction
 
 
 @dataclass

@@ -1,9 +1,15 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 import logging
-from PySide6.QtCore import QThread, Signal
 from numpy import ndarray
 
-from app_domain.engine import PlantTransferEngine, FrequencyGridEngine
-from app_types import PlantTransferContext, FrequencyResponse, PlotLabels
+from PySide6.QtCore import QThread, Signal
+
+from app_types import FrequencyResponse, PlotLabels
+
+if TYPE_CHECKING:
+    from app_domain.engine import PlantTransferEngine, FrequencyGridEngine
+    from app_types import PlantTransferContext
 
 class PlantFrequencyWorker(QThread):
     """Worker thread to compute the plant frequency response in a separate thread.
@@ -13,10 +19,10 @@ class PlantFrequencyWorker(QThread):
     the `resultReady` signal.
 
     Signals:
-        resultReady (FrequencyResponse): Emitted when the computation is complete.
+        resultReady (object): Emitted when the computation is complete.
     """
 
-    resultReady = Signal(FrequencyResponse)
+    resultReady = Signal(object)
 
     def __init__(
             self,

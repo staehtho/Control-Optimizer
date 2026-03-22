@@ -1,15 +1,18 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 import logging
 
 from PySide6.QtCore import QThread, Signal
 
-from app_domain.engine import PsoSimulationEngine
-from app_types import PsoSimulationParam, PsoResult
+if TYPE_CHECKING:
+    from app_domain.engine import PsoSimulationEngine
+    from app_types import PsoSimulationParam
 
 
 class PsoSimulationWorker(QThread):
     """Background worker that executes a PSO optimization run."""
 
-    resultReady = Signal(PsoResult)
+    resultReady = Signal(object)
     progressChanged = Signal(int)
 
     def __init__(self, engine: PsoSimulationEngine, pso_simulation_param: PsoSimulationParam) -> None:

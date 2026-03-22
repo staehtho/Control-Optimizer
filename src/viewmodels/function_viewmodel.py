@@ -1,13 +1,18 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 import sys
 
 import numpy as np
 from PySide6.QtCore import QObject, Signal, Slot, QTimer
 
-from app_domain.functions import BaseFunction, FunctionTypes
-from models import FunctionModel
-from service import SimulationService
+from app_domain.functions import BaseFunction
 from .base_viewmodel import BaseViewModel
 from utils import LoggedProperty
+
+if TYPE_CHECKING:
+    from app_domain.functions import FunctionTypes
+    from service import SimulationService
+    from models import FunctionModel
 
 
 class FunctionViewModel(BaseViewModel):
@@ -37,7 +42,7 @@ class FunctionViewModel(BaseViewModel):
     # -------------------
     # function
     # -------------------
-    @Slot(FunctionTypes)
+    @Slot(object)
     def set_selected_function(self, function: FunctionTypes) -> None:
         self.logger.debug(f"set_function called (function={function})")
 

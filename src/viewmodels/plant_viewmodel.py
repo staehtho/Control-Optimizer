@@ -1,13 +1,18 @@
-from PySide6.QtCore import QObject, Signal, Slot, QTimer
+from __future__ import annotations
+from typing import TYPE_CHECKING
 import numpy as np
 from numpy import ndarray
 from sympy import SympifyError
 
+from PySide6.QtCore import QObject, Signal, Slot, QTimer
+
 from app_types import PlantResponseContext, PlantField, ValidationResult
-from models import ModelContainer, PlantModel, SettingsModel
-from service import SimulationService
-from utils import LatexRenderer, LoggedProperty, str2array, expr2array, array2expr, expr2latex, array2latex
+from utils import LoggedProperty, str2array, expr2array, array2expr, expr2latex, array2latex
 from .base_viewmodel import BaseViewModel
+
+if TYPE_CHECKING:
+    from service import SimulationService
+    from models import ModelContainer, PlantModel, SettingsModel
 
 
 class PlantViewModel(BaseViewModel):

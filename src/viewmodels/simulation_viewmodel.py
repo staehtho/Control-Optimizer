@@ -1,15 +1,20 @@
-from PySide6.QtCore import QObject, Signal, Slot
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from numpy import ndarray
 
+from PySide6.QtCore import QObject, Signal, Slot
+
 from app_domain.functions import NullFunction
-from service import SimulationService
-from app_types import ClosedLoopResponseContext, PlantResponseContext, PsoResult
+from app_types import ClosedLoopResponseContext, PlantResponseContext
 from app_domain.controlsys import ExcitationTarget
-from models import SettingsModel, FunctionModel, PsoSimulationSnapshot
 from utils import LoggedProperty
 from .base_viewmodel import BaseViewModel
-from .pso_configuration_viewmodel import PsoConfigurationViewModel
 
+if TYPE_CHECKING:
+    from service import SimulationService
+    from app_types import PsoResult
+    from models import SettingsModel, FunctionModel, PsoSimulationSnapshot
+    from viewmodels.pso_configuration_viewmodel import PsoConfigurationViewModel
 
 class SimulationViewModel(BaseViewModel):
     psoSimulationFinished = Signal()
@@ -35,6 +40,7 @@ class SimulationViewModel(BaseViewModel):
         self._simulation_service = simulation_service
 
         self._connect_signals()
+        self._on_pso_simulation_finished()
 
     def _connect_signals(self) -> None:
         # Pull fresh evaluation values whenever a new PSO run completes.

@@ -1,6 +1,7 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING, Optional
 import logging
 from pathlib import Path
-from typing import Optional
 
 from PySide6.QtWidgets import (
     QWidget,
@@ -14,15 +15,12 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QIcon
 
-from app_domain.ui_context import UiContext
-from app_types import FieldType, FieldConfig, SectionConfig
 from views.translations import Translation
-from views.view_helpers import (
-    layout_helpers,
-    widget_binding,
-    validation_helpers,
-    icon_helpers,
-)
+from views.view_helpers import layout_helpers, widget_binding, validation_helpers, icon_helpers
+
+if TYPE_CHECKING:
+    from app_domain.ui_context import UiContext
+    from app_types import FieldType, FieldConfig, SectionConfig
 
 
 class ViewMixin:

@@ -2,7 +2,7 @@ from enum import Enum
 
 from PySide6.QtCore import Property, QPropertyAnimation, QEasingCurve, QRectF, QSize, Qt
 from PySide6.QtGui import QColor, QFontMetrics, QPainter, QPalette
-from PySide6.QtWidgets import QAbstractButton, QSizePolicy
+from PySide6.QtWidgets import QAbstractButton
 
 
 class TextPosition(Enum):

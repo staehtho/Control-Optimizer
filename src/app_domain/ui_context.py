@@ -1,6 +1,9 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from dataclasses import dataclass
 
-from viewmodels import LanguageViewModel, ThemeViewModel, SettingsViewModel
+if TYPE_CHECKING:
+    from viewmodels import LanguageViewModel, ThemeViewModel, SettingsViewModel
 
 
 @dataclass(frozen=True)
