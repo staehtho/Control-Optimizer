@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="2250" height="600" viewBox="-25 0 1125 300">
+<svg xmlns="http://www.w3.org/2000/svg" width="2250" height="700" viewBox="-25 0 1125 350">
 
     <style>
         .fill { fill:#000000 }
@@ -12,14 +12,6 @@
     <defs>
         <path id="arrow" class="fill" d=" M0 0 L-5 2 L-5 -2" transform="scale(1.5)"/>
     </defs>
-
-    <defs>
-        <g id="plus">
-            <line class="line" x1="-3.5" y1="0" x2="3.5" y2="0"/>
-            <line class="line" x1="0" y1="-3.5" x2="0" y2="3.5"/>
-        </g>
-    </defs>
-
 
     <!-- Input -->
     <path class="line" d="M0 125 H90" />
@@ -38,7 +30,6 @@
         <g transform="translate(55 0)">
             <circle class="block" cx="0" cy="0" r="5"/>
             <use href="#arrow" transform="translate(0 -5) rotate(90 0 0)"/>
-            <use href="#plus" transform="translate(10 -10)"/>
         </g>
         <path class="line" d="M60 0 H95"/>
         <use href="#arrow" transform="translate(100 0)"/>
@@ -60,7 +51,6 @@
             <circle class="block" cx="0" cy="0" r="5"/>
             <use href="#arrow" transform="translate(-5 0)"/>
             <use href="#arrow" transform="translate(0 -5) rotate(90 0 0)"/>
-            <use href="#plus" transform="translate(10 -10)"/>
         </g>
         <path class="line" d="M55 0 H145"/>
         <use href="#arrow" transform="translate(150 0)"/>
@@ -69,7 +59,7 @@
     </g>
 
     <!-- Output -->
-    <path class="line" d="M975 125 H995 M975 125 V275 H95 V135"/>
+    <path class="line" d="M975 125 H995 M975 125 V300 H95 V135"/>
     <!-- Node -->
     <circle class="fill" cx="975" cy="125" r="4"/>
 </svg>
