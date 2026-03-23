@@ -424,6 +424,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
             toggle.blockSignals(False)
         widget = self.field_widgets.get(key)
         if widget is not None:
+            widget.setEnabled(enabled)
             effect = widget.graphicsEffect()
             if not isinstance(effect, QGraphicsOpacityEffect):
                 effect = QGraphicsOpacityEffect(widget)
