@@ -976,14 +976,12 @@ Must be greater than the start time.</translation>
         <translation>Simulation Time</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="273"/>
         <source>Start Time</source>
-        <translation>Start Time</translation>
+        <translation type="vanished">Start Time</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="274"/>
         <source>End Time</source>
-        <translation>End Time</translation>
+        <translation type="vanished">End Time</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="277"/>
@@ -991,14 +989,43 @@ Must be greater than the start time.</translation>
         <translation>Error Criterion</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="278"/>
         <source>Overshoot Control</source>
-        <translation>Overshoot Control</translation>
+        <translation type="vanished">Overshoot Control</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="273"/>
+        <source>Start Time [s]</source>
+        <translation>Start Time [s]</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="274"/>
+        <source>End Time [s]</source>
+        <translation>End Time [s]</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="278"/>
+        <source>Overshoot Control [%]</source>
+        <translation>Overshoot Control [%]</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="279"/>
         <source>Frequency Domain</source>
         <translation>Frequency Domain</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="280"/>
+        <source>Gain Margin [dB]</source>
+        <translation>Gain Margin [dB]</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="281"/>
+        <source>Phase Margin [°]</source>
+        <translation>Phase Margin [°]</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="282"/>
+        <source>Sensitivity [dB]</source>
+        <translation>Sensitivity [dB]</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="283"/>
@@ -1021,19 +1048,16 @@ Must be greater than the start time.</translation>
         <translation>Td Bounds</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="280"/>
         <source>Gain Margin</source>
-        <translation>Gain Margin</translation>
+        <translation type="vanished">Gain Margin</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="281"/>
         <source>Phase Margin</source>
-        <translation>Phase Margin</translation>
+        <translation type="vanished">Phase Margin</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="282"/>
         <source>Sensitivity</source>
-        <translation>Sensitivity</translation>
+        <translation type="vanished">Sensitivity</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="294"/>
