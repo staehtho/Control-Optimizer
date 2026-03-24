@@ -22,8 +22,17 @@ from tqdm import tqdm
 import pandas as pd
 from app_domain.PSO import Swarm
 #from services.config_loader import load_config, ConfigError
-from app_domain.controlsys import Plant, PIDClosedLoop, PsoFunc, dominant_pole_realpart, settling_time, AntiWindup, \
-    PerformanceIndex, bode_plot, crossover_frequency
+from app_domain.controlsys import (
+    Plant,
+    PIDClosedLoop,
+    PsoFunc,
+    compute_effective_tf_report,
+    settling_time,
+    AntiWindup,
+    PerformanceIndex,
+    bode_plot,
+    crossover_frequency,
+)
 #from services.report_generator import report_generator
 from app_domain.controlsys.freq_metrics import compute_loop_metrics_batch_from_frf
 import matplotlib.pyplot as plt
@@ -95,25 +104,20 @@ def run_one_case(case, *, swarm_size=40, iterations=14,
                  pm_min_deg=0, gm_min_db=0, ms_max=20,
                  anti_windup=AntiWindup.CLAMPING,
                  excitation_target="reference",
-                 performance_index=PerformanceIndex.ITAE):
+                 performance_index=PerformanceIndex.ITAE,
+                 tf_tuning_factor_n=5.0,
+                 tf_limit_factor_k=5.0,
+                 sampling_rate_hz=None):
 
     plant = Plant(case["plant_num"], case["plant_den"])
     A = case["A"]
     bounds = [[kp_min, ti_min, td_min], [kp_max, ti_max, td_max]]
 
     pid = PIDClosedLoop(
-        plant, Kp=10, Ti=5, Td=3,
+        plant, Kp=10, Ti=5, Td=3, Tf=0.0,
         control_constraint=[-A, +A],
         anti_windup_method=anti_windup
     )
-
-    # Filter wie bei dir
-    p_dom = dominant_pole_realpart(plant.den)
-    if p_dom is None:
-        pid.set_filter(Tf=0.01)
-    else:
-        t_dom = 1 / abs(p_dom)
-        pid.set_filter(Tf=t_dom / 100)
 
     # Anregung (bei dir ist’s ein Step auf r)
     r = lambda t: np.ones_like(t)
@@ -125,6 +129,9 @@ def run_one_case(case, *, swarm_size=40, iterations=14,
         start_time, end_time, time_step,
         r=r, l=l, n=n,
         use_freq_metrics=False,
+        tf_tuning_factor_n=tf_tuning_factor_n,
+        tf_limit_factor_k=tf_limit_factor_k,
+        sampling_rate_hz=sampling_rate_hz,
         freq_low_exp=-5,
         freq_high_exp=5,
         freq_points=450,
@@ -148,6 +155,14 @@ def run_one_case(case, *, swarm_size=40, iterations=14,
 
     # Best setzen + Frequenzmetriken berechnen
     pid.set_pid_param(Kp=best["Kp"], Ti=best["Ti"], Td=best["Td"])
+    tf_report = compute_effective_tf_report(
+        Td=best["Td"],
+        dt=time_step,
+        tf_tuning_factor_n=tf_tuning_factor_n,
+        tf_limit_factor_k=tf_limit_factor_k,
+        sampling_rate_hz=sampling_rate_hz,
+    )
+    pid.set_filter(Tf=tf_report.tf_effective)
 
     w = np.logspace(-5, 5, 600)
     s = 1j * w

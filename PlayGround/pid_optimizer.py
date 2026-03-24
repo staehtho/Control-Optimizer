@@ -80,7 +80,7 @@ def main():
     td_max = config["pso"]["bounds"]["td_max"]'''
 
     plant_num = [1]
-    plant_den = [1, 2, 1]
+    plant_den = [1, 0, 0]
 
     use_freq_metrics = False
     pm_min_deg = 0

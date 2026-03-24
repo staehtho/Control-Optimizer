@@ -12,7 +12,7 @@ SRC_PATH = PROJECT_ROOT / "src"
 if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
-from app_domain.controlsys import Plant
+from app_domain.controlsys import Plant, compute_effective_tf_report
 from app_domain.controlsys.freq_metrics import compute_loop_metrics_batch_from_frf
 
 
@@ -20,6 +20,10 @@ from app_domain.controlsys.freq_metrics import compute_loop_metrics_batch_from_f
 W_MIN_EXP = -4
 W_MAX_EXP = 4
 W_POINTS = 4000
+TIME_STEP = 1e-4
+TF_TUNING_FACTOR_N = 5.0
+TF_LIMIT_FACTOR_K = 5.0
+SAMPLING_RATE_HZ = None
 
 
 def make_ptn(n: int) -> Plant:
@@ -32,23 +36,6 @@ def make_pt2(damping: float) -> Plant:
     """PT2: G(s) = 1 / (s^2 + 2*D*s + 1) with K=1 and Tm=1."""
     den = np.array([1.0, 2.0 * float(damping), 1.0], dtype=float)
     return Plant(num=np.array([1.0], dtype=float), den=den)
-
-
-def dominant_pole_realpart_from_den(den: np.ndarray) -> float:
-    """Return the dominant stable pole real part, i.e. the largest negative real part."""
-    roots = np.roots(np.asarray(den, dtype=float))
-    stable = roots[roots.real < 0.0]
-    if stable.size == 0:
-        return float(np.max(roots.real))
-    return float(np.max(stable.real))
-
-
-def tf_from_plant(plant: Plant) -> float:
-    """Apply the project's Tf heuristic based on the dominant plant pole."""
-    p_dom = dominant_pole_realpart_from_den(plant.den)
-    if p_dom >= 0.0:
-        return 0.01
-    return (1.0 / abs(p_dom)) / 100.0
 
 
 def parse_reference_cases(xlsx_path: Path) -> pd.DataFrame:
@@ -153,8 +140,20 @@ def evaluate_cases(df_cases: pd.DataFrame, w: np.ndarray) -> pd.DataFrame:
         else:
             plant = make_pt2(float(param))
 
-        tf_used = tf_from_plant(plant)
         s = 1j * w
+        tf_used = np.array(
+            [
+                compute_effective_tf_report(
+                    Td=float(td_value),
+                    dt=TIME_STEP,
+                    tf_tuning_factor_n=TF_TUNING_FACTOR_N,
+                    tf_limit_factor_k=TF_LIMIT_FACTOR_K,
+                    sampling_rate_hz=SAMPLING_RATE_HZ,
+                ).tf_effective
+                for td_value in group["Td"].to_numpy(dtype=float)
+            ],
+            dtype=float,
+        )
 
         with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
             G = np.asarray(plant.system(s), dtype=np.complex128)
@@ -164,7 +163,7 @@ def evaluate_cases(df_cases: pd.DataFrame, w: np.ndarray) -> pd.DataFrame:
                 Kp=group["Kp"].to_numpy(dtype=float),
                 Ti=group["Ti"].to_numpy(dtype=float),
                 Td=group["Td"].to_numpy(dtype=float),
-                Tf=np.full(group.shape[0], tf_used, dtype=float),
+                Tf=tf_used,
             )
 
         group = group.reset_index(drop=True)
@@ -178,7 +177,7 @@ def evaluate_cases(df_cases: pd.DataFrame, w: np.ndarray) -> pd.DataFrame:
                     "Kp": float(case["Kp"]),
                     "Ti": float(case["Ti"]),
                     "Td": float(case["Td"]),
-                    "Tf": float(tf_used),
+                    "Tf": float(tf_used[idx]),
                     "ITAE_ref": float(case["ITAE_ref"]),
                     "numerically_valid": bool(metrics["numerically_valid_particles"][idx]),
                     "pm_deg": float(metrics["pm_deg"][idx]),
