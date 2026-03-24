@@ -419,9 +419,14 @@ class PsoConfigurationView(ViewMixin, QWidget):
 
         toggle = self.labels.get(key)
         if toggle is not None and toggle.isChecked() != enabled:
-            toggle.blockSignals(True)
-            toggle.setChecked(enabled)
-            toggle.blockSignals(False)
+            if hasattr(toggle, "set_checked_no_anim"):
+                toggle.set_checked_no_anim(enabled)
+            else:
+                toggle.blockSignals(True)
+                toggle.setChecked(enabled)
+                if hasattr(toggle, "set_offset"):
+                    toggle.set_offset(1.0 if enabled else 0.0)
+                toggle.blockSignals(False)
         widget = self.field_widgets.get(key)
         if widget is not None:
             widget.setEnabled(enabled)

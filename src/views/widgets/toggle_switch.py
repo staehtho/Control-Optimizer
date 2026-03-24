@@ -74,12 +74,19 @@ class ToggleSwitch(QAbstractButton):
         if self.isChecked():
             track_color = palette.color(QPalette.ColorRole.Highlight)
         else:
-            track_color = palette.color(QPalette.ColorRole.Button)
+            track_color = palette.color(QPalette.ColorRole.Mid)
+            track_color = QColor(track_color)
+            if track_color.lightness() > 180:
+                track_color = palette.color(QPalette.ColorRole.MidDark)
         if not self.isEnabled():
             track_color = QColor(track_color)
             track_color.setAlpha(120)
 
-        painter.setPen(Qt.PenStyle.NoPen)
+        border_color = palette.color(QPalette.ColorRole.Dark if not self.isChecked() else QPalette.ColorRole.Highlight)
+        if not self.isEnabled():
+            border_color = QColor(border_color)
+            border_color.setAlpha(120)
+        painter.setPen(border_color)
         painter.setBrush(track_color)
         painter.drawRoundedRect(track_rect, radius, radius)
 
@@ -92,7 +99,7 @@ class ToggleSwitch(QAbstractButton):
         if self.isChecked():
             thumb_color = QColor(255, 255, 255)
         else:
-            thumb_color = palette.color(QPalette.ColorRole.WindowText)
+            thumb_color = palette.color(QPalette.ColorRole.Light)
         if not self.isEnabled():
             thumb_color = QColor(thumb_color)
             thumb_color.setAlpha(140)
@@ -126,6 +133,16 @@ class ToggleSwitch(QAbstractButton):
         self._animation.setStartValue(self._offset)
         self._animation.setEndValue(1.0 if checked else 0.0)
         self._animation.start()
+
+    def set_checked_no_anim(self, checked: bool) -> None:
+        """Force state without running the toggle animation."""
+        self._animation.stop()
+        was_blocked = self.blockSignals(True)
+        try:
+            self.setChecked(checked)
+            self.set_offset(1.0 if checked else 0.0)
+        finally:
+            self.blockSignals(was_blocked)
 
     def get_offset(self) -> float:
         return self._offset
