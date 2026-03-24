@@ -1,13 +1,13 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import logging
-from numpy import ndarray
 
 from PySide6.QtCore import QThread, Signal
 
 from app_types import PlotLabels, FrequencyResponse
 
 if TYPE_CHECKING:
+    from numpy import ndarray
     from app_types import PlantTransferContext, ControllerTransferContext
     from app_domain.engine import (
         ControllerTransferEngine, FrequencyResponseEngine, FrequencyGridEngine, PlantTransferEngine

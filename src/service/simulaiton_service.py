@@ -1,22 +1,18 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Callable
 import logging
-from numpy import ndarray
 from PySide6.QtCore import QThread
 
-from app_domain.engine import (
-    PlantResponseEngine, FunctionEngine, PsoSimulationEngine, ClosedLoopResponseEngine, PlantTransferEngine,
-    ControllerTransferEngine, FrequencyGridEngine, FrequencyResponseEngine
-)
-from infrastructure import (
-    PlantResponseWorker, FunctionWorker, PsoSimulationWorker, ClosedLoopResponseWorker, PlantFrequencyWorker,
-    ClosedLoopFrequencyWorker
-)
-
 if TYPE_CHECKING:
+    from numpy import ndarray
     from app_types import (
         PlantResponseContext, PsoSimulationParam, PsoResult, ClosedLoopResponseContext, PlantTransferContext,
         FrequencyResponse, ControllerTransferContext
+    )
+
+    from infrastructure import (
+        PlantResponseWorker, FunctionWorker, PsoSimulationWorker, ClosedLoopResponseWorker, PlantFrequencyWorker,
+        ClosedLoopFrequencyWorker
     )
 
 
@@ -31,14 +27,14 @@ class SimulationService:
         """Initialize engines and worker slots used for async execution."""
         self._logger = logging.getLogger(f"{self.__class__.__name__}.{id(self)}")
         self._logger.debug("SimulationService initialized.")
-        self._plant_engine = PlantResponseEngine()
-        self._function_engine = FunctionEngine()
-        self._pso_simulation_engine = PsoSimulationEngine()
-        self._closed_loop_engine = ClosedLoopResponseEngine()
-        self._frequency_grid_engine = FrequencyGridEngine()
-        self._plant_transfer_engine = PlantTransferEngine()
-        self._controller_transfer_engine = ControllerTransferEngine()
-        self._frequency_response_engine = FrequencyResponseEngine()
+        self._plant_engine = None
+        self._function_engine = None
+        self._pso_simulation_engine = None
+        self._closed_loop_engine = None
+        self._frequency_grid_engine = None
+        self._plant_transfer_engine = None
+        self._controller_transfer_engine = None
+        self._frequency_response_engine = None
 
         self._plant_workers: list[PlantResponseWorker] = []
         self._function_workers: list[FunctionWorker] = []
@@ -103,7 +99,13 @@ class SimulationService:
             context: Plant simulation settings and disturbance signal
             callback: Function invoked with ``(t, y)`` when the worker completes.
         """
+        from infrastructure import PlantResponseWorker
         self._logger.info("Starting StepResponseWorker for asynchronous computation")
+
+        if self._plant_engine is None:
+            from app_domain.engine import PlantResponseEngine
+            self._plant_engine = PlantResponseEngine()
+
         worker = PlantResponseWorker(self._plant_engine, context)
         worker.resultReady.connect(callback)
         worker.finished.connect(lambda: self._on_step_worker_finished(worker))
@@ -128,7 +130,13 @@ class SimulationService:
             func: Callable mapping ``t -> y``.
             callback: Function invoked with ``(t, y)`` when the worker completes.
         """
+        from infrastructure import FunctionWorker
         self._logger.info("Starting FunctionWorker for asynchronous computation")
+
+        if self._function_engine is None:
+            from app_domain.engine import FunctionEngine
+            self._function_engine = FunctionEngine()
+
         worker = FunctionWorker(self._function_engine, t, func)
         worker.resultReady.connect(callback)
         worker.finished.connect(lambda: self._on_function_worker_finished(worker))
@@ -158,7 +166,13 @@ class SimulationService:
             callback: Function invoked with the final ``PsoResult``.
             progress_callback: Function invoked with the current iteration index.
         """
+        from infrastructure import PsoSimulationWorker
         self._logger.info("Starting PsoSimulationWorker for asynchronous computation")
+
+        if self._pso_simulation_engine is None:
+            from app_domain.engine import PsoSimulationEngine
+            self._pso_simulation_engine = PsoSimulationEngine()
+
         worker = PsoSimulationWorker(self._pso_simulation_engine, pso_simulation_param)
         worker.resultReady.connect(callback)
         worker.progressChanged.connect(progress_callback)
@@ -177,7 +191,7 @@ class SimulationService:
             worker.requestInterruption()
             worker.quit()
 
-    def _on_pso_worker_finished(self, worker: QThread | None) -> None:
+    def _on_pso_worker_finished(self, worker: PsoSimulationWorker) -> None:
         if worker is None:
             return
         if worker in self._pso_simulation_workers:
@@ -195,7 +209,13 @@ class SimulationService:
             context: Closed-loop simulation inputs and disturbance signals.
             callback: Function invoked with ``(t, u, y)`` when the worker completes.
         """
+        from infrastructure import ClosedLoopResponseWorker
         self._logger.info("Starting ClosedLoopResponseWorker for asynchronous computation")
+
+        if self._closed_loop_engine is None:
+            from app_domain.engine import ClosedLoopResponseEngine
+            self._closed_loop_engine = ClosedLoopResponseEngine()
+
         worker = ClosedLoopResponseWorker(self._closed_loop_engine, context)
         worker.resultReady.connect(callback)
         worker.finished.connect(lambda: self._on_closed_loop_worker_finished(worker))
@@ -229,13 +249,20 @@ class SimulationService:
             callback: Function invoked with a `FrequencyResponse` result
                       when the worker completes.
         """
+        from infrastructure import PlantFrequencyWorker
         if self._plant_transfer_worker and self._plant_transfer_worker.isRunning():
             self._logger.warning("PlantFrequencyWorker is busy. Ignoring request.")
             return
 
-        self._logger.info(
-            "Starting PlantFrequencyWorker for asynchronous plant Bode computation"
-        )
+        self._logger.info("Starting PlantFrequencyWorker for asynchronous plant Bode computation")
+
+        if self._plant_transfer_engine is None:
+            from app_domain.engine import PlantTransferEngine
+            self._plant_transfer_engine = PlantTransferEngine()
+
+        if self._frequency_grid_engine is None:
+            from app_domain.engine import FrequencyGridEngine
+            self._frequency_grid_engine = FrequencyGridEngine()
 
         # Create and start the worker
         self._plant_transfer_worker = PlantFrequencyWorker(
@@ -273,13 +300,28 @@ class SimulationService:
             callback: Function invoked with a `FrequencyResponse`
                       when the worker completes.
         """
+        from infrastructure import ClosedLoopFrequencyWorker
         if self._closed_loop_frequency_worker and self._closed_loop_frequency_worker.isRunning():
             self._logger.warning("ClosedLoopFrequencyWorker is busy. Ignoring request.")
             return
 
-        self._logger.info(
-            "Starting ClosedLoopFrequencyWorker for asynchronous closed-loop Bode computation"
-        )
+        self._logger.info("Starting ClosedLoopFrequencyWorker for asynchronous closed-loop Bode computation")
+
+        if self._plant_transfer_engine is None:
+            from app_domain.engine import PlantTransferEngine
+            self._plant_transfer_engine = PlantTransferEngine()
+
+        if self._controller_transfer_engine is None:
+            from app_domain.engine import ControllerTransferEngine
+            self._controller_transfer_engine = ControllerTransferEngine()
+
+        if self._frequency_response_engine is None:
+            from app_domain.engine import FrequencyResponseEngine
+            self._frequency_response_engine = FrequencyResponseEngine()
+
+        if self._frequency_grid_engine is None:
+            from app_domain.engine import FrequencyGridEngine
+            self._frequency_grid_engine = FrequencyGridEngine()
 
         # Create and start the worker
         self._closed_loop_frequency_worker = ClosedLoopFrequencyWorker(
