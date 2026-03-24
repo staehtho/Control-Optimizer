@@ -6,6 +6,11 @@ from typing import Any
 import numpy as np
 
 
+def linear_magnitude_to_db(value: float | np.ndarray) -> np.ndarray:
+    """Convert magnitude ratios to dB with a finite lower guard."""
+    return 20.0 * np.log10(np.maximum(np.asarray(value, dtype=np.float64), 1e-300))
+
+
 def pid_controller_freq_response(
     Kp: np.ndarray,
     Ti: np.ndarray,
@@ -317,7 +322,7 @@ def compute_loop_metrics_batch_from_frf(
     Computed outputs:
         - ``pm_deg``: worst phase margin in degrees
         - ``gm_db``: worst gain margin in dB
-        - ``ms``: maximum sensitivity ``max |S(jw)|``
+        - ``ms_db``: maximum sensitivity in dB, ``20 * log10(max |S(jw)|)``
         - ``wc``: crossover frequency associated with the worst phase margin
         - ``w180``: crossover frequency associated with the worst gain margin
         - ``has_wc`` / ``has_w180``: crossover existence flags
@@ -330,7 +335,7 @@ def compute_loop_metrics_batch_from_frf(
         - If ``L`` or ``S`` contains any non-finite value on the grid, the
           candidate is treated as invalid. In that case:
           ``numerically_valid_particles=False``, ``has_wc=False``,
-          ``has_w180=False``, ``pm_deg=NaN``, ``gm_db=+inf``, ``ms=+inf``.
+          ``has_w180=False``, ``pm_deg=NaN``, ``gm_db=+inf``, ``ms_db=+inf``.
         - If multiple 0 dB crossovers exist, the worst phase margin is used.
         - Gain margin is evaluated over all odd negative phase targets
           ``-pi, -3pi, -5pi, ...`` reached by the unwrapped phase, and the
@@ -398,7 +403,7 @@ def compute_loop_metrics_batch_from_frf(
 
     pm_deg = np.full(P, np.nan, dtype=np.float64)
     gm_db = np.full(P, np.inf, dtype=np.float64)
-    ms = np.full(P, np.inf, dtype=np.float64)
+    ms_db = np.full(P, np.inf, dtype=np.float64)
 
     wc = np.full(P, np.nan, dtype=np.float64)
     w180 = np.full(P, np.nan, dtype=np.float64)
@@ -409,7 +414,7 @@ def compute_loop_metrics_batch_from_frf(
         return {
             "pm_deg": pm_deg,
             "gm_db": gm_db,
-            "ms": ms,
+            "ms_db": ms_db,
             "has_wc": has_wc,
             "has_w180": has_w180,
             "wc": wc,
@@ -422,13 +427,14 @@ def compute_loop_metrics_batch_from_frf(
 
     with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
         ms_good = np.max(np.abs(Sg), axis=1)
+        ms_good = linear_magnitude_to_db(ms_good)
         absLg = np.abs(Lg)
-        mag_db_good = 20.0 * np.log10(np.maximum(absLg, 1e-300))
+        mag_db_good = linear_magnitude_to_db(absLg)
 
     phase_good = np.unwrap(np.angle(Lg), axis=1)
     min_phase_good = np.min(phase_good, axis=1)
 
-    ms[good_idx] = ms_good
+    ms_db[good_idx] = ms_good
 
     pm_mask, pm_log_wc, pm_phase_at_wc = _interpolate_crossings_batch(
         log_w,
@@ -488,7 +494,7 @@ def compute_loop_metrics_batch_from_frf(
     return {
         "pm_deg": pm_deg,
         "gm_db": gm_db,
-        "ms": ms,
+        "ms_db": ms_db,
         "has_wc": has_wc,
         "has_w180": has_w180,
         "wc": wc,

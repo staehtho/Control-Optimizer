@@ -87,7 +87,7 @@ def main():
     use_freq_metrics = True
     pm_min_deg = 70
     gm_min_db = 10
-    ms_max = 2
+    ms_max_db = 20 * np.log10(2.0)
 
     use_overshoot_control = True
     allowed_overshoot_pct = 1
@@ -166,7 +166,7 @@ def main():
         freq_points=600,
         pm_min_deg=pm_min_deg,
         gm_min_db=gm_min_db,
-        ms_max=ms_max,
+        ms_max_db=ms_max_db,
         use_overshoot_control=use_overshoot_control,
         allowed_overshoot_pct=allowed_overshoot_pct,
         performance_index=performance_index,
@@ -260,14 +260,14 @@ def main():
 
     pm_dbg = metrics_dbg["pm_deg"][0]
     gm_dbg = metrics_dbg["gm_db"][0]
-    ms_dbg = metrics_dbg["ms"][0]
+    ms_dbg = metrics_dbg["ms_db"][0]
     has_wc_dbg = metrics_dbg["has_wc"][0]
     has_w180_dbg = metrics_dbg["has_w180"][0]
 
     print("\n=== Frequency metrics (best PID) ===")
     print(f"PM  [deg]: {pm_dbg:.3f}   (has_wc={has_wc_dbg})")
     print(f"GM  [dB ]: {gm_dbg:.3f}   (has_w180={has_w180_dbg})")
-    print(f"Ms  [lin]: {ms_dbg:.6f}   (= {20*np.log10(ms_dbg):.3f} dB)")
+    print(f"Ms  [dB ]: {ms_dbg:.3f}")
 
 
     # --- Open-loop step ---
@@ -317,6 +317,11 @@ def main():
     plt.title("Step Response")
     plt.grid(True)
     plt.legend()
+
+    systems_for_bode["Open Loop L=C*G"] = lambda s: pid.controller(s) * plant.system(s)
+    systems_for_bode["Sensitivity S=1/(1+L)"] = (
+        lambda s: 1.0 / (1.0 + pid.controller(s) * plant.system(s))
+    )
 
     # --- Bode ---
     bode_fig = bode_plot(systems_for_bode, high_exp=5)

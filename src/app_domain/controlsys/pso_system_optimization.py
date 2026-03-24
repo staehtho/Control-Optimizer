@@ -195,7 +195,7 @@ class PsoFunc:
         If PM missing (has_wc=False) => infeasible.
       - GM is minimum only: GM_dB >= GM_min_db
         If GM missing => GM=+inf => OK (violation 0).
-      - Ms is maximum: Ms <= Ms_max
+      - Ms is maximum in dB: Ms <= Ms_max_db
       - Non-finite frequency responses are treated as infeasible (guarded by freq_metrics).
 
     NOTE (02.03.2026):
@@ -228,7 +228,7 @@ class PsoFunc:
         # Constraints
         pm_min_deg: float = 60.0,
         gm_min_db: float = 5.0,
-        ms_max: float = 2.0,
+        ms_max_db: float | None = 20.0 * math.log10(2.0),
         use_overshoot_control: bool = False,
         allowed_overshoot_pct: float = 0.0,
         log_path: str | None = None, # TODO FLO rueckgaengig logging
@@ -267,7 +267,8 @@ class PsoFunc:
                 time step ``dt`` limits ``Tf``.
             pm_min_deg: Phase margin minimum in degrees (PM >= pm_min_deg). PM missing => infeasible.
             gm_min_db: Gain margin minimum in dB (GM >= gm_min_db). GM missing => treated as +inf => OK.
-            ms_max: Sensitivity peak maximum (Ms <= ms_max).
+            ms_max_db: Sensitivity peak maximum in dB (Ms <= ms_max_db). If None, the Ms
+                constraint is disabled.
             use_overshoot_control:
                 If True, overshoot becomes an additional feasibility criterion after time simulation.
             allowed_overshoot_pct:
@@ -347,7 +348,7 @@ class PsoFunc:
         # --- constraint parameters (dynamic from outside) ---
         self.pm_min_deg = float(pm_min_deg)
         self.gm_min_db = float(gm_min_db)
-        self.ms_max = float(ms_max)
+        self.ms_max_db = None if ms_max_db is None else float(ms_max_db)
         self.use_overshoot_control = bool(use_overshoot_control)
         self.allowed_overshoot_pct = float(allowed_overshoot_pct)
         self._overshoot_step_amplitude_abs = 0.0
@@ -388,7 +389,7 @@ class PsoFunc:
         header = (
             "run_id,call_id,particle_idx,"
             "Kp,Ti,Td,"
-            "pm_deg,gm_db,ms,wc,w180,"
+            "pm_deg,gm_db,ms_db,wc,w180,"
             "V,V_freq,V_ov,V_total,feasible_final,time_simulated,overshoot_pct,"
             "time_cost,perf_J,total_cost,objective_cost,"
             "pbest_updated,gbest_updated,"
@@ -408,7 +409,7 @@ class PsoFunc:
     def _log_batch(
             self,
             Kp: np.ndarray, Ti: np.ndarray, Td: np.ndarray,
-            pm: np.ndarray, gm: np.ndarray, ms: np.ndarray,
+            pm: np.ndarray, gm: np.ndarray, ms_db: np.ndarray,
             wc: np.ndarray, w180: np.ndarray,
             V: np.ndarray,
             V_freq: np.ndarray,
@@ -445,7 +446,7 @@ class PsoFunc:
             lines.append(
                 f"{run_id},{call_id},{i},"
                 f"{Kp[i]},{Ti[i]},{Td[i]},"
-                f"{pm[i]},{gm[i]},{ms[i]},{wc[i]},{w180[i]},"
+                f"{pm[i]},{gm[i]},{ms_db[i]},{wc[i]},{w180[i]},"
                 f"{V[i]},{V_freq[i]},{V_ov[i]},{V_total[i]},{int(feasible_final[i])},{int(time_sim[i])},{overshoot_pct[i]},"
                 f"{time_cost[i]},{perf_J[i]},{total_cost[i]},{objective_cost[i]},"
                 f"{int(pbest_updated[i])},{int(gbest_updated[i])},"
@@ -487,7 +488,7 @@ class PsoFunc:
             Td=batch["Td"],
             pm=batch["pm"],
             gm=batch["gm"],
-            ms=batch["ms"],
+            ms_db=batch["ms_db"],
             wc=batch["wc"],
             w180=batch["w180"],
             V=batch["V"],
@@ -520,7 +521,7 @@ class PsoFunc:
         *,
         pm_min_deg: float | None = None,
         gm_min_db: float | None = None,
-        ms_max: float | None = None,
+        ms_max_db: float | None = None,
         use_overshoot_control: bool | None = None,
         allowed_overshoot_pct: float | None = None,
     ) -> None:
@@ -529,8 +530,8 @@ class PsoFunc:
             self.pm_min_deg = float(pm_min_deg)
         if gm_min_db is not None:
             self.gm_min_db = float(gm_min_db)
-        if ms_max is not None:
-            self.ms_max = float(ms_max)
+        if ms_max_db is not None:
+            self.ms_max_db = float(ms_max_db)
         if use_overshoot_control is not None:
             self.use_overshoot_control = bool(use_overshoot_control)
         if allowed_overshoot_pct is not None:
@@ -591,14 +592,14 @@ class PsoFunc:
         """
         pm = metrics["pm_deg"]
         gm = metrics["gm_db"]
-        ms = metrics["ms"]
+        ms_db = metrics["ms_db"]
         has_wc = metrics["has_wc"]
         numerically_valid = metrics["numerically_valid_particles"]
 
         P = pm.shape[0]
 
         # --- hard fail mask (PM missing / non-finite / finite-guarded / Ms non-finite) ---
-        hard_fail = (~numerically_valid) | (~has_wc) | (~np.isfinite(pm)) | (~np.isfinite(ms))
+        hard_fail = (~numerically_valid) | (~has_wc) | (~np.isfinite(pm)) | (~np.isfinite(ms_db))
 
         v_pm = np.zeros(P, dtype=np.float64)
         v_gm = np.zeros(P, dtype=np.float64)
@@ -618,9 +619,10 @@ class PsoFunc:
                     idx = np.where(good)[0][finite_gm]
                     v_gm[idx] = np.maximum(0.0, (self.gm_min_db - gm[idx]) / self.gm_min_db)
 
-            # Ms constraint (disable if ms_max <= 0)
-            if self.ms_max > 0.0:
-                v_ms[good] = np.maximum(0.0, (ms[good] - self.ms_max) / self.ms_max)
+            # Ms constraint in dB (disable only if ms_max_db is None)
+            if self.ms_max_db is not None:
+                ms_scale = max(abs(self.ms_max_db), 1.0)
+                v_ms[good] = np.maximum(0.0, (ms_db[good] - self.ms_max_db) / ms_scale)
 
         # Hard-fails are ranked strictly worse than regular infeasible candidates.
         # We therefore force total V to +inf for hard-fail entries.
@@ -702,14 +704,14 @@ class PsoFunc:
         # --------------------------------------------------
         pm = np.full(P, np.nan, dtype=np.float64)
         gm = np.full(P, np.nan, dtype=np.float64)
-        ms = np.full(P, np.nan, dtype=np.float64)
+        ms_db = np.full(P, np.nan, dtype=np.float64)
         wc = np.full(P, np.nan, dtype=np.float64)
         w180 = np.full(P, np.nan, dtype=np.float64)
 
         if self.use_freq_metrics:
             pm = metrics.get("pm_deg", pm)
             gm = metrics.get("gm_db", gm)
-            ms = metrics.get("ms", ms)
+            ms_db = metrics.get("ms_db", ms_db)
             wc = metrics.get("wc", wc)
             w180 = metrics.get("w180", w180)
 
@@ -806,7 +808,7 @@ class PsoFunc:
                 "Td": Td,
                 "pm": pm,
                 "gm": gm,
-                "ms": ms,
+                "ms_db": ms_db,
                 "wc": wc,
                 "w180": w180,
                 "V": V_total,  # backward-compatible alias
@@ -833,7 +835,7 @@ class PsoFunc:
                     Td=batch["Td"],
                     pm=batch["pm"],
                     gm=batch["gm"],
-                    ms=batch["ms"],
+                    ms_db=batch["ms_db"],
                     wc=batch["wc"],
                     w180=batch["w180"],
                     V=batch["V"],

@@ -111,10 +111,11 @@ def load_matlab_references(script_dir: Path) -> pd.DataFrame:
             "u_max": "UpperLimit",
             "PM_deg": "pm_deg_matlab",
             "GM_dB": "gm_db_matlab",
-            "Ms": "ms_matlab",
+            "Ms": "ms_matlab_linear",
             "omega_c": "wc_matlab",
         }
     )
+    matlab_df["ms_db_matlab"] = 20.0 * np.log10(np.maximum(matlab_df["ms_matlab_linear"].to_numpy(dtype=float), 1e-300))
 
     keep_cols = [
         "plant_type",
@@ -124,7 +125,7 @@ def load_matlab_references(script_dir: Path) -> pd.DataFrame:
         "Tf",
         "pm_deg_matlab",
         "gm_db_matlab",
-        "ms_matlab",
+        "ms_db_matlab",
         "wc_matlab",
     ]
     return matlab_df[keep_cols].copy()
@@ -182,7 +183,7 @@ def evaluate_cases(df_cases: pd.DataFrame, w: np.ndarray) -> pd.DataFrame:
                     "numerically_valid": bool(metrics["numerically_valid_particles"][idx]),
                     "pm_deg": float(metrics["pm_deg"][idx]),
                     "gm_db": float(metrics["gm_db"][idx]),
-                    "ms": float(metrics["ms"][idx]),
+                    "ms_db": float(metrics["ms_db"][idx]),
                     "has_wc": bool(metrics["has_wc"][idx]),
                     "has_w180": bool(metrics["has_w180"][idx]),
                     "wc": float(metrics["wc"][idx]),
@@ -206,7 +207,7 @@ def attach_matlab_comparison(df_python: pd.DataFrame, matlab_df: pd.DataFrame) -
 
     merged["d_pm_deg"] = merged["pm_deg"] - merged["pm_deg_matlab"]
     merged["d_gm_db"] = merged["gm_db"] - merged["gm_db_matlab"]
-    merged["d_ms"] = merged["ms"] - merged["ms_matlab"]
+    merged["d_ms_db"] = merged["ms_db"] - merged["ms_db_matlab"]
     merged["d_wc"] = merged["wc"] - merged["wc_matlab"]
 
     return merged
@@ -248,9 +249,9 @@ def main() -> None:
                     "gm_db",
                     "gm_db_matlab",
                     "d_gm_db",
-                    "ms",
-                    "ms_matlab",
-                    "d_ms",
+                    "ms_db",
+                    "ms_db_matlab",
+                    "d_ms_db",
                 ]
             ].to_string(index=False)
         )

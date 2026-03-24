@@ -118,7 +118,7 @@ def run_one_case(
     td_max=10,
     pm_min_deg=0,
     gm_min_db=0,
-    ms_max=20,
+    ms_max_db=20,
     anti_windup=AntiWindup.CLAMPING,
     excitation_target="reference",
     performance_index=PerformanceIndex.ITAE,
@@ -163,7 +163,7 @@ def run_one_case(
         freq_points=450,
         pm_min_deg=pm_min_deg,
         gm_min_db=gm_min_db,
-        ms_max=ms_max,
+        ms_max_db=ms_max_db,
         performance_index=performance_index,
         swarm_size=swarm_size,
     )
@@ -217,7 +217,7 @@ def run_one_case(
         "cost": best["cost"],
         "pm_deg": float(metrics["pm_deg"][0]),
         "gm_db": float(metrics["gm_db"][0]),
-        "ms": float(metrics["ms"][0]),
+        "ms_db": float(metrics["ms_db"][0]),
         "has_wc": bool(metrics["has_wc"][0]),
         "has_w180": bool(metrics["has_w180"][0]),
     }
