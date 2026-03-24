@@ -30,6 +30,20 @@ from .freq_metrics import compute_loop_metrics_batch_from_frf
 
 @dataclass(frozen=True)
 class TfLimitReport:
+    """Report for the desired raw D-filter time constant and the applied limit.
+
+    Attributes:
+        tf_raw: Desired unbounded filter time constant computed from ``Td / N``.
+        tf_effective: Filter time constant actually used after applying limits.
+        tf_min: Active lower bound on the filter time constant.
+        simulation_limit: Lower bound imposed by the simulation step size.
+        sampling_limit: Lower bound imposed by the real sampling rate.
+        limited: Whether any lower-limit clamp was applied.
+        limited_by_simulation: Whether the simulation-step limit was active.
+        limited_by_sampling: Whether the sampling-rate limit was active.
+        min_sampling_rate_hz: Sampling rate required to realize ``tf_raw``
+            without a sampling-limit clamp.
+    """
     tf_raw: float
     tf_effective: float
     tf_min: float
@@ -38,6 +52,7 @@ class TfLimitReport:
     limited: bool
     limited_by_simulation: bool
     limited_by_sampling: bool
+    # Sampling-rate suggestion for realizing the unbounded target Tf_raw.
     min_sampling_rate_hz: float
 
 
@@ -62,6 +77,22 @@ def compute_effective_tf_report(
     tf_limit_factor_k: float = 5.0,
     sampling_rate_hz: float | None = None,
 ) -> TfLimitReport:
+    """Compute raw and limited derivative-filter time constants for one ``Td``.
+
+    Args:
+        Td: Derivative time constant candidate.
+        dt: Simulation time step.
+        tf_tuning_factor_n: D-filter tuning factor ``N`` in ``Tf = Td / N``.
+        tf_limit_factor_k: Lower-limit factor ``k`` in
+            ``Tf >= k * max(dt, Ts_real)``.
+        sampling_rate_hz: Optional real-system sampling rate in Hz.
+
+    Returns:
+        TfLimitReport: Report containing the desired raw filter time constant,
+        the applied effective value, active limits, and the sampling-rate
+        recommendation needed to realize ``tf_raw`` without a sampling-limit
+        clamp.
+    """
     td = float(Td)
     sim_dt = _normalize_positive_scalar(dt, "dt")
     n_factor = _normalize_positive_scalar(tf_tuning_factor_n, "tf_tuning_factor_n")
@@ -97,7 +128,9 @@ def compute_effective_tf_report(
         and math.isclose(tf_effective, sampling_limit, rel_tol=1e-12, abs_tol=1e-12)
     )
     limited = limited_by_simulation or limited_by_sampling
-    min_sampling_rate_hz = k_factor / tf_effective
+    # Sampling-rate recommendation for realizing the desired raw filter
+    # constant without triggering the sampling-limit clamp.
+    min_sampling_rate_hz = k_factor / tf_raw
 
     return TfLimitReport(
         tf_raw=tf_raw,
