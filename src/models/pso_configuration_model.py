@@ -24,5 +24,5 @@ class PsoConfigurationModel:
     gain_margin_enabled: bool = False
     phase_margin: float = 60.0
     phase_margin_enabled: bool = False
-    stability_margin: float = 2.0
+    stability_margin: float = 6.0
     stability_margin_enabled: bool = False
