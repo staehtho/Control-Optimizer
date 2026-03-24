@@ -22,8 +22,16 @@ from tqdm import tqdm
 
 from app_domain.PSO import Swarm
 #from services.config_loader import load_config, ConfigError
-from app_domain.controlsys import Plant, PIDClosedLoop, PsoFunc, dominant_pole_realpart, settling_time, AntiWindup, \
-    PerformanceIndex, bode_plot, crossover_frequency
+from app_domain.controlsys import (
+    Plant,
+    PIDClosedLoop,
+    PsoFunc,
+    compute_effective_tf_report,
+    settling_time,
+    AntiWindup,
+    PerformanceIndex,
+    bode_plot,
+)
 #from services.report_generator import report_generator
 from app_domain.controlsys.freq_metrics import compute_loop_metrics_batch_from_frf
 import matplotlib.pyplot as plt
@@ -72,7 +80,7 @@ def main():
     td_max = config["pso"]["bounds"]["td_max"]'''
 
     plant_num = [1]
-    plant_den = [1, 0.1, 1]
+    plant_den = [1, 2, 1]
 
     use_freq_metrics = False
     pm_min_deg = 0
@@ -87,13 +95,13 @@ def main():
     time_step = 1e-4
     end_time = 10
 
-    anti_windup = AntiWindup.BACKCALCULATION
+    anti_windup = AntiWindup.CLAMPING
     ka = 1.0
 
     excitation_target = "reference"
 
-    constraint_min = -1
-    constraint_max = 1
+    constraint_min = -10
+    constraint_max = 10
 
     performance_index = PerformanceIndex.ITAE
 
@@ -106,6 +114,9 @@ def main():
     ti_max = 10
     td_min = 0
     td_max = 10
+    tf_tuning_factor_n = 5.0
+    tf_limit_factor_k = 5.0
+    sampling_rate_hz = None  # e.g. 100.0
 
     # generate plant
     plant: Plant = Plant(plant_num, plant_den)
@@ -113,18 +124,10 @@ def main():
 
     # generate closed loop
     pid: PIDClosedLoop = PIDClosedLoop(plant, Kp=10, Ti=5, Td=3,
+                                       Tf=0.0,
                                        control_constraint=[constraint_min, constraint_max],
                                        anti_windup_method=anti_windup,
                                        ka=ka)
-
-    p_dom = dominant_pole_realpart(plant.den)
-
-    if p_dom is None:
-        pid.set_filter(Tf=0.01)
-    else:
-        t_dom = 1 / abs(p_dom)
-        pid.set_filter(Tf=t_dom / 100)
-
 
     # generate function to be optimized
     r = lambda t: np.zeros_like(t)
@@ -149,6 +152,9 @@ def main():
         start_time, end_time, time_step,
         r=r, l=l, n=n,
         use_freq_metrics=use_freq_metrics,
+        tf_tuning_factor_n=tf_tuning_factor_n,
+        tf_limit_factor_k=tf_limit_factor_k,
+        sampling_rate_hz=sampling_rate_hz,
         freq_low_exp=-2,
         freq_high_exp=5,
         freq_points=600,
@@ -189,10 +195,22 @@ def main():
             best_Ti = Ti
             best_Td = Td
 
+    tf_report = compute_effective_tf_report(
+        Td=best_Td,
+        dt=time_step,
+        tf_tuning_factor_n=tf_tuning_factor_n,
+        tf_limit_factor_k=tf_limit_factor_k,
+        sampling_rate_hz=sampling_rate_hz,
+    )
+
+    pid.set_pid_param(Kp=best_Kp, Ti=best_Ti, Td=best_Td)
+    pid.set_filter(Tf=tf_report.tf_effective)
+
     data = {
         "best_Kp": best_Kp,
         "best_Ti": best_Ti,
         "best_Td": best_Td,
+        "best_Tf": tf_report.tf_effective,
         "performance_index": performance_index,
         # Backward-compatible key name kept for existing consumers.
         "best_performance_index": best_objective_cost,
@@ -217,8 +235,28 @@ def main():
     }
 
     print(data)
-    # Set parameters
-    pid.set_pid_param(Kp=best_Kp, Ti=best_Ti, Td=best_Td)
+
+    active_limits: list[str] = []
+    if tf_report.limited_by_simulation:
+        active_limits.append("simulation_dt")
+    if tf_report.limited_by_sampling:
+        active_limits.append("sampling_rate")
+
+    print("\n=== Tf evaluation (best PID) ===")
+    print(f"N: {tf_tuning_factor_n:.3f}")
+    print(f"k: {tf_limit_factor_k:.3f}")
+    print(f"Td: {best_Td:.6f}")
+    print(f"Tf_raw = Td / N: {tf_report.tf_raw:.6f}")
+    print(f"Tf_eff: {tf_report.tf_effective:.6f}")
+    print(f"Tf_min: {tf_report.tf_min:.6f}")
+    print(f"Simulation limit k*dt: {tf_report.simulation_limit:.6f}")
+    if sampling_rate_hz is None:
+        print("Sampling limit: not set")
+    else:
+        print(f"Sampling limit k/fs: {tf_report.sampling_limit:.6f} (fs={sampling_rate_hz:.6f} Hz)")
+    print(f"Tf limited: {'yes' if tf_report.limited else 'no'}")
+    print(f"Active limit(s): {', '.join(active_limits) if active_limits else 'none'}")
+    print(f"Minimum sampling rate for k-spacing: {tf_report.min_sampling_rate_hz:.6f} Hz")
 
     # --------------------------------------------------
     # Frequency metrics for best solution (DEBUG)

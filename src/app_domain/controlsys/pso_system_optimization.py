@@ -14,7 +14,9 @@
 # License:       ZHAW Zuercher Hochschule fuer angewandte Wissenschaften (or internal use only)
 # ------------------------------------------------------------------------------
 
+import math
 import time
+from dataclasses import dataclass
 from typing import Callable
 
 import numpy as np
@@ -24,6 +26,116 @@ from .PIDClosedLoop import PIDClosedLoop
 from .closedLoop import ClosedLoop
 from .enums import *
 from .freq_metrics import compute_loop_metrics_batch_from_frf
+
+
+@dataclass(frozen=True)
+class TfLimitReport:
+    tf_raw: float
+    tf_effective: float
+    tf_min: float
+    simulation_limit: float
+    sampling_limit: float
+    limited: bool
+    limited_by_simulation: bool
+    limited_by_sampling: bool
+    min_sampling_rate_hz: float
+
+
+def _normalize_positive_scalar(value: float, name: str) -> float:
+    normalized = float(value)
+    if normalized <= 0.0:
+        raise ValueError(f"{name} must be > 0.")
+    return normalized
+
+
+def _normalize_sampling_rate_hz(sampling_rate_hz: float | None) -> float | None:
+    if sampling_rate_hz is None:
+        return None
+    return _normalize_positive_scalar(sampling_rate_hz, "sampling_rate_hz")
+
+
+def compute_effective_tf_report(
+    Td: float,
+    dt: float,
+    *,
+    tf_tuning_factor_n: float = 5.0,
+    tf_limit_factor_k: float = 5.0,
+    sampling_rate_hz: float | None = None,
+) -> TfLimitReport:
+    td = float(Td)
+    sim_dt = _normalize_positive_scalar(dt, "dt")
+    n_factor = _normalize_positive_scalar(tf_tuning_factor_n, "tf_tuning_factor_n")
+    k_factor = _normalize_positive_scalar(tf_limit_factor_k, "tf_limit_factor_k")
+    rate_hz = _normalize_sampling_rate_hz(sampling_rate_hz)
+
+    if td <= 0.0:
+        return TfLimitReport(
+            tf_raw=0.0,
+            tf_effective=0.0,
+            tf_min=0.0,
+            simulation_limit=0.0,
+            sampling_limit=0.0,
+            limited=False,
+            limited_by_simulation=False,
+            limited_by_sampling=False,
+            min_sampling_rate_hz=0.0,
+        )
+
+    tf_raw = td / n_factor
+    simulation_limit = k_factor * sim_dt
+    sampling_limit = 0.0 if rate_hz is None else (k_factor / rate_hz)
+    tf_min = max(simulation_limit, sampling_limit)
+    tf_effective = max(tf_raw, tf_min)
+
+    limited_by_simulation = (
+        tf_raw < simulation_limit
+        and math.isclose(tf_effective, simulation_limit, rel_tol=1e-12, abs_tol=1e-12)
+    )
+    limited_by_sampling = (
+        rate_hz is not None
+        and tf_raw < sampling_limit
+        and math.isclose(tf_effective, sampling_limit, rel_tol=1e-12, abs_tol=1e-12)
+    )
+    limited = limited_by_simulation or limited_by_sampling
+    min_sampling_rate_hz = k_factor / tf_effective
+
+    return TfLimitReport(
+        tf_raw=tf_raw,
+        tf_effective=tf_effective,
+        tf_min=tf_min,
+        simulation_limit=simulation_limit,
+        sampling_limit=sampling_limit,
+        limited=limited,
+        limited_by_simulation=limited_by_simulation,
+        limited_by_sampling=limited_by_sampling,
+        min_sampling_rate_hz=min_sampling_rate_hz,
+    )
+
+
+def compute_effective_tf_batch(
+    Td: np.ndarray,
+    dt: float,
+    *,
+    tf_tuning_factor_n: float = 5.0,
+    tf_limit_factor_k: float = 5.0,
+    sampling_rate_hz: float | None = None,
+) -> tuple[np.ndarray, np.ndarray]:
+    sim_dt = _normalize_positive_scalar(dt, "dt")
+    n_factor = _normalize_positive_scalar(tf_tuning_factor_n, "tf_tuning_factor_n")
+    k_factor = _normalize_positive_scalar(tf_limit_factor_k, "tf_limit_factor_k")
+    rate_hz = _normalize_sampling_rate_hz(sampling_rate_hz)
+
+    td = np.asarray(Td, dtype=np.float64)
+    tf_raw = np.zeros_like(td, dtype=np.float64)
+    tf_effective = np.zeros_like(td, dtype=np.float64)
+
+    active = td > 0.0
+    if np.any(active):
+        tf_raw[active] = td[active] / n_factor
+        tf_min = max(k_factor * sim_dt, 0.0 if rate_hz is None else (k_factor / rate_hz))
+        tf_effective[active] = np.maximum(tf_raw[active], tf_min)
+
+    return tf_raw, tf_effective
 
 
 class PsoFunc:
@@ -73,6 +185,9 @@ class PsoFunc:
         pre_compiling: bool = True,
         *,
         use_freq_metrics: bool = True,
+        tf_tuning_factor_n: float = 5.0,
+        tf_limit_factor_k: float = 5.0,
+        sampling_rate_hz: float | None = None,
         # Frequency grid
         freq_low_exp: float = -5.0,
         freq_high_exp: float = 5.0,
@@ -110,6 +225,13 @@ class PsoFunc:
             use_freq_metrics:
                 If True, evaluate PM/GM/Ms first and derive feasibility from frequency metrics.
                 If False, all candidates are treated as frequency-feasible.
+            tf_tuning_factor_n:
+                D-filter tuning factor ``N`` in ``Tf = Td / N``.
+            tf_limit_factor_k:
+                Lower-limit factor ``k`` used in ``Tf >= k * max(dt, Ts_real)``.
+            sampling_rate_hz:
+                Optional real-system sampling rate in Hz. If omitted, only the simulation
+                time step ``dt`` limits ``Tf``.
             pm_min_deg: Phase margin minimum in degrees (PM >= pm_min_deg). PM missing => infeasible.
             gm_min_db: Gain margin minimum in dB (GM >= gm_min_db). GM missing => treated as +inf => OK.
             ms_max: Sensitivity peak maximum (Ms <= ms_max).
@@ -132,6 +254,9 @@ class PsoFunc:
         self.t1 = t1
         self.dt = dt
         self.t_eval = np.arange(t0, t1 + dt, dt)
+        self.tf_tuning_factor_n = _normalize_positive_scalar(tf_tuning_factor_n, "tf_tuning_factor_n")
+        self.tf_limit_factor_k = _normalize_positive_scalar(tf_limit_factor_k, "tf_limit_factor_k")
+        self.sampling_rate_hz = _normalize_sampling_rate_hz(sampling_rate_hz)
 
         # TODO FLO rueckgaengig logging
         self.enable_logging = bool(enable_logging)
@@ -208,6 +333,14 @@ class PsoFunc:
             time.sleep(0.05)
             self._pre_compiling = False
 
+    def evaluate_tf_for_td(self, Td: float) -> TfLimitReport:
+        return compute_effective_tf_report(
+            Td=Td,
+            dt=self.dt,
+            tf_tuning_factor_n=self.tf_tuning_factor_n,
+            tf_limit_factor_k=self.tf_limit_factor_k,
+            sampling_rate_hz=self.sampling_rate_hz,
+        )
 
     # TODO FLO rueckgaengig logging
     def set_run_id(self, run_id: int) -> None:
@@ -502,13 +635,18 @@ class PsoFunc:
         Kp = X[:, 0]
         Ti = X[:, 1]
         Td = X[:, 2]
+        _, Tf = compute_effective_tf_batch(
+            Td,
+            dt=self.dt,
+            tf_tuning_factor_n=self.tf_tuning_factor_n,
+            tf_limit_factor_k=self.tf_limit_factor_k,
+            sampling_rate_hz=self.sampling_rate_hz,
+        )
 
         # --------------------------------------------------
         # 1) Optional: Frequency metrics + constraint violation
         # --------------------------------------------------
         if self.use_freq_metrics:
-            Tf = np.full(P, self.controller.Tf, dtype=np.float64)
-
             with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
                 metrics = compute_loop_metrics_batch_from_frf(
                     G=self._G,
@@ -583,7 +721,7 @@ class PsoFunc:
                 self.C,
                 self.D,
                 self.plant_order,
-                self.controller.Tf,
+                Tf[feasible],
                 self.control_constraint,
                 self.anti_windup_method,
                 self.ka,
@@ -1124,7 +1262,7 @@ def pid_simulate_metrics(
 @njit(parallel=True)
 def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarray, l_eval: np.ndarray,
                   n_eval: np.ndarray, A: np.ndarray, B: np.ndarray, C: np.ndarray, D: float,
-                  system_order: int, Tf: float, control_constraint: np.ndarray, anti_windup_method: int,
+                  system_order: int, Tf: np.ndarray, control_constraint: np.ndarray, anti_windup_method: int,
                   ka: float, solver: int, performance_index: int,
                   use_overshoot_control: int, overshoot_step_amplitude_abs: float,
                   overshoot_step_start_idx: int, overshoot_step_sign: float,
@@ -1136,11 +1274,12 @@ def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarr
         Kp = float(X[i, 0])
         Ti = float(X[i, 1])
         Td = float(X[i, 2])
+        Tf_i = float(Tf[i])
 
         x = np.zeros(system_order, dtype=np.float64)
 
         perf_i, overshoot_i = pid_simulate_metrics(
-            Kp, Ti, Td, Tf,
+            Kp, Ti, Td, Tf_i,
             t_eval, dt,
             r_eval, l_eval, n_eval,
             x, control_constraint,
