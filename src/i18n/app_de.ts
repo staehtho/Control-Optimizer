@@ -977,14 +977,12 @@ Muss grösser als die Startzeit sein.</translation>
         <translation>Simulationszeit</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="273"/>
         <source>Start Time</source>
-        <translation>Startzeit</translation>
+        <translation type="vanished">Startzeit</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="274"/>
         <source>End Time</source>
-        <translation>Endzeit</translation>
+        <translation type="vanished">Endzeit</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="277"/>
@@ -992,14 +990,43 @@ Muss grösser als die Startzeit sein.</translation>
         <translation>Fehlerkriterium</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="278"/>
         <source>Overshoot Control</source>
-        <translation>Überschiessen</translation>
+        <translation type="vanished">Überschiessen</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="273"/>
+        <source>Start Time [s]</source>
+        <translation>Startzeit [s]</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="274"/>
+        <source>End Time [s]</source>
+        <translation>Endzeit [s]</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="278"/>
+        <source>Overshoot Control [%]</source>
+        <translation>Überschiessen [%]</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="279"/>
         <source>Frequency Domain</source>
         <translation>Frequenzbereich</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="280"/>
+        <source>Gain Margin [dB]</source>
+        <translation>Amplitudenreserve [dB]</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="281"/>
+        <source>Phase Margin [°]</source>
+        <translation>Phasenreserve [°]</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="282"/>
+        <source>Sensitivity [dB]</source>
+        <translation>Sensitivität [dB]</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="283"/>
@@ -1022,19 +1049,16 @@ Muss grösser als die Startzeit sein.</translation>
         <translation>Td Grenze</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="280"/>
         <source>Gain Margin</source>
-        <translation>Amplitudenreserve</translation>
+        <translation type="vanished">Amplitudenreserve</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="281"/>
         <source>Phase Margin</source>
-        <translation>Phasenreserve</translation>
+        <translation type="vanished">Phasenreserve</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="282"/>
         <source>Sensitivity</source>
-        <translation>Sensitivität</translation>
+        <translation type="vanished">Sensitivität</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="294"/>
