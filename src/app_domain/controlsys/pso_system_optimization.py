@@ -190,6 +190,13 @@ class PsoFunc:
       - allowed_overshoot_pct = 0 means strict no-overshoot.
       - Positive and negative steps are handled with one signed formula.
 
+    Optional time-domain control activity constraint:
+      - Control activity is measured on the saturated actuator signal ``u_sat``.
+      - The metric is the normalized total variation
+        ``sum(|u[k]-u[k-1]|) / ((t1 - t0) * (u_max - u_min))``.
+      - Large values indicate persistent actuator chattering or aggressive
+        back-and-forth motion.
+
     Constraints (policies):
       - PM is minimum only: PM >= PM_min_deg
         If PM missing (has_wc=False) => infeasible.
@@ -231,6 +238,8 @@ class PsoFunc:
         ms_max_db: float | None = 20.0 * math.log10(2.0),
         use_overshoot_control: bool = False,
         allowed_overshoot_pct: float = 0.0,
+        use_control_activity_constraint: bool = False,
+        allowed_control_activity: float = 0.0,
         log_path: str | None = None, # TODO FLO rueckgaengig logging
         enable_logging: bool = False, # TODO FLO rueckgaengig logging
     ) -> None:
@@ -273,6 +282,12 @@ class PsoFunc:
                 If True, overshoot becomes an additional feasibility criterion after time simulation.
             allowed_overshoot_pct:
                 Maximum allowed overshoot in percent before a feasible time response is marked infeasible.
+            use_control_activity_constraint:
+                If True, the normalized control activity becomes an additional
+                feasibility criterion after time simulation.
+            allowed_control_activity:
+                Maximum allowed normalized control activity before a feasible
+                time response is marked infeasible.
             log_path:
                 Optional CSV path used by the temporary logging pipeline.
             enable_logging:
@@ -355,6 +370,11 @@ class PsoFunc:
         self._overshoot_step_start_idx = 0
         self._overshoot_step_sign = 0.0
         self._overshoot_r_final = 0.0
+        self.use_control_activity_constraint = bool(use_control_activity_constraint)
+        self.allowed_control_activity = float(allowed_control_activity)
+        self._control_activity_time_span = 0.0
+        self._control_activity_control_range = 0.0
+        self._update_control_activity_cache()
         self._update_overshoot_control_cache()
 
         # Pre-compile Numba functions
@@ -390,7 +410,8 @@ class PsoFunc:
             "run_id,call_id,particle_idx,"
             "Kp,Ti,Td,"
             "pm_deg,gm_db,ms_db,wc,w180,"
-            "V,V_freq,V_ov,V_total,feasible_final,time_simulated,overshoot_pct,"
+            "V,V_freq,V_ov,V_ca,V_total,feasible_final,time_simulated,overshoot_pct,"
+            "control_activity_raw,control_activity,"
             "time_cost,perf_J,total_cost,objective_cost,"
             "pbest_updated,gbest_updated,"
             "pbest_feasible,pbest_violation,pbest_perf,pbest_cost,"
@@ -414,10 +435,13 @@ class PsoFunc:
             V: np.ndarray,
             V_freq: np.ndarray,
             V_ov: np.ndarray,
+            V_ca: np.ndarray,
             V_total: np.ndarray,
             feasible_final: np.ndarray,
             time_sim: np.ndarray,
             overshoot_pct: np.ndarray,
+            control_activity_raw: np.ndarray,
+            control_activity: np.ndarray,
             time_cost: np.ndarray,
             perf_J: np.ndarray,
             total_cost: np.ndarray,
@@ -447,7 +471,8 @@ class PsoFunc:
                 f"{run_id},{call_id},{i},"
                 f"{Kp[i]},{Ti[i]},{Td[i]},"
                 f"{pm[i]},{gm[i]},{ms_db[i]},{wc[i]},{w180[i]},"
-                f"{V[i]},{V_freq[i]},{V_ov[i]},{V_total[i]},{int(feasible_final[i])},{int(time_sim[i])},{overshoot_pct[i]},"
+                f"{V[i]},{V_freq[i]},{V_ov[i]},{V_ca[i]},{V_total[i]},{int(feasible_final[i])},{int(time_sim[i])},{overshoot_pct[i]},"
+                f"{control_activity_raw[i]},{control_activity[i]},"
                 f"{time_cost[i]},{perf_J[i]},{total_cost[i]},{objective_cost[i]},"
                 f"{int(pbest_updated[i])},{int(gbest_updated[i])},"
                 f"{int(pbest_feasible[i])},{pbest_violation[i]},{pbest_perf[i]},{pbest_cost[i]},"
@@ -494,10 +519,13 @@ class PsoFunc:
             V=batch["V"],
             V_freq=batch["V_freq"],
             V_ov=batch["V_ov"],
+            V_ca=batch["V_ca"],
             V_total=batch["V_total"],
             feasible_final=batch["feasible_final"],
             time_sim=batch["time_sim"],
             overshoot_pct=batch["overshoot_pct"],
+            control_activity_raw=batch["control_activity_raw"],
+            control_activity=batch["control_activity"],
             time_cost=batch["time_cost"],
             perf_J=batch["perf_J"],
             total_cost=batch["total_cost"],
@@ -524,6 +552,8 @@ class PsoFunc:
         ms_max_db: float | None = None,
         use_overshoot_control: bool | None = None,
         allowed_overshoot_pct: float | None = None,
+        use_control_activity_constraint: bool | None = None,
+        allowed_control_activity: float | None = None,
     ) -> None:
         """Update constraints dynamically (e.g., from config/UI)."""
         if pm_min_deg is not None:
@@ -536,8 +566,32 @@ class PsoFunc:
             self.use_overshoot_control = bool(use_overshoot_control)
         if allowed_overshoot_pct is not None:
             self.allowed_overshoot_pct = float(allowed_overshoot_pct)
+        if use_control_activity_constraint is not None:
+            self.use_control_activity_constraint = bool(use_control_activity_constraint)
+        if allowed_control_activity is not None:
+            self.allowed_control_activity = float(allowed_control_activity)
 
+        self._update_control_activity_cache()
         self._update_overshoot_control_cache()
+
+    def _update_control_activity_cache(self) -> None:
+        """Precompute fixed normalization terms for the control activity metric.
+
+        The metric is always logged for time-simulated particles, even when the
+        corresponding constraint is disabled. The normalization therefore has to
+        stay valid independently of the constraint flag.
+        """
+        self._control_activity_time_span = float(self.t1 - self.t0)
+        self._control_activity_control_range = float(self.control_constraint[1] - self.control_constraint[0])
+
+        if self._control_activity_time_span <= 0.0:
+            raise ValueError("control_activity requires t1 > t0.")
+        if self._control_activity_control_range <= 0.0:
+            raise ValueError("control_activity requires control_constraint max > min.")
+        if self.use_control_activity_constraint and self.allowed_control_activity < 0.0:
+            raise ValueError(
+                "allowed_control_activity must be >= 0 when use_control_activity_constraint=True."
+            )
 
     def _update_overshoot_control_cache(self) -> None:
         """Precompute overshoot helpers from the sampled reference trace.
@@ -649,7 +703,8 @@ class PsoFunc:
               - cost: scalar summary value
                 (J for feasible candidates, V for infeasible candidates)
               - feasible: final feasibility flag
-              - violation: total violation V (frequency + optional overshoot)
+              - violation: total violation V
+                (frequency + optional overshoot + optional control activity)
               - perf: objective J (np.inf for infeasible candidates)
             If defer_logging=True, core batch metrics are cached and can be finalized later
             with PSO state (pBest/gBest) via finalize_log_batch(...).
@@ -698,6 +753,7 @@ class PsoFunc:
             V = np.zeros(P, dtype=np.float64)
         V_freq = V.copy()
         V_ov = np.zeros(P, dtype=np.float64)
+        V_ca = np.zeros(P, dtype=np.float64)
 
         # TODO FLO rückgängig logging
         # Logging helpers (per particle)
@@ -715,8 +771,9 @@ class PsoFunc:
             wc = metrics.get("wc", wc)
             w180 = metrics.get("w180", w180)
 
-        time_sim = np.zeros(P, dtype=np.bool_)
         overshoot_pct = np.full(P, np.nan, dtype=np.float64)
+        control_activity_raw = np.full(P, np.nan, dtype=np.float64)
+        control_activity = np.full(P, np.nan, dtype=np.float64)
         time_cost = np.full(P, np.nan, dtype=np.float64)
 
         # Scalar summary value retained for logging/return compatibility.
@@ -744,7 +801,7 @@ class PsoFunc:
             Xf = X[feasible]
             Pf = int(Xf.shape[0])
 
-            perf_vals, overshoot_vals = _pid_pso_func(
+            perf_vals, overshoot_vals, control_activity_raw_vals, control_activity_vals = _pid_pso_func(
                 Xf,
                 self.t_eval,
                 self.dt,
@@ -767,11 +824,18 @@ class PsoFunc:
                 self._overshoot_step_start_idx,
                 self._overshoot_step_sign,
                 self._overshoot_r_final,
+                self._control_activity_time_span,
+                self._control_activity_control_range,
                 Pf,  # IMPORTANT: swarm_size = number of feasible particles
             )
             time_cost[feasible] = perf_vals
             overshoot_pct[feasible] = overshoot_vals
+            control_activity_raw[feasible] = control_activity_raw_vals
+            control_activity[feasible] = control_activity_vals
             perf[feasible] = perf_vals
+            feasible_indices = np.where(feasible)[0]
+            feasible_cost = perf_vals.copy()
+            infeasible_time_constraint = np.zeros(Pf, dtype=np.bool_)
 
             if self.use_overshoot_control:
                 overshoot_violation = np.maximum(
@@ -781,19 +845,32 @@ class PsoFunc:
                 overshoot_violation = np.nan_to_num(overshoot_violation, nan=1.0, posinf=1.0, neginf=0.0)
 
                 # Keep overshoot as feasibility component in total violation V.
-                feasible_indices = np.where(feasible)[0]
                 V_ov_local = overshoot_violation * overshoot_violation
                 V_ov[feasible_indices] = V_ov_local
                 V[feasible_indices] += V_ov_local
+                infeasible_time_constraint |= overshoot_violation > 0.0
 
-                feasible_cost = perf_vals.copy()
-                bad_overshoot = overshoot_violation > 0.0
-                if np.any(bad_overshoot):
-                    feasible_cost[bad_overshoot] = V[feasible_indices[bad_overshoot]]
-                    perf[feasible_indices[bad_overshoot]] = np.inf
-                cost[feasible] = feasible_cost
-            else:
-                cost[feasible] = perf_vals
+            if self.use_control_activity_constraint:
+                control_activity_violation = np.maximum(
+                    0.0,
+                    (control_activity_vals - self.allowed_control_activity),
+                )
+                control_activity_violation = np.nan_to_num(
+                    control_activity_violation,
+                    nan=1.0,
+                    posinf=1.0,
+                    neginf=0.0,
+                )
+
+                V_ca_local = control_activity_violation * control_activity_violation
+                V_ca[feasible_indices] = V_ca_local
+                V[feasible_indices] += V_ca_local
+                infeasible_time_constraint |= control_activity_violation > 0.0
+
+            if np.any(infeasible_time_constraint):
+                feasible_cost[infeasible_time_constraint] = V[feasible_indices[infeasible_time_constraint]]
+                perf[feasible_indices[infeasible_time_constraint]] = np.inf
+            cost[feasible] = feasible_cost
 
         V_total = V.copy()
         feasible_final = V_total <= 0.0
@@ -814,10 +891,13 @@ class PsoFunc:
                 "V": V_total,  # backward-compatible alias
                 "V_freq": V_freq,
                 "V_ov": V_ov,
+                "V_ca": V_ca,
                 "V_total": V_total,
                 "feasible_final": feasible_final,
                 "time_sim": time_sim,
                 "overshoot_pct": overshoot_pct,
+                "control_activity_raw": control_activity_raw,
+                "control_activity": control_activity,
                 "time_cost": time_cost,
                 "perf_J": perf,
                 "total_cost": cost,
@@ -841,10 +921,13 @@ class PsoFunc:
                     V=batch["V"],
                     V_freq=batch["V_freq"],
                     V_ov=batch["V_ov"],
+                    V_ca=batch["V_ca"],
                     V_total=batch["V_total"],
                     feasible_final=batch["feasible_final"],
                     time_sim=batch["time_sim"],
                     overshoot_pct=batch["overshoot_pct"],
+                    control_activity_raw=batch["control_activity_raw"],
+                    control_activity=batch["control_activity"],
                     time_cost=batch["time_cost"],
                     perf_J=batch["perf_J"],
                     total_cost=batch["total_cost"],
@@ -866,6 +949,7 @@ class PsoFunc:
             "feasible": feasible_final,
             "violation": V_total,
             "perf": perf,
+            "control_activity": control_activity,
         }
         self._last_eval = result
         return result
@@ -1220,12 +1304,19 @@ def pid_simulate_metrics(
     overshoot_step_start_idx: int,
     overshoot_step_sign: float,
     overshoot_r_final: float,
-) -> tuple[float, float]:
-    """Simulate one PID candidate and return (performance_index_value, overshoot_pct).
+    control_activity_time_span: float,
+    control_activity_control_range: float,
+) -> tuple[float, float, float, float]:
+    """Simulate one PID candidate and return time-domain evaluation metrics.
 
     Overshoot is tracked only from the precomputed step start index onward.
     Anti-windup behavior, including back-calculation scaling via ``ka``,
     is applied in the internal PID update step.
+
+    Returns:
+        tuple[float, float, float, float]:
+            ``(performance_index_value, overshoot_pct,
+            control_activity_raw, control_activity)``
     """
     e_prev = 0.0
     filtered_prev = 0.0
@@ -1239,6 +1330,9 @@ def pid_simulate_metrics(
 
     max_overshoot = 0.0
     use_ov = use_overshoot_control != 0
+    control_activity_raw = 0.0
+    u_prev = 0.0
+    have_u_prev = False
 
     n_steps = len(t_eval)
     for i in range(n_steps):
@@ -1252,6 +1346,12 @@ def pid_simulate_metrics(
             e, e_prev, filtered_prev, integral, Kp, Ti, Td, Tf,
             dt, u_min, u_max, anti_windup_method, ka
         )
+
+        if have_u_prev:
+            control_activity_raw += abs(u - u_prev)
+        else:
+            have_u_prev = True
+        u_prev = u
 
         if solver == MySolverInt.RK4:
             x = rk4(A, B, x, u + l, dt)
@@ -1288,7 +1388,12 @@ def pid_simulate_metrics(
         else:
             overshoot_pct = np.inf
 
-    return perf, overshoot_pct
+    if control_activity_time_span > 0.0 and control_activity_control_range > 0.0:
+        control_activity = control_activity_raw / (control_activity_time_span * control_activity_control_range)
+    else:
+        control_activity = np.inf
+
+    return perf, overshoot_pct, control_activity_raw, control_activity
 
 
 # =============================================================================
@@ -1301,9 +1406,13 @@ def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarr
                   ka: float, solver: int, performance_index: int,
                   use_overshoot_control: int, overshoot_step_amplitude_abs: float,
                   overshoot_step_start_idx: int, overshoot_step_sign: float,
-                  overshoot_r_final: float, swarm_size: int) -> tuple[np.ndarray, np.ndarray]:
+                  overshoot_r_final: float, control_activity_time_span: float,
+                  control_activity_control_range: float, swarm_size: int
+                  ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     performance_index_val = np.zeros(swarm_size)
     overshoot_pct = np.zeros(swarm_size)
+    control_activity_raw = np.zeros(swarm_size)
+    control_activity = np.zeros(swarm_size)
 
     for i in prange(swarm_size):
         Kp = float(X[i, 0])
@@ -1313,7 +1422,7 @@ def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarr
 
         x = np.zeros(system_order, dtype=np.float64)
 
-        perf_i, overshoot_i = pid_simulate_metrics(
+        perf_i, overshoot_i, control_activity_raw_i, control_activity_i = pid_simulate_metrics(
             Kp, Ti, Td, Tf_i,
             t_eval, dt,
             r_eval, l_eval, n_eval,
@@ -1325,9 +1434,13 @@ def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarr
             overshoot_step_start_idx,
             overshoot_step_sign,
             overshoot_r_final,
+            control_activity_time_span,
+            control_activity_control_range,
         )
         performance_index_val[i] = perf_i
         overshoot_pct[i] = overshoot_i
+        control_activity_raw[i] = control_activity_raw_i
+        control_activity[i] = control_activity_i
 
-    return performance_index_val, overshoot_pct
+    return performance_index_val, overshoot_pct, control_activity_raw, control_activity
 

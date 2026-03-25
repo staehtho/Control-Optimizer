@@ -82,13 +82,19 @@ def main():
     plant_num = [1]
     plant_den = [1, 2, 1]
 
-    use_freq_metrics = True
+    use_freq_metrics = False
     pm_min_deg = 0
     gm_min_db = 0
     ms_max_db = 1
 
-    use_overshoot_control = False
-    allowed_overshoot_pct = 5
+    use_overshoot_control = True
+    allowed_overshoot_pct = 0
+    
+    # Normalized total variation of u_sat:
+    # sum(|u[k] - u[k-1]|) / ((t1 - t0) * (u_max - u_min))
+    # Keep disabled until a project-specific limit has been calibrated.
+    use_control_activity_constraint = True
+    allowed_control_activity = 4
 
     sim_mode = "fixed"
     start_time = 0
@@ -96,7 +102,7 @@ def main():
     end_time = 10
 
     anti_windup = AntiWindup.CLAMPING
-    ka = 1.0
+    ka = 1
 
     excitation_target = "reference"
 
@@ -163,6 +169,8 @@ def main():
         ms_max_db=ms_max_db,
         use_overshoot_control=use_overshoot_control,
         allowed_overshoot_pct=allowed_overshoot_pct,
+        use_control_activity_constraint=use_control_activity_constraint,
+        allowed_control_activity=allowed_control_activity,
         performance_index=performance_index,
         swarm_size=swarm_size,
     )
@@ -205,12 +213,15 @@ def main():
 
     pid.set_pid_param(Kp=best_Kp, Ti=best_Ti, Td=best_Td)
     pid.set_filter(Tf=tf_report.tf_effective)
+    best_eval = obj_func.evaluate_candidates(np.array([[best_Kp, best_Ti, best_Td]], dtype=np.float64))
+    best_control_activity = float(best_eval["control_activity"][0])
 
     data = {
         "best_Kp": best_Kp,
         "best_Ti": best_Ti,
         "best_Td": best_Td,
         "best_Tf": tf_report.tf_effective,
+        "best_control_activity": best_control_activity,
         "performance_index": performance_index,
         # Backward-compatible key name kept for existing consumers.
         "best_performance_index": best_objective_cost,
@@ -232,6 +243,8 @@ def main():
 
         "plant_num": plant_num,
         "plant_den": plant_den,
+        "use_control_activity_constraint": use_control_activity_constraint,
+        "allowed_control_activity": allowed_control_activity,
     }
 
     print(data)
@@ -257,6 +270,8 @@ def main():
     print(f"Tf limited: {'yes' if tf_report.limited else 'no'}")
     print(f"Active limit(s): {', '.join(active_limits) if active_limits else 'none'}")
     print(f"Minimum sampling rate for k-spacing: {tf_report.min_sampling_rate_hz:.6f} Hz")
+    print("\n=== Control activity (best PID) ===")
+    print(f"control_activity: {best_control_activity:.6f}")
 
     # --------------------------------------------------
     # Frequency metrics for best solution (DEBUG)
@@ -295,11 +310,11 @@ def main():
 
     systems_for_bode = {}
 
-    plt.figure()
+    fig, (ax_y, ax_u) = plt.subplots(2, 1, sharex=True)
 
     match excitation_target:
         case "reference":
-            t_cl, _, y_cl = pid.step_response(
+            t_cl, u_cl, y_cl = pid.step_response(
                 t0=start_time,
                 t1=end_time,
                 dt=time_step,
@@ -307,32 +322,42 @@ def main():
             systems_for_bode["Plant"] = plant.system
             systems_for_bode["Closed Loop"] = pid.closed_loop
 
-            plt.plot(t_ol, y_ol, label="Plant")
-            plt.plot(t_cl, y_cl, label="Closed Loop")
+            ax_y.plot(t_ol, y_ol, label="Plant")
+            ax_y.plot(t_cl, y_cl, label="Closed Loop")
+            ax_u.plot(t_cl, u_cl, label="u_sat")
 
         case "input_disturbance":
-            t_cl, _, y_cl = pid.step_response_l(
+            t_cl, u_cl, y_cl = pid.step_response_l(
                 t0=start_time,
                 t1=end_time,
                 dt=time_step,
             )
             systems_for_bode["Closed Loop input disturbance"] = pid.closed_loop_l
-            plt.plot(t_cl, y_cl, label="Closed Loop input disturbance")
+            ax_y.plot(t_cl, y_cl, label="Closed Loop input disturbance")
+            ax_u.plot(t_cl, u_cl, label="u_sat")
 
         case "measurement_disturbance":
-            t_cl, _, y_cl = pid.step_response_n(
+            t_cl, u_cl, y_cl = pid.step_response_n(
                 t0=start_time,
                 t1=end_time,
                 dt=time_step,
             )
             systems_for_bode["Closed Loop measurement disturbance"] = pid.closed_loop_n
-            plt.plot(t_cl, y_cl, label="Closed Loop measurement disturbance")
+            ax_y.plot(t_cl, y_cl, label="Closed Loop measurement disturbance")
+            ax_u.plot(t_cl, u_cl, label="u_sat")
 
-    plt.xlabel("time / s")
-    plt.ylabel("output")
-    plt.title("Step Response")
-    plt.grid(True)
-    plt.legend()
+    ax_y.set_ylabel("output")
+    ax_y.set_title("Step Response")
+    ax_y.grid(True)
+    ax_y.legend()
+
+    ax_u.set_xlabel("time / s")
+    ax_u.set_ylabel("u_sat")
+    ax_u.set_title("Control Signal")
+    ax_u.grid(True)
+    ax_u.legend()
+
+    fig.tight_layout()
 
     systems_for_bode["Open Loop L=C*G"] = lambda s: pid.controller(s) * plant.system(s)
     systems_for_bode["Sensitivity S=1/(1+L)"] = (
