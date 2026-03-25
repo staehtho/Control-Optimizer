@@ -23,20 +23,12 @@
     <defs>
         <g id="integrator">
             <use href="#rect"/>
-            <text class="text" x="25" y="17.5">1</text>
-            <path class="line" d="M17.5 25 H32.5"/>
-            <text class="text" x="25" y="40">s</text>
-        </g>
-    </defs>
+            <text class="text" x="15" y="17.5">1</text>
+            <path class="line" d="M7.5 25 H22.5"/>
+            <text class="text" x="15" y="40">s</text>
 
-
-    <!-- Constraint -->
-    <defs>
-        <g id="constraint">
-            <use href="#rect"/>
-            <path class="line" d="M7 40 H20 L30 10 H43"/>
-            <path class="line" d="M5 25 H45" style="stroke-width:0.7"/>
-            <path class="line" d="M25 5 V45" style="stroke-width:0.7"/>
+            <!-- clamping -->
+            <path class="line" d="M25 40 H32.5 L37.5 10 H45"/>
 
             <!-- min max -->
             <text class="text" x="0" y="-8" style="font-size:10px; text-anchor:start">max: ###</text>
@@ -66,16 +58,11 @@
         <g transform="translate(100, -25)">
             <use href="#integrator"/>
         </g>
-
-        <path class="line" d="M150 0 H170"/>
-        <use href="#arrow" transform="translate(175, 0)"/>
-
-        <use href="#constraint" transform="translate(175 -25)"/>
     </g>
 
     <!-- Output -->
     <g transform="translate(325 0)">
-        <path class="line" d="M0 10 V75 H-50"/>
+        <path class="line" d="M0 10 V75 H-125"/>
         <use href="#arrow" transform="rotate(-90 2.5 2.5)"/>
     </g>
 

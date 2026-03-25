@@ -9,16 +9,13 @@ from PySide6.QtWidgets import QApplication
 
 # TODO: add buttons to switch to the next or previous view in the view it self
 # TODO: TabIndex
-# TODO: layout switches in off state
 
 # TODO: BodePlot: when all plots are disabled, the y-axis should not be rescaled. now it scale to 99999 or so :)
 
 # TODO: Controller: move the block diagram and the selection of the anti windup in one section called anti windup
 #  and call the selection method or so
-# TODO: Controller: block diagram clamping, remove the saturation block and add in the integrator the range
 
 # TODO: PSO: overshoot only for step
-# TODO: PSO: set default stability to 6 dB
 # TODO: PSO: add stellrantenbegrenzung
 
 # TODO: Evaluation: block diagram add l and n input
