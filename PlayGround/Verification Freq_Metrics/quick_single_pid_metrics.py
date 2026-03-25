@@ -74,7 +74,7 @@ def main() -> None:
     print(f"  numerically_valid = {bool(metrics['numerically_valid_particles'][0])}")
     print(f"  pm_deg            = {float(metrics['pm_deg'][0])}")
     print(f"  gm_db             = {float(metrics['gm_db'][0])}")
-    print(f"  ms                = {float(metrics['ms'][0])}")
+    print(f"  ms_db             = {float(metrics['ms_db'][0])}")
     print(f"  has_wc            = {bool(metrics['has_wc'][0])}")
     print(f"  has_w180          = {bool(metrics['has_w180'][0])}")
     print(f"  wc                = {float(metrics['wc'][0])}")

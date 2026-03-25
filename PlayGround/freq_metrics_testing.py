@@ -11,7 +11,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SRC_PATH = PROJECT_ROOT / "src"
 sys.path.insert(0, str(SRC_PATH))
 
-from app_domain.controlsys import Plant, PIDClosedLoop, bode_plot
+from app_domain.controlsys import Plant, PIDClosedLoop, bode_plot, compute_effective_tf_report
 from app_domain.controlsys.freq_metrics import compute_loop_metrics_batch
 
 
@@ -28,7 +28,18 @@ def main():
     Kp = 9.973
     Ti = 4.545
     Td = 0.483
-    Tf = 0.01
+    dt = 1e-4
+    tf_tuning_factor_n = 5.0
+    tf_limit_factor_k = 5.0
+    sampling_rate_hz = None
+    tf_report = compute_effective_tf_report(
+        Td=Td,
+        dt=dt,
+        tf_tuning_factor_n=tf_tuning_factor_n,
+        tf_limit_factor_k=tf_limit_factor_k,
+        sampling_rate_hz=sampling_rate_hz,
+    )
+    Tf = tf_report.tf_effective
 
     # -------------------------------------------------------------------------
     metrics = compute_loop_metrics_batch(
@@ -47,7 +58,7 @@ def main():
     w = metrics["w"]
     pm = float(metrics["pm_deg"][0])
     gm = float(metrics["gm_db"][0])
-    ms = float(metrics["ms"][0])
+    ms_db = float(metrics["ms_db"][0])
     has_wc = bool(metrics["has_wc"][0])
     has_w180 = bool(metrics["has_w180"][0])
     wc = float(metrics["wc"][0])
@@ -59,7 +70,8 @@ def main():
     print(f"ok_particles: {ok}")
     print(f"PM  [deg]: {pm:.3f}   (has_wc={has_wc}, wc={wc:.6g} rad/s)")
     print(f"GM  [dB ]: {gm:.3f}   (has_w180={has_w180}, w180={w180:.6g} rad/s)")
-    print(f"Ms  [lin]: {ms:.6f}   (= {20.0 * np.log10(ms):.3f} dB)")
+    print(f"Ms  [dB ]: {ms_db:.3f}")
+    print(f"Tf_raw / Tf_eff: {tf_report.tf_raw:.6f} / {tf_report.tf_effective:.6f}")
 
     # -------------------------------------------------------------------------
     # Bode plot (diagnostic) on the *same grid*

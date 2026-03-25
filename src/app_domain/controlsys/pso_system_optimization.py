@@ -14,7 +14,9 @@
 # License:       ZHAW Zuercher Hochschule fuer angewandte Wissenschaften (or internal use only)
 # ------------------------------------------------------------------------------
 
+import math
 import time
+from dataclasses import dataclass
 from typing import Callable
 
 import numpy as np
@@ -24,6 +26,149 @@ from .PIDClosedLoop import PIDClosedLoop
 from .closedLoop import ClosedLoop
 from .enums import *
 from .freq_metrics import compute_loop_metrics_batch_from_frf
+
+
+@dataclass(frozen=True)
+class TfLimitReport:
+    """Report for the desired raw D-filter time constant and the applied limit.
+
+    Attributes:
+        tf_raw: Desired unbounded filter time constant computed from ``Td / N``.
+        tf_effective: Filter time constant actually used after applying limits.
+        tf_min: Active lower bound on the filter time constant.
+        simulation_limit: Lower bound imposed by the simulation step size.
+        sampling_limit: Lower bound imposed by the real sampling rate.
+        limited: Whether any lower-limit clamp was applied.
+        limited_by_simulation: Whether the simulation-step limit was active.
+        limited_by_sampling: Whether the sampling-rate limit was active.
+        min_sampling_rate_hz: Sampling rate required to realize ``tf_raw``
+            without a sampling-limit clamp.
+    """
+    tf_raw: float
+    tf_effective: float
+    tf_min: float
+    simulation_limit: float
+    sampling_limit: float
+    limited: bool
+    limited_by_simulation: bool
+    limited_by_sampling: bool
+    # Sampling-rate suggestion for realizing the unbounded target Tf_raw.
+    min_sampling_rate_hz: float
+
+
+def _normalize_positive_scalar(value: float, name: str) -> float:
+    normalized = float(value)
+    if normalized <= 0.0:
+        raise ValueError(f"{name} must be > 0.")
+    return normalized
+
+
+def _normalize_sampling_rate_hz(sampling_rate_hz: float | None) -> float | None:
+    if sampling_rate_hz is None:
+        return None
+    return _normalize_positive_scalar(sampling_rate_hz, "sampling_rate_hz")
+
+
+def compute_effective_tf_report(
+    Td: float,
+    dt: float,
+    *,
+    tf_tuning_factor_n: float = 5.0,
+    tf_limit_factor_k: float = 5.0,
+    sampling_rate_hz: float | None = None,
+) -> TfLimitReport:
+    """Compute raw and limited derivative-filter time constants for one ``Td``.
+
+    Args:
+        Td: Derivative time constant candidate.
+        dt: Simulation time step.
+        tf_tuning_factor_n: D-filter tuning factor ``N`` in ``Tf = Td / N``.
+        tf_limit_factor_k: Lower-limit factor ``k`` in
+            ``Tf >= k * max(dt, Ts_real)``.
+        sampling_rate_hz: Optional real-system sampling rate in Hz.
+
+    Returns:
+        TfLimitReport: Report containing the desired raw filter time constant,
+        the applied effective value, active limits, and the sampling-rate
+        recommendation needed to realize ``tf_raw`` without a sampling-limit
+        clamp.
+    """
+    td = float(Td)
+    sim_dt = _normalize_positive_scalar(dt, "dt")
+    n_factor = _normalize_positive_scalar(tf_tuning_factor_n, "tf_tuning_factor_n")
+    k_factor = _normalize_positive_scalar(tf_limit_factor_k, "tf_limit_factor_k")
+    rate_hz = _normalize_sampling_rate_hz(sampling_rate_hz)
+
+    if td <= 0.0:
+        return TfLimitReport(
+            tf_raw=0.0,
+            tf_effective=0.0,
+            tf_min=0.0,
+            simulation_limit=0.0,
+            sampling_limit=0.0,
+            limited=False,
+            limited_by_simulation=False,
+            limited_by_sampling=False,
+            min_sampling_rate_hz=0.0,
+        )
+
+    tf_raw = td / n_factor
+    simulation_limit = k_factor * sim_dt
+    sampling_limit = 0.0 if rate_hz is None else (k_factor / rate_hz)
+    tf_min = max(simulation_limit, sampling_limit)
+    tf_effective = max(tf_raw, tf_min)
+
+    limited_by_simulation = (
+        tf_raw < simulation_limit
+        and math.isclose(tf_effective, simulation_limit, rel_tol=1e-12, abs_tol=1e-12)
+    )
+    limited_by_sampling = (
+        rate_hz is not None
+        and tf_raw < sampling_limit
+        and math.isclose(tf_effective, sampling_limit, rel_tol=1e-12, abs_tol=1e-12)
+    )
+    limited = limited_by_simulation or limited_by_sampling
+    # Sampling-rate recommendation for realizing the desired raw filter
+    # constant without triggering the sampling-limit clamp.
+    min_sampling_rate_hz = k_factor / tf_raw
+
+    return TfLimitReport(
+        tf_raw=tf_raw,
+        tf_effective=tf_effective,
+        tf_min=tf_min,
+        simulation_limit=simulation_limit,
+        sampling_limit=sampling_limit,
+        limited=limited,
+        limited_by_simulation=limited_by_simulation,
+        limited_by_sampling=limited_by_sampling,
+        min_sampling_rate_hz=min_sampling_rate_hz,
+    )
+
+
+def compute_effective_tf_batch(
+    Td: np.ndarray,
+    dt: float,
+    *,
+    tf_tuning_factor_n: float = 5.0,
+    tf_limit_factor_k: float = 5.0,
+    sampling_rate_hz: float | None = None,
+) -> tuple[np.ndarray, np.ndarray]:
+    sim_dt = _normalize_positive_scalar(dt, "dt")
+    n_factor = _normalize_positive_scalar(tf_tuning_factor_n, "tf_tuning_factor_n")
+    k_factor = _normalize_positive_scalar(tf_limit_factor_k, "tf_limit_factor_k")
+    rate_hz = _normalize_sampling_rate_hz(sampling_rate_hz)
+
+    td = np.asarray(Td, dtype=np.float64)
+    tf_raw = np.zeros_like(td, dtype=np.float64)
+    tf_effective = np.zeros_like(td, dtype=np.float64)
+
+    active = td > 0.0
+    if np.any(active):
+        tf_raw[active] = td[active] / n_factor
+        tf_min = max(k_factor * sim_dt, 0.0 if rate_hz is None else (k_factor / rate_hz))
+        tf_effective[active] = np.maximum(tf_raw[active], tf_min)
+
+    return tf_raw, tf_effective
 
 
 class PsoFunc:
@@ -45,12 +190,19 @@ class PsoFunc:
       - allowed_overshoot_pct = 0 means strict no-overshoot.
       - Positive and negative steps are handled with one signed formula.
 
+    Optional time-domain control activity constraint:
+      - Control activity is measured on the saturated actuator signal ``u_sat``.
+      - The metric is the normalized total variation
+        ``sum(|u[k]-u[k-1]|) / ((t1 - t0) * (u_max - u_min))``.
+      - Large values indicate persistent actuator chattering or aggressive
+        back-and-forth motion.
+
     Constraints (policies):
       - PM is minimum only: PM >= PM_min_deg
         If PM missing (has_wc=False) => infeasible.
       - GM is minimum only: GM_dB >= GM_min_db
         If GM missing => GM=+inf => OK (violation 0).
-      - Ms is maximum: Ms <= Ms_max
+      - Ms is maximum in dB: Ms <= Ms_max_db
       - Non-finite frequency responses are treated as infeasible (guarded by freq_metrics).
 
     NOTE (02.03.2026):
@@ -73,6 +225,9 @@ class PsoFunc:
         pre_compiling: bool = True,
         *,
         use_freq_metrics: bool = True,
+        tf_tuning_factor_n: float = 5.0,
+        tf_limit_factor_k: float = 5.0,
+        sampling_rate_hz: float | None = None,
         # Frequency grid
         freq_low_exp: float = -5.0,
         freq_high_exp: float = 5.0,
@@ -80,9 +235,11 @@ class PsoFunc:
         # Constraints
         pm_min_deg: float = 60.0,
         gm_min_db: float = 5.0,
-        ms_max: float = 2.0,
+        ms_max_db: float | None = 20.0 * math.log10(2.0),
         use_overshoot_control: bool = False,
         allowed_overshoot_pct: float = 0.0,
+        use_control_activity_constraint: bool = False,
+        allowed_control_activity: float = 0.0,
         log_path: str | None = None, # TODO FLO rueckgaengig logging
         enable_logging: bool = False, # TODO FLO rueckgaengig logging
     ) -> None:
@@ -110,13 +267,27 @@ class PsoFunc:
             use_freq_metrics:
                 If True, evaluate PM/GM/Ms first and derive feasibility from frequency metrics.
                 If False, all candidates are treated as frequency-feasible.
+            tf_tuning_factor_n:
+                D-filter tuning factor ``N`` in ``Tf = Td / N``.
+            tf_limit_factor_k:
+                Lower-limit factor ``k`` used in ``Tf >= k * max(dt, Ts_real)``.
+            sampling_rate_hz:
+                Optional real-system sampling rate in Hz. If omitted, only the simulation
+                time step ``dt`` limits ``Tf``.
             pm_min_deg: Phase margin minimum in degrees (PM >= pm_min_deg). PM missing => infeasible.
             gm_min_db: Gain margin minimum in dB (GM >= gm_min_db). GM missing => treated as +inf => OK.
-            ms_max: Sensitivity peak maximum (Ms <= ms_max).
+            ms_max_db: Sensitivity peak maximum in dB (Ms <= ms_max_db). If None, the Ms
+                constraint is disabled.
             use_overshoot_control:
                 If True, overshoot becomes an additional feasibility criterion after time simulation.
             allowed_overshoot_pct:
                 Maximum allowed overshoot in percent before a feasible time response is marked infeasible.
+            use_control_activity_constraint:
+                If True, the normalized control activity becomes an additional
+                feasibility criterion after time simulation.
+            allowed_control_activity:
+                Maximum allowed normalized control activity before a feasible
+                time response is marked infeasible.
             log_path:
                 Optional CSV path used by the temporary logging pipeline.
             enable_logging:
@@ -132,6 +303,9 @@ class PsoFunc:
         self.t1 = t1
         self.dt = dt
         self.t_eval = np.arange(t0, t1 + dt, dt)
+        self.tf_tuning_factor_n = _normalize_positive_scalar(tf_tuning_factor_n, "tf_tuning_factor_n")
+        self.tf_limit_factor_k = _normalize_positive_scalar(tf_limit_factor_k, "tf_limit_factor_k")
+        self.sampling_rate_hz = _normalize_sampling_rate_hz(sampling_rate_hz)
 
         # TODO FLO rueckgaengig logging
         self.enable_logging = bool(enable_logging)
@@ -189,13 +363,18 @@ class PsoFunc:
         # --- constraint parameters (dynamic from outside) ---
         self.pm_min_deg = float(pm_min_deg)
         self.gm_min_db = float(gm_min_db)
-        self.ms_max = float(ms_max)
+        self.ms_max_db = None if ms_max_db is None else float(ms_max_db)
         self.use_overshoot_control = bool(use_overshoot_control)
         self.allowed_overshoot_pct = float(allowed_overshoot_pct)
         self._overshoot_step_amplitude_abs = 0.0
         self._overshoot_step_start_idx = 0
         self._overshoot_step_sign = 0.0
         self._overshoot_r_final = 0.0
+        self.use_control_activity_constraint = bool(use_control_activity_constraint)
+        self.allowed_control_activity = float(allowed_control_activity)
+        self._control_activity_time_span = 0.0
+        self._control_activity_control_range = 0.0
+        self._update_control_activity_cache()
         self._update_overshoot_control_cache()
 
         # Pre-compile Numba functions
@@ -208,6 +387,14 @@ class PsoFunc:
             time.sleep(0.05)
             self._pre_compiling = False
 
+    def evaluate_tf_for_td(self, Td: float) -> TfLimitReport:
+        return compute_effective_tf_report(
+            Td=Td,
+            dt=self.dt,
+            tf_tuning_factor_n=self.tf_tuning_factor_n,
+            tf_limit_factor_k=self.tf_limit_factor_k,
+            sampling_rate_hz=self.sampling_rate_hz,
+        )
 
     # TODO FLO rueckgaengig logging
     def set_run_id(self, run_id: int) -> None:
@@ -222,8 +409,9 @@ class PsoFunc:
         header = (
             "run_id,call_id,particle_idx,"
             "Kp,Ti,Td,"
-            "pm_deg,gm_db,ms,wc,w180,"
-            "V,V_freq,V_ov,V_total,feasible_final,time_simulated,overshoot_pct,"
+            "pm_deg,gm_db,ms_db,wc,w180,"
+            "V,V_freq,V_ov,V_ca,V_total,feasible_final,time_simulated,overshoot_pct,"
+            "control_activity_raw,control_activity,"
             "time_cost,perf_J,total_cost,objective_cost,"
             "pbest_updated,gbest_updated,"
             "pbest_feasible,pbest_violation,pbest_perf,pbest_cost,"
@@ -242,15 +430,18 @@ class PsoFunc:
     def _log_batch(
             self,
             Kp: np.ndarray, Ti: np.ndarray, Td: np.ndarray,
-            pm: np.ndarray, gm: np.ndarray, ms: np.ndarray,
+            pm: np.ndarray, gm: np.ndarray, ms_db: np.ndarray,
             wc: np.ndarray, w180: np.ndarray,
             V: np.ndarray,
             V_freq: np.ndarray,
             V_ov: np.ndarray,
+            V_ca: np.ndarray,
             V_total: np.ndarray,
             feasible_final: np.ndarray,
             time_sim: np.ndarray,
             overshoot_pct: np.ndarray,
+            control_activity_raw: np.ndarray,
+            control_activity: np.ndarray,
             time_cost: np.ndarray,
             perf_J: np.ndarray,
             total_cost: np.ndarray,
@@ -279,8 +470,9 @@ class PsoFunc:
             lines.append(
                 f"{run_id},{call_id},{i},"
                 f"{Kp[i]},{Ti[i]},{Td[i]},"
-                f"{pm[i]},{gm[i]},{ms[i]},{wc[i]},{w180[i]},"
-                f"{V[i]},{V_freq[i]},{V_ov[i]},{V_total[i]},{int(feasible_final[i])},{int(time_sim[i])},{overshoot_pct[i]},"
+                f"{pm[i]},{gm[i]},{ms_db[i]},{wc[i]},{w180[i]},"
+                f"{V[i]},{V_freq[i]},{V_ov[i]},{V_ca[i]},{V_total[i]},{int(feasible_final[i])},{int(time_sim[i])},{overshoot_pct[i]},"
+                f"{control_activity_raw[i]},{control_activity[i]},"
                 f"{time_cost[i]},{perf_J[i]},{total_cost[i]},{objective_cost[i]},"
                 f"{int(pbest_updated[i])},{int(gbest_updated[i])},"
                 f"{int(pbest_feasible[i])},{pbest_violation[i]},{pbest_perf[i]},{pbest_cost[i]},"
@@ -321,16 +513,19 @@ class PsoFunc:
             Td=batch["Td"],
             pm=batch["pm"],
             gm=batch["gm"],
-            ms=batch["ms"],
+            ms_db=batch["ms_db"],
             wc=batch["wc"],
             w180=batch["w180"],
             V=batch["V"],
             V_freq=batch["V_freq"],
             V_ov=batch["V_ov"],
+            V_ca=batch["V_ca"],
             V_total=batch["V_total"],
             feasible_final=batch["feasible_final"],
             time_sim=batch["time_sim"],
             overshoot_pct=batch["overshoot_pct"],
+            control_activity_raw=batch["control_activity_raw"],
+            control_activity=batch["control_activity"],
             time_cost=batch["time_cost"],
             perf_J=batch["perf_J"],
             total_cost=batch["total_cost"],
@@ -354,23 +549,49 @@ class PsoFunc:
         *,
         pm_min_deg: float | None = None,
         gm_min_db: float | None = None,
-        ms_max: float | None = None,
+        ms_max_db: float | None = None,
         use_overshoot_control: bool | None = None,
         allowed_overshoot_pct: float | None = None,
+        use_control_activity_constraint: bool | None = None,
+        allowed_control_activity: float | None = None,
     ) -> None:
         """Update constraints dynamically (e.g., from config/UI)."""
         if pm_min_deg is not None:
             self.pm_min_deg = float(pm_min_deg)
         if gm_min_db is not None:
             self.gm_min_db = float(gm_min_db)
-        if ms_max is not None:
-            self.ms_max = float(ms_max)
+        if ms_max_db is not None:
+            self.ms_max_db = float(ms_max_db)
         if use_overshoot_control is not None:
             self.use_overshoot_control = bool(use_overshoot_control)
         if allowed_overshoot_pct is not None:
             self.allowed_overshoot_pct = float(allowed_overshoot_pct)
+        if use_control_activity_constraint is not None:
+            self.use_control_activity_constraint = bool(use_control_activity_constraint)
+        if allowed_control_activity is not None:
+            self.allowed_control_activity = float(allowed_control_activity)
 
+        self._update_control_activity_cache()
         self._update_overshoot_control_cache()
+
+    def _update_control_activity_cache(self) -> None:
+        """Precompute fixed normalization terms for the control activity metric.
+
+        The metric is always logged for time-simulated particles, even when the
+        corresponding constraint is disabled. The normalization therefore has to
+        stay valid independently of the constraint flag.
+        """
+        self._control_activity_time_span = float(self.t1 - self.t0)
+        self._control_activity_control_range = float(self.control_constraint[1] - self.control_constraint[0])
+
+        if self._control_activity_time_span <= 0.0:
+            raise ValueError("control_activity requires t1 > t0.")
+        if self._control_activity_control_range <= 0.0:
+            raise ValueError("control_activity requires control_constraint max > min.")
+        if self.use_control_activity_constraint and self.allowed_control_activity < 0.0:
+            raise ValueError(
+                "allowed_control_activity must be >= 0 when use_control_activity_constraint=True."
+            )
 
     def _update_overshoot_control_cache(self) -> None:
         """Precompute overshoot helpers from the sampled reference trace.
@@ -425,14 +646,14 @@ class PsoFunc:
         """
         pm = metrics["pm_deg"]
         gm = metrics["gm_db"]
-        ms = metrics["ms"]
+        ms_db = metrics["ms_db"]
         has_wc = metrics["has_wc"]
         numerically_valid = metrics["numerically_valid_particles"]
 
         P = pm.shape[0]
 
         # --- hard fail mask (PM missing / non-finite / finite-guarded / Ms non-finite) ---
-        hard_fail = (~numerically_valid) | (~has_wc) | (~np.isfinite(pm)) | (~np.isfinite(ms))
+        hard_fail = (~numerically_valid) | (~has_wc) | (~np.isfinite(pm)) | (~np.isfinite(ms_db))
 
         v_pm = np.zeros(P, dtype=np.float64)
         v_gm = np.zeros(P, dtype=np.float64)
@@ -452,9 +673,10 @@ class PsoFunc:
                     idx = np.where(good)[0][finite_gm]
                     v_gm[idx] = np.maximum(0.0, (self.gm_min_db - gm[idx]) / self.gm_min_db)
 
-            # Ms constraint (disable if ms_max <= 0)
-            if self.ms_max > 0.0:
-                v_ms[good] = np.maximum(0.0, (ms[good] - self.ms_max) / self.ms_max)
+            # Ms constraint in dB (disable only if ms_max_db is None)
+            if self.ms_max_db is not None:
+                ms_scale = max(abs(self.ms_max_db), 1.0)
+                v_ms[good] = np.maximum(0.0, (ms_db[good] - self.ms_max_db) / ms_scale)
 
         # Hard-fails are ranked strictly worse than regular infeasible candidates.
         # We therefore force total V to +inf for hard-fail entries.
@@ -481,7 +703,8 @@ class PsoFunc:
               - cost: scalar summary value
                 (J for feasible candidates, V for infeasible candidates)
               - feasible: final feasibility flag
-              - violation: total violation V (frequency + optional overshoot)
+              - violation: total violation V
+                (frequency + optional overshoot + optional control activity)
               - perf: objective J (np.inf for infeasible candidates)
             If defer_logging=True, core batch metrics are cached and can be finalized later
             with PSO state (pBest/gBest) via finalize_log_batch(...).
@@ -502,13 +725,18 @@ class PsoFunc:
         Kp = X[:, 0]
         Ti = X[:, 1]
         Td = X[:, 2]
+        _, Tf = compute_effective_tf_batch(
+            Td,
+            dt=self.dt,
+            tf_tuning_factor_n=self.tf_tuning_factor_n,
+            tf_limit_factor_k=self.tf_limit_factor_k,
+            sampling_rate_hz=self.sampling_rate_hz,
+        )
 
         # --------------------------------------------------
         # 1) Optional: Frequency metrics + constraint violation
         # --------------------------------------------------
         if self.use_freq_metrics:
-            Tf = np.full(P, self.controller.Tf, dtype=np.float64)
-
             with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
                 metrics = compute_loop_metrics_batch_from_frf(
                     G=self._G,
@@ -525,25 +753,27 @@ class PsoFunc:
             V = np.zeros(P, dtype=np.float64)
         V_freq = V.copy()
         V_ov = np.zeros(P, dtype=np.float64)
+        V_ca = np.zeros(P, dtype=np.float64)
 
         # TODO FLO rückgängig logging
         # Logging helpers (per particle)
         # --------------------------------------------------
         pm = np.full(P, np.nan, dtype=np.float64)
         gm = np.full(P, np.nan, dtype=np.float64)
-        ms = np.full(P, np.nan, dtype=np.float64)
+        ms_db = np.full(P, np.nan, dtype=np.float64)
         wc = np.full(P, np.nan, dtype=np.float64)
         w180 = np.full(P, np.nan, dtype=np.float64)
 
         if self.use_freq_metrics:
             pm = metrics.get("pm_deg", pm)
             gm = metrics.get("gm_db", gm)
-            ms = metrics.get("ms", ms)
+            ms_db = metrics.get("ms_db", ms_db)
             wc = metrics.get("wc", wc)
             w180 = metrics.get("w180", w180)
 
-        time_sim = np.zeros(P, dtype=np.bool_)
         overshoot_pct = np.full(P, np.nan, dtype=np.float64)
+        control_activity_raw = np.full(P, np.nan, dtype=np.float64)
+        control_activity = np.full(P, np.nan, dtype=np.float64)
         time_cost = np.full(P, np.nan, dtype=np.float64)
 
         # Scalar summary value retained for logging/return compatibility.
@@ -571,7 +801,7 @@ class PsoFunc:
             Xf = X[feasible]
             Pf = int(Xf.shape[0])
 
-            perf_vals, overshoot_vals = _pid_pso_func(
+            perf_vals, overshoot_vals, control_activity_raw_vals, control_activity_vals = _pid_pso_func(
                 Xf,
                 self.t_eval,
                 self.dt,
@@ -583,7 +813,7 @@ class PsoFunc:
                 self.C,
                 self.D,
                 self.plant_order,
-                self.controller.Tf,
+                Tf[feasible],
                 self.control_constraint,
                 self.anti_windup_method,
                 self.ka,
@@ -594,11 +824,18 @@ class PsoFunc:
                 self._overshoot_step_start_idx,
                 self._overshoot_step_sign,
                 self._overshoot_r_final,
+                self._control_activity_time_span,
+                self._control_activity_control_range,
                 Pf,  # IMPORTANT: swarm_size = number of feasible particles
             )
             time_cost[feasible] = perf_vals
             overshoot_pct[feasible] = overshoot_vals
+            control_activity_raw[feasible] = control_activity_raw_vals
+            control_activity[feasible] = control_activity_vals
             perf[feasible] = perf_vals
+            feasible_indices = np.where(feasible)[0]
+            feasible_cost = perf_vals.copy()
+            infeasible_time_constraint = np.zeros(Pf, dtype=np.bool_)
 
             if self.use_overshoot_control:
                 overshoot_violation = np.maximum(
@@ -608,19 +845,32 @@ class PsoFunc:
                 overshoot_violation = np.nan_to_num(overshoot_violation, nan=1.0, posinf=1.0, neginf=0.0)
 
                 # Keep overshoot as feasibility component in total violation V.
-                feasible_indices = np.where(feasible)[0]
                 V_ov_local = overshoot_violation * overshoot_violation
                 V_ov[feasible_indices] = V_ov_local
                 V[feasible_indices] += V_ov_local
+                infeasible_time_constraint |= overshoot_violation > 0.0
 
-                feasible_cost = perf_vals.copy()
-                bad_overshoot = overshoot_violation > 0.0
-                if np.any(bad_overshoot):
-                    feasible_cost[bad_overshoot] = V[feasible_indices[bad_overshoot]]
-                    perf[feasible_indices[bad_overshoot]] = np.inf
-                cost[feasible] = feasible_cost
-            else:
-                cost[feasible] = perf_vals
+            if self.use_control_activity_constraint:
+                control_activity_violation = np.maximum(
+                    0.0,
+                    (control_activity_vals - self.allowed_control_activity),
+                )
+                control_activity_violation = np.nan_to_num(
+                    control_activity_violation,
+                    nan=1.0,
+                    posinf=1.0,
+                    neginf=0.0,
+                )
+
+                V_ca_local = control_activity_violation * control_activity_violation
+                V_ca[feasible_indices] = V_ca_local
+                V[feasible_indices] += V_ca_local
+                infeasible_time_constraint |= control_activity_violation > 0.0
+
+            if np.any(infeasible_time_constraint):
+                feasible_cost[infeasible_time_constraint] = V[feasible_indices[infeasible_time_constraint]]
+                perf[feasible_indices[infeasible_time_constraint]] = np.inf
+            cost[feasible] = feasible_cost
 
         V_total = V.copy()
         feasible_final = V_total <= 0.0
@@ -635,16 +885,19 @@ class PsoFunc:
                 "Td": Td,
                 "pm": pm,
                 "gm": gm,
-                "ms": ms,
+                "ms_db": ms_db,
                 "wc": wc,
                 "w180": w180,
                 "V": V_total,  # backward-compatible alias
                 "V_freq": V_freq,
                 "V_ov": V_ov,
+                "V_ca": V_ca,
                 "V_total": V_total,
                 "feasible_final": feasible_final,
                 "time_sim": time_sim,
                 "overshoot_pct": overshoot_pct,
+                "control_activity_raw": control_activity_raw,
+                "control_activity": control_activity,
                 "time_cost": time_cost,
                 "perf_J": perf,
                 "total_cost": cost,
@@ -662,16 +915,19 @@ class PsoFunc:
                     Td=batch["Td"],
                     pm=batch["pm"],
                     gm=batch["gm"],
-                    ms=batch["ms"],
+                    ms_db=batch["ms_db"],
                     wc=batch["wc"],
                     w180=batch["w180"],
                     V=batch["V"],
                     V_freq=batch["V_freq"],
                     V_ov=batch["V_ov"],
+                    V_ca=batch["V_ca"],
                     V_total=batch["V_total"],
                     feasible_final=batch["feasible_final"],
                     time_sim=batch["time_sim"],
                     overshoot_pct=batch["overshoot_pct"],
+                    control_activity_raw=batch["control_activity_raw"],
+                    control_activity=batch["control_activity"],
                     time_cost=batch["time_cost"],
                     perf_J=batch["perf_J"],
                     total_cost=batch["total_cost"],
@@ -693,6 +949,7 @@ class PsoFunc:
             "feasible": feasible_final,
             "violation": V_total,
             "perf": perf,
+            "control_activity": control_activity,
         }
         self._last_eval = result
         return result
@@ -1047,12 +1304,19 @@ def pid_simulate_metrics(
     overshoot_step_start_idx: int,
     overshoot_step_sign: float,
     overshoot_r_final: float,
-) -> tuple[float, float]:
-    """Simulate one PID candidate and return (performance_index_value, overshoot_pct).
+    control_activity_time_span: float,
+    control_activity_control_range: float,
+) -> tuple[float, float, float, float]:
+    """Simulate one PID candidate and return time-domain evaluation metrics.
 
     Overshoot is tracked only from the precomputed step start index onward.
     Anti-windup behavior, including back-calculation scaling via ``ka``,
     is applied in the internal PID update step.
+
+    Returns:
+        tuple[float, float, float, float]:
+            ``(performance_index_value, overshoot_pct,
+            control_activity_raw, control_activity)``
     """
     e_prev = 0.0
     filtered_prev = 0.0
@@ -1066,6 +1330,9 @@ def pid_simulate_metrics(
 
     max_overshoot = 0.0
     use_ov = use_overshoot_control != 0
+    control_activity_raw = 0.0
+    u_prev = 0.0
+    have_u_prev = False
 
     n_steps = len(t_eval)
     for i in range(n_steps):
@@ -1079,6 +1346,12 @@ def pid_simulate_metrics(
             e, e_prev, filtered_prev, integral, Kp, Ti, Td, Tf,
             dt, u_min, u_max, anti_windup_method, ka
         )
+
+        if have_u_prev:
+            control_activity_raw += abs(u - u_prev)
+        else:
+            have_u_prev = True
+        u_prev = u
 
         if solver == MySolverInt.RK4:
             x = rk4(A, B, x, u + l, dt)
@@ -1115,7 +1388,12 @@ def pid_simulate_metrics(
         else:
             overshoot_pct = np.inf
 
-    return perf, overshoot_pct
+    if control_activity_time_span > 0.0 and control_activity_control_range > 0.0:
+        control_activity = control_activity_raw / (control_activity_time_span * control_activity_control_range)
+    else:
+        control_activity = np.inf
+
+    return perf, overshoot_pct, control_activity_raw, control_activity
 
 
 # =============================================================================
@@ -1124,23 +1402,28 @@ def pid_simulate_metrics(
 @njit(parallel=True)
 def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarray, l_eval: np.ndarray,
                   n_eval: np.ndarray, A: np.ndarray, B: np.ndarray, C: np.ndarray, D: float,
-                  system_order: int, Tf: float, control_constraint: np.ndarray, anti_windup_method: int,
+                  system_order: int, Tf: np.ndarray, control_constraint: np.ndarray, anti_windup_method: int,
                   ka: float, solver: int, performance_index: int,
                   use_overshoot_control: int, overshoot_step_amplitude_abs: float,
                   overshoot_step_start_idx: int, overshoot_step_sign: float,
-                  overshoot_r_final: float, swarm_size: int) -> tuple[np.ndarray, np.ndarray]:
+                  overshoot_r_final: float, control_activity_time_span: float,
+                  control_activity_control_range: float, swarm_size: int
+                  ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     performance_index_val = np.zeros(swarm_size)
     overshoot_pct = np.zeros(swarm_size)
+    control_activity_raw = np.zeros(swarm_size)
+    control_activity = np.zeros(swarm_size)
 
     for i in prange(swarm_size):
         Kp = float(X[i, 0])
         Ti = float(X[i, 1])
         Td = float(X[i, 2])
+        Tf_i = float(Tf[i])
 
         x = np.zeros(system_order, dtype=np.float64)
 
-        perf_i, overshoot_i = pid_simulate_metrics(
-            Kp, Ti, Td, Tf,
+        perf_i, overshoot_i, control_activity_raw_i, control_activity_i = pid_simulate_metrics(
+            Kp, Ti, Td, Tf_i,
             t_eval, dt,
             r_eval, l_eval, n_eval,
             x, control_constraint,
@@ -1151,9 +1434,13 @@ def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarr
             overshoot_step_start_idx,
             overshoot_step_sign,
             overshoot_r_final,
+            control_activity_time_span,
+            control_activity_control_range,
         )
         performance_index_val[i] = perf_i
         overshoot_pct[i] = overshoot_i
+        control_activity_raw[i] = control_activity_raw_i
+        control_activity[i] = control_activity_i
 
-    return performance_index_val, overshoot_pct
+    return performance_index_val, overshoot_pct, control_activity_raw, control_activity
 

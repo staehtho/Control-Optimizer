@@ -29,8 +29,8 @@ from app_domain.controlsys import (
     Plant,
     PsoFunc,
     bode_plot,
+    compute_effective_tf_report,
     crossover_frequency,
-    dominant_pole_realpart,
     settling_time,
 )
 from app_domain.controlsys.freq_metrics import compute_loop_metrics_batch_from_frf
@@ -118,10 +118,13 @@ def run_one_case(
     td_max=10,
     pm_min_deg=0,
     gm_min_db=0,
-    ms_max=20,
+    ms_max_db=20,
     anti_windup=AntiWindup.CLAMPING,
     excitation_target="reference",
     performance_index=PerformanceIndex.ITAE,
+    tf_tuning_factor_n=5.0,
+    tf_limit_factor_k=5.0,
+    sampling_rate_hz=None,
 ):
 
     plant = Plant(case["plant_num"], case["plant_den"])
@@ -133,17 +136,10 @@ def run_one_case(
         Kp=10,
         Ti=5,
         Td=3,
+        Tf=0.0,
         control_constraint=[-A, +A],
         anti_windup_method=anti_windup,
     )
-
-    # Filter wie bei dir
-    p_dom = dominant_pole_realpart(plant.den)
-    if p_dom is None:
-        pid.set_filter(Tf=0.01)
-    else:
-        t_dom = 1 / abs(p_dom)
-        pid.set_filter(Tf=t_dom / 100)
 
     # Anregung (bei dir ist es ein Step auf r)
     r = lambda t: np.ones_like(t)
@@ -159,12 +155,15 @@ def run_one_case(
         l=l,
         n=n,
         use_freq_metrics=True,
+        tf_tuning_factor_n=tf_tuning_factor_n,
+        tf_limit_factor_k=tf_limit_factor_k,
+        sampling_rate_hz=sampling_rate_hz,
         freq_low_exp=-5,
         freq_high_exp=5,
         freq_points=450,
         pm_min_deg=pm_min_deg,
         gm_min_db=gm_min_db,
-        ms_max=ms_max,
+        ms_max_db=ms_max_db,
         performance_index=performance_index,
         swarm_size=swarm_size,
     )
@@ -186,6 +185,14 @@ def run_one_case(
 
     # Best setzen + Frequenzmetriken berechnen
     pid.set_pid_param(Kp=best["Kp"], Ti=best["Ti"], Td=best["Td"])
+    tf_report = compute_effective_tf_report(
+        Td=best["Td"],
+        dt=time_step,
+        tf_tuning_factor_n=tf_tuning_factor_n,
+        tf_limit_factor_k=tf_limit_factor_k,
+        sampling_rate_hz=sampling_rate_hz,
+    )
+    pid.set_filter(Tf=tf_report.tf_effective)
 
     w = np.logspace(-5, 5, 600)
     s = 1j * w
@@ -210,7 +217,7 @@ def run_one_case(
         "cost": best["cost"],
         "pm_deg": float(metrics["pm_deg"][0]),
         "gm_db": float(metrics["gm_db"][0]),
-        "ms": float(metrics["ms"][0]),
+        "ms_db": float(metrics["ms_db"][0]),
         "has_wc": bool(metrics["has_wc"][0]),
         "has_w180": bool(metrics["has_w180"][0]),
     }

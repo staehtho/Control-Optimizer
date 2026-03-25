@@ -3,7 +3,6 @@ import logging
 from typing import TYPE_CHECKING, TypeVar, Callable
 
 from app_types import PlantResponseContext, PsoSimulationParam
-from app_domain.controlsys import MySolver, AntiWindup, ExcitationTarget, PerformanceIndex
 from app_domain.functions import StepFunction
 from models import ModelContainer
 from service import SimulationService
@@ -35,13 +34,9 @@ class AppEngine:
     # ==========================================================
     # Initialization
     # ==========================================================
-    def __init__(self, run_warmup: bool = True, warmup_runs: int = 2):
+    def __init__(self):
         """
         Initialize the application engine.
-
-        Args:
-            run_warmup: Whether to execute warmup routines
-            warmup_runs: Number of warmup iterations
         """
         # ------------------------------
         # Logger
@@ -53,12 +48,6 @@ class AppEngine:
         # Core services
         # ------------------------------
         self.simulation_service = SimulationService()
-
-        # ------------------------------
-        # Optional warmup
-        # ------------------------------
-        if run_warmup:
-            self.run_warmup(warmup_runs)
 
         # ------------------------------
         # Domain models
@@ -177,6 +166,7 @@ class AppEngine:
 
     def ensure_simulation_viewmodel(self) -> SimulationViewModel:
         from viewmodels import SimulationViewModel
+        from app_domain.controlsys import ExcitationTarget
         def factory():
             model_functions = {
                 i.name: self.model_container.ensure_function_model(i.name)
@@ -220,6 +210,7 @@ class AppEngine:
         triggers one-time setup in the step response engine for faster subsequent runs.
         """
         import numpy as np
+        from app_domain.controlsys import MySolver
         self.logger.info("Starting step response engine warmup.")
 
         context = PlantResponseContext(
@@ -244,7 +235,7 @@ class AppEngine:
         This pre-compiles any JIT functions, initializes caches, and
         triggers one-time setup in the PSO engine for faster subsequent runs.
         """
-
+        from app_domain.controlsys import MySolver, AntiWindup, ExcitationTarget, PerformanceIndex
         # Minimal PSO parameters for warmup
         pso_param = PsoSimulationParam(
             num=[1],
@@ -269,7 +260,7 @@ class AppEngine:
             gain_margin_enabled=True,
             phase_margin=60,
             phase_margin_enabled=True,
-            stability_margin=2,
+            stability_margin=6.0,
             stability_margin_enabled=True
         )
 
