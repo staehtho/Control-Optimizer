@@ -284,47 +284,47 @@
 <context>
     <name>ControllerView</name>
     <message>
-        <location filename="../views/controller_view.py" line="132"/>
+        <location filename="../views/controller_view.py" line="133"/>
         <source>Controller</source>
         <translation>Controller</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="133"/>
+        <location filename="../views/controller_view.py" line="134"/>
         <source>Parameters</source>
         <translation>Parameters</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="136"/>
+        <location filename="../views/controller_view.py" line="137"/>
         <source>Controller Type</source>
         <translation>Controller Type</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="137"/>
+        <location filename="../views/controller_view.py" line="138"/>
         <source>Anti Windup</source>
         <translation>Anti Windup</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="138"/>
+        <location filename="../views/controller_view.py" line="139"/>
         <source>Methode</source>
         <translation>Methode</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="139"/>
+        <location filename="../views/controller_view.py" line="140"/>
         <source>Constraint</source>
         <translation>Constraint</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="140"/>
+        <location filename="../views/controller_view.py" line="141"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="141"/>
+        <location filename="../views/controller_view.py" line="142"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="142"/>
+        <location filename="../views/controller_view.py" line="143"/>
         <source>Ka</source>
         <translation>Ka</translation>
     </message>

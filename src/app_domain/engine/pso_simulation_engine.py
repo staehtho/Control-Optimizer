@@ -5,7 +5,7 @@ import numpy as np
 import sys
 import time
 
-from app_domain.controlsys import ExcitationTarget, Plant, PIDClosedLoop, PsoFunc, dominant_pole_realpart
+from app_domain.controlsys import ExcitationTarget, Plant, PIDClosedLoop, PsoFunc, compute_effective_tf_report
 from app_domain.PSO import Swarm
 from app_types import PsoResult
 
@@ -86,8 +86,8 @@ class PsoSimulationEngine:
     # ==========================================================
     # Controller Setup
     # ==========================================================
-
-    def _create_controller(self, param: PsoSimulationParam) -> Tuple[PIDClosedLoop, float]:
+    @staticmethod
+    def _create_controller(param: PsoSimulationParam) -> Tuple[PIDClosedLoop, float]:
         """Create plant, PID controller, and set filter time constant."""
 
         plant = Plant(param.num, param.den)
@@ -102,26 +102,22 @@ class PsoSimulationEngine:
             ka=param.ka
         )
 
-        # Determine dominant pole
-        p_dom = dominant_pole_realpart(plant.den)
+        tf_report = compute_effective_tf_report(
+            Td=pid_cl.Td,
+            dt=param.dt,
+            tf_tuning_factor_n=5.0,
+            tf_limit_factor_k=5.0,
+            sampling_rate_hz=None,
+        )
+        pid_cl.set_filter(Tf=tf_report.tf_effective)
 
-        if p_dom >= 0:
-            tf = 0.01
-        else:
-            t_dom = 1 / abs(p_dom)
-            tf = t_dom / 100
-
-        pid_cl.set_filter(Tf=tf)
-
-        self._logger.debug("Controller created with Tf=%f", tf)
-
-        return pid_cl, tf
+        return pid_cl, tf_report.tf_effective
 
     # ==========================================================
     # Excitation
     # ==========================================================
-
-    def _configure_excitation(self, param: PsoSimulationParam) -> tuple[Callable, Callable, Callable]:
+    @staticmethod
+    def _configure_excitation(param: PsoSimulationParam) -> tuple[Callable, Callable, Callable]:
         """Configure excitation signals (r, l, n)."""
 
         r = lambda t: np.zeros_like(t)
@@ -136,15 +132,13 @@ class PsoSimulationEngine:
             case ExcitationTarget.MEASUREMENT_DISTURBANCE:
                 n = param.function.get_function()
 
-        self._logger.debug("Excitation configured: %s", param.excitation_target)
-
         return r, l, n
 
     # ==========================================================
     # Bounds
     # ==========================================================
-
-    def _extract_bounds(self, param: PsoSimulationParam):
+    @staticmethod
+    def _extract_bounds(param: PsoSimulationParam):
         """Extract parameter bounds for PSO."""
 
         kp_min, kp_max = param.kp
@@ -155,8 +149,6 @@ class PsoSimulationEngine:
             [kp_min, ti_min, td_min],
             [kp_max, ti_max, td_max]
         ]
-
-        self._logger.debug("Bounds extracted: %s", bounds)
 
         return bounds
 
