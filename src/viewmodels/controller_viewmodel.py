@@ -16,17 +16,13 @@ class ControllerViewModel(BaseViewModel):
     antiWindupChanged = Signal()
     constraintMinChanged = Signal()
     constraintMaxChanged = Signal()
+    kaChanged = Signal()
+    kaEnabledChanged = Signal()
 
     def __init__(self, model_controller: ControllerModel, parent: QObject = None):
         super().__init__(parent)
 
         self._model_controller = model_controller
-
-        self._connect_signals()
-
-    def _connect_signals(self) -> None:
-        # No signals to connect
-        ...
 
     # -------------------
     # controller
@@ -40,10 +36,18 @@ class ControllerViewModel(BaseViewModel):
     # -------------------
     # anti windup
     # -------------------
+    def _custom_setter_anti_windup(self, value: AntiWindup) -> bool:
+        enabled = value == AntiWindup.BACKCALCULATION
+        if enabled != self.ka_enabled:
+            self.ka_enabled = enabled
+
+        return True  # allow normal update
+
     anti_windup = LoggedProperty(
         path="_model_controller.anti_windup",
         signal="antiWindupChanged",
-        typ=AntiWindup
+        typ=AntiWindup,
+        custom_setter=_custom_setter_anti_windup
     )
 
     # -------------------
@@ -87,3 +91,14 @@ class ControllerViewModel(BaseViewModel):
         custom_setter=_verify_constraint_max
     )
 
+    ka = LoggedProperty(
+        path="_model_controller.ka",
+        signal="kaChanged",
+        typ=float,
+    )
+
+    ka_enabled = LoggedProperty(
+        path="_model_controller.ka_enabled",
+        signal="kaEnabledChanged",
+        typ=bool,
+    )

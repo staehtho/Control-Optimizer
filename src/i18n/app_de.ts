@@ -284,39 +284,49 @@
 <context>
     <name>ControllerView</name>
     <message>
-        <location filename="../views/controller_view.py" line="124"/>
+        <location filename="../views/controller_view.py" line="132"/>
         <source>Controller</source>
         <translation>Regler</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="125"/>
+        <location filename="../views/controller_view.py" line="133"/>
         <source>Parameters</source>
         <translation>Parameter</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="128"/>
+        <location filename="../views/controller_view.py" line="136"/>
         <source>Controller Type</source>
         <translation>Reglertyp</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="129"/>
+        <location filename="../views/controller_view.py" line="137"/>
         <source>Anti Windup</source>
         <translation>Windup</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="130"/>
+        <location filename="../views/controller_view.py" line="138"/>
+        <source>Methode</source>
+        <translation>Methode</translation>
+    </message>
+    <message>
+        <location filename="../views/controller_view.py" line="139"/>
         <source>Constraint</source>
         <translation>Begrenzung</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="131"/>
+        <location filename="../views/controller_view.py" line="140"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="132"/>
+        <location filename="../views/controller_view.py" line="141"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
+    </message>
+    <message>
+        <location filename="../views/controller_view.py" line="142"/>
+        <source>Ka</source>
+        <translation>Ka</translation>
     </message>
 </context>
 <context>
@@ -361,12 +371,12 @@
         <translation type="vanished">Ungültiger Wert: max ({value}) muss grösser als Omega max ({constraint_min}) sein.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/controller_viewmodel.py" line="58"/>
+        <location filename="../viewmodels/controller_viewmodel.py" line="62"/>
         <source>Invalid value: min ({value}) must be smaller than max ({max}).</source>
         <translation>Ungültiger Wert: min ({value}) muss kleiner als max ({max}) sein.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/controller_viewmodel.py" line="77"/>
+        <location filename="../viewmodels/controller_viewmodel.py" line="81"/>
         <source>Invalid value: max ({value}) must be greater than min ({min}).</source>
         <translation>Ungültiger Wert: max ({value}) muss grösser als min ({min}) sein.</translation>
     </message>

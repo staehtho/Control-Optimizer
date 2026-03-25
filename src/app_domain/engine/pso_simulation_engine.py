@@ -98,7 +98,8 @@ class PsoSimulationEngine:
             Ti=1,
             Td=1,
             control_constraint=list(param.constraint),
-            anti_windup_method=param.anti_windup
+            anti_windup_method=param.anti_windup,
+            ka=param.ka
         )
 
         # Determine dominant pole

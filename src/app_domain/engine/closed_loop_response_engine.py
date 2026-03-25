@@ -42,7 +42,8 @@ class ClosedLoopResponseEngine:
             Td=context.td,
             Tf=context.tf,
             control_constraint=list(context.constraint),
-            anti_windup_method=context.anti_windup
+            anti_windup_method=context.anti_windup,
+            ka=context.ka
         )
         dt = (context.t1 - context.t0) / 5000
         t, u, y = pid_cl.system_response(

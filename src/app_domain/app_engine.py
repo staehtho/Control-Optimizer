@@ -245,6 +245,7 @@ class AppEngine:
             dt=1e-4,
             solver=MySolver.RK4,
             anti_windup=AntiWindup.CLAMPING,
+            ka=1.0,
             constraint=(-5, 5),
             excitation_target=ExcitationTarget.REFERENCE,
             function=StepFunction(),

@@ -10,6 +10,7 @@ class PsoSimulationSnapshot:
     plant_den: tuple[float, ...]
     plant_tf: str
     controller_anti_windup: AntiWindup
+    controller_ka: float
     controller_constraint_min: float
     controller_constraint_max: float
     excitation_target: ExcitationTarget

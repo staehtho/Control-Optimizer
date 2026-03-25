@@ -22,6 +22,7 @@ class PsoSimulationParam:
 
     anti_windup: AntiWindup
     constraint: tuple[float, float]
+    ka: float
 
     excitation_target: ExcitationTarget
     function: BaseFunction

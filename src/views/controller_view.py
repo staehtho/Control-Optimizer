@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from functools import partial
 
-from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit, QHBoxLayout
+from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit, QHBoxLayout, QGraphicsOpacityEffect
 
 from app_domain.controlsys import AntiWindup
 from utils import recolor_svg, merge_svgs, SvgLayer
@@ -24,7 +24,11 @@ FIELDS: list[FieldConfig] = [
     ]),
 
     FieldConfig(ControllerField.CONTROLLER_TYPE, QLabel),
-    FieldConfig(ControllerField.ANTI_WINDUP, QComboBox),
+
+    SectionConfig(ControllerField.ANTI_WINDUP, [
+        FieldConfig(ControllerField.ANTI_WINDUP_METHODE, QComboBox),
+        FieldConfig(ControllerField.KA, QLineEdit),
+    ])
 ]
 
 
@@ -95,13 +99,14 @@ class ControllerView(ViewMixin, QWidget):
         attributes: dict[ControllerField, tuple[str, str, object]] = {
             ControllerField.CONSTRAINT_MIN: ("editingFinished", "_vm_controller.constraint_min", float),
             ControllerField.CONSTRAINT_MAX: ("editingFinished", "_vm_controller.constraint_max", float),
+            ControllerField.KA: ("editingFinished", "_vm_controller.ka", float),
         }
         for key, value in attributes.items():
             attr, vm_attr, value_type = value
             widget = self.field_widgets[key]
             getattr(widget, attr).connect(partial(self._on_widget_changed, widget, key, vm_attr, value_type=value_type))
 
-        self.field_widgets.get(ControllerField.ANTI_WINDUP).currentIndexChanged.connect(
+        self.field_widgets.get(ControllerField.ANTI_WINDUP_METHODE).currentIndexChanged.connect(
             self._on_index_changed_anti_windup)
 
     # ============================================================
@@ -113,8 +118,12 @@ class ControllerView(ViewMixin, QWidget):
         self._vm_controller.constraintMinChanged.connect(self._on_vm_constraint_min_changed)
         self._vm_controller.constraintMaxChanged.connect(self._on_vm_constraint_max_changed)
         self._vm_controller.antiWindupChanged.connect(
-            partial(self._on_vm_changed, ControllerField.ANTI_WINDUP, "_vm_controller.anti_windup")
+            partial(self._on_vm_changed, ControllerField.ANTI_WINDUP_METHODE, "_vm_controller.anti_windup")
         )
+        self._vm_controller.kaChanged.connect(
+            partial(self._on_vm_changed, ControllerField.KA, "_vm_controller.ka")
+        )
+        self._vm_controller.kaEnabledChanged.connect(self._on_ka_enable_changed)
 
     # ============================================================
     # Translation
@@ -127,15 +136,17 @@ class ControllerView(ViewMixin, QWidget):
         labels = {
             ControllerField.CONTROLLER_TYPE: self.tr("Controller Type"),
             ControllerField.ANTI_WINDUP: self.tr("Anti Windup"),
+            ControllerField.ANTI_WINDUP_METHODE: self.tr("Methode"),
             ControllerField.CONSTRAINT: self.tr("Constraint"),
             ControllerField.CONSTRAINT_MIN: self.tr("Minimum"),
             ControllerField.CONSTRAINT_MAX: self.tr("Maximum"),
+            ControllerField.KA: self.tr("Ka"),
         }
 
         for key in labels.keys():
             self.labels[key].setText(labels[key])
 
-        enums = {ControllerField.ANTI_WINDUP: AntiWindup}
+        enums = {ControllerField.ANTI_WINDUP_METHODE: AntiWindup}
         for key, value in enums.items():
             data = {k: self._enum_translation(k) for k in value}
             self._cmb_add_item(self.field_widgets[key], data)
@@ -146,13 +157,16 @@ class ControllerView(ViewMixin, QWidget):
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
         self.field_widgets[ControllerField.CONTROLLER_TYPE].setText(self._vm_controller.controller_type)
+        self.field_widgets[ControllerField.KA].setText(f"{self._vm_controller.ka}")
 
-        index = self.field_widgets[ControllerField.ANTI_WINDUP].findData(self._vm_controller.anti_windup)
+        index = self.field_widgets[ControllerField.ANTI_WINDUP_METHODE].findData(self._vm_controller.anti_windup)
         if index >= 0:
-            self.field_widgets[ControllerField.ANTI_WINDUP].setCurrentIndex(index)
+            self.field_widgets[ControllerField.ANTI_WINDUP_METHODE].setCurrentIndex(index)
 
         self.field_widgets[ControllerField.CONSTRAINT_MIN].setText(f"{self._vm_controller.constraint_min}")
         self.field_widgets[ControllerField.CONSTRAINT_MAX].setText(f"{self._vm_controller.constraint_max}")
+
+        self._on_ka_enable_changed()
 
     # ============================================================
     # Applied theme
@@ -182,10 +196,25 @@ class ControllerView(ViewMixin, QWidget):
     # ============================================================
     def _on_index_changed_anti_windup(self, index: int) -> None:
         """Handle anti-windup selection changes."""
-        widget = self.field_widgets.get(ControllerField.ANTI_WINDUP)
+        widget = self.field_widgets.get(ControllerField.ANTI_WINDUP_METHODE)
         value = widget.itemData(index)
         self._vm_controller.anti_windup = value
         self._load_block_diagram()
+
+    def _on_ka_enable_changed(self) -> None:
+        lbl: QLabel = self.labels.get(ControllerField.KA)
+        widget: QLineEdit = self.field_widgets.get(ControllerField.KA)
+
+        visible = self._vm_controller.ka_enabled
+
+        for w in (lbl, widget):
+            w.setVisible(True)  # keep in layout
+            w.setEnabled(visible)
+            eff = w.graphicsEffect()
+            if eff is None:
+                eff = QGraphicsOpacityEffect(w)
+                w.setGraphicsEffect(eff)
+            eff.setOpacity(1.0 if visible else 0.0)
 
     # ============================================================
     # Internal helpers

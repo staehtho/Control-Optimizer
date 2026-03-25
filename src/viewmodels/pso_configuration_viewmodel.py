@@ -351,6 +351,7 @@ class PsoConfigurationViewModel(BaseViewModel):
             dt=self._settings.get_time_step(),
             solver=self._settings.get_solver(),
             anti_windup=self._model_controller.anti_windup,
+            ka=self._model_controller.ka,
             constraint=(
                 self._model_controller.constraint_min,
                 self._model_controller.constraint_max,
@@ -383,6 +384,7 @@ class PsoConfigurationViewModel(BaseViewModel):
             plant_den=tuple(self._model_plant.den),
             plant_tf=self._model_plant.tf,
             controller_anti_windup=self._model_controller.anti_windup,
+            controller_ka=self._model_controller.ka,
             controller_constraint_min=self._model_controller.constraint_min,
             controller_constraint_max=self._model_controller.constraint_max,
             excitation_target=self.excitation_target,

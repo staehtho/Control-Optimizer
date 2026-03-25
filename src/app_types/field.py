@@ -69,6 +69,9 @@ class ControllerField(FieldType):
     CONTROLLER_TYPE = "type"
 
     ANTI_WINDUP = "anti_wind"
+    ANTI_WINDUP_METHODE = "anti_windup_method"
+    KA = "ka"
+
     BLOCK_DIAGRAM = "block_diagram"
 
 

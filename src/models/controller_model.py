@@ -6,7 +6,10 @@ from app_domain.controlsys import AntiWindup
 @dataclass
 class ControllerModel:
     controller_type: str = "PID"
-    anti_windup: AntiWindup = AntiWindup.CLAMPING
 
     constraint_min: float = -5.0
     constraint_max: float = 5.0
+
+    anti_windup: AntiWindup = AntiWindup.CLAMPING
+    ka: float = 1.0
+    ka_enabled: bool = False

@@ -24,6 +24,7 @@ class ClosedLoopResponseContext:
     solver: MySolver
 
     anti_windup: AntiWindup
+    ka: float
     constraint: tuple[float, float]
 
     reference: Callable[[np.ndarray], np.ndarray]

@@ -101,6 +101,7 @@ class SimulationViewModel(BaseViewModel):
             t1=t1,
             solver=self._settings.get_solver(),
             anti_windup=self._pso_snapshot.controller_anti_windup,
+            ka=self._pso_snapshot.controller_ka,
             constraint=(
                 self._pso_snapshot.controller_constraint_min,
                 self._pso_snapshot.controller_constraint_max,
