@@ -17,6 +17,7 @@ from PySide6.QtCore import QObject
 from PySide6.QtGui import QDoubleValidator
 
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
+from app_domain.functions import FunctionTypes, resolve_function_type
 from app_types import PsoField, FieldConfig, SectionConfig
 from views.view_mixin import ViewMixin
 from views.widgets import FormulaWidget
@@ -349,6 +350,9 @@ class PsoConfigurationView(ViewMixin, QWidget):
         for key, attr in attributes.items():
             self._on_vm_field_enabled_changed(key, attr)
 
+        self._on_vm_plant_tf_changed()
+        self._on_vm_function_function_changed()
+
     # ============================================================
     # Applied theme
     # ============================================================
@@ -370,6 +374,20 @@ class PsoConfigurationView(ViewMixin, QWidget):
     def _on_vm_function_function_changed(self) -> None:
         """Update the excitation function formula when it changes."""
         self._set_formula_function()
+
+        # set opacity to hide the overshoot control, when the selected function is not StepFunction
+        lbl = self.labels.get(PsoField.OVERSHOOT_CONTROL)
+        widget = self.field_widgets.get(PsoField.OVERSHOOT_CONTROL)
+        visible = resolve_function_type(self._vm_function.selected_function) == FunctionTypes.STEP
+
+        for w in (lbl, widget):
+            w.setVisible(True)  # keep in layout
+            w.setEnabled(visible)
+            eff = w.graphicsEffect()
+            if eff is None:
+                eff = QGraphicsOpacityEffect(w)
+                w.setGraphicsEffect(eff)
+            eff.setOpacity(1.0 if visible else 0.0)
 
     # ============================================================
     # UI event handlers
