@@ -202,7 +202,7 @@ def crossover_frequency(L, omega=None, tol_db=1e-3):
 import numpy as np
 
 
-# TODO: Error with den = [1 0]
+# TODO: kann raus
 def dominant_pole_realpart(denominator):
     """Return the real part of the dominant (slowest stable) pole.
 

@@ -63,6 +63,12 @@ def main():
     app.aboutToQuit.connect(engine.shutdown)
     ui_context = engine.ui_context
 
+    def _vm_function():
+        from app_domain.functions import FunctionTypes
+        vm_function = engine.ensure_function_viewmodel("excitation_target")
+        vm_function.set_selected_function(FunctionTypes.STEP)
+        return vm_function
+
     def _create_plant_view(parent=None):
         from views.plant_view import PlantView
         return PlantView(
@@ -74,12 +80,9 @@ def main():
 
     def _create_function_view(parent=None):
         from views.function_view import FunctionView
-        from app_domain.functions import FunctionTypes
-        vm_function = engine.ensure_function_viewmodel("excitation_target")
-        vm_function.set_selected_function(FunctionTypes.STEP)
         return FunctionView(
             ui_context,
-            vm_function,
+            _vm_function(),
             engine.ensure_plot_viewmodel("function"),
             parent=parent
         )
@@ -93,7 +96,7 @@ def main():
         return PsoConfigurationView(
             ui_context,
             engine.ensure_plant_viewmodel(),
-            engine.ensure_function_viewmodel("excitation_target"),
+            _vm_function(),
             engine.ensure_pso_viewmodel(),
             parent=parent
         )

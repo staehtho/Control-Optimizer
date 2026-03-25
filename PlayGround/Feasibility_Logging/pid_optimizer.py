@@ -23,8 +23,17 @@ from tqdm import tqdm
 
 from app_domain.PSO import Swarm
 #from services.config_loader import load_config, ConfigError
-from app_domain.controlsys import Plant, PIDClosedLoop, PsoFunc, dominant_pole_realpart, settling_time, AntiWindup, \
-    PerformanceIndex, bode_plot, crossover_frequency
+from app_domain.controlsys import (
+    Plant,
+    PIDClosedLoop,
+    PsoFunc,
+    compute_effective_tf_report,
+    settling_time,
+    AntiWindup,
+    PerformanceIndex,
+    bode_plot,
+    crossover_frequency,
+)
 #from services.report_generator import report_generator
 from app_domain.controlsys.freq_metrics import compute_loop_metrics_batch_from_frf
 import matplotlib.pyplot as plt
@@ -78,10 +87,15 @@ def main():
     use_freq_metrics = True
     pm_min_deg = 70
     gm_min_db = 10
-    ms_max = 2
+    ms_max_db = 20 * np.log10(2.0)
 
     use_overshoot_control = True
     allowed_overshoot_pct = 1
+    # Normalized total variation of u_sat:
+    # sum(|u[k] - u[k-1]|) / ((t1 - t0) * (u_max - u_min))
+    # Keep disabled until the log data has been used to calibrate a limit.
+    use_control_activity_constraint = False
+    allowed_control_activity = 0.05
 
     sim_mode = "fixed"
     start_time = 0
@@ -106,23 +120,18 @@ def main():
     ti_max = 10
     td_min = 0
     td_max = 10
+    tf_tuning_factor_n = 5.0
+    tf_limit_factor_k = 5.0
+    sampling_rate_hz = None
 
     # generate plant
     plant: Plant = Plant(plant_num, plant_den)
     bounds = [[kp_min, ti_min, td_min], [kp_max, ti_max, td_max]]
 
     # generate closed loop
-    pid: PIDClosedLoop = PIDClosedLoop(plant, Kp=10, Ti=5, Td=3,
+    pid: PIDClosedLoop = PIDClosedLoop(plant, Kp=10, Ti=5, Td=3, Tf=0.0,
                                        control_constraint=[constraint_min, constraint_max],
                                        anti_windup_method=anti_windup)
-
-    p_dom = dominant_pole_realpart(plant.den)
-
-    if p_dom is None:
-        pid.set_filter(Tf=0.01)
-    else:
-        t_dom = 1 / abs(p_dom)
-        pid.set_filter(Tf=t_dom / 100)
 
     # generate function to be optimized
     r = lambda t: np.zeros_like(t)
@@ -154,14 +163,19 @@ def main():
         start_time, end_time, time_step,
         r=r, l=l, n=n,
         use_freq_metrics=use_freq_metrics,
+        tf_tuning_factor_n=tf_tuning_factor_n,
+        tf_limit_factor_k=tf_limit_factor_k,
+        sampling_rate_hz=sampling_rate_hz,
         freq_low_exp=-2,
         freq_high_exp=5,
         freq_points=600,
         pm_min_deg=pm_min_deg,
         gm_min_db=gm_min_db,
-        ms_max=ms_max,
+        ms_max_db=ms_max_db,
         use_overshoot_control=use_overshoot_control,
         allowed_overshoot_pct=allowed_overshoot_pct,
+        use_control_activity_constraint=use_control_activity_constraint,
+        allowed_control_activity=allowed_control_activity,
         performance_index=performance_index,
         swarm_size=swarm_size,
         enable_logging=True,
@@ -197,10 +211,25 @@ def main():
             best_Ti = Ti
             best_Td = Td
 
+    # Set parameters
+    pid.set_pid_param(Kp=best_Kp, Ti=best_Ti, Td=best_Td)
+    tf_report = compute_effective_tf_report(
+        Td=best_Td,
+        dt=time_step,
+        tf_tuning_factor_n=tf_tuning_factor_n,
+        tf_limit_factor_k=tf_limit_factor_k,
+        sampling_rate_hz=sampling_rate_hz,
+    )
+    pid.set_filter(Tf=tf_report.tf_effective)
+    best_eval = obj_func.evaluate_candidates(np.array([[best_Kp, best_Ti, best_Td]], dtype=np.float64))
+    best_control_activity = float(best_eval["control_activity"][0])
+
     data = {
         "best_Kp": best_Kp,
         "best_Ti": best_Ti,
         "best_Td": best_Td,
+        "best_Tf": tf_report.tf_effective,
+        "best_control_activity": best_control_activity,
         "performance_index": performance_index,
         # Backward-compatible key name kept for existing consumers.
         "best_performance_index": best_objective_cost,
@@ -221,11 +250,11 @@ def main():
 
         "plant_num": plant_num,
         "plant_den": plant_den,
+        "use_control_activity_constraint": use_control_activity_constraint,
+        "allowed_control_activity": allowed_control_activity,
     }
 
     print(data)
-    # Set parameters
-    pid.set_pid_param(Kp=best_Kp, Ti=best_Ti, Td=best_Td)
 
     # --------------------------------------------------
     # Frequency metrics for best solution (DEBUG)
@@ -245,14 +274,16 @@ def main():
 
     pm_dbg = metrics_dbg["pm_deg"][0]
     gm_dbg = metrics_dbg["gm_db"][0]
-    ms_dbg = metrics_dbg["ms"][0]
+    ms_dbg = metrics_dbg["ms_db"][0]
     has_wc_dbg = metrics_dbg["has_wc"][0]
     has_w180_dbg = metrics_dbg["has_w180"][0]
 
     print("\n=== Frequency metrics (best PID) ===")
     print(f"PM  [deg]: {pm_dbg:.3f}   (has_wc={has_wc_dbg})")
     print(f"GM  [dB ]: {gm_dbg:.3f}   (has_w180={has_w180_dbg})")
-    print(f"Ms  [lin]: {ms_dbg:.6f}   (= {20*np.log10(ms_dbg):.3f} dB)")
+    print(f"Ms  [dB ]: {ms_dbg:.3f}")
+    print("\n=== Control activity (best PID) ===")
+    print(f"control_activity: {best_control_activity:.6f}")
 
 
     # --- Open-loop step ---
@@ -302,6 +333,11 @@ def main():
     plt.title("Step Response")
     plt.grid(True)
     plt.legend()
+
+    systems_for_bode["Open Loop L=C*G"] = lambda s: pid.controller(s) * plant.system(s)
+    systems_for_bode["Sensitivity S=1/(1+L)"] = (
+        lambda s: 1.0 / (1.0 + pid.controller(s) * plant.system(s))
+    )
 
     # --- Bode ---
     bode_fig = bode_plot(systems_for_bode, high_exp=5)

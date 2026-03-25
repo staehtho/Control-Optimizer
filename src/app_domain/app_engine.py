@@ -260,7 +260,7 @@ class AppEngine:
             gain_margin_enabled=True,
             phase_margin=60,
             phase_margin_enabled=True,
-            stability_margin=2,
+            stability_margin=6.0,
             stability_margin_enabled=True
         )
 

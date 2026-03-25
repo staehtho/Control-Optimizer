@@ -15,7 +15,16 @@ def main() -> None:
     df = pd.read_csv(csv_path, sep=None, engine="python")
 
     # Ensure current metric columns exist even for legacy logs.
-    for col in ("overshoot_pct", "time_cost", "total_cost", "V", "time_simulated"):
+    for col in (
+        "overshoot_pct",
+        "control_activity_raw",
+        "control_activity",
+        "time_cost",
+        "total_cost",
+        "V",
+        "V_ca",
+        "time_simulated",
+    ):
         if col not in df.columns:
             df[col] = pd.NA
 
@@ -28,6 +37,8 @@ def main() -> None:
             best_violation=("V", "min"),
             min_overshoot_pct=("overshoot_pct", "min"),
             max_overshoot_pct=("overshoot_pct", "max"),
+            min_control_activity=("control_activity", "min"),
+            max_control_activity=("control_activity", "max"),
         )
         .reset_index()
     )

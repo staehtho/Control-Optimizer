@@ -62,7 +62,7 @@ class PsoSimulationEngine:
             freq_points=450,  # TODO temp value
             gm_min_db=param.gain_margin if param.gain_margin_enabled else 0,
             pm_min_deg=param.phase_margin if param.phase_margin_enabled else 0,
-            ms_max=param.stability_margin if param.stability_margin_enabled else 0,
+            ms_max_db=param.stability_margin if param.stability_margin_enabled else None,
             use_overshoot_control=param.overshoot_control_enabled,
             allowed_overshoot_pct=param.overshoot_control if param.overshoot_control_enabled else 0,
         )
