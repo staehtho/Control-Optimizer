@@ -16,7 +16,6 @@ from PySide6.QtWidgets import QApplication, QSplashScreen
 #  and call the selection method or so
 
 # TODO: PSO: add stellrantenbegrenzung
-# TODO: PSO: rename "Overshoot Control" to: "Max Overshoot"
 
 # TODO: Evaluation: TF with L and N
 # TODO: Evaluation: clean TF of C, G, etc.
