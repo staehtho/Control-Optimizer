@@ -41,8 +41,8 @@ class TfLimitReport:
         limited: Whether any lower-limit clamp was applied.
         limited_by_simulation: Whether the simulation-step limit was active.
         limited_by_sampling: Whether the sampling-rate limit was active.
-        min_sampling_rate_hz: Sampling rate required to realize ``tf_raw``
-            without a sampling-limit clamp.
+        min_sampling_rate_hz: Sampling rate required to realize the effective
+            filter time constant ``tf_effective``.
     """
     tf_raw: float
     tf_effective: float
@@ -52,7 +52,7 @@ class TfLimitReport:
     limited: bool
     limited_by_simulation: bool
     limited_by_sampling: bool
-    # Sampling-rate suggestion for realizing the unbounded target Tf_raw.
+    # Sampling-rate suggestion for realizing the effective target Tf.
     min_sampling_rate_hz: float
 
 
@@ -90,8 +90,7 @@ def compute_effective_tf_report(
     Returns:
         TfLimitReport: Report containing the desired raw filter time constant,
         the applied effective value, active limits, and the sampling-rate
-        recommendation needed to realize ``tf_raw`` without a sampling-limit
-        clamp.
+        recommendation needed to realize ``tf_effective``.
     """
     td = float(Td)
     sim_dt = _normalize_positive_scalar(dt, "dt")
@@ -128,9 +127,9 @@ def compute_effective_tf_report(
         and math.isclose(tf_effective, sampling_limit, rel_tol=1e-12, abs_tol=1e-12)
     )
     limited = limited_by_simulation or limited_by_sampling
-    # Sampling-rate recommendation for realizing the desired raw filter
-    # constant without triggering the sampling-limit clamp.
-    min_sampling_rate_hz = k_factor / tf_raw
+    # Sampling-rate recommendation for realizing the actually applied filter
+    # time constant.
+    min_sampling_rate_hz = k_factor / tf_effective
 
     return TfLimitReport(
         tf_raw=tf_raw,

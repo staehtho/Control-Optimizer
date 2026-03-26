@@ -15,6 +15,7 @@
 
     <!-- Input -->
     <path class="line" d="M0 125 H90" />
+    <text class="text" x="75" y="115">r</text>
 
     <!-- sum -->
     <g transform="translate(95 125)">
@@ -35,6 +36,8 @@
         <use href="#arrow" transform="translate(100 0)"/>
 
         <path class="line" d="M55 -10 V-100"/>
+
+        <text class="text" x="65" y="-20">l</text>
     </g>
 
     <!-- Plant -->
@@ -56,10 +59,13 @@
         <use href="#arrow" transform="translate(150 0)"/>
 
         <path class="line" d="M50 -10 V-100"/>
+
+        <text class="text" x="60" y="-20">n</text>
     </g>
 
     <!-- Output -->
     <path class="line" d="M975 125 H995 M975 125 V300 H95 V135"/>
+    <text class="text" x="1000" y="115">y</text>
     <!-- Node -->
     <circle class="fill" cx="975" cy="125" r="4"/>
 </svg>

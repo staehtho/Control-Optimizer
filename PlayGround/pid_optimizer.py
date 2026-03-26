@@ -39,6 +39,13 @@ import matplotlib.pyplot as plt
 print("Starting the PID Optimizer. Loading modules, please wait...")
 
 
+def print_result_block(title: str, data: dict) -> None:
+    """Print a result block with spacing between entries for CLI readability."""
+    print(f"\n=== {title} ===")
+    for key, value in data.items():
+        print(f"{key}: {value}")
+
+
 def main():
 
     '''print("Loading Configuration..")
@@ -87,14 +94,14 @@ def main():
     gm_min_db = 0
     ms_max_db = 1
 
-    use_overshoot_control = True
+    use_overshoot_control = False
     allowed_overshoot_pct = 0
     
     # Normalized total variation of u_sat:
     # sum(|u[k] - u[k-1]|) / ((t1 - t0) * (u_max - u_min))
     # Keep disabled until a project-specific limit has been calibrated.
-    use_control_activity_constraint = True
-    allowed_control_activity = 4
+    use_control_activity_constraint = False
+    allowed_control_activity = 0.15
 
     sim_mode = "fixed"
     start_time = 0
@@ -106,8 +113,8 @@ def main():
 
     excitation_target = "reference"
 
-    constraint_min = -10
-    constraint_max = 10
+    constraint_min = -2
+    constraint_max = 2
 
     performance_index = PerformanceIndex.ITAE
 
@@ -120,6 +127,7 @@ def main():
     ti_max = 10
     td_min = 0
     td_max = 10
+
     tf_tuning_factor_n = 5.0
     tf_limit_factor_k = 5.0
     sampling_rate_hz = None  # e.g. 100.0
@@ -247,7 +255,7 @@ def main():
         "allowed_control_activity": allowed_control_activity,
     }
 
-    print(data)
+    print_result_block("Best PID summary", data)
 
     active_limits: list[str] = []
     if tf_report.limited_by_simulation:

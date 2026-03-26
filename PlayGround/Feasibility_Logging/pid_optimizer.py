@@ -41,6 +41,13 @@ import matplotlib.pyplot as plt
 print("Starting the PID Optimizer. Loading modules, please wait...")
 
 
+def print_result_block(title: str, data: dict) -> None:
+    """Print a result block with spacing between entries for CLI readability."""
+    print(f"\n=== {title} ===")
+    for key, value in data.items():
+        print(f"{key}: {value}")
+
+
 def main():
 
     '''print("Loading Configuration..")
@@ -254,7 +261,7 @@ def main():
         "allowed_control_activity": allowed_control_activity,
     }
 
-    print(data)
+    print_result_block("Best PID summary", data)
 
     # --------------------------------------------------
     # Frequency metrics for best solution (DEBUG)

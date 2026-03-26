@@ -149,6 +149,17 @@ def create_page_layout() -> QVBoxLayout:
     return layout
 
 
+def _apply_card_layout(layout: QLayout) -> None:
+    layout.setContentsMargins(16, 14, 16, 14)
+    layout.setSpacing(10)
+
+def create_card_layout() -> QVBoxLayout:
+    """Create a standard card layout with consistent margins and spacing."""
+    layout = QVBoxLayout()
+    _apply_card_layout(layout)
+    return layout
+
+
 def create_card(
         title: Optional[str],
         toggleable: Optional[bool] = False,
@@ -164,8 +175,7 @@ def create_card(
 
     frame.setObjectName("card")
     frame_layout = frame.content_layout()
-    frame_layout.setContentsMargins(16, 14, 16, 14)
-    frame_layout.setSpacing(10)
+    _apply_card_layout(frame_layout)
     return frame, frame_layout
 
 
@@ -174,8 +184,7 @@ def create_plain_card(parent: Optional[QWidget] = None) -> tuple[QFrame, QVBoxLa
     frame = QFrame(parent)
     frame.setObjectName("card")
     frame_layout = QVBoxLayout(frame)
-    frame_layout.setContentsMargins(16, 14, 16, 14)
-    frame_layout.setSpacing(10)
+    _apply_card_layout(frame_layout)
     return frame, frame_layout
 
 

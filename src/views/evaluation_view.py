@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
-from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QTabWidget, QHBoxLayout
+from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QTabWidget, QHBoxLayout, QVBoxLayout
 from PySide6.QtCore import QT_TRANSLATE_NOOP, Qt
 from numpy import ndarray
 
@@ -150,6 +150,10 @@ class EvaluationView(ViewMixin, QWidget):
 
     def _create_time_domain_widget(self) -> QWidget:
         """Create the time-domain plot widget."""
+        container = QWidget(self)
+        layout = self._create_card_layout()
+        container.setLayout(layout)
+
         subplot_cfgs = {
             1: SubplotConfiguration(
                 x_label=str(QT_TRANSLATE_NOOP("EvaluationView", "Time [s]")),
@@ -173,27 +177,43 @@ class EvaluationView(ViewMixin, QWidget):
         widget = PlotWidget(self._ui_context, self._vm_plots.get(TIME_DOMAIN), cl_plot_cfg, parent=self._plot_tab)
         widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
-        return widget
+        layout.addWidget(widget)
+
+        return container
 
     def _create_frequency_domain_widget(self) -> QWidget:
         """Create the frequency-domain Bode plot widget."""
+        container = QWidget(self)
+        layout = self._create_card_layout()
+        container.setLayout(layout)
+
         widget = BodePlotWidget(self._ui_context, self._vm_plots.get(FREQUENCY_DOMAIN), parent=self._plot_tab)
         widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        layout.addWidget(widget)
 
-        return widget
+        return container
 
     def _create_block_diagram_widget(self) -> QWidget:
         """Create the closed-loop block diagram widget."""
+        container = QWidget(self)
+        layout = self._create_card_layout()
+        container.setLayout(layout)
 
         svg_widget = AspectRatioSvgWidget()
         svg_widget.set_initial_scale(2)
+        layout.addWidget(svg_widget)
+
         self.field_widgets.setdefault(BLOCK_DIAGRAM, svg_widget)
         self._load_block_diagram()
 
-        return svg_widget
+        return container
 
     def _create_transfer_function_widget(self) -> QWidget:
         """Create the transfer function summary widget."""
+        container = QWidget(self)
+        layout = self._create_card_layout()
+        container.setLayout(layout)
+
         widget = QWidget(self)
 
         grid_layout = self._create_grid(FIELDS.get("tf"))
@@ -220,7 +240,9 @@ class EvaluationView(ViewMixin, QWidget):
             w.set_font_size(self._formula_font_size_scale)
             w.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
-        return widget
+        layout.addWidget(widget)
+
+        return container
 
     # ============================================================
     # Signal / ViewModel Binding
