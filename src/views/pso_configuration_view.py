@@ -21,7 +21,7 @@ from app_domain.functions import FunctionTypes, resolve_function_type
 from app_types import PsoField, FieldConfig, SectionConfig
 from views.view_mixin import ViewMixin
 from views.widgets import FormulaWidget
-from views.resources import Icons
+from resources.resources import Icons
 
 if TYPE_CHECKING:
     from app_domain.ui_context import UiContext

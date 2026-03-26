@@ -1,6 +1,5 @@
 import logging
 import sys
-from pathlib import Path
 from typing import Callable
 
 from PySide6.QtCore import QTimer
@@ -45,6 +44,7 @@ def show_splash():
 
 
 def setup_logging(src_dir):
+    from pathlib import Path
     log_dir = Path(src_dir) / "logs"
     log_file = log_dir / "app.log"
 
@@ -70,6 +70,17 @@ def setup_logging(src_dir):
 
     for log in noisy_logs:
         logging.getLogger(log).setLevel(logging.CRITICAL + 1)
+
+
+def setup_output_directory(output_dir):
+    import shutil
+
+    # Remove the directory if it exists
+    if output_dir.exists() and output_dir.is_dir():
+        shutil.rmtree(output_dir)  # removes non-empty directory safely
+
+    # Recreate the directory
+    output_dir.mkdir(parents=True, exist_ok=True)
 
 
 def create_engine():
@@ -180,7 +191,7 @@ def create_view_factories(engine, ui_context):
 def create_main_view(engine, ui_context, view_factories):
     from views.main_view import MainView
     from app_types import NavItem, NavLabels
-    from views.resources import Icons
+    from resources.resources import Icons
 
     items = [
         NavItem(NavLabels.PLANT, Icons.plant),
@@ -206,8 +217,9 @@ def run_app():
     splash_message = show_splash_message_setup(app, splash)
     splash_message("Loading resources...")
 
-    from views.resources import SRC_DIR
+    from resources.resources import SRC_DIR, OUTPUT_DIR
     setup_logging(SRC_DIR)
+    setup_output_directory(OUTPUT_DIR)
 
     splash_message("Initializing engine...")
     engine = create_engine()

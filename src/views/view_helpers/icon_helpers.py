@@ -6,7 +6,7 @@ from pathlib import Path
 from PySide6.QtGui import QIcon
 
 from utils import recolor_svg, svg_to_icon
-from views.resources import ICONS_DIR
+from resources.resources import ICONS_DIR
 
 
 # ============================================================

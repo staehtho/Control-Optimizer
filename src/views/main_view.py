@@ -6,7 +6,7 @@ from PySide6.QtGui import QCloseEvent, QIcon
 
 from app_types import NavLabels
 from views import ViewMixin
-from views.resources import Icons, ICONS_DIR
+from resources.resources import Icons, ICONS_DIR
 from views.widgets import NavigationWidget
 
 if TYPE_CHECKING:

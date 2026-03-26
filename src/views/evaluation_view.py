@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
-from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QTabWidget, QHBoxLayout, QVBoxLayout
+from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QTabWidget, QHBoxLayout
 from PySide6.QtCore import QT_TRANSLATE_NOOP, Qt
 from numpy import ndarray
 
@@ -13,7 +13,7 @@ from views.plot_style import PLOT_STYLE
 from views.widgets import (
     PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, BodePlotWidget, AspectRatioSvgWidget, FormulaWidget
 )
-from views.resources import BLOCK_DIAGRAM_DIR, BlockDiagram, Icons
+from resources.resources import BLOCK_DIAGRAM_DIR, BlockDiagram, Icons
 
 if TYPE_CHECKING:
     from app_domain.ui_context import UiContext

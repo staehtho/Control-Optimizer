@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (
 
 from app_types import ThemeType
 from views import ViewMixin
-from views.resources import Icons
+from resources.resources import Icons
 
 if TYPE_CHECKING:
     from app_domain.ui_context import UiContext
