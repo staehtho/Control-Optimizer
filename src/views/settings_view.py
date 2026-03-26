@@ -8,7 +8,7 @@ from PySide6.QtGui import QIntValidator
 from app_domain.controlsys import MySolver
 from app_types import SettingsField, LanguageType, ThemeType, FieldConfig, SectionConfig
 from views.view_mixin import ViewMixin
-from views.resources import Icons
+from resources.resources import Icons
 
 if TYPE_CHECKING:
     from app_domain import UiContext

@@ -10,7 +10,7 @@ from app_domain.controlsys import ExcitationTarget
 from app_types import PlotData, PlotLabels
 from views.view_mixin import ViewMixin
 from views.plot_style import PLOT_STYLE
-from views.resources import Icons
+from resources.resources import Icons
 from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, FunctionWidget
 
 if TYPE_CHECKING:

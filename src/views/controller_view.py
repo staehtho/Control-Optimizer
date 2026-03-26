@@ -9,7 +9,7 @@ from utils import recolor_svg, merge_svgs, SvgLayer
 from app_types import ControllerField, FieldConfig, SectionConfig
 from .view_mixin import ViewMixin
 from views.widgets import AspectRatioSvgWidget
-from views.resources import BLOCK_DIAGRAM_DIR, BlockDiagram, Icons
+from resources.resources import BLOCK_DIAGRAM_DIR, BlockDiagram, Icons
 
 if TYPE_CHECKING:
     from app_domain.ui_context import UiContext

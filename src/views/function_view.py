@@ -9,7 +9,7 @@ from app_domain.functions import FunctionTypes, resolve_function_type
 from app_types import PlotData, PlotLabels
 from views import ViewMixin
 from views.plot_style import PLOT_STYLE
-from views.resources import Icons
+from resources.resources import Icons
 from views.widgets import PlotWidget, PlotWidgetConfiguration, FunctionWidget
 
 if TYPE_CHECKING:

@@ -12,7 +12,7 @@ from app_types import PlotData, PlantField, PlotLabels
 from views import ViewMixin
 from views.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, FormulaWidget
-from views.resources import Icons
+from resources.resources import Icons
 
 if TYPE_CHECKING:
     from app_domain.ui_context import UiContext

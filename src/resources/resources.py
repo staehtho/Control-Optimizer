@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 SRC_DIR = Path(__file__).parent.parent
 RESOURCES_DIR = SRC_DIR / "resources"
+OUTPUT_DIR = RESOURCES_DIR / "output"
 
 # -------------------------------------------------
 # Block Diagram

@@ -899,12 +899,12 @@ Beispiel: 1, 0.5, 2 → 1·s² + 0,5·s + 2</translation>
 <context>
     <name>PlotViewModel</name>
     <message>
-        <location filename="../viewmodels/plot_viewmodel.py" line="50"/>
+        <location filename="../viewmodels/plot_viewmodel.py" line="53"/>
         <source>Invalid value: start ({x_min}) must be smaller than end ({x_max}).</source>
         <translation>Ungültiger Wert: Der Startwert ({x_min}) muss kleiner als der Endwert ({x_max}) sein.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plot_viewmodel.py" line="73"/>
+        <location filename="../viewmodels/plot_viewmodel.py" line="76"/>
         <source>Invalid value: end ({x_max}) must be greater than start ({x_min}).</source>
         <translation>Ungültiger Wert: Der Endwert ({x_max}) muss größer als der Startwert ({x_min}) sein.</translation>
     </message>
@@ -912,29 +912,29 @@ Beispiel: 1, 0.5, 2 → 1·s² + 0,5·s + 2</translation>
 <context>
     <name>PlotWidget</name>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="195"/>
+        <location filename="../views/widgets/plot_widget.py" line="196"/>
         <source>plot.grid</source>
         <translation>Grid</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="196"/>
+        <location filename="../views/widgets/plot_widget.py" line="197"/>
         <source>plot.start</source>
         <translation>Startzeit</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="197"/>
+        <location filename="../views/widgets/plot_widget.py" line="198"/>
         <source>plot.end</source>
         <translation>Endzeit</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="198"/>
+        <location filename="../views/widgets/plot_widget.py" line="199"/>
         <source>plot.start.tooltip</source>
         <translation>Untere Grenze der x-Achse (x_min).
 Legt fest, wo die Zeitachse beginnt.
 Einheit: Sekunden (s).</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="199"/>
+        <location filename="../views/widgets/plot_widget.py" line="200"/>
         <source>plot.end.tooltip</source>
         <translation>Obere Grenze der x-Achse (x_max).
 Legt fest, wo die Zeitachse endet.
@@ -942,7 +942,7 @@ Einheit: Sekunden (s).
 Muss grösser als die Startzeit sein.</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="201"/>
+        <location filename="../views/widgets/plot_widget.py" line="202"/>
         <source>plot.legend</source>
         <translation>Legende</translation>
     </message>
