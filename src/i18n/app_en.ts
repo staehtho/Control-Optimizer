@@ -441,50 +441,50 @@
         <translation>Tf = %(tf).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="155"/>
-        <location filename="../views/evaluation_view.py" line="160"/>
+        <location filename="../views/evaluation_view.py" line="159"/>
+        <location filename="../views/evaluation_view.py" line="164"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="156"/>
-        <location filename="../views/evaluation_view.py" line="161"/>
+        <location filename="../views/evaluation_view.py" line="160"/>
+        <location filename="../views/evaluation_view.py" line="165"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="168"/>
-        <location filename="../views/evaluation_view.py" line="258"/>
+        <location filename="../views/evaluation_view.py" line="172"/>
+        <location filename="../views/evaluation_view.py" line="280"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="256"/>
+        <location filename="../views/evaluation_view.py" line="278"/>
         <source>Evaluation</source>
         <translation>Evaluation</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="257"/>
+        <location filename="../views/evaluation_view.py" line="279"/>
         <source>PSO Result</source>
         <translation>PSO Result</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="261"/>
+        <location filename="../views/evaluation_view.py" line="283"/>
         <source>Time Domain</source>
         <translation>Time Domain</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="262"/>
+        <location filename="../views/evaluation_view.py" line="284"/>
         <source>Frequency Domain</source>
         <translation>Frequency Domain</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="263"/>
+        <location filename="../views/evaluation_view.py" line="285"/>
         <source>Block Diagram</source>
         <translation>Block Diagram</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="266"/>
+        <location filename="../views/evaluation_view.py" line="288"/>
         <source>PSO run time</source>
         <translation>PSO run time</translation>
     </message>
@@ -493,7 +493,7 @@
         <translation type="vanished">PSO runt time</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="267"/>
+        <location filename="../views/evaluation_view.py" line="289"/>
         <source>Controller Parameters</source>
         <translation>Controller Parameters</translation>
     </message>
@@ -1013,9 +1013,13 @@ Must be greater than the start time.</translation>
         <translation>End Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="279"/>
         <source>Overshoot Control [%]</source>
-        <translation>Overshoot Control [%]</translation>
+        <translation type="vanished">Overshoot Control [%]</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="279"/>
+        <source>Max Overshoot [%]</source>
+        <translation>Max Overshoot [%]</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="280"/>
@@ -1075,7 +1079,7 @@ Must be greater than the start time.</translation>
         <translation>Interrupt</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="430"/>
+        <location filename="../views/pso_configuration_view.py" line="436"/>
         <source>Interrupted</source>
         <translation>Interrupted</translation>
     </message>

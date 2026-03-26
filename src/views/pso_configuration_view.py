@@ -276,7 +276,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
             PsoField.PERFORMANCE_INDEX: self.tr("Performance Index"),
             PsoField.TIME_DOMAIN: self.tr("Time Domain"),
             PsoField.ERROR_CRITERION: self.tr("Error Criterion"),
-            PsoField.OVERSHOOT_CONTROL: self.tr("Overshoot Control [%]"),
+            PsoField.OVERSHOOT_CONTROL: self.tr("Max Overshoot [%]"),
             PsoField.FREQUENCY_DOMAIN: self.tr("Frequency Domain"),
             PsoField.GAIN_MARGIN: self.tr("Gain Margin [dB]"),
             PsoField.PHASE_MARGIN: self.tr("Phase Margin [°]"),
