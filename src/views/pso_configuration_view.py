@@ -380,14 +380,19 @@ class PsoConfigurationView(ViewMixin, QWidget):
         widget = self.field_widgets.get(PsoField.OVERSHOOT_CONTROL)
         visible = resolve_function_type(self._vm_function.selected_function) == FunctionTypes.STEP
 
+        self._vm_pso.blockSignals(True)
         for w in (lbl, widget):
-            w.setVisible(True)  # keep in layout
-            w.setEnabled(visible)
             eff = w.graphicsEffect()
             if eff is None:
                 eff = QGraphicsOpacityEffect(w)
                 w.setGraphicsEffect(eff)
             eff.setOpacity(1.0 if visible else 0.0)
+
+        if visible:
+            self._on_vm_field_enabled_changed(PsoField.OVERSHOOT_CONTROL, "_vm_pso.overshoot_control_enabled")
+        else:
+            self._vm_pso.overshoot_control_enabled = False
+        self._vm_pso.blockSignals(False)
 
     # ============================================================
     # UI event handlers
