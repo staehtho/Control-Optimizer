@@ -1,11 +1,13 @@
 from __future__ import annotations
 from typing import Callable
+from pathlib import Path
 
 from PySide6.QtCore import QObject, Signal, Slot
 
+from app_types import PlotData, PlotField, PlotLabels
 from utils import LoggedProperty
 from .base_viewmodel import BaseViewModel
-from app_types import PlotData, PlotField, PlotLabels
+from resources.resources import OUTPUT_DIR
 
 
 class PlotViewModel(BaseViewModel):
@@ -15,6 +17,7 @@ class PlotViewModel(BaseViewModel):
     xMinChanged = Signal()
     xMaxChanged = Signal()
     dataChanged = Signal()
+    saveSvgRequested = Signal(str)
 
     def __init__(self, parent: QObject = None):
         super().__init__(parent)
@@ -137,3 +140,15 @@ class PlotViewModel(BaseViewModel):
             self.logger.debug("All plot data cleared")
             self.dataChanged.emit()
 
+    @Slot(str)
+    def request_save_svg(self, file_name: str) -> None:
+        candidate = Path(file_name)
+        if candidate.name == file_name:
+            path = Path(OUTPUT_DIR) / file_name
+        else:
+            path = candidate
+        if path.suffix.lower() != ".svg":
+            path = path.with_suffix(".svg")
+
+        self.logger.debug("Save SVG requested -> %s", path)
+        self.saveSvgRequested.emit(str(path))
