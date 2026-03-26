@@ -87,7 +87,7 @@ def main():
     td_max = config["pso"]["bounds"]["td_max"]'''
 
     plant_num = [1]
-    plant_den = [1, 1, 0]
+    plant_den = [1, 2, 1]
 
     use_freq_metrics = False
     pm_min_deg = 0
@@ -100,7 +100,7 @@ def main():
     # Normalized total variation of u_sat:
     # sum(|u[k] - u[k-1]|) / ((t1 - t0) * (u_max - u_min))
     # Keep disabled until a project-specific limit has been calibrated.
-    use_control_activity_constraint = True
+    use_control_activity_constraint = False
     allowed_control_activity = 0.15
 
     sim_mode = "fixed"
@@ -127,6 +127,7 @@ def main():
     ti_max = 10
     td_min = 0
     td_max = 10
+
     tf_tuning_factor_n = 5.0
     tf_limit_factor_k = 5.0
     sampling_rate_hz = None  # e.g. 100.0
