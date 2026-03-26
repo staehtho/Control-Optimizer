@@ -186,6 +186,7 @@ class PlotWidget(ViewMixin, QWidget):
         self._vm.xMaxChanged.connect(self._update_plot)
         self._vm.xMinChanged.connect(partial(self._on_vm_changed, PlotField.X_MIN, "_vm.x_min"))
         self._vm.xMaxChanged.connect(partial(self._on_vm_changed, PlotField.X_MAX, "_vm.x_max"))
+        self._vm.saveSvgRequested.connect(self.save_svg)
 
     # ============================================================
     # Translation
@@ -389,6 +390,13 @@ class PlotWidget(ViewMixin, QWidget):
         """Redraw canvas on widget resize."""
         self._canvas.draw_idle()
         super().resizeEvent(event)
+
+    def save_svg(self, path: str | Path) -> None:
+        """Save the current plot to an SVG file."""
+        target = Path(path)
+        if target.suffix.lower() != ".svg":
+            target = target.with_suffix(".svg")
+        self._figure.savefig(target, format="svg", bbox_inches="tight")
 
     # ============================================================
     # Theme handling
