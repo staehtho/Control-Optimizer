@@ -3,7 +3,7 @@
 from PySide6.QtWidgets import QWidget, QLabel
 from PySide6.QtCore import Qt
 
-from utils import LatexRenderer
+from utils import latex_to_pixmap
 
 
 class FormulaWidget(QLabel):
@@ -52,4 +52,4 @@ class FormulaWidget(QLabel):
     def _update_formula(self) -> None:
         """Render the current formula into a pixmap, if set."""
         if self._formula != "":
-            self.setPixmap(LatexRenderer.latex2pixmap(self._formula, font_size_scale=self._font_size_scale))
+            self.setPixmap(latex_to_pixmap(self._formula, font_size_scale=self._font_size_scale))
