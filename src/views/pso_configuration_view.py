@@ -382,6 +382,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
 
         self._vm_pso.blockSignals(True)
         for w in (lbl, widget):
+            w.setEnabled(visible)
             eff = w.graphicsEffect()
             if eff is None:
                 eff = QGraphicsOpacityEffect(w)
