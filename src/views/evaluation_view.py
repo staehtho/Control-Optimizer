@@ -199,8 +199,12 @@ class EvaluationView(ViewMixin, QWidget):
         grid_layout = self._create_grid(FIELDS.get("tf"))
         widget.setLayout(grid_layout)
 
+        plant_tf = ""
+        if self._vm_evaluator.has_snapshot():
+            plant_tf = self._vm_evaluator.plant_tf
+
         tf: dict[EvaluationField, str] = {
-            EvaluationField.PLANT: self._vm_evaluator.plant_tf,
+            EvaluationField.PLANT: plant_tf,
             EvaluationField.CONTROLLER: r"C(S) = ",
             EvaluationField.OPEN_LOOP: r"L(S) = C(S) \cdot G(S)",
             EvaluationField.CLOSED_LOOP: r"",
@@ -273,6 +277,9 @@ class EvaluationView(ViewMixin, QWidget):
     # ============================================================
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
+        if not self._vm_evaluator.has_result():
+            return
+
         self._sync_plot_time_window_from_model()
 
         self._update_time_domain_plots()
@@ -459,18 +466,19 @@ class EvaluationView(ViewMixin, QWidget):
             (BlockDiagram.d_path, (node_x + x_offset, y))
         ]
 
-        match self._vm_evaluator.anti_windup:
-            case AntiWindup.BACKCALCULATION:
-                svgs.append((BlockDiagram.backcalculation, (node_x + x_offset, y)))
-            case AntiWindup.CLAMPING:
-                svgs.append((BlockDiagram.clamping, (node_x + x_offset, y)))
-            case AntiWindup.CONDITIONAL:
-                svgs.append((BlockDiagram.conditional, (node_x + x_offset, y)))
-            case unknown_value:
-                raise ValueError(
-                    f"Unsupported anti-windup method: {unknown_value!r}. "
-                    "Expected one of: BACKCALCULATION, CLAMPING, CONDITIONAL."
-                )
+        if self._vm_evaluator.has_snapshot():
+            match self._vm_evaluator.anti_windup:
+                case AntiWindup.BACKCALCULATION:
+                    svgs.append((BlockDiagram.backcalculation, (node_x + x_offset, y)))
+                case AntiWindup.CLAMPING:
+                    svgs.append((BlockDiagram.clamping, (node_x + x_offset, y)))
+                case AntiWindup.CONDITIONAL:
+                    svgs.append((BlockDiagram.conditional, (node_x + x_offset, y)))
+                case unknown_value:
+                    raise ValueError(
+                        f"Unsupported anti-windup method: {unknown_value!r}. "
+                        "Expected one of: BACKCALCULATION, CLAMPING, CONDITIONAL."
+                    )
 
         svg_layers = []
         for svg, translate in svgs:
@@ -479,9 +487,10 @@ class EvaluationView(ViewMixin, QWidget):
 
         merged_svg = merge_svgs(svg_layers)
 
-        # set min and max constraint
-        merged_svg = merged_svg.replace("min: ###", f"min: {self._vm_evaluator.constraint_min}")
-        merged_svg = merged_svg.replace("max: ###", f"max: {self._vm_evaluator.constraint_max}")
+        if self._vm_evaluator.has_snapshot():
+            # set min and max constraint
+            merged_svg = merged_svg.replace("min: ###", f"min: {self._vm_evaluator.constraint_min}")
+            merged_svg = merged_svg.replace("max: ###", f"max: {self._vm_evaluator.constraint_max}")
 
         recolored = recolor_svg(merged_svg, self._vm_theme.get_svg_color_map())
         self.field_widgets.get(BLOCK_DIAGRAM).set_svg_bytes(recolored.encode("utf-8"))

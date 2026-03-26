@@ -82,6 +82,12 @@ class SimulationViewModel(BaseViewModel):
 
         self.psoSimulationFinished.emit()
 
+    def has_result(self) -> bool:
+        return self._pos_result is not None
+
+    def has_snapshot(self) -> bool:
+        return self._pso_snapshot is not None
+
     @Slot(float, float)
     def compute_closed_loop_response(self, t0: float, t1: float) -> None:
         if self._pos_result is None or self._pso_snapshot is None:
@@ -141,4 +147,3 @@ class SimulationViewModel(BaseViewModel):
 
     def _on_plant_compute_finished(self, t: ndarray, y: ndarray) -> None:
         self.plantResponseChanged.emit(t, y)
-

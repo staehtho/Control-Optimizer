@@ -104,6 +104,16 @@ class EvaluationViewModel(BaseViewModel):
     def get_pso_result(self) -> PsoResult | None:
         return self._pos_result
 
+    @Slot()
+    def get_pso_snapshot(self) -> PsoSimulationSnapshot | None:
+        return self._pso_snapshot
+
+    def has_result(self) -> bool:
+        return self._pos_result is not None
+
+    def has_snapshot(self) -> bool:
+        return self._pso_snapshot is not None
+
 
     @Slot(float, float)
     def compute_closed_loop_response(self, t0: float, t1: float) -> None:
@@ -240,4 +250,3 @@ class EvaluationViewModel(BaseViewModel):
 
     def _on_closed_loop_frequency_response_finished(self, result) -> None:
         self.closedLoopFrequencyResponseChanged.emit(result)
-

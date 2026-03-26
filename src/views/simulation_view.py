@@ -182,6 +182,9 @@ class SimulationView(ViewMixin, QWidget):
     # ============================================================
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
+        if not self._vm_simulation.has_snapshot():
+            return
+
         self._on_vm_pso_simulation_finished()
 
     # ============================================================
@@ -261,6 +264,9 @@ class SimulationView(ViewMixin, QWidget):
         )
 
     def _on_vm_pso_simulation_finished(self) -> None:
+        if not self._vm_simulation.has_snapshot():
+            return
+
         target = self._vm_simulation.excitation_target
         self.logger.debug(
             "PSO simulation finished for target '%s' -> refreshing all excitation functions",
@@ -315,5 +321,8 @@ class SimulationView(ViewMixin, QWidget):
 
     def _sync_plot_time_window_from_model(self) -> None:
         """Sync plot time range from persisted evaluator state via evaluator VM."""
+        if not self._vm_simulation.has_result():
+            return
+
         self._vm_plot.x_min = self._vm_simulation.t0
         self._vm_plot.x_max = self._vm_simulation.t1

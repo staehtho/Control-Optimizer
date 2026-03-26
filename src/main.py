@@ -1,11 +1,11 @@
 import logging
 import sys
 from pathlib import Path
-
-from time import time
+from typing import Callable
 
 from PySide6.QtCore import QTimer
-from PySide6.QtWidgets import QApplication
+from PySide6.QtGui import QPixmap, Qt
+from PySide6.QtWidgets import QApplication, QSplashScreen
 
 # TODO: add buttons to switch to the next or previous view in the view it self
 # TODO: TabIndex
@@ -21,20 +21,36 @@ from PySide6.QtWidgets import QApplication
 # TODO: Evaluation: TF with L and N
 # TODO: Evaluation: clean TF of C, G, etc.
 
-def main():
-    start_time = time()
-    print(f"start: {time() - start_time:.3f}s")
-    from app_domain import AppEngine
-    print(f"import AppEngine: {time() - start_time:.3f}s")
-    from views.resources import SRC_DIR
-    print(f"import resources: {time() - start_time:.3f}s")
 
-    # init logging
-    log_dir = Path(SRC_DIR) / "logs"
+def create_app():
+    return QApplication(sys.argv)
+
+
+def show_splash_message_setup(app: QApplication, splash: QSplashScreen) -> Callable:
+    def show_message(message: str):
+        splash.showMessage(
+            message,
+            Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom,
+            Qt.GlobalColor.white
+        )
+        app.processEvents()
+
+    return show_message
+
+
+def show_splash():
+    pixmap = QPixmap("resources/icons/control_optimizer.svg")
+    splash = QSplashScreen(pixmap)
+    splash.show()
+    return splash
+
+
+def setup_logging(src_dir):
+    log_dir = Path(src_dir) / "logs"
     log_file = log_dir / "app.log"
 
     log_dir.mkdir(parents=True, exist_ok=True)
-    # delete log file
+
     if log_file.exists():
         log_file.unlink()
 
@@ -45,25 +61,41 @@ def main():
         datefmt="%Y-%m-%d %H:%M:%S"
     )
 
-    for log in ("matplotlib.font_manager", "numba.core.ssa", "numba.core.byteflow", "numba.core.interpreter",
-                "matplotlib.ticker"):
-        logger = logging.getLogger(log)
-        logger.setLevel(logging.CRITICAL + 1)
+    noisy_logs = (
+        "matplotlib.font_manager",
+        "numba.core.ssa",
+        "numba.core.byteflow",
+        "numba.core.interpreter",
+        "matplotlib.ticker"
+    )
 
-    print(f"log: {time() - start_time:.3f}s")
+    for log in noisy_logs:
+        logging.getLogger(log).setLevel(logging.CRITICAL + 1)
 
-    app = QApplication(sys.argv)
 
+def create_engine():
+    from app_domain import AppEngine
     engine = AppEngine()
-    print(f"AppEngine: {time() - start_time:.3f}s")
-    app.aboutToQuit.connect(engine.shutdown)
-    ui_context = engine.ui_context
+    return engine
 
-    def _vm_function():
-        from app_domain.functions import FunctionTypes
-        vm_function = engine.ensure_function_viewmodel("excitation_target")
-        vm_function.set_selected_function(FunctionTypes.STEP)
-        return vm_function
+
+def connect_shutdown(app, engine):
+    app.aboutToQuit.connect(engine.shutdown)
+
+
+# ---- ViewModel helpers ----
+
+def create_vm_function(engine):
+    from app_domain.functions import FunctionTypes
+    vm_function = engine.ensure_function_viewmodel("excitation_target")
+    vm_function.set_selected_function(FunctionTypes.STEP)
+    return vm_function
+
+
+# ---- View factories ----
+
+def create_view_factories(engine, ui_context):
+    from app_types import NavLabels
 
     def _create_plant_view(parent=None):
         from views.plant_view import PlantView
@@ -78,21 +110,25 @@ def main():
         from views.function_view import FunctionView
         return FunctionView(
             ui_context,
-            _vm_function(),
+            create_vm_function(engine),
             engine.ensure_plot_viewmodel("function"),
             parent=parent
         )
 
     def _create_controller_view(parent=None):
         from views.controller_view import ControllerView
-        return ControllerView(ui_context, engine.ensure_controller_viewmodel(), parent=parent)
+        return ControllerView(
+            ui_context,
+            engine.ensure_controller_viewmodel(),
+            parent=parent
+        )
 
     def _create_pso_configuration_view(parent=None):
         from views.pso_configuration_view import PsoConfigurationView
         return PsoConfigurationView(
             ui_context,
             engine.ensure_plant_viewmodel(),
-            _vm_function(),
+            create_vm_function(engine),
             engine.ensure_pso_viewmodel(),
             parent=parent
         )
@@ -103,12 +139,22 @@ def main():
             "time_domain": engine.ensure_plot_viewmodel("time_domain_evaluation"),
             "frequency_domain": engine.ensure_bode_plot_viewmodel("frequency_domain_evaluation")
         }
-        return EvaluationView(ui_context, engine.ensure_evaluator_viewmodel(), vm_plots, parent=parent)
+        return EvaluationView(
+            ui_context,
+            engine.ensure_evaluator_viewmodel(),
+            vm_plots,
+            parent=parent
+        )
 
     def _create_simulation_view(parent=None):
         from views.simulation_view import SimulationView
         from app_domain.controlsys import ExcitationTarget
-        vm_functions = {title.name: engine.ensure_function_viewmodel(title.name) for title in ExcitationTarget}
+
+        vm_functions = {
+            title.name: engine.ensure_function_viewmodel(title.name)
+            for title in ExcitationTarget
+        }
+
         return SimulationView(
             ui_context,
             engine.ensure_simulation_viewmodel(),
@@ -121,40 +167,70 @@ def main():
         from views.settings_view import SettingsView
         return SettingsView(ui_context, parent=parent)
 
-    def _create_main_view():
-        from views.main_view import MainView
-        from app_types import NavItem, NavLabels
-        from views.resources import Icons
-        view_factories = {
-            NavLabels.PLANT: _create_plant_view,
-            NavLabels.EXCITATION_FUNCTION: _create_function_view,
-            NavLabels.CONTROLLER: _create_controller_view,
-            NavLabels.PSO_PARAMETER: _create_pso_configuration_view,
-            NavLabels.EVALUATION: _create_evaluation_view,
-            NavLabels.SIMULATION: _create_simulation_view,
-            NavLabels.SETTINGS: _create_settings_view,
-        }
+    return {
+        NavLabels.PLANT: _create_plant_view,
+        NavLabels.EXCITATION_FUNCTION: _create_function_view,
+        NavLabels.CONTROLLER: _create_controller_view,
+        NavLabels.PSO_PARAMETER: _create_pso_configuration_view,
+        NavLabels.EVALUATION: _create_evaluation_view,
+        NavLabels.SIMULATION: _create_simulation_view,
+        NavLabels.SETTINGS: _create_settings_view,
+    }
 
-        items = [
-            NavItem(NavLabels.PLANT, Icons.plant),
-            NavItem(NavLabels.EXCITATION_FUNCTION, Icons.excitation_function),
-            NavItem(NavLabels.CONTROLLER, Icons.controller),
-            NavItem(NavLabels.PSO_PARAMETER, Icons.pso_parameter),
-            NavItem(NavLabels.EVALUATION, Icons.evaluation),
-            NavItem(NavLabels.SIMULATION, Icons.simulation),
-            NavItem(NavLabels.SETTINGS, Icons.settings, bottom=True),
-        ]
 
-        return MainView(ui_context, items, view_factories, engine.ensure_pso_viewmodel())
+def create_main_view(engine, ui_context, view_factories):
+    from views.main_view import MainView
+    from app_types import NavItem, NavLabels
+    from views.resources import Icons
 
-    print(f"init Main View: {time() - start_time:.3f}s")
-    main_view = _create_main_view()
+    items = [
+        NavItem(NavLabels.PLANT, Icons.plant),
+        NavItem(NavLabels.EXCITATION_FUNCTION, Icons.excitation_function),
+        NavItem(NavLabels.CONTROLLER, Icons.controller),
+        NavItem(NavLabels.PSO_PARAMETER, Icons.pso_parameter),
+        NavItem(NavLabels.EVALUATION, Icons.evaluation),
+        NavItem(NavLabels.SIMULATION, Icons.simulation),
+        NavItem(NavLabels.SETTINGS, Icons.settings, bottom=True),
+    ]
+
+    return MainView(
+        ui_context,
+        items,
+        view_factories,
+        engine.ensure_pso_viewmodel()
+    )
+
+
+def run_app():
+    app = create_app()
+    splash = show_splash()
+    splash_message = show_splash_message_setup(app, splash)
+    splash_message("Loading resources...")
+
+    from views.resources import SRC_DIR
+    setup_logging(SRC_DIR)
+
+    splash_message("Initializing engine...")
+    engine = create_engine()
+    connect_shutdown(app, engine)
+
+    splash_message("Initializing context...")
+    ui_context = engine.ui_context
+
+    splash_message("Creating view factories...")
+    view_factories = create_view_factories(engine, ui_context)
+    main_view = create_main_view(engine, ui_context, view_factories)
+
+    splash_message("Loading views...")
+    main_view.preload_views()
+
     main_view.show()
-    print(f"MainView: {time() - start_time:.3f}s")
+    splash.finish(main_view)
+
     QTimer.singleShot(750, lambda: engine.run_warmup(2))
 
     sys.exit(app.exec())
 
 
 if __name__ == '__main__':
-    main()
+    run_app()

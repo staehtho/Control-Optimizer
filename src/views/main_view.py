@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QStackedWidget
 from PySide6.QtGui import QCloseEvent, QIcon
@@ -136,6 +136,20 @@ class MainView(ViewMixin, QMainWindow):
             self._views[key].verticalScrollBar().setValue(0)
 
         self._current_key = key
+        self._stack.setUpdatesEnabled(True)
+
+    def preload_views(self, on_view_created: Callable[[NavLabels], None] | None = None) -> None:
+        """Create all views so they are ready before the window is shown."""
+        self._stack.setUpdatesEnabled(False)
+        for item in self._nav_items:
+            key = item.key
+            if key not in self._views and key in self._view_factories:
+                view = self._view_factories[key](self._stack)
+                scroll = self._wrap_in_scroll_area(view)
+                self._views[key] = scroll
+                self._stack.addWidget(scroll)
+                if on_view_created is not None:
+                    on_view_created(key)
         self._stack.setUpdatesEnabled(True)
 
     def _is_view_accessible(self, key: NavLabels) -> bool:

@@ -458,37 +458,37 @@
     </message>
     <message>
         <location filename="../views/evaluation_view.py" line="168"/>
-        <location filename="../views/evaluation_view.py" line="254"/>
+        <location filename="../views/evaluation_view.py" line="258"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="252"/>
+        <location filename="../views/evaluation_view.py" line="256"/>
         <source>Evaluation</source>
         <translation>Auswertung</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="253"/>
+        <location filename="../views/evaluation_view.py" line="257"/>
         <source>PSO Result</source>
         <translation>PSO Ergebnis</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="257"/>
+        <location filename="../views/evaluation_view.py" line="261"/>
         <source>Time Domain</source>
         <translation>Zeitbereich</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="258"/>
+        <location filename="../views/evaluation_view.py" line="262"/>
         <source>Frequency Domain</source>
         <translation>Frequenzbereich</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="259"/>
+        <location filename="../views/evaluation_view.py" line="263"/>
         <source>Block Diagram</source>
         <translation>Blockschaltbild</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="262"/>
+        <location filename="../views/evaluation_view.py" line="266"/>
         <source>PSO run time</source>
         <translation>PSO Laufzeit</translation>
     </message>
@@ -497,7 +497,7 @@
         <translation type="vanished">PSO Laufzeit</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="263"/>
+        <location filename="../views/evaluation_view.py" line="267"/>
         <source>Controller Parameters</source>
         <translation>Reglerparameter</translation>
     </message>
