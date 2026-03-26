@@ -22,6 +22,7 @@
     <g transform="translate(0, 0)">
         <path class="line" d="M0 0 H45"/>
         <use href="#arrow" x="50" y="0"/>
+        <text class="text" x="25" y="-10">e</text>
     </g>
 
     <g transform="translate(50, 0)">

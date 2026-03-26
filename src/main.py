@@ -17,7 +17,6 @@ from PySide6.QtWidgets import QApplication
 
 # TODO: PSO: add stellrantenbegrenzung
 
-# TODO: Evaluation: block diagram add l and n input
 # TODO: Evaluation: TF with L and N
 # TODO: Evaluation: clean TF of C, G, etc.
 

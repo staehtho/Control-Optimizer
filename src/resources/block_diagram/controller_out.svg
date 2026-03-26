@@ -47,5 +47,6 @@
         <use href="#constraint" transform="translate(0 -25)"/>
         <path class="line" d="M50 0 H95"/>
         <use href="#arrow" transform="translate(100 0)"/>
+        <text class="text" x="75" y="-10">u</text>
     </g>
 </svg>
