@@ -16,19 +16,18 @@ if TYPE_CHECKING:
     from viewmodels import ControllerViewModel
     from views.widgets import SectionFrame
 
-
-FIELDS: list[FieldConfig] = [
+FIELDS: list[FieldConfig | SectionConfig] = [
     SectionConfig(ControllerField.CONSTRAINT, [
         FieldConfig(ControllerField.CONSTRAINT_MIN, QLineEdit),
         FieldConfig(ControllerField.CONSTRAINT_MAX, QLineEdit),
     ]),
 
-    FieldConfig(ControllerField.CONTROLLER_TYPE, QLabel),
-
     SectionConfig(ControllerField.ANTI_WINDUP, [
         FieldConfig(ControllerField.ANTI_WINDUP_METHODE, QComboBox),
         FieldConfig(ControllerField.KA, QLineEdit),
-    ])
+    ]),
+
+    FieldConfig(ControllerField.CONTROLLER_TYPE, QLabel),
 ]
 
 
