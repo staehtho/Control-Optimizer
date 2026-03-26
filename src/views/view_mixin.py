@@ -147,6 +147,11 @@ class ViewMixin:
         return layout_helpers.create_page_layout()
 
     @staticmethod
+    def _create_card_layout() -> QVBoxLayout:
+        """Create a standard card layout with consistent margins and spacing."""
+        return layout_helpers.create_card_layout()
+
+    @staticmethod
     def _create_card(
             title: Optional[str] = "",
             toggleable: Optional[bool] = False,
