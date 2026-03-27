@@ -19,7 +19,8 @@ class LanguageViewModel(BaseViewModel):
         super().__init__(parent)
 
         self._settings = settings
-        self._translator = QTranslator()
+        self._translator_keys = self._settings.get_translator_keys()
+        self._translators = {key: QTranslator() for key in self._translator_keys}
         self._current_lang: LanguageType | None = None
 
         # Initialize language from persisted settings.
@@ -38,14 +39,20 @@ class LanguageViewModel(BaseViewModel):
 
         self.logger.debug(f"Changing language from '{self._current_lang}' to '{lang_code}'")
 
-        QCoreApplication.removeTranslator(self._translator)
-        qm_path = self._settings.get_qm_file(lang_code.value)
+        for translator in self._translators.values():
+            QCoreApplication.removeTranslator(translator)
 
-        if self._translator.load(str(qm_path)):
-            QCoreApplication.installTranslator(self._translator)
-            self.logger.debug(f"Loaded translator file '{qm_path}'")
-        else:
-            self.logger.warning(f"Failed to load translator file '{qm_path}'")
+        qm_files = self._settings.get_qm_files(lang_code.value)
+        for key in self._translator_keys:
+            translator = self._translators.get(key)
+            if translator is None:
+                continue
+            qm_path = qm_files.get(key)
+            if qm_path and translator.load(str(qm_path)):
+                QCoreApplication.installTranslator(translator)
+                self.logger.debug(f"Loaded translator '{key}' file '{qm_path}'")
+            else:
+                self.logger.warning(f"Failed to load translator '{key}' file '{qm_path}'")
 
         self._current_lang = lang_code
         self._settings.set_language(lang_code.value)
