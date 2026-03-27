@@ -17,12 +17,12 @@ def main() -> None:
     # Ensure current metric columns exist even for legacy logs.
     for col in (
         "overshoot_pct",
-        "control_activity_raw",
-        "control_activity",
+        "max_du_dt_raw",
+        "max_du_dt",
         "time_cost",
         "total_cost",
         "V",
-        "V_ca",
+        "V_du",
         "time_simulated",
     ):
         if col not in df.columns:
@@ -37,8 +37,8 @@ def main() -> None:
             best_violation=("V", "min"),
             min_overshoot_pct=("overshoot_pct", "min"),
             max_overshoot_pct=("overshoot_pct", "max"),
-            min_control_activity=("control_activity", "min"),
-            max_control_activity=("control_activity", "max"),
+            min_max_du_dt=("max_du_dt", "min"),
+            max_max_du_dt=("max_du_dt", "max"),
         )
         .reset_index()
     )
