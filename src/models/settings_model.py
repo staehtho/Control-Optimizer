@@ -40,8 +40,8 @@ class SettingsModel:
             QSettings.Format.IniFormat
         )
 
-        # Load available language .qm from i18n/*.qm
-        self._lang_cfg: dict[str, str] = self._load_language()
+        # Load available language translators from config
+        self._languages, self._translator_cfg = self._load_language()
 
         # Load available theme stylesheets from config/themes/*.qss
         self._theme_cfg: dict[str, str] = self._load_themes()
@@ -50,7 +50,7 @@ class SettingsModel:
         self._logger.info(
             "SettingsModel initialized, config dir: %s, languages loaded: %s, themes loaded: %s",
             self._config_base_dir,
-            list(self._lang_cfg.keys()),
+            list(self._languages),
             list(self._theme_cfg.keys()),
         )
 
@@ -222,12 +222,30 @@ class SettingsModel:
     # -------------------
     # QM-File loader
     # -------------------
-    def get_qm_file(self, lang_key: str) -> Path:
-        """Returns the path to the QM file.
+    def get_qm_file(self, lang_key: str, translator: str | None = None) -> Path:
+        """Returns the path to a QM file for the requested translator.
+
         Args:
-            lang_key (str): Language of the QM file.
+            lang_key (str): Language of the QM file (e.g., "en", "de").
+            translator (str | None): Translator key (e.g., "app", "report").
+                If None, the first configured translator is used.
         """
-        return self._i18n_base_dir / (self._lang_cfg.get(lang_key) + ".qm")
+        translator_key = translator or next(iter(self._translator_cfg.keys()))
+        base_name = self._translator_cfg.get(translator_key)
+        if not base_name:
+            raise KeyError(f"Unknown translator key '{translator_key}'. Valid: {', '.join(self._translator_cfg)}")
+        return self._i18n_base_dir / f"{base_name}{lang_key}.qm"
+
+    def get_qm_files(self, lang_key: str) -> dict[str, Path]:
+        """Returns paths to all QM files for the requested language."""
+        return {
+            key: self._i18n_base_dir / f"{base_name}{lang_key}.qm"
+            for key, base_name in self._translator_cfg.items()
+        }
+
+    def get_translator_keys(self) -> list[str]:
+        """Returns configured translator keys (e.g., ['app', 'report'])."""
+        return list(self._translator_cfg.keys())
 
     # -------------------
     # JSON loader helper
@@ -256,16 +274,30 @@ class SettingsModel:
             self._logger.debug(f"Loaded JSON from {path}")
             return json.load(f)
 
-    def _load_language(self) -> dict[str, str]:
+    def _load_language(self) -> tuple[list[str], dict[str, str]]:
         lang_json = self._load_json(self._config_base_dir / "languages.json")
-        languages: dict[str, str] = {}
+        languages = list(lang_json.get("languages", []))
 
-        base_file_name = lang_json.get("base_file_name", "")
-        for lang in lang_json.get("languages", []):
-            languages.setdefault(lang, base_file_name + lang)
+        translators_cfg = lang_json.get("translators")
+        translators: dict[str, str] = {}
+
+        if translators_cfg:
+            for prop in translators_cfg.items():
+                name, cfg = prop
+                if isinstance(cfg, dict):
+                    base_name = cfg.get("base_file_name", "")
+                else:
+                    base_name = str(cfg)
+                if not base_name:
+                    raise ValueError(f"Translator '{name}' must define a base_file_name")
+                translators[name] = base_name
+        else:
+            # Backward compatibility with older config
+            base_file_name = lang_json.get("base_file_name", "app_")
+            translators = {"app": base_file_name}
 
         self._logger.debug(f"Loaded languages from {lang_json}")
-        return languages
+        return languages, translators
 
     def _load_themes(self) -> dict[str, str]:
         """Loads all theme stylesheets from config/themes/*.qss."""

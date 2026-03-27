@@ -3,5 +3,15 @@
     "en",
     "de"
   ],
-  "base_file_name": "app_"
+  "translators": {
+    "app": {
+      "base_file_name": "app_"
+    },
+    "report": {
+      "base_file_name": "report_",
+      "include_roots": [
+        "Control_Optimizer/src/service/reporting"
+      ]
+    }
+  }
 }
