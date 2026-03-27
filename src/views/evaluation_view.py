@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QTabWidget, QHBoxLayout
@@ -7,7 +9,7 @@ from numpy import ndarray
 
 from app_domain.controlsys import AntiWindup
 from app_types import EvaluationField, SectionConfig, FieldConfig, PlotData, BodePlotData, PlotLabels, PsoResultField
-from utils import SvgLayer, merge_svgs, recolor_svg
+from utils import SvgLayer, merge_svgs, recolor_svg, save_svg
 from views import ViewMixin
 from views.plot_style import PLOT_STYLE
 from views.widgets import (
@@ -263,12 +265,14 @@ class EvaluationView(ViewMixin, QWidget):
         self._vm_evaluator.psoSimulationFinished.connect(self._on_vm_pso_simulation_finished)
         self._vm_evaluator.plantFrequencyResponseChanged.connect(self._on_vm_frequency_computation_finished)
         self._vm_evaluator.closedLoopFrequencyResponseChanged.connect(self._on_vm_frequency_computation_finished)
+        self._vm_evaluator.saveSvgRequested.connect(self._on_vm_save_svg_requested)
 
         # Plot ViewModel -> Function recomputation
         self._vm_plots.get(TIME_DOMAIN).xMinChanged.connect(self._on_vm_time_changed)
         self._vm_plots.get(TIME_DOMAIN).xMaxChanged.connect(self._on_vm_time_changed)
         self._vm_plots.get(FREQUENCY_DOMAIN).xMinChanged.connect(self._on_vm_frequency_changed)
         self._vm_plots.get(FREQUENCY_DOMAIN).xMaxChanged.connect(self._on_vm_frequency_changed)
+
 
     # ============================================================
     # Translation
@@ -436,6 +440,14 @@ class EvaluationView(ViewMixin, QWidget):
         self._vm_plots.get(TIME_DOMAIN).x_min = self._vm_evaluator.t0
         self._vm_plots.get(TIME_DOMAIN).x_max = self._vm_evaluator.t1
 
+    def _on_vm_save_svg_requested(self, path: str | Path) -> None:
+        target = Path(path)
+        if target.suffix.lower() != ".svg":
+            target = target.with_suffix(".svg")
+
+        svg = self._build_block_diagram()
+        save_svg(target, svg)
+
     # ============================================================
     # Helpers
     # ============================================================
@@ -474,8 +486,8 @@ class EvaluationView(ViewMixin, QWidget):
         for key, value in text.items():
             self.field_widgets.get(key).setText(PSO_RESULT_TEMPLATE.get(key) % value)
 
-    def _load_block_diagram(self) -> None:
-        """Build and recolor the closed loop block diagram SVG."""
+    def _build_block_diagram(self) -> str:
+        """Build the closed loop block diagram SVG."""
         x_offset = 100
         y = 125
         node_x = 150
@@ -514,5 +526,11 @@ class EvaluationView(ViewMixin, QWidget):
             merged_svg = merged_svg.replace("min: ###", f"min: {self._vm_evaluator.constraint_min}")
             merged_svg = merged_svg.replace("max: ###", f"max: {self._vm_evaluator.constraint_max}")
 
-        recolored = recolor_svg(merged_svg, self._vm_theme.get_svg_color_map())
+        return merged_svg
+
+    def _load_block_diagram(self) -> None:
+        """Build and recolor the closed loop block diagram SVG."""
+        svg = self._build_block_diagram()
+
+        recolored = recolor_svg(svg, self._vm_theme.get_svg_color_map())
         self.field_widgets.get(BLOCK_DIAGRAM).set_svg_bytes(recolored.encode("utf-8"))

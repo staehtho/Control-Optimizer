@@ -1,5 +1,7 @@
 import re
 from dataclasses import dataclass
+from pathlib import Path
+
 from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtGui import QPixmap, QPainter, QIcon
 from PySide6.QtCore import QByteArray, Qt
@@ -158,3 +160,17 @@ def svg_to_icon(svg_text: str, size: int = 32) -> QIcon:
     painter.end()
 
     return QIcon(pixmap)
+
+
+def save_svg(path: str | Path, svg_content: str, size: int = 32) -> None:
+    path = Path(path)
+
+    # Optional: inject width/height if missing
+    if 'width=' not in svg_content and 'height=' not in svg_content:
+        svg_content = svg_content.replace(
+            "<svg",
+            f'<svg width="{size}" height="{size}"',
+            1
+        )
+
+    path.write_text(svg_content, encoding="utf-8")
