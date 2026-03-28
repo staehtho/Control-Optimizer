@@ -52,17 +52,17 @@
             <text class="text" x="25" y="40">Ti</text>
         </g>
 
-        <path class="line" d="M50 0 H95"/>
-        <use href="#arrow" transform="translate(100, 0)"/>
+        <path class="line" d="M50 0 H120"/>
+        <use href="#arrow" transform="translate(125, 0)"/>
 
-        <g transform="translate(100, -25)">
+        <g transform="translate(125, -25)">
             <use href="#integrator"/>
         </g>
     </g>
 
     <!-- Output -->
     <g transform="translate(325 0)">
-        <path class="line" d="M0 10 V75 H-125"/>
+        <path class="line" d="M0 10 V75 H-100"/>
         <use href="#arrow" transform="rotate(-90 2.5 2.5)"/>
     </g>
 

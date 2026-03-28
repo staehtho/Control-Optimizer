@@ -60,17 +60,21 @@
             <text class="text" x="25" y="40">Ti</text>
         </g>
 
-        <path class="line" d="M50 0 H65 V-15 H95"/>
-        <use href="#arrow" transform="translate(100 -15)"/>
+        <path class="line" d="M50 0 H65 V-15 H120"/>
+        <use href="#arrow" transform="translate(125 -15)"/>
 
-        <g transform="translate(100, -25)">
+        <g transform="translate(125, -25)">
             <use href="#decider"/>
         </g>
 
-        <path class="line" d="M150 0 H170"/>
-        <use href="#arrow" transform="translate(175, 0)"/>
+        <text class="text" x="100" y="20">0</text>
+        <path class="line" d="M105 15 H120"/>
+        <use href="#arrow" transform="translate(125 15)"/>
 
-        <g transform="translate(175, -25)">
+        <path class="line" d="M175 0 H195"/>
+        <use href="#arrow" transform="translate(200, 0)"/>
+
+        <g transform="translate(200, -25)">
             <use href="#integrator"/>
         </g>
 
@@ -78,7 +82,7 @@
 
     <!-- Output -->
     <g transform="translate(325 0)">
-        <path class="line" d="M0 10 V75 H-50"/>
+        <path class="line" d="M0 10 V75 H-25"/>
         <use href="#arrow" transform="rotate(-90 2.5 2.5)"/>
         <!-- Node -->
         <circle class="fill" cx="25" cy="0" r="4"/>
@@ -94,8 +98,8 @@
 
         <path class="line" d="M25 0 V115"/>
         <path class="line" d="M125 0 V125 H35"/>
-        <path class="line" d="M20 125 H-200 V75 H-180"/>
-        <use href="#arrow" transform="translate(-175 75)"/>
+        <path class="line" d="M20 125 H-200 V75 H-155"/>
+        <use href="#arrow" transform="translate(-150 75)"/>
     </g>
 
 </svg>
