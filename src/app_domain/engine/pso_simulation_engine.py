@@ -39,7 +39,7 @@ class PsoSimulationEngine:
 
         self._logger.info("Starting PSO simulation.")
 
-        pid_cl, tf = self._create_controller(param)
+        pid_cl = self._create_controller(param)
         r, l, n = self._configure_excitation(param)
 
         use_freq_metrics = param.gain_margin_enabled or param.phase_margin_enabled or param.stability_margin_enabled
@@ -53,9 +53,15 @@ class PsoSimulationEngine:
             l=l,
             n=n,
             solver=param.solver,
-            performance_index=param.error_criterion,
             swarm_size=param.swarm_size,
-            pre_compiling=False,
+            tf_tuning_factor_n=param.tuning_factor,
+            tf_limit_factor_k=param.limit_factor,
+            sampling_rate_hz=param.sampling_rate,
+            performance_index=param.error_criterion,
+            use_overshoot_control=param.overshoot_control_enabled,
+            allowed_overshoot_pct=param.overshoot_control if param.overshoot_control_enabled else 0,
+            use_control_activity_constraint=param.slew_rate_limit_enabled,
+            allowed_control_activity=param.slew_rate_max,
             use_freq_metrics=use_freq_metrics,
             freq_low_exp=-5,  # TODO temp value
             freq_high_exp=5,  # TODO temp value
@@ -63,8 +69,7 @@ class PsoSimulationEngine:
             gm_min_db=param.gain_margin if param.gain_margin_enabled else 0,
             pm_min_deg=param.phase_margin if param.phase_margin_enabled else 0,
             ms_max_db=param.stability_margin if param.stability_margin_enabled else None,
-            use_overshoot_control=param.overshoot_control_enabled,
-            allowed_overshoot_pct=param.overshoot_control if param.overshoot_control_enabled else 0,
+            pre_compiling=False,
         )
 
         bounds = self._extract_bounds(param)
@@ -78,7 +83,7 @@ class PsoSimulationEngine:
             kp=self._best_kp,
             ti=self._best_ti,
             td=self._best_td,
-            tf=tf,
+            tf=0,
             t0=param.t0,
             t1=param.t1
         )
@@ -87,7 +92,7 @@ class PsoSimulationEngine:
     # Controller Setup
     # ==========================================================
     @staticmethod
-    def _create_controller(param: PsoSimulationParam) -> Tuple[PIDClosedLoop, float]:
+    def _create_controller(param: PsoSimulationParam) -> PIDClosedLoop:
         """Create plant, PID controller, and set filter time constant."""
 
         plant = Plant(param.num, param.den)
@@ -102,16 +107,7 @@ class PsoSimulationEngine:
             ka=param.ka
         )
 
-        tf_report = compute_effective_tf_report(
-            Td=pid_cl.Td,
-            dt=param.dt,
-            tf_tuning_factor_n=5.0,
-            tf_limit_factor_k=5.0,
-            sampling_rate_hz=None,
-        )
-        pid_cl.set_filter(Tf=tf_report.tf_effective)
-
-        return pid_cl, tf_report.tf_effective
+        return pid_cl
 
     # ==========================================================
     # Excitation
