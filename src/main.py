@@ -11,11 +11,6 @@ from PySide6.QtWidgets import QApplication, QSplashScreen
 
 # TODO: BodePlot: when all plots are disabled, the y-axis should not be rescaled. now it scale to 99999 or so :)
 
-# TODO: Controller: move the block diagram and the selection of the anti windup in one section called anti windup
-#  and call the selection method or so
-# TODO: Controller: add a section tf, with N as float >0 (float) and sample time, default empty -> add a place holder,
-#  if is empty -> no sample time (None)
-
 # TODO: PSO: add a new section call begrenzung, add max du/dt with >0 (float) and add Window size >0 (int), the section
 #   is optional -> toggleable
 

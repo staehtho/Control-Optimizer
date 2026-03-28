@@ -13,3 +13,6 @@ class ControllerModel:
     anti_windup: AntiWindup = AntiWindup.CLAMPING
     ka: float = 1.0
     ka_enabled: bool = False
+
+    tuning_factor: float = 5.0
+    sampling_rate: float | None = None

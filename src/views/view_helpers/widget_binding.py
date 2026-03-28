@@ -108,6 +108,9 @@ def on_vm_changed(view, key: str | FieldType, attribute: str) -> None:
 
     elif isinstance(widget, QLineEdit):
         text_value = str(formatted_value)
+        if text_value == "None":
+            text_value = ""
+        widget.setText(text_value)
         if widget.text() != text_value:
             widget.setText(text_value)
 

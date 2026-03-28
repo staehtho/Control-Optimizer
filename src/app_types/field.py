@@ -70,7 +70,11 @@ class ControllerField(FieldType):
 
     ANTI_WINDUP = "anti_wind"
     ANTI_WINDUP_METHODE = "anti_windup_method"
-    KA = "ka"
+    FACTOR_KA = "ka"
+
+    FILTER_TIME_CONSTANT = "filter_time_constant"
+    TUNING_FACTOR = "tuning_factor"
+    SAMPLING_RATE = "sampling_rate"
 
     BLOCK_DIAGRAM = "block_diagram"
 
