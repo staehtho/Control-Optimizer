@@ -14,7 +14,7 @@ from PySide6.QtWidgets import (
     QLayout, QGraphicsOpacityEffect,
 )
 from PySide6.QtCore import QObject
-from PySide6.QtGui import QDoubleValidator
+from PySide6.QtGui import QDoubleValidator, QIntValidator
 
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
 from app_domain.functions import FunctionTypes, resolve_function_type
@@ -26,7 +26,7 @@ from resources.resources import Icons
 if TYPE_CHECKING:
     from app_domain.ui_context import UiContext
     from viewmodels import PlantViewModel, FunctionViewModel, PsoConfigurationViewModel
-    from views.widgets import SectionFrame
+    from views.widgets import SectionFrame, ToggleableSectionFrame
 
 
 FIELDS: list[FieldConfig | SectionConfig] = [
@@ -59,8 +59,14 @@ FIELDS: list[FieldConfig | SectionConfig] = [
     SectionConfig(PsoField.PERFORMANCE_INDEX, [
         SectionConfig(PsoField.TIME_DOMAIN, [
             FieldConfig(PsoField.ERROR_CRITERION, QComboBox),
-            FieldConfig(PsoField.OVERSHOOT_CONTROL, QLineEdit, validator=QDoubleValidator(0.0, 1e9, 6),
-                        toggleable=True),
+            FieldConfig(
+                PsoField.OVERSHOOT_CONTROL, QLineEdit, validator=QDoubleValidator(0.0, 1e9, 6), toggleable=True
+            ),
+            SectionConfig(PsoField.SLEW_RATE_LIMITER, [
+                FieldConfig(PsoField.SLEW_RATE_MAX, QLineEdit, validator=QDoubleValidator(0.0, 1e9, 6)),
+                # TODO: max value?
+                FieldConfig(PsoField.SLEW_WINDOW_SIZE, QLineEdit, validator=QIntValidator(0, 1000000)),
+            ], toggleable=True)
         ]),
         SectionConfig(PsoField.FREQUENCY_DOMAIN, [
             FieldConfig(PsoField.GAIN_MARGIN, QLineEdit, validator=QDoubleValidator(0.0, 1e9, 6), toggleable=True),
@@ -181,6 +187,8 @@ class PsoConfigurationView(ViewMixin, QWidget):
             PsoField.T0: ("editingFinished", "_vm_pso.t0", float),
             PsoField.T1: ("editingFinished", "_vm_pso.t1", float),
             PsoField.OVERSHOOT_CONTROL: ("editingFinished", "_vm_pso.overshoot_control", float),
+            PsoField.SLEW_RATE_MAX: ("editingFinished", "_vm_pso.slew_rate_max", float),
+            PsoField.SLEW_WINDOW_SIZE: ("editingFinished", "_vm_pso.slew_window_size", int),
             PsoField.GAIN_MARGIN: ("editingFinished", "_vm_pso.gain_margin", float),
             PsoField.PHASE_MARGIN: ("editingFinished", "_vm_pso.phase_margin", float),
             PsoField.STABILITY_MARGIN: ("editingFinished", "_vm_pso.stability_margin", float),
@@ -198,6 +206,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
 
         attributes: dict[PsoField, tuple[str, str, object]] = {
             PsoField.OVERSHOOT_CONTROL: ("toggled", "_vm_pso.overshoot_control_enabled", bool),
+            PsoField.SLEW_RATE_LIMITER: ("activeChanged", "_vm_pso.slew_rate_limit_enabled", bool),
             PsoField.GAIN_MARGIN: ("toggled", "_vm_pso.gain_margin_enabled", bool),
             PsoField.PHASE_MARGIN: ("toggled", "_vm_pso.phase_margin_enabled", bool),
             PsoField.STABILITY_MARGIN: ("toggled", "_vm_pso.stability_margin_enabled", bool)
@@ -228,6 +237,8 @@ class PsoConfigurationView(ViewMixin, QWidget):
             PsoField.EXCITATION_TARGET: ("excitationTargetChanged", "_vm_pso.excitation_target"),
             PsoField.ERROR_CRITERION: ("performanceIndexChanged", "_vm_pso.error_criterion"),
             PsoField.OVERSHOOT_CONTROL: ("overshootControlChanged", "_vm_pso.overshoot_control"),
+            PsoField.SLEW_RATE_MAX: ("slewRateMaxChanged", "_vm_pso.slew_rate_max"),
+            PsoField.SLEW_WINDOW_SIZE: ("slewWindowSizeChanged", "_vm_pso.slew_window_size"),
             PsoField.GAIN_MARGIN: ("gainMarginChanged", "_vm_pso.gain_margin"),
             PsoField.PHASE_MARGIN: ("phaseMarginChanged", "_vm_pso.phase_margin"),
             PsoField.STABILITY_MARGIN: ("stabilityMarginChanged", "_vm_pso.stability_margin"),
@@ -246,6 +257,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
 
         attributes: dict[PsoField, tuple[str, str]] = {
             PsoField.OVERSHOOT_CONTROL: ("overshootControlEnabledChanged", "_vm_pso.overshoot_control_enabled"),
+            PsoField.SLEW_RATE_LIMITER: ("slewRateLimitEnabledChanged", "_vm_pso.slew_rate_limit_enabled"),
             PsoField.GAIN_MARGIN: ("gainMarginEnabledChanged", "_vm_pso.gain_margin_enabled"),
             PsoField.PHASE_MARGIN: ("phaseMarginEnabledChanged", "_vm_pso.phase_margin_enabled"),
             PsoField.STABILITY_MARGIN: ("stabilityMarginEnabledChanged", "_vm_pso.stability_margin_enabled"),
@@ -277,6 +289,9 @@ class PsoConfigurationView(ViewMixin, QWidget):
             PsoField.TIME_DOMAIN: self.tr("Time Domain"),
             PsoField.ERROR_CRITERION: self.tr("Error Criterion"),
             PsoField.OVERSHOOT_CONTROL: self.tr("Max Overshoot [%]"),
+            PsoField.SLEW_RATE_LIMITER: self.tr("Slew Rate Limit"),
+            PsoField.SLEW_RATE_MAX: self.tr("Maximum du/dt"),
+            PsoField.SLEW_WINDOW_SIZE: self.tr("Window Size"),
             PsoField.FREQUENCY_DOMAIN: self.tr("Frequency Domain"),
             PsoField.GAIN_MARGIN: self.tr("Gain Margin [dB]"),
             PsoField.PHASE_MARGIN: self.tr("Phase Margin [°]"),
@@ -312,6 +327,8 @@ class PsoConfigurationView(ViewMixin, QWidget):
             PsoField.T0: self._vm_pso.t0,
             PsoField.T1: self._vm_pso.t1,
             PsoField.OVERSHOOT_CONTROL: self._vm_pso.overshoot_control,
+            PsoField.SLEW_RATE_MAX: self._vm_pso.slew_rate_max,
+            PsoField.SLEW_WINDOW_SIZE: self._vm_pso.slew_window_size,
             PsoField.GAIN_MARGIN: self._vm_pso.gain_margin,
             PsoField.PHASE_MARGIN: self._vm_pso.phase_margin,
             PsoField.STABILITY_MARGIN: self._vm_pso.stability_margin,
@@ -343,6 +360,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
 
         attributes: dict[PsoField, str] = {
             PsoField.OVERSHOOT_CONTROL: "_vm_pso.overshoot_control_enabled",
+            PsoField.SLEW_RATE_LIMITER: "_vm_pso.slew_rate_limit_enabled",
             PsoField.GAIN_MARGIN: "_vm_pso.gain_margin_enabled",
             PsoField.PHASE_MARGIN: "_vm_pso.phase_margin_enabled",
             PsoField.STABILITY_MARGIN: "_vm_pso.stability_margin_enabled",
@@ -395,35 +413,6 @@ class PsoConfigurationView(ViewMixin, QWidget):
             self._vm_pso.overshoot_control_enabled = False
         self._vm_pso.blockSignals(False)
 
-    # ============================================================
-    # UI event handlers
-    # ============================================================
-    def _on_vm_plant_is_valid_changed(self) -> None:
-        """Enable or disable the PSO run button based on plant validity."""
-        self._btn_run_pso.setEnabled(self._vm_plant.is_valid)
-
-    def _on_vm_pso_progress_changed(self, iteration: int) -> None:
-        """Update the progress bar based on PSO iteration."""
-        percent = int((iteration / self._vm_pso.get_pos_iteration()) * 100)
-        self._progress_bar.setValue(percent)
-
-    def _on_btn_run_pso(self) -> None:
-        """Start PSO simulation if the plant is valid."""
-        if not self._vm_plant.is_valid:
-            return
-
-        self._btn_run_pso.setEnabled(False)
-        self._btn_interrupt_pso.setEnabled(True)
-        self._lbl_interrupt_status.setText("")
-        self._progress_bar.setValue(0)
-        self._vm_pso.run_pso_simulation()
-
-    def _on_btn_interrupt_pso(self) -> None:
-        """Interrupt the running PSO simulation."""
-        self._btn_interrupt_pso.setEnabled(False)
-        self._btn_run_pso.setEnabled(self._vm_plant.is_valid)
-        self._vm_pso.interrupt_pso_simulation()
-
     def _on_vm_pso_simulation_finished(self) -> None:
         """Re-enable the run button after PSO simulation completes."""
         self._btn_run_pso.setEnabled(True)
@@ -460,6 +449,43 @@ class PsoConfigurationView(ViewMixin, QWidget):
                 widget.setGraphicsEffect(effect)
 
             effect.setOpacity(1.0 if enabled else 0.45)
+
+        if toggle is not None and hasattr(toggle, "_content_widget"):
+            for child in toggle._content_widget.findChildren(QWidget):
+                effect = child.graphicsEffect()
+                if not isinstance(effect, QGraphicsOpacityEffect):
+                    effect = QGraphicsOpacityEffect(child)
+                    child.setGraphicsEffect(effect)
+                effect.setOpacity(1.0 if enabled else 0.45)
+
+    # ============================================================
+    # UI event handlers
+    # ============================================================
+    def _on_vm_plant_is_valid_changed(self) -> None:
+        """Enable or disable the PSO run button based on plant validity."""
+        self._btn_run_pso.setEnabled(self._vm_plant.is_valid)
+
+    def _on_vm_pso_progress_changed(self, iteration: int) -> None:
+        """Update the progress bar based on PSO iteration."""
+        percent = int((iteration / self._vm_pso.get_pos_iteration()) * 100)
+        self._progress_bar.setValue(percent)
+
+    def _on_btn_run_pso(self) -> None:
+        """Start PSO simulation if the plant is valid."""
+        if not self._vm_plant.is_valid:
+            return
+
+        self._btn_run_pso.setEnabled(False)
+        self._btn_interrupt_pso.setEnabled(True)
+        self._lbl_interrupt_status.setText("")
+        self._progress_bar.setValue(0)
+        self._vm_pso.run_pso_simulation()
+
+    def _on_btn_interrupt_pso(self) -> None:
+        """Interrupt the running PSO simulation."""
+        self._btn_interrupt_pso.setEnabled(False)
+        self._btn_run_pso.setEnabled(self._vm_plant.is_valid)
+        self._vm_pso.interrupt_pso_simulation()
 
     # ============================================================
     # Internal helpers

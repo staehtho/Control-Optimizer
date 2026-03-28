@@ -51,6 +51,9 @@ def extract_widget_value(view, key: str | FieldType, widget: QWidget, *args, **k
     if isinstance(widget, QAbstractButton) and widget.isCheckable():
         return widget.isChecked()
 
+    if hasattr(widget, "isChecked") and callable(getattr(widget, "isChecked")):
+        return widget.isChecked()
+
     view.logger.warning(f"Widget type {type(widget)} not handled for key '{key}'")
     return None
 

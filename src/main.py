@@ -11,9 +11,6 @@ from PySide6.QtWidgets import QApplication, QSplashScreen
 
 # TODO: BodePlot: when all plots are disabled, the y-axis should not be rescaled. now it scale to 99999 or so :)
 
-# TODO: PSO: add a new section call begrenzung, add max du/dt with >0 (float) and add Window size >0 (int), the section
-#   is optional -> toggleable
-
 # TODO: Evaluation: TF with L and N
 # TODO: Evaluation: clean TF of C, G, etc.
 # TODO: Evaluation: PsoResult: Sections: Run Time, Controller Parameters, Performance Index
