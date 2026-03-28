@@ -18,24 +18,26 @@ class ControllerViewModel(BaseViewModel):
     constraintMaxChanged = Signal()
     kaChanged = Signal()
     kaEnabledChanged = Signal()
+    tuningFactorChanged = Signal()
+    samplingRateChanged = Signal()
 
     def __init__(self, model_controller: ControllerModel, parent: QObject = None):
         super().__init__(parent)
 
         self._model_controller = model_controller
 
-    # -------------------
+    # ============================================================
     # controller
-    # -------------------
+    # ============================================================
     controller_type = LoggedProperty(
         path="_model_controller.controller_type",
         signal="controllerTypeChanged",
         typ=str
     )
 
-    # -------------------
+    # ============================================================
     # anti windup
-    # -------------------
+    # ============================================================
     def _custom_setter_anti_windup(self, value: AntiWindup) -> bool:
         enabled = value == AntiWindup.BACKCALCULATION
         if enabled != self.ka_enabled:
@@ -50,9 +52,9 @@ class ControllerViewModel(BaseViewModel):
         custom_setter=_custom_setter_anti_windup
     )
 
-    # -------------------
+    # ============================================================
     # constraint
-    # -------------------
+    # ============================================================
     def _verify_constraint_min(self, value: float):
         result = self._validate_relation(
             value=value,
@@ -91,6 +93,9 @@ class ControllerViewModel(BaseViewModel):
         custom_setter=_verify_constraint_max
     )
 
+    # ============================================================
+    # ka
+    # ============================================================
     ka = LoggedProperty(
         path="_model_controller.ka",
         signal="kaChanged",
@@ -101,4 +106,43 @@ class ControllerViewModel(BaseViewModel):
         path="_model_controller.ka_enabled",
         signal="kaEnabledChanged",
         typ=bool,
+    )
+
+    # ============================================================
+    # filter time constant
+    # ============================================================
+    tuning_factor = LoggedProperty(
+        path="_model_controller.tuning_factor",
+        signal="tuningFactorChanged",
+        typ=float,
+    )
+
+    def set_sampling_rate_text(self, text: str, *, commit: bool) -> None:
+        if text.strip() == "":
+            self.sampling_rate = ""
+            return
+
+        if not commit:
+            return
+
+        self.sampling_rate = text
+
+    def _custom_setter_sampling_rate(self, value: str) -> float | None | bool:
+        text = value.strip()
+        if text == "":
+            new_value = None
+        else:
+            try:
+                new_value = float(text)
+            except ValueError:
+                self.logger.warning(f"Invalid sampling rate input: {value!r}")
+                return False
+
+        return new_value
+
+    sampling_rate = LoggedProperty(
+        path="_model_controller.sampling_rate",
+        signal="samplingRateChanged",
+        typ=str,
+        custom_setter=_custom_setter_sampling_rate
     )

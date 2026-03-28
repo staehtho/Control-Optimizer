@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from functools import partial
 
+from PySide6.QtGui import QDoubleValidator, QValidator
 from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit, QHBoxLayout, QGraphicsOpacityEffect
 
 from app_domain.controlsys import AntiWindup
@@ -16,6 +17,14 @@ if TYPE_CHECKING:
     from viewmodels import ControllerViewModel
     from views.widgets import SectionFrame
 
+
+class OptionalDoubleValidator(QDoubleValidator):
+    def validate(self, input_text: str, pos: int):
+        if input_text.strip() == "":
+            return QValidator.State.Intermediate, input_text, pos
+        return super().validate(input_text, pos)
+
+
 FIELDS: list[FieldConfig | SectionConfig] = [
     SectionConfig(ControllerField.CONSTRAINT, [
         FieldConfig(ControllerField.CONSTRAINT_MIN, QLineEdit),
@@ -24,7 +33,12 @@ FIELDS: list[FieldConfig | SectionConfig] = [
 
     SectionConfig(ControllerField.ANTI_WINDUP, [
         FieldConfig(ControllerField.ANTI_WINDUP_METHODE, QComboBox),
-        FieldConfig(ControllerField.KA, QLineEdit),
+        FieldConfig(ControllerField.FACTOR_KA, QLineEdit),
+    ]),
+
+    SectionConfig(ControllerField.FILTER_TIME_CONSTANT, [
+        FieldConfig(ControllerField.TUNING_FACTOR, QLineEdit, validator=QDoubleValidator(0.0, 1e9, 6)),
+        FieldConfig(ControllerField.SAMPLING_RATE, QLineEdit, validator=OptionalDoubleValidator(0.0, 1e9, 6)),
     ]),
 
     FieldConfig(ControllerField.CONTROLLER_TYPE, QLabel),
@@ -98,12 +112,20 @@ class ControllerView(ViewMixin, QWidget):
         attributes: dict[ControllerField, tuple[str, str, object]] = {
             ControllerField.CONSTRAINT_MIN: ("editingFinished", "_vm_controller.constraint_min", float),
             ControllerField.CONSTRAINT_MAX: ("editingFinished", "_vm_controller.constraint_max", float),
-            ControllerField.KA: ("editingFinished", "_vm_controller.ka", float),
+            ControllerField.FACTOR_KA: ("editingFinished", "_vm_controller.ka", float),
+            ControllerField.TUNING_FACTOR: ("editingFinished", "_vm_controller.tuning_factor", float),
         }
         for key, value in attributes.items():
             attr, vm_attr, value_type = value
             widget = self.field_widgets[key]
             getattr(widget, attr).connect(partial(self._on_widget_changed, widget, key, vm_attr, value_type=value_type))
+
+        sampling_rate_widget: QLineEdit = self.field_widgets.get(ControllerField.SAMPLING_RATE)
+        if sampling_rate_widget is not None:
+            sampling_rate_widget.textEdited.connect(
+                partial(self._vm_controller.set_sampling_rate_text, commit=False)
+            )
+            sampling_rate_widget.editingFinished.connect(self._on_sampling_rate_editing_finished)
 
         self.field_widgets.get(ControllerField.ANTI_WINDUP_METHODE).currentIndexChanged.connect(
             self._on_index_changed_anti_windup)
@@ -116,12 +138,19 @@ class ControllerView(ViewMixin, QWidget):
         self._vm_controller.validationFailed.connect(self._on_validation_failed)
         self._vm_controller.constraintMinChanged.connect(self._on_vm_constraint_min_changed)
         self._vm_controller.constraintMaxChanged.connect(self._on_vm_constraint_max_changed)
-        self._vm_controller.antiWindupChanged.connect(
-            partial(self._on_vm_changed, ControllerField.ANTI_WINDUP_METHODE, "_vm_controller.anti_windup")
-        )
-        self._vm_controller.kaChanged.connect(
-            partial(self._on_vm_changed, ControllerField.KA, "_vm_controller.ka")
-        )
+
+        attributes: dict[ControllerField, tuple[str, str]] = {
+            ControllerField.ANTI_WINDUP_METHODE: ("antiWindupChanged", "_vm_controller.anti_windup"),
+            ControllerField.FACTOR_KA: ("kaChanged", "_vm_controller.ka"),
+            ControllerField.TUNING_FACTOR: ("tuningFactorChanged", "_vm_controller.tuning_factor"),
+            ControllerField.SAMPLING_RATE: ("samplingRateChanged", "_vm_controller.sampling_rate"),
+        }
+
+        for key, value in attributes.items():
+            signal, vm_attr = value
+            vm = self._vm_controller
+            getattr(vm, signal).connect(partial(self._on_vm_changed, key, vm_attr))
+
         self._vm_controller.kaEnabledChanged.connect(self._on_ka_enable_changed)
 
     # ============================================================
@@ -139,11 +168,18 @@ class ControllerView(ViewMixin, QWidget):
             ControllerField.CONSTRAINT: self.tr("Constraint"),
             ControllerField.CONSTRAINT_MIN: self.tr("Minimum"),
             ControllerField.CONSTRAINT_MAX: self.tr("Maximum"),
-            ControllerField.KA: self.tr("Ka"),
+            ControllerField.FACTOR_KA: self.tr("Ka"),
+            ControllerField.FILTER_TIME_CONSTANT: self.tr("Filter Time Constant Tf"),
+            ControllerField.TUNING_FACTOR: self.tr("N"),
+            ControllerField.SAMPLING_RATE: self.tr("Sampling Rate [Hz]"),
         }
 
         for key in labels.keys():
             self.labels[key].setText(labels[key])
+
+        # place holder
+        txt: QLineEdit = self.field_widgets.get(ControllerField.SAMPLING_RATE)
+        txt.setPlaceholderText(self.tr("Sampling rate unknown"))
 
         enums = {ControllerField.ANTI_WINDUP_METHODE: AntiWindup}
         for key, value in enums.items():
@@ -155,15 +191,21 @@ class ControllerView(ViewMixin, QWidget):
     # ============================================================
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
-        self.field_widgets[ControllerField.CONTROLLER_TYPE].setText(self._vm_controller.controller_type)
-        self.field_widgets[ControllerField.KA].setText(f"{self._vm_controller.ka}")
+        init_value = {
+            ControllerField.CONTROLLER_TYPE: self._vm_controller.controller_type,
+            ControllerField.FACTOR_KA: self._vm_controller.ka,
+            ControllerField.CONSTRAINT_MIN: self._vm_controller.constraint_min,
+            ControllerField.CONSTRAINT_MAX: self._vm_controller.constraint_max,
+            ControllerField.TUNING_FACTOR: self._vm_controller.tuning_factor,
+            ControllerField.SAMPLING_RATE:
+                self._vm_controller.sampling_rate if self._vm_controller.sampling_rate is not None else "",
+        }
+        for key, value in init_value.items():
+            self.field_widgets[key].setText(f"{value}")
 
         index = self.field_widgets[ControllerField.ANTI_WINDUP_METHODE].findData(self._vm_controller.anti_windup)
         if index >= 0:
             self.field_widgets[ControllerField.ANTI_WINDUP_METHODE].setCurrentIndex(index)
-
-        self.field_widgets[ControllerField.CONSTRAINT_MIN].setText(f"{self._vm_controller.constraint_min}")
-        self.field_widgets[ControllerField.CONSTRAINT_MAX].setText(f"{self._vm_controller.constraint_max}")
 
         self._on_ka_enable_changed()
 
@@ -201,8 +243,8 @@ class ControllerView(ViewMixin, QWidget):
         self._load_block_diagram()
 
     def _on_ka_enable_changed(self) -> None:
-        lbl: QLabel = self.labels.get(ControllerField.KA)
-        widget: QLineEdit = self.field_widgets.get(ControllerField.KA)
+        lbl: QLabel = self.labels.get(ControllerField.FACTOR_KA)
+        widget: QLineEdit = self.field_widgets.get(ControllerField.FACTOR_KA)
 
         visible = self._vm_controller.ka_enabled
 
@@ -214,6 +256,16 @@ class ControllerView(ViewMixin, QWidget):
                 eff = QGraphicsOpacityEffect(w)
                 w.setGraphicsEffect(eff)
             eff.setOpacity(1.0 if visible else 0.0)
+
+    def _on_sampling_rate_editing_finished(self) -> None:
+        if self.initializing:
+            return
+
+        widget: QLineEdit = self.field_widgets.get(ControllerField.SAMPLING_RATE)
+        if widget is None:
+            return
+
+        self._vm_controller.set_sampling_rate_text(widget.text(), commit=True)
 
     # ============================================================
     # Internal helpers
