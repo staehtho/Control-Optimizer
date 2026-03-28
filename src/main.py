@@ -13,7 +13,6 @@ from PySide6.QtWidgets import QApplication, QSplashScreen
 
 # TODO: Controller: move the block diagram and the selection of the anti windup in one section called anti windup
 #  and call the selection method or so
-# TODO: Controller: add in conditional block diagram the 0 as else in the decider block
 # TODO: Controller: add a section tf, with N as float >0 (float) and sample time, default empty -> add a place holder,
 #  if is empty -> no sample time (None)
 
