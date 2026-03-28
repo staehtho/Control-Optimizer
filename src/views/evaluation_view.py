@@ -411,6 +411,7 @@ class EvaluationView(ViewMixin, QWidget):
 
         self._update_pso_result_values()
         self._apply_init_value()
+        self._load_block_diagram()
 
     def _on_vm_time_changed(self) -> None:
         """Trigger recomputation when plot time range changes."""
