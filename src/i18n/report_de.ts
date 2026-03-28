@@ -4,12 +4,12 @@
 <context>
     <name>Report</name>
     <message>
-        <location filename="../service/reporting/dynamic_report.py" line="41"/>
+        <location filename="../service/reporting/dynamic_report.py" line="44"/>
         <source>Control Optimizer Report</source>
         <translation>Control-Optimierer Bericht</translation>
     </message>
     <message>
-        <location filename="../service/reporting/dynamic_report.py" line="63"/>
+        <location filename="../service/reporting/dynamic_report.py" line="71"/>
         <source>This report was generated dynamically.</source>
         <translation>Dieser Bericht wurde dynamisch erstellt.</translation>
     </message>
@@ -30,16 +30,17 @@
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="30"/>
+        <location filename="../service/reporting/sections.py" line="35"/>
         <source>System Response Plot</source>
         <translation>Systemantwort‑Diagramm</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="35"/>
+        <location filename="../service/reporting/sections.py" line="39"/>
         <source>User Notes</source>
         <translation>Benutzernotizen</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="40"/>
+        <location filename="../service/reporting/sections.py" line="44"/>
         <source>Summary</source>
         <translation>Zusammenfassung</translation>
     </message>

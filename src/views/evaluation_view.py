@@ -343,6 +343,8 @@ class EvaluationView(ViewMixin, QWidget):
             )
         )
 
+        self._vm_plots.get(TIME_DOMAIN).request_save_svg("system_response.svg")
+
     def _on_vm_closed_loop_compute_finished(self, t: ndarray, u: ndarray, y: ndarray) -> None:
         self.logger.debug(
             "Closed-loop response computation finished -> updating response plot (samples=%d)",
@@ -370,6 +372,8 @@ class EvaluationView(ViewMixin, QWidget):
             )
         )
 
+        self._vm_plots.get(TIME_DOMAIN).request_save_svg("system_response.svg")
+
     def _on_vm_plant_compute_finished(self, t: ndarray, y: ndarray) -> None:
         self.logger.debug(
             "Plant response computation finished -> updating response plot (samples=%d)",
@@ -385,6 +389,8 @@ class EvaluationView(ViewMixin, QWidget):
                 subplot_position=1,
             )
         )
+
+        self._vm_plots.get(TIME_DOMAIN).request_save_svg("system_response.svg")
 
     def _on_vm_frequency_computation_finished(self, result: FrequencyResponse) -> None:
         self.logger.debug(
@@ -410,11 +416,15 @@ class EvaluationView(ViewMixin, QWidget):
                 )
             )
 
+        self._vm_plots.get(FREQUENCY_DOMAIN).request_save_svg("bode_plot.svg")
+
     def _on_vm_pso_simulation_finished(self) -> None:
         self.logger.debug("PSO simulation finished -> refreshing excitation function")
 
         self._update_pso_result_values()
         self._apply_init_value()
+
+        self._vm_evaluator.request_save_svg("block_diagram.svg")
 
     def _on_vm_time_changed(self) -> None:
         """Trigger recomputation when plot time range changes."""

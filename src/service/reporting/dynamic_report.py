@@ -1,28 +1,31 @@
 from __future__ import annotations
-from typing import Dict, Any
 from .base_report import BaseReport
+from PySide6.QtCore import QCoreApplication
 from .sections import (
     section_pid_parameters,
     section_plot,
     section_notes,
     section_summary,
+    section_block_diagram,
 )
 from dataclasses import dataclass
 
 @dataclass
 class DynamicReportSelection:
-    include_pid: bool
-    include_plot: bool
-    include_notes: bool
+    include_pid: bool = False
+    include_plot: bool = False
+    include_block_diagram: bool = False
+    include_notes: bool = False
 
 
 @dataclass
 class DynamicReportData:
-    kp: float
-    ki: float
-    kd: float
-    svg_plot: str
-    notes: str
+    kp: float = 0.0
+    ki: float = 0.0
+    kd: float = 0.0
+    svg_plot: str = ""
+    svg_block_diagram: str = ""
+    notes: str = ""
 
 
 class DynamicReport(BaseReport):
@@ -38,7 +41,7 @@ class DynamicReport(BaseReport):
         self._data = data
 
     def build_report(self) -> None:
-        self.add_title("PID Controller Report")
+        self.add_title(QCoreApplication.translate("Report", "Control Optimizer Report"))
 
         if self._selection.include_pid:
             section_pid_parameters(
@@ -53,11 +56,19 @@ class DynamicReport(BaseReport):
             if svg_path:
                 section_plot(self, svg_path)
 
+        if self._selection.include_block_diagram:
+            svg_path = self._data.svg_block_diagram
+            if svg_path:
+                section_block_diagram(self, svg_path)
+
         if self._selection.include_notes:
             notes = self._data.notes
             section_notes(self, notes)
 
         # Always include summary
-        section_summary(self, "This report was generated dynamically.")
+        section_summary(
+            self,
+            QCoreApplication.translate("Report", "This report was generated dynamically."),
+        )
 
         self.build()
