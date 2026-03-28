@@ -18,6 +18,10 @@ class PsoSimulationParam:
     t1: float
     dt: float
 
+    tuning_factor: float
+    limit_factor: float
+    sampling_rate: float | None
+
     solver: MySolver
 
     anti_windup: AntiWindup
@@ -26,7 +30,6 @@ class PsoSimulationParam:
 
     excitation_target: ExcitationTarget
     function: BaseFunction
-    error_criterion: PerformanceIndex
 
     kp: tuple[float, float]
     ti: tuple[float, float]
@@ -35,8 +38,12 @@ class PsoSimulationParam:
     swarm_size: int
     pso_iteration: int
 
+    error_criterion: PerformanceIndex
     overshoot_control: float
     overshoot_control_enabled: bool
+    slew_rate_max: float
+    slew_window_size: int
+    slew_rate_limit_enabled: bool
     gain_margin: float
     gain_margin_enabled: bool
     phase_margin: float
