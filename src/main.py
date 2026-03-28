@@ -13,11 +13,24 @@ from PySide6.QtWidgets import QApplication, QSplashScreen
 
 # TODO: Controller: move the block diagram and the selection of the anti windup in one section called anti windup
 #  and call the selection method or so
+# TODO: Controller: add in conditional block diagram the 0 as else in the decider block
+# TODO: Controller: add a section tf, with N as float >0 (float) and sample time, default empty -> add a place holder,
+#  if is empty -> no sample time (None)
 
-# TODO: PSO: add stellrantenbegrenzung
+# TODO: PSO: add a new section call begrenzung, add max du/dt with >0 (float) and add Window size >0 (int), the section
+#   is optional -> toggleable
 
 # TODO: Evaluation: TF with L and N
 # TODO: Evaluation: clean TF of C, G, etc.
+# TODO: Evaluation: PsoResult: Sections: Run Time, Controller Parameters, Performance Index
+# TODO: Evaluation: PsoResult: Controller Parameters: tf as a section with tf eff, show if limited by simulation or by
+#   sampling, if not limited show nothing, min sampling rat only if not limited, call compute_effective_tf_report for the
+#   tf results
+# TODO: Evaluation: PsoResult: Performance Index: same sections as in PsoParameters (time and freq domain), show always
+#   freq, error and du/dt show overshoot only if the function is a step function, call pid_simulate_metrics and evaluate_candidate
+#   for time results and call compute_loop_metrics_batch fro freq metics
+
+# TODO: PsoFunc: for PsoFunc set tf to 0.0 in the pid_closed_loop
 
 
 def create_app():
