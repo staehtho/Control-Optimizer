@@ -18,9 +18,9 @@ class PsoConfigurationModel:
     td_max: float = 10.0
 
     error_criterion: PerformanceIndex = PerformanceIndex.ITAE
-    overshoot_control: float = 10
+    overshoot_control: float = 10.0
     overshoot_control_enabled: bool = False
-    slew_rate_max: float = 0.5
+    slew_rate_max: float = 2.0
     slew_window_size: int = 10
     slew_rate_limit_enabled: bool = False
     gain_margin: float = 16.0

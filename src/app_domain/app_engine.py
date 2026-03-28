@@ -258,7 +258,7 @@ class AppEngine:
             swarm_size=40,
             pso_iteration=1,  # only one iteration for warmup
             error_criterion=PerformanceIndex.ITAE,
-            slew_rate_max=0.15,
+            slew_rate_max=2,
             slew_window_size=10,
             slew_rate_limit_enabled=True,
             overshoot_control=5,

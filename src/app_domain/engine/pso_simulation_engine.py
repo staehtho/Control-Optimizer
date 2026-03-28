@@ -60,8 +60,9 @@ class PsoSimulationEngine:
             performance_index=param.error_criterion,
             use_overshoot_control=param.overshoot_control_enabled,
             allowed_overshoot_pct=param.overshoot_control if param.overshoot_control_enabled else 0,
-            use_control_activity_constraint=param.slew_rate_limit_enabled,
-            allowed_control_activity=param.slew_rate_max,
+            use_max_du_dt_constraint=param.slew_rate_limit_enabled,
+            allowed_max_du_dt=param.slew_rate_max,
+            du_dt_window_steps=param.slew_window_size,
             use_freq_metrics=use_freq_metrics,
             freq_low_exp=-5,  # TODO temp value
             freq_high_exp=5,  # TODO temp value
