@@ -503,32 +503,58 @@ def compute_loop_metrics_batch_from_frf(
     }
 
 
+def _ensure_array(x):
+    return np.atleast_1d(x).astype(float)
+
+
+def _ensure_frequency_grid(w):
+    # Case 1: already array-like
+    if isinstance(w, np.ndarray) or np.isscalar(w):
+        return np.asarray(w, dtype=np.float64).reshape(-1)
+
+    # Case 2: tuple/list → (low_exp, high_exp, num_points) for logspace
+    if isinstance(w, (tuple, list)) and len(w) == 3:
+        low_exp, high_exp, num = w
+        return np.logspace(low_exp, high_exp, int(num), dtype=np.float64)
+
+    raise ValueError(
+        "w must be either an array or (low_exp, high_exp, num_points)"
+    )
+
+
 def compute_loop_metrics_batch(
     plant: Any,
-    Kp: np.ndarray,
-    Ti: np.ndarray,
-    Td: np.ndarray,
-    Tf: np.ndarray,
-    w: np.ndarray,
+        Kp: float | np.ndarray,
+        Ti: float | np.ndarray,
+        Td: float | np.ndarray,
+        Tf: float | np.ndarray,
+        w: np.ndarray | tuple | list,
 ) -> dict[str, np.ndarray]:
     """Convenience wrapper that evaluates the plant FRF internally.
 
     Args:
         plant: Plant object exposing ``system(s)``.
-        Kp: Proportional gains with shape ``(P,)``.
-        Ti: Integral time constants with shape ``(P,)``.
-        Td: Derivative time constants with shape ``(P,)``.
-        Tf: Derivative filter time constants with shape ``(P,)``.
-        w: Frequency grid in rad/s with shape ``(N,)``.
+        Kp: Proportional gains with shape ``(P,)`` or scalar.
+        Ti: Integral time constants with shape ``(P,)`` or scalar.
+        Td: Derivative time constants with shape ``(P,)`` or scalar.
+        Tf: Derivative filter time constants with shape ``(P,)`` or scalar.
+        w: Frequency grid:
+            - array-like of shape ``(N,)``
+            - OR tuple/list ``(low_exp, high_exp, num_points)`` → logspace
 
     Returns:
         Same metric dictionary as ``compute_loop_metrics_batch_from_frf``.
     """
-    w = np.asarray(w, dtype=np.float64).reshape(-1)
+    # Normalize frequency grid
+    w = _ensure_frequency_grid(w)
     s = 1j * w
 
+    # Evaluate plant FRF
     with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
         G = plant.system(s)
+
+    # Normalize controller parameters
+    Kp, Ti, Td, Tf = map(_ensure_array, (Kp, Ti, Td, Tf))
 
     return compute_loop_metrics_batch_from_frf(
         G=G,
