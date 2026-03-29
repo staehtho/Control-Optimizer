@@ -401,7 +401,10 @@ class PsoConfigurationViewModel(BaseViewModel):
             phase_margin=self._model_pso.phase_margin,
             phase_margin_enabled=self._model_pso.phase_margin_enabled,
             stability_margin=self._model_pso.stability_margin,
-            stability_margin_enabled=self._model_pso.stability_margin_enabled
+            stability_margin_enabled=self._model_pso.stability_margin_enabled,
+            omega_exp_low=-5,
+            omega_exp_high=5,
+            omega_points=500,
         )
 
     def _on_pso_simulation_finished(self, result: PsoResult):
