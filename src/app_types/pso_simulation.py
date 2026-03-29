@@ -76,6 +76,7 @@ class PsoResult:
     is_feasible: bool
     error_criterion: float
     overshoot: float
+    show_overshoot: bool
     slew_rate: float
     gain_margin: float
     omega_180: float

@@ -171,7 +171,7 @@ class ViewMixin:
         return layout_helpers.wrap_in_scroll_area(content_widget)
 
     # ============================================================
-    # Widget ? ViewModel Synchronization
+    # Widget -> ViewModel Synchronization
     # ============================================================
 
     def _on_widget_changed(self, widget: QWidget, key: str | FieldType, attribute: str, *args, **kwargs) -> None:

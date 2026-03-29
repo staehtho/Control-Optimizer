@@ -21,8 +21,6 @@ from PySide6.QtWidgets import QApplication, QSplashScreen
 #   freq, error and du/dt show overshoot only if the function is a step function, call pid_simulate_metrics and evaluate_candidate
 #   for time results and call compute_loop_metrics_batch fro freq metics
 
-# TODO: PsoFunc: for PsoFunc set tf to 0.0 in the pid_closed_loop
-
 
 def create_app():
     return QApplication(sys.argv)

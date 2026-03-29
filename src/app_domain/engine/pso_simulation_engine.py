@@ -10,6 +10,7 @@ from app_domain.controlsys import (
 )
 from app_domain.PSO import Swarm
 from app_types import PsoResult
+from app_domain.functions import resolve_function_type, FunctionTypes
 
 if TYPE_CHECKING:
     from app_types import PsoSimulationParam
@@ -241,6 +242,8 @@ class PsoSimulationEngine:
         )
         eval_frequency_domain = {k: float(v[0]) for k, v in eval_frequency_domain.items()}
 
+        show_overshoot = resolve_function_type(param.function) == FunctionTypes.STEP
+
         return PsoResult(
             simulation_time=self._total_duration,
             kp=self._best_kp,
@@ -255,6 +258,7 @@ class PsoSimulationEngine:
             is_feasible=bool(eval_time_domain.get('feasible')),
             error_criterion=eval_time_domain.get('perf'),
             overshoot=-100.0,  # TODO: change the overshoot value to return the reale value
+            show_overshoot=show_overshoot,
             slew_rate=eval_time_domain.get('max_du_dt'),
             gain_margin=eval_frequency_domain.get('gm_db'),
             omega_180=eval_frequency_domain.get('w180'),

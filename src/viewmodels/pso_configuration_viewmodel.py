@@ -422,6 +422,7 @@ class PsoConfigurationViewModel(BaseViewModel):
             controller_constraint_max=self._model_controller.constraint_max,
             excitation_target=self.excitation_target,
             excitation_function=self._model_function.selected_function.copy(),
+            error_criterion=self._model_pso.error_criterion,
         )
 
     @Slot()
