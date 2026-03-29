@@ -51,6 +51,10 @@ class PsoSimulationParam:
     stability_margin: float
     stability_margin_enabled: bool
 
+    omega_exp_low: int
+    omega_exp_high: int
+    omega_points: int
+
 
 @dataclass
 class PsoResult:
@@ -58,10 +62,25 @@ class PsoResult:
 
     simulation_time: float
 
-    kp: float = 0
-    ti: float = 0
-    td: float = 0
-    tf: float = 0
+    kp: float
+    ti: float
+    td: float
+    tf: float
+    tf_limited_simulation: bool
+    tf_limited_sampling: bool
+    min_sampling_rate: float
 
-    t0: float = 0
-    t1: float = 0
+    t0: float
+    t1: float
+
+    is_feasible: bool
+    error_criterion: float
+    overshoot: float
+    slew_rate: float
+    gain_margin: float
+    omega_180: float
+    has_omega_180: bool
+    phase_margin: float
+    omega_c: float
+    has_omega_c: bool
+    stability_margin: float

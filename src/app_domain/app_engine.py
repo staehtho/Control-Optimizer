@@ -268,7 +268,10 @@ class AppEngine:
             phase_margin=60,
             phase_margin_enabled=True,
             stability_margin=6.0,
-            stability_margin_enabled=True
+            stability_margin_enabled=True,
+            omega_exp_low=-5,
+            omega_exp_high=5,
+            omega_points=500
         )
 
         self.logger.info("Starting PSO engine warmup.")
