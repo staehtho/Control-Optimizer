@@ -133,11 +133,27 @@ class EvaluationField(FieldType):
 class PsoResultField(FieldType):
     RUN_TIME = "run_time"
     TIME = "time"
-    PARAMETERS = "parameters"
+
+    CONTROLLER_PARAMETERS = "controller_parameters"
     KP = "kp"
     TI = "ti"
     TD = "td"
+    FILTER_TIME_CONSTANT = "filter_time_constant"
     TF = "tf"
+    TF_LIMITED = "tf_limited"
+    MIN_SAMPLING_RATE = "min_sampling_rate"
+
+    PERFORMANCE_INDEX = "performance_index"
+
+    TIME_DOMAIN = "time_domain"
+    ERROR_CRITERION = "error_criterion"
+    OVERSHOOT_CONTROL = "overshoot_control"
+    SLEW_RATE = "slew_rate"
+
+    FREQUENCY_DOMAIN = "frequency_domain"
+    GAIN_MARGIN = "gain_margin"
+    PHASE_MARGIN = "phase_margin"
+    STABILITY_MARGIN = "stability_margin"
 
 
 # SettingsViewModle / SettingsView

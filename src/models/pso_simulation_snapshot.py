@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app_domain.controlsys import AntiWindup, ExcitationTarget
+from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex
 from app_domain.functions import BaseFunction
 
 
@@ -15,3 +15,4 @@ class PsoSimulationSnapshot:
     controller_constraint_max: float
     excitation_target: ExcitationTarget
     excitation_function: BaseFunction
+    error_criterion: PerformanceIndex

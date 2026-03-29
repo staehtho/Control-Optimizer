@@ -21,11 +21,12 @@ if TYPE_CHECKING:
     from viewmodels import EvaluationViewModel, PlotViewModel
     from views.widgets import SectionFrame
 
-
 TIME_DOMAIN = "time_domain"
 FREQUENCY_DOMAIN = "frequency_domain"
 TRANSFER_FUNCTION = "transfer_function"
 BLOCK_DIAGRAM = "block_diagram"
+
+type PsoFieldText = tuple[dict[str, Any], bool]
 
 FIELDS: dict[str, list[FieldConfig]] = {
     "tf": [
@@ -40,21 +41,101 @@ FIELDS: dict[str, list[FieldConfig]] = {
         SectionConfig(PsoResultField.RUN_TIME, [
             FieldConfig(PsoResultField.TIME, QLabel, False)
         ]),
-        SectionConfig(PsoResultField.PARAMETERS, [
+        SectionConfig(PsoResultField.PERFORMANCE_INDEX, [
+            SectionConfig(PsoResultField.TIME_DOMAIN, [
+                FieldConfig(PsoResultField.ERROR_CRITERION, QLabel, False),
+                FieldConfig(PsoResultField.OVERSHOOT_CONTROL, QLabel, False),
+                FieldConfig(PsoResultField.SLEW_RATE, QLabel, False),
+            ]),
+            SectionConfig(PsoResultField.FREQUENCY_DOMAIN, [
+                FieldConfig(PsoResultField.GAIN_MARGIN, QLabel, False),
+                FieldConfig(PsoResultField.PHASE_MARGIN, QLabel, False),
+                FieldConfig(PsoResultField.STABILITY_MARGIN, QLabel, False),
+            ])
+        ]),
+        SectionConfig(PsoResultField.CONTROLLER_PARAMETERS, [
             FieldConfig(PsoResultField.KP, QLabel, False),
             FieldConfig(PsoResultField.TI, QLabel, False),
             FieldConfig(PsoResultField.TD, QLabel, False),
-            FieldConfig(PsoResultField.TF, QLabel, False),
-        ])
+            SectionConfig(PsoResultField.FILTER_TIME_CONSTANT, [
+                FieldConfig(PsoResultField.TF, QLabel, False),
+                FieldConfig(PsoResultField.TF_LIMITED, QLabel, False),
+                FieldConfig(PsoResultField.MIN_SAMPLING_RATE, QLabel, False),
+            ]),
+        ]),
     ]
 }
 
 PSO_RESULT_TEMPLATE: dict[PsoResultField, Any] = {
-    PsoResultField.TIME: QT_TRANSLATE_NOOP("EvaluationView", "PSO finished after %(time).1f seconds."),
-    PsoResultField.KP: QT_TRANSLATE_NOOP("EvaluationView", "Kp = %(kp).3f"),
-    PsoResultField.TI: QT_TRANSLATE_NOOP("EvaluationView", "Ti = %(ti).3f"),
-    PsoResultField.TD: QT_TRANSLATE_NOOP("EvaluationView", "Td = %(td).3f"),
-    PsoResultField.TF: QT_TRANSLATE_NOOP("EvaluationView", "Tf = %(tf).3f"),
+    PsoResultField.TIME: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "PSO finished after %(time).3f s."
+    ),
+
+    PsoResultField.ERROR_CRITERION: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "%(error_criterion)s = %(value).3f"
+    ),
+
+    PsoResultField.OVERSHOOT_CONTROL: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "Overshoot: %(value).3f %%"
+    ),
+
+    PsoResultField.SLEW_RATE: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "Slew rate: %(value).3f"
+    ),
+
+    PsoResultField.GAIN_MARGIN: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "Gain margin: %(value).3f dB @ %(omega).3f rad/s"
+    ),
+
+    PsoResultField.PHASE_MARGIN: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "Phase margin: %(value).3f° @ %(omega).3f rad/s"
+    ),
+
+    PsoResultField.STABILITY_MARGIN: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "Stability margin: %(value).3f dB"
+    ),
+
+    PsoResultField.KP: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "Kp: %(kp).3f"
+    ),
+
+    PsoResultField.TI: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "Ti: %(ti).3f"
+    ),
+
+    PsoResultField.TD: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "Td: %(td).3f"
+    ),
+
+    PsoResultField.TF: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "Tf: %(tf).3f"
+    ),
+
+    PsoResultField.TF_LIMITED: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "Tf limited by %(limited)s"
+    ),
+
+    PsoResultField.MIN_SAMPLING_RATE: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "Min. sampling rate: %(sampling_rate).3f Hz"
+    ),
+}
+
+LIMITED_TEMPLATE: dict[str, Any] = {
+    "simulation": QT_TRANSLATE_NOOP("EvaluationView", "simulation"),
+    "sampling": QT_TRANSLATE_NOOP("EvaluationView", "sampling rate"),
 }
 
 
@@ -286,7 +367,11 @@ class EvaluationView(ViewMixin, QWidget):
 
         labels = {
             PsoResultField.RUN_TIME: self.tr("PSO run time"),
-            PsoResultField.PARAMETERS: self.tr("Controller Parameters"),
+            PsoResultField.CONTROLLER_PARAMETERS: self.tr("Controller Parameters"),
+            PsoResultField.FILTER_TIME_CONSTANT: self.tr("Filter Time Constant"),
+            PsoResultField.PERFORMANCE_INDEX: self.tr("Performance Index"),
+            PsoResultField.TIME_DOMAIN: self.tr("Time Domain"),
+            PsoResultField.FREQUENCY_DOMAIN: self.tr("Frequency Domain"),
         }
 
         for key in labels.keys():
@@ -457,23 +542,52 @@ class EvaluationView(ViewMixin, QWidget):
 
     def _update_pso_result_values(self) -> None:
         result = self._vm_evaluator.get_pso_result()
-        if result is None:
+        snapshot = self._vm_evaluator.get_pso_snapshot()
+
+        if result is None or snapshot is None:
             for key in PSO_RESULT_TEMPLATE.keys():
                 self.field_widgets.get(key).setText("-")
             return
 
-        pso_result = self._vm_evaluator.get_pso_result()
+        limited_key = ""
+        show_limited = False
+        if result.tf_limited_sampling:
+            limited_key = "sampling"
+            show_limited = True
+        elif result.tf_limited_simulation:
+            limited_key = "simulation"
+            show_limited = True
 
-        text = {
-            PsoResultField.TIME: {"time": pso_result.simulation_time},
-            PsoResultField.KP: {"kp": pso_result.kp},
-            PsoResultField.TI: {"ti": pso_result.ti},
-            PsoResultField.TD: {"td": pso_result.td},
-            PsoResultField.TF: {"tf": pso_result.tf}
+        text: dict[PsoResultField, PsoFieldText] = {
+            PsoResultField.TIME: ({"time": result.simulation_time}, True),
+            PsoResultField.ERROR_CRITERION: ({
+                                                 "error_criterion": self._enum_translation(snapshot.error_criterion),
+                                                 "value": result.error_criterion,
+                                             }, True),
+            PsoResultField.OVERSHOOT_CONTROL: ({"value": result.overshoot}, result.show_overshoot),
+            PsoResultField.SLEW_RATE: ({"value": result.slew_rate}, True),
+            PsoResultField.GAIN_MARGIN: ({
+                                             "value": result.gain_margin,
+                                             "omega": result.omega_180
+                                         }, True),
+            PsoResultField.PHASE_MARGIN: ({
+                                              "value": result.phase_margin,
+                                              "omega": result.omega_c
+                                          }, True),
+            PsoResultField.STABILITY_MARGIN: ({"value": result.stability_margin}, True),
+            PsoResultField.KP: ({"kp": result.kp}, True),
+            PsoResultField.TI: ({"ti": result.ti}, True),
+            PsoResultField.TD: ({"td": result.td}, True),
+            PsoResultField.TF: ({"tf": result.tf}, True),
+            PsoResultField.TF_LIMITED: ({"limited": LIMITED_TEMPLATE.get(limited_key, "")}, show_limited),
+            PsoResultField.MIN_SAMPLING_RATE: ({"sampling_rate": result.min_sampling_rate}, not show_limited),
         }
 
         for key, value in text.items():
-            self.field_widgets.get(key).setText(PSO_RESULT_TEMPLATE.get(key) % value)
+            val_dict, visible = value
+            widget = self.field_widgets.get(key)
+            widget.setVisible(visible)
+            widget.setText(self.tr(PSO_RESULT_TEMPLATE.get(key)) % val_dict)
 
     def _load_block_diagram(self) -> None:
         """Build and recolor the closed loop block diagram SVG."""

@@ -6,7 +6,7 @@
     <message>
         <location filename="../viewmodels/bode_plot_viewmodel.py" line="22"/>
         <source>Invalid value: omega min ({x_min}) must be smaller than omega max ({x_max}).</source>
-        <translation></translation>
+        <translation>Ungültiger Wert: Omega min ({x_min}) muss kleiner als Omega max ({x_max}) sein.</translation>
     </message>
     <message>
         <location filename="../viewmodels/bode_plot_viewmodel.py" line="31"/>
@@ -436,9 +436,8 @@
         <translation type="vanished">PSO nach %(time).3f fertig.</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="54"/>
         <source>Kp = %(kp).3f</source>
-        <translation>Kp = %(kp).3f</translation>
+        <translation type="vanished">Kp = %(kp).3f</translation>
     </message>
     <message>
         <source>Ti = %(kp).3f</source>
@@ -453,79 +452,166 @@
         <translation type="vanished">Tf = %(kp).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="53"/>
         <source>PSO finished after %(time).1f seconds.</source>
-        <translation>PSO nach %(time).3f fertig.</translation>
+        <translation type="vanished">PSO nach %(time).3f fertig.</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="55"/>
         <source>Ti = %(ti).3f</source>
-        <translation>Ti = %(ti).3f</translation>
+        <translation type="vanished">Ti = %(ti).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="56"/>
         <source>Td = %(td).3f</source>
-        <translation>Td = %(td).3f</translation>
+        <translation type="vanished">Td = %(td).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="57"/>
         <source>Tf = %(tf).3f</source>
-        <translation>Tf = %(tf).3f</translation>
+        <translation type="vanished">Tf = %(tf).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="159"/>
-        <location filename="../views/evaluation_view.py" line="164"/>
+        <location filename="../views/evaluation_view.py" line="70"/>
+        <source>PSO finished after %(time).3f s.</source>
+        <translation>PSO nach %(time).3f s fertig.</translation>
+    </message>
+    <message>
+        <source>%(error_criterion) = %(value).3f</source>
+        <translation type="vanished">%(error_criterion) = %(value).3f</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="75"/>
+        <source>%(error_criterion)s = %(value).3f</source>
+        <translation>%(error_criterion)s = %(value).3f</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="80"/>
+        <source>Overshoot: %(value).3f %%</source>
+        <translation>Überschwingen: %(value).3f %%</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="85"/>
+        <source>Slew rate: %(value).3f</source>
+        <translation>Stellrate: %(value).3f</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="90"/>
+        <source>Gain margin: %(value).3f dB @ %(omega).3f rad/s</source>
+        <translation>Amplitudenreserve: %(value).3f dB @ %(omega).3f rad/s</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="95"/>
+        <source>Phase margin: %(value).3f° @ %(omega).3f rad/s</source>
+        <translation>Phasenreserve: %(value).3f° @ %(omega).3f rad/s</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="100"/>
+        <source>Stability margin: %(value).3f dB</source>
+        <translation>Stabilitätsreserve: %(value).3f dB</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="105"/>
+        <source>Kp: %(kp).3f</source>
+        <translation>Kp: %(kp).3f</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="110"/>
+        <source>Ti: %(ti).3f</source>
+        <translation>Ti: %(ti).3f</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="115"/>
+        <source>Td: %(td).3f</source>
+        <translation>Td: %(td).3f</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="120"/>
+        <source>Tf: %(tf).3f</source>
+        <translation>Tf: %(tf).3f</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="125"/>
+        <source>Tf limited by %(limited)s</source>
+        <translation>Tf begrenzt durch %(limited)s</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="130"/>
+        <source>Min. sampling rate: %(sampling_rate).3f Hz</source>
+        <translation>Min. Abtastrate: %(sampling_rate).3f Hz</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="137"/>
+        <source>simulation</source>
+        <translation>Simulation</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="138"/>
+        <source>sampling rate</source>
+        <translation>Abtastrate</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="240"/>
+        <location filename="../views/evaluation_view.py" line="245"/>
         <source>Time [s]</source>
         <translation>Zeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="160"/>
-        <location filename="../views/evaluation_view.py" line="165"/>
+        <location filename="../views/evaluation_view.py" line="241"/>
+        <location filename="../views/evaluation_view.py" line="246"/>
         <source>Output</source>
         <translation>Ausgang</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="172"/>
-        <location filename="../views/evaluation_view.py" line="280"/>
+        <location filename="../views/evaluation_view.py" line="253"/>
+        <location filename="../views/evaluation_view.py" line="361"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="278"/>
+        <location filename="../views/evaluation_view.py" line="359"/>
         <source>Evaluation</source>
         <translation>Auswertung</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="279"/>
+        <location filename="../views/evaluation_view.py" line="360"/>
         <source>PSO Result</source>
         <translation>PSO Ergebnis</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="283"/>
+        <location filename="../views/evaluation_view.py" line="364"/>
+        <location filename="../views/evaluation_view.py" line="373"/>
         <source>Time Domain</source>
         <translation>Zeitbereich</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="284"/>
+        <location filename="../views/evaluation_view.py" line="365"/>
+        <location filename="../views/evaluation_view.py" line="374"/>
         <source>Frequency Domain</source>
         <translation>Frequenzbereich</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="285"/>
+        <location filename="../views/evaluation_view.py" line="366"/>
         <source>Block Diagram</source>
         <translation>Blockschaltbild</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="288"/>
+        <location filename="../views/evaluation_view.py" line="369"/>
         <source>PSO run time</source>
         <translation>PSO Laufzeit</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="371"/>
+        <source>Filter Time Constant</source>
+        <translation>Filterzeitkonstante</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="372"/>
+        <source>Performance Index</source>
+        <translation>Gütekriterium</translation>
     </message>
     <message>
         <source>PSO runt time</source>
         <translation type="vanished">PSO Laufzeit</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="289"/>
+        <location filename="../views/evaluation_view.py" line="370"/>
         <source>Controller Parameters</source>
         <translation>Reglerparameter</translation>
     </message>
