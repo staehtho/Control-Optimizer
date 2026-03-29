@@ -701,6 +701,10 @@ class PsoFunc:
               - violation: total violation V
                 (frequency + optional overshoot + optional max_du_dt)
               - perf: objective J (np.inf for infeasible candidates)
+              - overshoot_pct: measured overshoot percentage for simulated candidates;
+                NaN if overshoot evaluation is disabled or unavailable
+              - max_du_dt: measured maximum absolute control-rate estimate for
+                simulated candidates; NaN if unavailable
             If defer_logging=True, core batch metrics are cached and can be finalized later
             with PSO state (pBest/gBest) via finalize_log_batch(...).
         """
@@ -939,6 +943,7 @@ class PsoFunc:
             "feasible": feasible_final,
             "violation": V_total,
             "perf": perf,
+            "overshoot_pct": overshoot_pct,
             "max_du_dt": max_du_dt,
         }
         self._last_eval = result
@@ -1374,7 +1379,7 @@ def pid_simulate_metrics(
         e_prev = e
 
     if (not use_ov) or overshoot_step_amplitude_abs <= 0.0:
-        overshoot_pct = 0.0
+        overshoot_pct = np.nan
     else:
         if overshoot_step_start_idx < n_steps:
             if max_overshoot > 0.0:
