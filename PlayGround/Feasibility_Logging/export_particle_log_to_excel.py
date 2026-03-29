@@ -17,7 +17,6 @@ def main() -> None:
     # Ensure current metric columns exist even for legacy logs.
     for col in (
         "overshoot_pct",
-        "max_du_dt_raw",
         "max_du_dt",
         "time_cost",
         "total_cost",

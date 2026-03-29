@@ -415,7 +415,7 @@ class PsoFunc:
             "Kp,Ti,Td,"
             "pm_deg,gm_db,ms_db,wc,w180,"
             "V,V_freq,V_ov,V_du,V_total,feasible_final,time_simulated,overshoot_pct,"
-            "max_du_dt_raw,max_du_dt,"
+            "max_du_dt,"
             "time_cost,perf_J,total_cost,objective_cost,"
             "pbest_updated,gbest_updated,"
             "pbest_feasible,pbest_violation,pbest_perf,pbest_cost,"
@@ -444,7 +444,6 @@ class PsoFunc:
             feasible_final: np.ndarray,
             time_sim: np.ndarray,
             overshoot_pct: np.ndarray,
-            max_du_dt_raw: np.ndarray,
             max_du_dt: np.ndarray,
             time_cost: np.ndarray,
             perf_J: np.ndarray,
@@ -476,7 +475,7 @@ class PsoFunc:
                 f"{Kp[i]},{Ti[i]},{Td[i]},"
                 f"{pm[i]},{gm[i]},{ms_db[i]},{wc[i]},{w180[i]},"
                 f"{V[i]},{V_freq[i]},{V_ov[i]},{V_du[i]},{V_total[i]},{int(feasible_final[i])},{int(time_sim[i])},{overshoot_pct[i]},"
-                f"{max_du_dt_raw[i]},{max_du_dt[i]},"
+                f"{max_du_dt[i]},"
                 f"{time_cost[i]},{perf_J[i]},{total_cost[i]},{objective_cost[i]},"
                 f"{int(pbest_updated[i])},{int(gbest_updated[i])},"
                 f"{int(pbest_feasible[i])},{pbest_violation[i]},{pbest_perf[i]},{pbest_cost[i]},"
@@ -528,7 +527,6 @@ class PsoFunc:
             feasible_final=batch["feasible_final"],
             time_sim=batch["time_sim"],
             overshoot_pct=batch["overshoot_pct"],
-            max_du_dt_raw=batch["max_du_dt_raw"],
             max_du_dt=batch["max_du_dt"],
             time_cost=batch["time_cost"],
             perf_J=batch["perf_J"],
@@ -770,7 +768,6 @@ class PsoFunc:
 
         time_sim = np.zeros(P, dtype=np.bool_)
         overshoot_pct = np.full(P, np.nan, dtype=np.float64)
-        max_du_dt_raw = np.full(P, np.nan, dtype=np.float64)
         max_du_dt = np.full(P, np.nan, dtype=np.float64)
         time_cost = np.full(P, np.nan, dtype=np.float64)
 
@@ -798,7 +795,7 @@ class PsoFunc:
             Xf = X[feasible]
             Pf = int(Xf.shape[0])
 
-            perf_vals, overshoot_vals, max_du_dt_raw_vals, max_du_dt_vals = _pid_pso_func(
+            perf_vals, overshoot_vals, max_du_dt_vals = _pid_pso_func(
                 Xf,
                 self.t_eval,
                 self.dt,
@@ -826,7 +823,6 @@ class PsoFunc:
             )
             time_cost[feasible] = perf_vals
             overshoot_pct[feasible] = overshoot_vals
-            max_du_dt_raw[feasible] = max_du_dt_raw_vals
             max_du_dt[feasible] = max_du_dt_vals
             perf[feasible] = perf_vals
             feasible_indices = np.where(feasible)[0]
@@ -892,7 +888,6 @@ class PsoFunc:
                 "feasible_final": feasible_final,
                 "time_sim": time_sim,
                 "overshoot_pct": overshoot_pct,
-                "max_du_dt_raw": max_du_dt_raw,
                 "max_du_dt": max_du_dt,
                 "time_cost": time_cost,
                 "perf_J": perf,
@@ -922,7 +917,6 @@ class PsoFunc:
                     feasible_final=batch["feasible_final"],
                     time_sim=batch["time_sim"],
                     overshoot_pct=batch["overshoot_pct"],
-                    max_du_dt_raw=batch["max_du_dt_raw"],
                     max_du_dt=batch["max_du_dt"],
                     time_cost=batch["time_cost"],
                     perf_J=batch["perf_J"],
@@ -945,7 +939,6 @@ class PsoFunc:
             "feasible": feasible_final,
             "violation": V_total,
             "perf": perf,
-            "max_du_dt_raw": max_du_dt_raw,
             "max_du_dt": max_du_dt,
         }
         self._last_eval = result
@@ -1302,7 +1295,7 @@ def pid_simulate_metrics(
     overshoot_step_sign: float,
     overshoot_r_final: float,
     du_dt_window_steps: int,
-) -> tuple[float, float, float, float]:
+) -> tuple[float, float, float]:
     """Simulate one PID candidate and return time-domain evaluation metrics.
 
     Overshoot is tracked only from the precomputed step start index onward.
@@ -1310,16 +1303,13 @@ def pid_simulate_metrics(
     is applied in the internal PID update step.
 
     Returns:
-        tuple[float, float, float, float]:
-            ``(performance_index_value, overshoot_pct,
-            max_du_dt_raw, max_du_dt)``
+        tuple[float, float, float]:
+            ``(performance_index_value, overshoot_pct, max_du_dt)``
 
         ``max_du_dt`` is computed as the maximum absolute finite-difference
         control-rate estimate over a sliding window of ``du_dt_window_steps``
         samples:
         ``max(|u[k] - u[k-m]| / (m * dt))`` with ``m = du_dt_window_steps``.
-        ``max_du_dt_raw`` is kept for interface compatibility and is currently
-        identical to ``max_du_dt`` because no further normalization is applied.
     """
     e_prev = 0.0
     filtered_prev = 0.0
@@ -1333,7 +1323,7 @@ def pid_simulate_metrics(
 
     max_overshoot = 0.0
     use_ov = use_overshoot_control != 0
-    max_du_dt_raw = 0.0
+    max_du_dt = 0.0
     window_steps = du_dt_window_steps
     window_dt = float(window_steps) * dt
     u_hist = np.zeros(len(t_eval), dtype=np.float64)
@@ -1356,8 +1346,8 @@ def pid_simulate_metrics(
             # Windowed finite-difference estimate of |du/dt|. Using m > 1
             # smooths single-step spikes while preserving the du/dt semantics.
             du_dt_abs = abs(u - u_hist[i - window_steps]) / window_dt
-            if du_dt_abs > max_du_dt_raw:
-                max_du_dt_raw = du_dt_abs
+            if du_dt_abs > max_du_dt:
+                max_du_dt = du_dt_abs
 
         if solver == MySolverInt.RK4:
             x = rk4(A, B, x, u + l, dt)
@@ -1394,7 +1384,7 @@ def pid_simulate_metrics(
         else:
             overshoot_pct = np.inf
 
-    return perf, overshoot_pct, max_du_dt_raw, max_du_dt_raw
+    return perf, overshoot_pct, max_du_dt
 
 
 # =============================================================================
@@ -1408,10 +1398,9 @@ def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarr
                   use_overshoot_control: int, overshoot_step_amplitude_abs: float,
                   overshoot_step_start_idx: int, overshoot_step_sign: float,
                   overshoot_r_final: float, du_dt_window_steps: int, swarm_size: int
-                  ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+                  ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     performance_index_val = np.zeros(swarm_size)
     overshoot_pct = np.zeros(swarm_size)
-    max_du_dt_raw = np.zeros(swarm_size)
     max_du_dt = np.zeros(swarm_size)
 
     for i in prange(swarm_size):
@@ -1422,7 +1411,7 @@ def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarr
 
         x = np.zeros(system_order, dtype=np.float64)
 
-        perf_i, overshoot_i, max_du_dt_raw_i, max_du_dt_i = pid_simulate_metrics(
+        perf_i, overshoot_i, max_du_dt_i = pid_simulate_metrics(
             Kp, Ti, Td, Tf_i,
             t_eval, dt,
             r_eval, l_eval, n_eval,
@@ -1438,8 +1427,7 @@ def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarr
         )
         performance_index_val[i] = perf_i
         overshoot_pct[i] = overshoot_i
-        max_du_dt_raw[i] = max_du_dt_raw_i
         max_du_dt[i] = max_du_dt_i
 
-    return performance_index_val, overshoot_pct, max_du_dt_raw, max_du_dt
+    return performance_index_val, overshoot_pct, max_du_dt
 

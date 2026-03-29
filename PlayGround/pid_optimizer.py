@@ -87,12 +87,12 @@ def main():
     td_max = config["pso"]["bounds"]["td_max"]'''
 
     plant_num = [1]
-    plant_den = [1, 2, 1]
+    plant_den = [1, 0.1, 1]
 
     use_freq_metrics = False
-    pm_min_deg = 0
-    gm_min_db = 0
-    ms_max_db = 1
+    pm_min_deg = 55
+    gm_min_db = 10
+    ms_max_db = None
 
     use_overshoot_control = False
     allowed_overshoot_pct = 0
@@ -100,7 +100,7 @@ def main():
     # Maximum absolute control-rate estimate over a window of m steps:
     # max(|u[k] - u[k-m]| / (m * dt))
     # Keep disabled until a project-specific limit has been calibrated.
-    use_max_du_dt_constraint = True
+    use_max_du_dt_constraint = False
     allowed_max_du_dt = 2
     du_dt_window_steps = 10
 
@@ -114,8 +114,8 @@ def main():
 
     excitation_target = "reference"
 
-    constraint_min = -2
-    constraint_max = 2
+    constraint_min = -100
+    constraint_max = 100
 
     performance_index = PerformanceIndex.ITAE
 
