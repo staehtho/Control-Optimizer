@@ -560,20 +560,12 @@ class EvaluationView(ViewMixin, QWidget):
 
         text: dict[PsoResultField, PsoFieldText] = {
             PsoResultField.TIME: ({"time": result.simulation_time}, True),
-            PsoResultField.ERROR_CRITERION: ({
-                                                 "error_criterion": self._enum_translation(snapshot.error_criterion),
-                                                 "value": result.error_criterion,
-                                             }, True),
+            PsoResultField.ERROR_CRITERION: ({"error_criterion": self._enum_translation(snapshot.error_criterion),
+                                              "value": result.error_criterion, }, True),
             PsoResultField.OVERSHOOT_CONTROL: ({"value": result.overshoot}, result.show_overshoot),
             PsoResultField.SLEW_RATE: ({"value": result.slew_rate}, True),
-            PsoResultField.GAIN_MARGIN: ({
-                                             "value": result.gain_margin,
-                                             "omega": result.omega_180
-                                         }, True),
-            PsoResultField.PHASE_MARGIN: ({
-                                              "value": result.phase_margin,
-                                              "omega": result.omega_c
-                                          }, True),
+            PsoResultField.GAIN_MARGIN: ({"value": result.gain_margin, "omega": result.omega_180}, True),
+            PsoResultField.PHASE_MARGIN: ({"value": result.phase_margin, "omega": result.omega_c}, True),
             PsoResultField.STABILITY_MARGIN: ({"value": result.stability_margin}, True),
             PsoResultField.KP: ({"kp": result.kp}, True),
             PsoResultField.TI: ({"ti": result.ti}, True),
