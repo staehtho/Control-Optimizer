@@ -184,7 +184,10 @@ class PsoFunc:
       - Ranking uses (feasible, V, J), not scalar cost alone.
       - Scalar cost is interpreted as J for feasible candidates and V for infeasible candidates.
 
-    Optional time-domain overshoot control (step references only):
+    Optional time-domain overshoot handling (step references only):
+      - ``calculate_overshoot`` enables overshoot as a diagnostic metric.
+      - ``use_overshoot_control`` applies the measured overshoot as an
+        additional feasibility constraint.
       - Allowed overshoot is measured relative to the step height.
       - allowed_overshoot_pct = 0 means strict no-overshoot.
       - Positive and negative steps are handled with one signed formula.
@@ -239,6 +242,7 @@ class PsoFunc:
         ms_max_db: float | None = 20.0 * math.log10(2.0),
         use_overshoot_control: bool = False,
         allowed_overshoot_pct: float = 0.0,
+        calculate_overshoot: bool = False,
         use_max_du_dt_constraint: bool = False,
         allowed_max_du_dt: float = 0.0,
         du_dt_window_steps: int = 10,
@@ -284,6 +288,10 @@ class PsoFunc:
                 If True, overshoot becomes an additional feasibility criterion after time simulation.
             allowed_overshoot_pct:
                 Maximum allowed overshoot in percent before a feasible time response is marked infeasible.
+            calculate_overshoot:
+                If True, compute ``overshoot_pct`` as a diagnostic metric even when
+                ``use_overshoot_control`` is False. The metric is only defined for
+                step-like references; other inputs leave ``overshoot_pct`` as NaN.
             use_max_du_dt_constraint:
                 If True, ``max_du_dt`` becomes an additional feasibility
                 criterion after time simulation.
@@ -371,6 +379,7 @@ class PsoFunc:
         self.ms_max_db = None if ms_max_db is None else float(ms_max_db)
         self.use_overshoot_control = bool(use_overshoot_control)
         self.allowed_overshoot_pct = float(allowed_overshoot_pct)
+        self.calculate_overshoot = bool(calculate_overshoot)
         self._overshoot_step_amplitude_abs = 0.0
         self._overshoot_step_start_idx = 0
         self._overshoot_step_sign = 0.0
@@ -554,11 +563,12 @@ class PsoFunc:
         ms_max_db: float | None = None,
         use_overshoot_control: bool | None = None,
         allowed_overshoot_pct: float | None = None,
+        calculate_overshoot: bool | None = None,
         use_max_du_dt_constraint: bool | None = None,
         allowed_max_du_dt: float | None = None,
         du_dt_window_steps: int | None = None,
     ) -> None:
-        """Update constraints dynamically (e.g., from config/UI)."""
+        """Update constraints and optional diagnostic metrics dynamically."""
         if pm_min_deg is not None:
             self.pm_min_deg = float(pm_min_deg)
         if gm_min_db is not None:
@@ -569,6 +579,8 @@ class PsoFunc:
             self.use_overshoot_control = bool(use_overshoot_control)
         if allowed_overshoot_pct is not None:
             self.allowed_overshoot_pct = float(allowed_overshoot_pct)
+        if calculate_overshoot is not None:
+            self.calculate_overshoot = bool(calculate_overshoot)
         if use_max_du_dt_constraint is not None:
             self.use_max_du_dt_constraint = bool(use_max_du_dt_constraint)
         if allowed_max_du_dt is not None:
@@ -591,9 +603,11 @@ class PsoFunc:
     def _update_overshoot_control_cache(self) -> None:
         """Precompute overshoot helpers from the sampled reference trace.
 
-        The UI guarantees that overshoot control is only enabled for a single step
-        reference. We therefore cache one fixed step start index and avoid any
-        per-sample step detection inside the simulation loop.
+        Overshoot is only defined for single-step references. When
+        ``calculate_overshoot`` is enabled without the constraint, non-step
+        references keep the cache disabled so the runtime metric returns NaN
+        instead of raising. Constraint mode remains strict and still rejects
+        invalid references.
         """
         eps = 1e-15
         self._overshoot_step_amplitude_abs = 0.0
@@ -601,10 +615,11 @@ class PsoFunc:
         self._overshoot_step_sign = 0.0
         self._overshoot_r_final = float(self.r_eval[-1])
 
-        if not self.use_overshoot_control:
+        compute_overshoot = self.calculate_overshoot or self.use_overshoot_control
+        if not compute_overshoot:
             return
 
-        if self.allowed_overshoot_pct < 0.0:
+        if self.use_overshoot_control and self.allowed_overshoot_pct < 0.0:
             raise ValueError("allowed_overshoot_pct must be >= 0 when use_overshoot_control=True.")
 
         r0 = float(self.r_eval[0])
@@ -615,15 +630,29 @@ class PsoFunc:
             tol = max(1e-12, 1e-9 * abs(dr))
             change_idx = np.where(~np.isclose(self.r_eval, r0, atol=tol, rtol=0.0))[0]
             if change_idx.size == 0:
-                raise ValueError("overshoot_control could not detect a valid step transition.")
+                if self.use_overshoot_control:
+                    raise ValueError("overshoot_control could not detect a valid step transition.")
+                return
+
+            step_start_idx = int(change_idx[0])
+            if not np.all(np.isclose(self.r_eval[step_start_idx:], rf, atol=tol, rtol=0.0)):
+                if self.use_overshoot_control:
+                    raise ValueError("overshoot_control requires a single step reference.")
+                return
 
             self._overshoot_step_amplitude_abs = abs(dr)
-            self._overshoot_step_start_idx = int(change_idx[0])
+            self._overshoot_step_start_idx = step_start_idx
             self._overshoot_step_sign = float(np.sign(dr))
             self._overshoot_r_final = rf
             return
 
         if abs(rf) > eps:
+            tol = max(1e-12, 1e-9 * abs(rf))
+            if not np.all(np.isclose(self.r_eval, rf, atol=tol, rtol=0.0)):
+                if self.use_overshoot_control:
+                    raise ValueError("overshoot_control requires a single step reference.")
+                return
+
             # Immediate step at t0 represented as constant non-zero level in sampled r_eval.
             self._overshoot_step_amplitude_abs = abs(rf)
             self._overshoot_step_start_idx = 0
@@ -631,7 +660,8 @@ class PsoFunc:
             self._overshoot_r_final = rf
             return
 
-        raise ValueError("overshoot_control requires a non-zero step amplitude.")
+        if self.use_overshoot_control:
+            raise ValueError("overshoot_control requires a non-zero step amplitude.")
 
     def _compute_violation_batch(self, metrics: dict[str, np.ndarray]) -> np.ndarray:
         """Compute normalized constraint violation V for a batch.
@@ -798,6 +828,7 @@ class PsoFunc:
         if np.any(feasible):
             Xf = X[feasible]
             Pf = int(Xf.shape[0])
+            compute_overshoot = self.calculate_overshoot or self.use_overshoot_control
 
             perf_vals, overshoot_vals, max_du_dt_vals = _pid_pso_func(
                 Xf,
@@ -817,7 +848,7 @@ class PsoFunc:
                 self.ka,
                 self.solver,
                 self.performance_index,
-                1 if self.use_overshoot_control else 0,
+                1 if compute_overshoot else 0,
                 self._overshoot_step_amplitude_abs,
                 self._overshoot_step_start_idx,
                 self._overshoot_step_sign,
