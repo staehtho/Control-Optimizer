@@ -192,7 +192,10 @@ class PsoFunc:
       - allowed_overshoot_pct = 0 means strict no-overshoot.
       - Positive and negative steps are handled with one signed formula.
 
-    Optional time-domain maximum slew-rate constraint:
+    Optional time-domain maximum slew-rate handling:
+      - ``calculate_max_du_dt`` enables ``max_du_dt`` as a diagnostic metric.
+      - ``use_max_du_dt_constraint`` applies the measured metric as an
+        additional feasibility constraint.
       - The metric is measured on the saturated actuator signal ``u_sat``.
       - ``max_du_dt`` is the maximum absolute control-rate estimate over a
         sliding window of ``m`` simulation steps:
@@ -244,6 +247,7 @@ class PsoFunc:
         allowed_overshoot_pct: float = 0.0,
         calculate_overshoot: bool = False,
         use_max_du_dt_constraint: bool = False,
+        calculate_max_du_dt: bool = False,
         allowed_max_du_dt: float = 0.0,
         du_dt_window_steps: int = 10,
         log_path: str | None = None, # TODO FLO rueckgaengig logging
@@ -295,6 +299,10 @@ class PsoFunc:
             use_max_du_dt_constraint:
                 If True, ``max_du_dt`` becomes an additional feasibility
                 criterion after time simulation.
+            calculate_max_du_dt:
+                If True, compute ``max_du_dt`` as a diagnostic metric even when
+                ``use_max_du_dt_constraint`` is False. When both flags are
+                disabled, ``max_du_dt`` remains NaN and the metric is skipped.
             allowed_max_du_dt:
                 Maximum allowed absolute control-rate value before a feasible
                 time response is marked infeasible.
@@ -385,6 +393,7 @@ class PsoFunc:
         self._overshoot_step_sign = 0.0
         self._overshoot_r_final = 0.0
         self.use_max_du_dt_constraint = bool(use_max_du_dt_constraint)
+        self.calculate_max_du_dt = bool(calculate_max_du_dt)
         self.allowed_max_du_dt = float(allowed_max_du_dt)
         self.du_dt_window_steps = int(du_dt_window_steps)
         self._update_max_du_dt_cache()
@@ -565,6 +574,7 @@ class PsoFunc:
         allowed_overshoot_pct: float | None = None,
         calculate_overshoot: bool | None = None,
         use_max_du_dt_constraint: bool | None = None,
+        calculate_max_du_dt: bool | None = None,
         allowed_max_du_dt: float | None = None,
         du_dt_window_steps: int | None = None,
     ) -> None:
@@ -583,6 +593,8 @@ class PsoFunc:
             self.calculate_overshoot = bool(calculate_overshoot)
         if use_max_du_dt_constraint is not None:
             self.use_max_du_dt_constraint = bool(use_max_du_dt_constraint)
+        if calculate_max_du_dt is not None:
+            self.calculate_max_du_dt = bool(calculate_max_du_dt)
         if allowed_max_du_dt is not None:
             self.allowed_max_du_dt = float(allowed_max_du_dt)
         if du_dt_window_steps is not None:
@@ -734,7 +746,7 @@ class PsoFunc:
               - overshoot_pct: measured overshoot percentage for simulated candidates;
                 NaN if overshoot evaluation is disabled or unavailable
               - max_du_dt: measured maximum absolute control-rate estimate for
-                simulated candidates; NaN if unavailable
+                simulated candidates; NaN if evaluation is disabled or unavailable
             If defer_logging=True, core batch metrics are cached and can be finalized later
             with PSO state (pBest/gBest) via finalize_log_batch(...).
         """
@@ -829,6 +841,7 @@ class PsoFunc:
             Xf = X[feasible]
             Pf = int(Xf.shape[0])
             compute_overshoot = self.calculate_overshoot or self.use_overshoot_control
+            compute_max_du_dt = self.calculate_max_du_dt or self.use_max_du_dt_constraint
 
             perf_vals, overshoot_vals, max_du_dt_vals = _pid_pso_func(
                 Xf,
@@ -853,6 +866,7 @@ class PsoFunc:
                 self._overshoot_step_start_idx,
                 self._overshoot_step_sign,
                 self._overshoot_r_final,
+                1 if compute_max_du_dt else 0,
                 self.du_dt_window_steps,
                 Pf,  # IMPORTANT: swarm_size = number of feasible particles
             )
@@ -1330,6 +1344,7 @@ def pid_simulate_metrics(
     overshoot_step_start_idx: int,
     overshoot_step_sign: float,
     overshoot_r_final: float,
+    calculate_max_du_dt: int,
     du_dt_window_steps: int,
 ) -> tuple[float, float, float]:
     """Simulate one PID candidate and return time-domain evaluation metrics.
@@ -1342,9 +1357,9 @@ def pid_simulate_metrics(
         tuple[float, float, float]:
             ``(performance_index_value, overshoot_pct, max_du_dt)``
 
-        ``max_du_dt`` is computed as the maximum absolute finite-difference
-        control-rate estimate over a sliding window of ``du_dt_window_steps``
-        samples:
+        ``max_du_dt`` is computed only when ``calculate_max_du_dt`` is enabled.
+        It represents the maximum absolute finite-difference control-rate
+        estimate over a sliding window of ``du_dt_window_steps`` samples:
         ``max(|u[k] - u[k-m]| / (m * dt))`` with ``m = du_dt_window_steps``.
     """
     e_prev = 0.0
@@ -1359,10 +1374,15 @@ def pid_simulate_metrics(
 
     max_overshoot = 0.0
     use_ov = use_overshoot_control != 0
-    max_du_dt = 0.0
+    use_du_dt = calculate_max_du_dt != 0
+    max_du_dt = np.nan
     window_steps = du_dt_window_steps
-    window_dt = float(window_steps) * dt
-    u_hist = np.zeros(len(t_eval), dtype=np.float64)
+    window_dt = 0.0
+    u_hist = np.empty(1, dtype=np.float64)
+    if use_du_dt:
+        max_du_dt = 0.0
+        window_dt = float(window_steps) * dt
+        u_hist = np.zeros(len(t_eval), dtype=np.float64)
 
     n_steps = len(t_eval)
     for i in range(n_steps):
@@ -1377,13 +1397,14 @@ def pid_simulate_metrics(
             dt, u_min, u_max, anti_windup_method, ka
         )
 
-        u_hist[i] = u
-        if i >= window_steps:
+        if use_du_dt:
             # Windowed finite-difference estimate of |du/dt|. Using m > 1
             # smooths single-step spikes while preserving the du/dt semantics.
-            du_dt_abs = abs(u - u_hist[i - window_steps]) / window_dt
-            if du_dt_abs > max_du_dt:
-                max_du_dt = du_dt_abs
+            u_hist[i] = u
+            if i >= window_steps:
+                du_dt_abs = abs(u - u_hist[i - window_steps]) / window_dt
+                if du_dt_abs > max_du_dt:
+                    max_du_dt = du_dt_abs
 
         if solver == MySolverInt.RK4:
             x = rk4(A, B, x, u + l, dt)
@@ -1433,11 +1454,12 @@ def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarr
                   ka: float, solver: int, performance_index: int,
                   use_overshoot_control: int, overshoot_step_amplitude_abs: float,
                   overshoot_step_start_idx: int, overshoot_step_sign: float,
-                  overshoot_r_final: float, du_dt_window_steps: int, swarm_size: int
+                  overshoot_r_final: float, calculate_max_du_dt: int,
+                  du_dt_window_steps: int, swarm_size: int
                   ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     performance_index_val = np.zeros(swarm_size)
-    overshoot_pct = np.zeros(swarm_size)
-    max_du_dt = np.zeros(swarm_size)
+    overshoot_pct = np.full(swarm_size, np.nan)
+    max_du_dt = np.full(swarm_size, np.nan)
 
     for i in prange(swarm_size):
         Kp = float(X[i, 0])
@@ -1459,6 +1481,7 @@ def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarr
             overshoot_step_start_idx,
             overshoot_step_sign,
             overshoot_r_final,
+            calculate_max_du_dt,
             du_dt_window_steps,
         )
         performance_index_val[i] = perf_i

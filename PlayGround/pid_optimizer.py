@@ -94,7 +94,7 @@ def main():
     gm_min_db = 10
     ms_max_db = None
 
-    use_overshoot_control = True
+    use_overshoot_control = False
     allowed_overshoot_pct = 20
     # Compute the overshoot metric even when the
     # feasibility constraint stays disabled.
@@ -103,8 +103,11 @@ def main():
     # Maximum absolute control-rate estimate over a window of m steps:
     # max(|u[k] - u[k-m]| / (m * dt))
     # Keep disabled until a project-specific limit has been calibrated.
-    use_max_du_dt_constraint = False
-    allowed_max_du_dt = 2
+    use_max_du_dt_constraint = True
+    # Compute the diagnostic metric for the best candidate even when the
+    # feasibility constraint stays disabled.
+    calculate_max_du_dt = False
+    allowed_max_du_dt = 350
     du_dt_window_steps = 10
 
     sim_mode = "fixed"
@@ -183,6 +186,7 @@ def main():
         allowed_overshoot_pct=allowed_overshoot_pct,
         calculate_overshoot=calculate_overshoot,
         use_max_du_dt_constraint=use_max_du_dt_constraint,
+        calculate_max_du_dt=calculate_max_du_dt,
         allowed_max_du_dt=allowed_max_du_dt,
         du_dt_window_steps=du_dt_window_steps,
         performance_index=performance_index,
@@ -261,6 +265,7 @@ def main():
         "plant_den": plant_den,
         "calculate_overshoot": calculate_overshoot,
         "use_max_du_dt_constraint": use_max_du_dt_constraint,
+        "calculate_max_du_dt": calculate_max_du_dt,
         "allowed_max_du_dt": allowed_max_du_dt,
         "du_dt_window_steps": du_dt_window_steps,
     }

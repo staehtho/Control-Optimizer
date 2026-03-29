@@ -105,6 +105,9 @@ def main():
     # max(|u[k] - u[k-m]| / (m * dt))
     # Keep disabled until the log data has been used to calibrate a limit.
     use_max_du_dt_constraint = False
+    # Keep the diagnostic metric available independently from the feasibility
+    # toggle so the final candidate can still report its max du/dt value.
+    calculate_max_du_dt = True
     allowed_max_du_dt = 0.05
     du_dt_window_steps = 10
 
@@ -187,6 +190,7 @@ def main():
         allowed_overshoot_pct=allowed_overshoot_pct,
         calculate_overshoot=calculate_overshoot,
         use_max_du_dt_constraint=use_max_du_dt_constraint,
+        calculate_max_du_dt=calculate_max_du_dt,
         allowed_max_du_dt=allowed_max_du_dt,
         du_dt_window_steps=du_dt_window_steps,
         performance_index=performance_index,
@@ -267,6 +271,7 @@ def main():
         "plant_den": plant_den,
         "calculate_overshoot": calculate_overshoot,
         "use_max_du_dt_constraint": use_max_du_dt_constraint,
+        "calculate_max_du_dt": calculate_max_du_dt,
         "allowed_max_du_dt": allowed_max_du_dt,
         "du_dt_window_steps": du_dt_window_steps,
     }
