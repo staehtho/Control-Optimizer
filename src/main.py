@@ -13,13 +13,6 @@ from PySide6.QtWidgets import QApplication, QSplashScreen
 
 # TODO: Evaluation: TF with L and N
 # TODO: Evaluation: clean TF of C, G, etc.
-# TODO: Evaluation: PsoResult: Sections: Run Time, Controller Parameters, Performance Index
-# TODO: Evaluation: PsoResult: Controller Parameters: tf as a section with tf eff, show if limited by simulation or by
-#   sampling, if not limited show nothing, min sampling rat only if not limited, call compute_effective_tf_report for the
-#   tf results
-# TODO: Evaluation: PsoResult: Performance Index: same sections as in PsoParameters (time and freq domain), show always
-#   freq, error and du/dt show overshoot only if the function is a step function, call pid_simulate_metrics and evaluate_candidate
-#   for time results and call compute_loop_metrics_batch fro freq metics
 
 
 def create_app():
