@@ -218,6 +218,10 @@ class PsoSimulationEngine:
     ) -> PsoResult:
         """evaluate PSO result."""
 
+        # set the calculation flag
+        objective.set_calculate_max_du_dt(True)
+        objective.set_calculate_overshoot(True)
+
         tf_report = compute_effective_tf_report(
             Td=self._best_td,
             dt=param.dt,
@@ -257,7 +261,7 @@ class PsoSimulationEngine:
             t1=param.t1,
             is_feasible=bool(eval_time_domain.get('feasible')),
             error_criterion=eval_time_domain.get('perf'),
-            overshoot=-100.0,  # TODO: change the overshoot value to return the reale value
+            overshoot=eval_time_domain.get('overshoot_pct'),
             show_overshoot=show_overshoot,
             slew_rate=eval_time_domain.get('max_du_dt'),
             gain_margin=eval_frequency_domain.get('gm_db'),
