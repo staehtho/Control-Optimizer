@@ -184,12 +184,18 @@ class PsoFunc:
       - Ranking uses (feasible, V, J), not scalar cost alone.
       - Scalar cost is interpreted as J for feasible candidates and V for infeasible candidates.
 
-    Optional time-domain overshoot control (step references only):
+    Optional time-domain overshoot handling (step references only):
+      - ``calculate_overshoot`` enables overshoot as a diagnostic metric.
+      - ``use_overshoot_control`` applies the measured overshoot as an
+        additional feasibility constraint.
       - Allowed overshoot is measured relative to the step height.
       - allowed_overshoot_pct = 0 means strict no-overshoot.
       - Positive and negative steps are handled with one signed formula.
 
-    Optional time-domain maximum slew-rate constraint:
+    Optional time-domain maximum slew-rate handling:
+      - ``calculate_max_du_dt`` enables ``max_du_dt`` as a diagnostic metric.
+      - ``use_max_du_dt_constraint`` applies the measured metric as an
+        additional feasibility constraint.
       - The metric is measured on the saturated actuator signal ``u_sat``.
       - ``max_du_dt`` is the maximum absolute control-rate estimate over a
         sliding window of ``m`` simulation steps:
@@ -239,7 +245,9 @@ class PsoFunc:
         ms_max_db: float | None = 20.0 * math.log10(2.0),
         use_overshoot_control: bool = False,
         allowed_overshoot_pct: float = 0.0,
+        calculate_overshoot: bool = False,
         use_max_du_dt_constraint: bool = False,
+        calculate_max_du_dt: bool = False,
         allowed_max_du_dt: float = 0.0,
         du_dt_window_steps: int = 10,
         log_path: str | None = None, # TODO FLO rueckgaengig logging
@@ -284,9 +292,17 @@ class PsoFunc:
                 If True, overshoot becomes an additional feasibility criterion after time simulation.
             allowed_overshoot_pct:
                 Maximum allowed overshoot in percent before a feasible time response is marked infeasible.
+            calculate_overshoot:
+                If True, compute ``overshoot_pct`` as a diagnostic metric even when
+                ``use_overshoot_control`` is False. The metric is only defined for
+                step-like references; other inputs leave ``overshoot_pct`` as NaN.
             use_max_du_dt_constraint:
                 If True, ``max_du_dt`` becomes an additional feasibility
                 criterion after time simulation.
+            calculate_max_du_dt:
+                If True, compute ``max_du_dt`` as a diagnostic metric even when
+                ``use_max_du_dt_constraint`` is False. When both flags are
+                disabled, ``max_du_dt`` remains NaN and the metric is skipped.
             allowed_max_du_dt:
                 Maximum allowed absolute control-rate value before a feasible
                 time response is marked infeasible.
@@ -371,11 +387,13 @@ class PsoFunc:
         self.ms_max_db = None if ms_max_db is None else float(ms_max_db)
         self.use_overshoot_control = bool(use_overshoot_control)
         self.allowed_overshoot_pct = float(allowed_overshoot_pct)
+        self.calculate_overshoot = bool(calculate_overshoot)
         self._overshoot_step_amplitude_abs = 0.0
         self._overshoot_step_start_idx = 0
         self._overshoot_step_sign = 0.0
         self._overshoot_r_final = 0.0
         self.use_max_du_dt_constraint = bool(use_max_du_dt_constraint)
+        self.calculate_max_du_dt = bool(calculate_max_du_dt)
         self.allowed_max_du_dt = float(allowed_max_du_dt)
         self.du_dt_window_steps = int(du_dt_window_steps)
         self._update_max_du_dt_cache()
@@ -415,7 +433,7 @@ class PsoFunc:
             "Kp,Ti,Td,"
             "pm_deg,gm_db,ms_db,wc,w180,"
             "V,V_freq,V_ov,V_du,V_total,feasible_final,time_simulated,overshoot_pct,"
-            "max_du_dt_raw,max_du_dt,"
+            "max_du_dt,"
             "time_cost,perf_J,total_cost,objective_cost,"
             "pbest_updated,gbest_updated,"
             "pbest_feasible,pbest_violation,pbest_perf,pbest_cost,"
@@ -444,7 +462,6 @@ class PsoFunc:
             feasible_final: np.ndarray,
             time_sim: np.ndarray,
             overshoot_pct: np.ndarray,
-            max_du_dt_raw: np.ndarray,
             max_du_dt: np.ndarray,
             time_cost: np.ndarray,
             perf_J: np.ndarray,
@@ -476,7 +493,7 @@ class PsoFunc:
                 f"{Kp[i]},{Ti[i]},{Td[i]},"
                 f"{pm[i]},{gm[i]},{ms_db[i]},{wc[i]},{w180[i]},"
                 f"{V[i]},{V_freq[i]},{V_ov[i]},{V_du[i]},{V_total[i]},{int(feasible_final[i])},{int(time_sim[i])},{overshoot_pct[i]},"
-                f"{max_du_dt_raw[i]},{max_du_dt[i]},"
+                f"{max_du_dt[i]},"
                 f"{time_cost[i]},{perf_J[i]},{total_cost[i]},{objective_cost[i]},"
                 f"{int(pbest_updated[i])},{int(gbest_updated[i])},"
                 f"{int(pbest_feasible[i])},{pbest_violation[i]},{pbest_perf[i]},{pbest_cost[i]},"
@@ -528,7 +545,6 @@ class PsoFunc:
             feasible_final=batch["feasible_final"],
             time_sim=batch["time_sim"],
             overshoot_pct=batch["overshoot_pct"],
-            max_du_dt_raw=batch["max_du_dt_raw"],
             max_du_dt=batch["max_du_dt"],
             time_cost=batch["time_cost"],
             perf_J=batch["perf_J"],
@@ -556,11 +572,13 @@ class PsoFunc:
         ms_max_db: float | None = None,
         use_overshoot_control: bool | None = None,
         allowed_overshoot_pct: float | None = None,
+        calculate_overshoot: bool | None = None,
         use_max_du_dt_constraint: bool | None = None,
+        calculate_max_du_dt: bool | None = None,
         allowed_max_du_dt: float | None = None,
         du_dt_window_steps: int | None = None,
     ) -> None:
-        """Update constraints dynamically (e.g., from config/UI)."""
+        """Update constraints and optional diagnostic metrics dynamically."""
         if pm_min_deg is not None:
             self.pm_min_deg = float(pm_min_deg)
         if gm_min_db is not None:
@@ -571,8 +589,12 @@ class PsoFunc:
             self.use_overshoot_control = bool(use_overshoot_control)
         if allowed_overshoot_pct is not None:
             self.allowed_overshoot_pct = float(allowed_overshoot_pct)
+        if calculate_overshoot is not None:
+            self.calculate_overshoot = bool(calculate_overshoot)
         if use_max_du_dt_constraint is not None:
             self.use_max_du_dt_constraint = bool(use_max_du_dt_constraint)
+        if calculate_max_du_dt is not None:
+            self.calculate_max_du_dt = bool(calculate_max_du_dt)
         if allowed_max_du_dt is not None:
             self.allowed_max_du_dt = float(allowed_max_du_dt)
         if du_dt_window_steps is not None:
@@ -593,9 +615,11 @@ class PsoFunc:
     def _update_overshoot_control_cache(self) -> None:
         """Precompute overshoot helpers from the sampled reference trace.
 
-        The UI guarantees that overshoot control is only enabled for a single step
-        reference. We therefore cache one fixed step start index and avoid any
-        per-sample step detection inside the simulation loop.
+        Overshoot is only defined for single-step references. When
+        ``calculate_overshoot`` is enabled without the constraint, non-step
+        references keep the cache disabled so the runtime metric returns NaN
+        instead of raising. Constraint mode remains strict and still rejects
+        invalid references.
         """
         eps = 1e-15
         self._overshoot_step_amplitude_abs = 0.0
@@ -603,10 +627,11 @@ class PsoFunc:
         self._overshoot_step_sign = 0.0
         self._overshoot_r_final = float(self.r_eval[-1])
 
-        if not self.use_overshoot_control:
+        compute_overshoot = self.calculate_overshoot or self.use_overshoot_control
+        if not compute_overshoot:
             return
 
-        if self.allowed_overshoot_pct < 0.0:
+        if self.use_overshoot_control and self.allowed_overshoot_pct < 0.0:
             raise ValueError("allowed_overshoot_pct must be >= 0 when use_overshoot_control=True.")
 
         r0 = float(self.r_eval[0])
@@ -617,15 +642,29 @@ class PsoFunc:
             tol = max(1e-12, 1e-9 * abs(dr))
             change_idx = np.where(~np.isclose(self.r_eval, r0, atol=tol, rtol=0.0))[0]
             if change_idx.size == 0:
-                raise ValueError("overshoot_control could not detect a valid step transition.")
+                if self.use_overshoot_control:
+                    raise ValueError("overshoot_control could not detect a valid step transition.")
+                return
+
+            step_start_idx = int(change_idx[0])
+            if not np.all(np.isclose(self.r_eval[step_start_idx:], rf, atol=tol, rtol=0.0)):
+                if self.use_overshoot_control:
+                    raise ValueError("overshoot_control requires a single step reference.")
+                return
 
             self._overshoot_step_amplitude_abs = abs(dr)
-            self._overshoot_step_start_idx = int(change_idx[0])
+            self._overshoot_step_start_idx = step_start_idx
             self._overshoot_step_sign = float(np.sign(dr))
             self._overshoot_r_final = rf
             return
 
         if abs(rf) > eps:
+            tol = max(1e-12, 1e-9 * abs(rf))
+            if not np.all(np.isclose(self.r_eval, rf, atol=tol, rtol=0.0)):
+                if self.use_overshoot_control:
+                    raise ValueError("overshoot_control requires a single step reference.")
+                return
+
             # Immediate step at t0 represented as constant non-zero level in sampled r_eval.
             self._overshoot_step_amplitude_abs = abs(rf)
             self._overshoot_step_start_idx = 0
@@ -633,7 +672,8 @@ class PsoFunc:
             self._overshoot_r_final = rf
             return
 
-        raise ValueError("overshoot_control requires a non-zero step amplitude.")
+        if self.use_overshoot_control:
+            raise ValueError("overshoot_control requires a non-zero step amplitude.")
 
     def _compute_violation_batch(self, metrics: dict[str, np.ndarray]) -> np.ndarray:
         """Compute normalized constraint violation V for a batch.
@@ -703,6 +743,10 @@ class PsoFunc:
               - violation: total violation V
                 (frequency + optional overshoot + optional max_du_dt)
               - perf: objective J (np.inf for infeasible candidates)
+              - overshoot_pct: measured overshoot percentage for simulated candidates;
+                NaN if overshoot evaluation is disabled or unavailable
+              - max_du_dt: measured maximum absolute control-rate estimate for
+                simulated candidates; NaN if evaluation is disabled or unavailable
             If defer_logging=True, core batch metrics are cached and can be finalized later
             with PSO state (pBest/gBest) via finalize_log_batch(...).
         """
@@ -770,7 +814,6 @@ class PsoFunc:
 
         time_sim = np.zeros(P, dtype=np.bool_)
         overshoot_pct = np.full(P, np.nan, dtype=np.float64)
-        max_du_dt_raw = np.full(P, np.nan, dtype=np.float64)
         max_du_dt = np.full(P, np.nan, dtype=np.float64)
         time_cost = np.full(P, np.nan, dtype=np.float64)
 
@@ -797,8 +840,10 @@ class PsoFunc:
         if np.any(feasible):
             Xf = X[feasible]
             Pf = int(Xf.shape[0])
+            compute_overshoot = self.calculate_overshoot or self.use_overshoot_control
+            compute_max_du_dt = self.calculate_max_du_dt or self.use_max_du_dt_constraint
 
-            perf_vals, overshoot_vals, max_du_dt_raw_vals, max_du_dt_vals = _pid_pso_func(
+            perf_vals, overshoot_vals, max_du_dt_vals = _pid_pso_func(
                 Xf,
                 self.t_eval,
                 self.dt,
@@ -816,17 +861,17 @@ class PsoFunc:
                 self.ka,
                 self.solver,
                 self.performance_index,
-                1 if self.use_overshoot_control else 0,
+                1 if compute_overshoot else 0,
                 self._overshoot_step_amplitude_abs,
                 self._overshoot_step_start_idx,
                 self._overshoot_step_sign,
                 self._overshoot_r_final,
+                1 if compute_max_du_dt else 0,
                 self.du_dt_window_steps,
                 Pf,  # IMPORTANT: swarm_size = number of feasible particles
             )
             time_cost[feasible] = perf_vals
             overshoot_pct[feasible] = overshoot_vals
-            max_du_dt_raw[feasible] = max_du_dt_raw_vals
             max_du_dt[feasible] = max_du_dt_vals
             perf[feasible] = perf_vals
             feasible_indices = np.where(feasible)[0]
@@ -892,7 +937,6 @@ class PsoFunc:
                 "feasible_final": feasible_final,
                 "time_sim": time_sim,
                 "overshoot_pct": overshoot_pct,
-                "max_du_dt_raw": max_du_dt_raw,
                 "max_du_dt": max_du_dt,
                 "time_cost": time_cost,
                 "perf_J": perf,
@@ -922,7 +966,6 @@ class PsoFunc:
                     feasible_final=batch["feasible_final"],
                     time_sim=batch["time_sim"],
                     overshoot_pct=batch["overshoot_pct"],
-                    max_du_dt_raw=batch["max_du_dt_raw"],
                     max_du_dt=batch["max_du_dt"],
                     time_cost=batch["time_cost"],
                     perf_J=batch["perf_J"],
@@ -945,7 +988,7 @@ class PsoFunc:
             "feasible": feasible_final,
             "violation": V_total,
             "perf": perf,
-            "max_du_dt_raw": max_du_dt_raw,
+            "overshoot_pct": overshoot_pct,
             "max_du_dt": max_du_dt,
         }
         self._last_eval = result
@@ -1301,8 +1344,9 @@ def pid_simulate_metrics(
     overshoot_step_start_idx: int,
     overshoot_step_sign: float,
     overshoot_r_final: float,
+    calculate_max_du_dt: int,
     du_dt_window_steps: int,
-) -> tuple[float, float, float, float]:
+) -> tuple[float, float, float]:
     """Simulate one PID candidate and return time-domain evaluation metrics.
 
     Overshoot is tracked only from the precomputed step start index onward.
@@ -1310,16 +1354,13 @@ def pid_simulate_metrics(
     is applied in the internal PID update step.
 
     Returns:
-        tuple[float, float, float, float]:
-            ``(performance_index_value, overshoot_pct,
-            max_du_dt_raw, max_du_dt)``
+        tuple[float, float, float]:
+            ``(performance_index_value, overshoot_pct, max_du_dt)``
 
-        ``max_du_dt`` is computed as the maximum absolute finite-difference
-        control-rate estimate over a sliding window of ``du_dt_window_steps``
-        samples:
+        ``max_du_dt`` is computed only when ``calculate_max_du_dt`` is enabled.
+        It represents the maximum absolute finite-difference control-rate
+        estimate over a sliding window of ``du_dt_window_steps`` samples:
         ``max(|u[k] - u[k-m]| / (m * dt))`` with ``m = du_dt_window_steps``.
-        ``max_du_dt_raw`` is kept for interface compatibility and is currently
-        identical to ``max_du_dt`` because no further normalization is applied.
     """
     e_prev = 0.0
     filtered_prev = 0.0
@@ -1333,10 +1374,15 @@ def pid_simulate_metrics(
 
     max_overshoot = 0.0
     use_ov = use_overshoot_control != 0
-    max_du_dt_raw = 0.0
+    use_du_dt = calculate_max_du_dt != 0
+    max_du_dt = np.nan
     window_steps = du_dt_window_steps
-    window_dt = float(window_steps) * dt
-    u_hist = np.zeros(len(t_eval), dtype=np.float64)
+    window_dt = 0.0
+    u_hist = np.empty(1, dtype=np.float64)
+    if use_du_dt:
+        max_du_dt = 0.0
+        window_dt = float(window_steps) * dt
+        u_hist = np.zeros(len(t_eval), dtype=np.float64)
 
     n_steps = len(t_eval)
     for i in range(n_steps):
@@ -1351,13 +1397,14 @@ def pid_simulate_metrics(
             dt, u_min, u_max, anti_windup_method, ka
         )
 
-        u_hist[i] = u
-        if i >= window_steps:
+        if use_du_dt:
             # Windowed finite-difference estimate of |du/dt|. Using m > 1
             # smooths single-step spikes while preserving the du/dt semantics.
-            du_dt_abs = abs(u - u_hist[i - window_steps]) / window_dt
-            if du_dt_abs > max_du_dt_raw:
-                max_du_dt_raw = du_dt_abs
+            u_hist[i] = u
+            if i >= window_steps:
+                du_dt_abs = abs(u - u_hist[i - window_steps]) / window_dt
+                if du_dt_abs > max_du_dt:
+                    max_du_dt = du_dt_abs
 
         if solver == MySolverInt.RK4:
             x = rk4(A, B, x, u + l, dt)
@@ -1384,7 +1431,7 @@ def pid_simulate_metrics(
         e_prev = e
 
     if (not use_ov) or overshoot_step_amplitude_abs <= 0.0:
-        overshoot_pct = 0.0
+        overshoot_pct = np.nan
     else:
         if overshoot_step_start_idx < n_steps:
             if max_overshoot > 0.0:
@@ -1394,7 +1441,7 @@ def pid_simulate_metrics(
         else:
             overshoot_pct = np.inf
 
-    return perf, overshoot_pct, max_du_dt_raw, max_du_dt_raw
+    return perf, overshoot_pct, max_du_dt
 
 
 # =============================================================================
@@ -1407,12 +1454,12 @@ def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarr
                   ka: float, solver: int, performance_index: int,
                   use_overshoot_control: int, overshoot_step_amplitude_abs: float,
                   overshoot_step_start_idx: int, overshoot_step_sign: float,
-                  overshoot_r_final: float, du_dt_window_steps: int, swarm_size: int
-                  ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+                  overshoot_r_final: float, calculate_max_du_dt: int,
+                  du_dt_window_steps: int, swarm_size: int
+                  ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     performance_index_val = np.zeros(swarm_size)
-    overshoot_pct = np.zeros(swarm_size)
-    max_du_dt_raw = np.zeros(swarm_size)
-    max_du_dt = np.zeros(swarm_size)
+    overshoot_pct = np.full(swarm_size, np.nan)
+    max_du_dt = np.full(swarm_size, np.nan)
 
     for i in prange(swarm_size):
         Kp = float(X[i, 0])
@@ -1422,7 +1469,7 @@ def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarr
 
         x = np.zeros(system_order, dtype=np.float64)
 
-        perf_i, overshoot_i, max_du_dt_raw_i, max_du_dt_i = pid_simulate_metrics(
+        perf_i, overshoot_i, max_du_dt_i = pid_simulate_metrics(
             Kp, Ti, Td, Tf_i,
             t_eval, dt,
             r_eval, l_eval, n_eval,
@@ -1434,12 +1481,12 @@ def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarr
             overshoot_step_start_idx,
             overshoot_step_sign,
             overshoot_r_final,
+            calculate_max_du_dt,
             du_dt_window_steps,
         )
         performance_index_val[i] = perf_i
         overshoot_pct[i] = overshoot_i
-        max_du_dt_raw[i] = max_du_dt_raw_i
         max_du_dt[i] = max_du_dt_i
 
-    return performance_index_val, overshoot_pct, max_du_dt_raw, max_du_dt
+    return performance_index_val, overshoot_pct, max_du_dt
 

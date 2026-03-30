@@ -87,21 +87,27 @@ def main():
     td_max = config["pso"]["bounds"]["td_max"]'''
 
     plant_num = [1]
-    plant_den = [1, 2, 1]
+    plant_den = [1, 0.1, 1]
 
     use_freq_metrics = False
-    pm_min_deg = 0
-    gm_min_db = 0
-    ms_max_db = 1
+    pm_min_deg = 55
+    gm_min_db = 10
+    ms_max_db = None
 
     use_overshoot_control = False
-    allowed_overshoot_pct = 0
+    allowed_overshoot_pct = 20
+    # Compute the overshoot metric even when the
+    # feasibility constraint stays disabled.
+    calculate_overshoot = False
     
     # Maximum absolute control-rate estimate over a window of m steps:
     # max(|u[k] - u[k-m]| / (m * dt))
     # Keep disabled until a project-specific limit has been calibrated.
     use_max_du_dt_constraint = True
-    allowed_max_du_dt = 2
+    # Compute the diagnostic metric for the best candidate even when the
+    # feasibility constraint stays disabled.
+    calculate_max_du_dt = False
+    allowed_max_du_dt = 350
     du_dt_window_steps = 10
 
     sim_mode = "fixed"
@@ -114,8 +120,8 @@ def main():
 
     excitation_target = "reference"
 
-    constraint_min = -2
-    constraint_max = 2
+    constraint_min = -100
+    constraint_max = 100
 
     performance_index = PerformanceIndex.ITAE
 
@@ -178,7 +184,9 @@ def main():
         ms_max_db=ms_max_db,
         use_overshoot_control=use_overshoot_control,
         allowed_overshoot_pct=allowed_overshoot_pct,
+        calculate_overshoot=calculate_overshoot,
         use_max_du_dt_constraint=use_max_du_dt_constraint,
+        calculate_max_du_dt=calculate_max_du_dt,
         allowed_max_du_dt=allowed_max_du_dt,
         du_dt_window_steps=du_dt_window_steps,
         performance_index=performance_index,
@@ -224,6 +232,7 @@ def main():
     pid.set_pid_param(Kp=best_Kp, Ti=best_Ti, Td=best_Td)
     pid.set_filter(Tf=tf_report.tf_effective)
     best_eval = obj_func.evaluate_candidates(np.array([[best_Kp, best_Ti, best_Td]], dtype=np.float64))
+    best_overshoot_pct = float(best_eval["overshoot_pct"][0])
     best_max_du_dt = float(best_eval["max_du_dt"][0])
 
     data = {
@@ -231,6 +240,7 @@ def main():
         "best_Ti": best_Ti,
         "best_Td": best_Td,
         "best_Tf": tf_report.tf_effective,
+        "best_overshoot_pct": best_overshoot_pct,
         "best_max_du_dt": best_max_du_dt,
         "performance_index": performance_index,
         # Backward-compatible key name kept for existing consumers.
@@ -253,7 +263,9 @@ def main():
 
         "plant_num": plant_num,
         "plant_den": plant_den,
+        "calculate_overshoot": calculate_overshoot,
         "use_max_du_dt_constraint": use_max_du_dt_constraint,
+        "calculate_max_du_dt": calculate_max_du_dt,
         "allowed_max_du_dt": allowed_max_du_dt,
         "du_dt_window_steps": du_dt_window_steps,
     }
@@ -281,6 +293,8 @@ def main():
     print(f"Tf limited: {'yes' if tf_report.limited else 'no'}")
     print(f"Active limit(s): {', '.join(active_limits) if active_limits else 'none'}")
     print(f"Minimum sampling rate for k-spacing: {tf_report.min_sampling_rate_hz:.6f} Hz")
+    print("\n=== Overshoot (best PID) ===")
+    print(f"overshoot_pct: {best_overshoot_pct:.6f}")
     print("\n=== Max du/dt (best PID) ===")
     print(f"max_du_dt: {best_max_du_dt:.6f}")
 
