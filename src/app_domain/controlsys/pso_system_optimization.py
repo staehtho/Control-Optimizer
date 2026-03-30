@@ -1000,6 +1000,16 @@ class PsoFunc:
         """Backward-compatible scalar objective interface."""
         return self.evaluate_candidates(X)["cost"]
 
+    def set_calculate_max_du_dt(self, value: bool) -> None:
+        self.calculate_max_du_dt = value
+
+        self._update_max_du_dt_cache()
+
+    def set_calculate_overshoot(self, value: bool) -> None:
+        self.calculate_overshoot = value
+
+        self._update_overshoot_control_cache()
+
 # =============================================================================
 # Helper Functions
 # =============================================================================
