@@ -67,19 +67,19 @@
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="71"/>
-        <location filename="../views/translations/enum_translations.py" line="150"/>
+        <location filename="../views/translations/enum_translations.py" line="151"/>
         <source>Reference</source>
         <translation>Reference</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="73"/>
-        <location filename="../views/translations/enum_translations.py" line="152"/>
+        <location filename="../views/translations/enum_translations.py" line="153"/>
         <source>Input Disturbance</source>
         <translation>Input Disturbance</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="75"/>
-        <location filename="../views/translations/enum_translations.py" line="154"/>
+        <location filename="../views/translations/enum_translations.py" line="155"/>
         <source>Measurement Disturbance</source>
         <translation>Measurement Disturbance</translation>
     </message>
@@ -161,7 +161,7 @@
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="122"/>
-        <location filename="../views/translations/enum_translations.py" line="142"/>
+        <location filename="../views/translations/enum_translations.py" line="143"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
@@ -196,32 +196,32 @@
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="144"/>
+        <location filename="../views/translations/enum_translations.py" line="145"/>
         <source>Function</source>
         <translation>Function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="156"/>
+        <location filename="../views/translations/enum_translations.py" line="157"/>
         <source>G_plant</source>
         <translation>G Plant</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="158"/>
+        <location filename="../views/translations/enum_translations.py" line="159"/>
         <source>C_controller</source>
         <translation>C controller</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="160"/>
+        <location filename="../views/translations/enum_translations.py" line="161"/>
         <source>L_open_loop</source>
         <translation>L open loop</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="162"/>
+        <location filename="../views/translations/enum_translations.py" line="163"/>
         <source>T_closed_loop</source>
         <translation>T closed loop</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="164"/>
+        <location filename="../views/translations/enum_translations.py" line="165"/>
         <source>S_sensitivity</source>
         <translation>S sensitivity</translation>
     </message>
@@ -263,7 +263,7 @@
         <translation type="vanished">Response</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="148"/>
+        <location filename="../views/translations/enum_translations.py" line="149"/>
         <source>Control Signal</source>
         <translation>Control Signal</translation>
     </message>
@@ -272,7 +272,7 @@
         <translation type="vanished">Excitation Function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="146"/>
+        <location filename="../views/translations/enum_translations.py" line="147"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
