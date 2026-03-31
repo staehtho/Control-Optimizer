@@ -28,14 +28,23 @@ BLOCK_DIAGRAM = "block_diagram"
 
 type PsoFieldText = tuple[dict[str, Any], bool]
 
-FIELDS: dict[str, list[FieldConfig]] = {
+FIELDS: dict[str, list[SectionConfig | FieldConfig]] = {
     "tf": [
-        FieldConfig(EvaluationField.PLANT, FormulaWidget),
-        FieldConfig(EvaluationField.CONTROLLER, FormulaWidget),
-        FieldConfig(EvaluationField.OPEN_LOOP, FormulaWidget),
-        FieldConfig(EvaluationField.CLOSED_LOOP, FormulaWidget),
-        FieldConfig(EvaluationField.SENSITIVITY, FormulaWidget),
-        FieldConfig(EvaluationField.COMPLEMENTARY_SENSITIVITY, FormulaWidget),
+        SectionConfig(EvaluationField.PLANT, [
+            FieldConfig(EvaluationField.TF_PLANT, FormulaWidget, create_label=False),
+        ]),
+        SectionConfig(EvaluationField.CONTROLLER, [
+            FieldConfig(EvaluationField.TF_CONTROLLER, FormulaWidget, create_label=False),
+        ]),
+        SectionConfig(EvaluationField.OPEN_LOOP, [
+            FieldConfig(EvaluationField.TF_OPEN_LOOP, FormulaWidget, create_label=False),
+        ]),
+        SectionConfig(EvaluationField.CLOSED_LOOP, [
+            FieldConfig(EvaluationField.TF_CLOSED_LOOP, FormulaWidget, create_label=False),
+        ]),
+        SectionConfig(EvaluationField.SENSITIVITY, [
+            FieldConfig(EvaluationField.TF_SENSITIVITY, FormulaWidget, create_label=False),
+        ]),
     ],
     "result": [
         SectionConfig(PsoResultField.RUN_TIME, [
@@ -305,12 +314,11 @@ class EvaluationView(ViewMixin, QWidget):
             plant_tf = self._vm_evaluator.plant_tf
 
         tf: dict[EvaluationField, str] = {
-            EvaluationField.PLANT: plant_tf,
-            EvaluationField.CONTROLLER: r"C(S) = ",
-            EvaluationField.OPEN_LOOP: r"L(S) = C(S) \cdot G(S)",
-            EvaluationField.CLOSED_LOOP: r"",
-            EvaluationField.SENSITIVITY: r"",
-            EvaluationField.COMPLEMENTARY_SENSITIVITY: r"",
+            EvaluationField.TF_PLANT: r" G(s) = " + plant_tf,
+            EvaluationField.TF_CONTROLLER: r"C(S) = Kp \frac{(Ti s + 1)(Td s + 1)}{Ti s (Tf s + 1)}",
+            EvaluationField.TF_OPEN_LOOP: r"L(S) = C(S) \cdot G(S)",
+            EvaluationField.TF_CLOSED_LOOP: r"T(s) = \frac{L(s)}{1 + L(s)} = \frac{C(s) \cdot G(s)}{1 + C(s) \cdot G(s)}",
+            EvaluationField.TF_SENSITIVITY: r"S(s) = \frac{1}{1 + L(s)} = \frac{1}{1 + C(s) \cdot G(s)}",
         }
 
         for key, value in tf.items():
@@ -357,6 +365,7 @@ class EvaluationView(ViewMixin, QWidget):
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
         self._lbl_title.setText(self.tr("Evaluation"))
+
         self._frm_result.setText(self.tr("PSO Result"))
         self._frm_plot.setText(self.tr("Closed Loop"))
 
@@ -364,6 +373,7 @@ class EvaluationView(ViewMixin, QWidget):
         self._plot_tab.setTabText(0, self.tr("Time Domain"))
         self._plot_tab.setTabText(1, self.tr("Frequency Domain"))
         self._plot_tab.setTabText(2, self.tr("Block Diagram"))
+        self._plot_tab.setTabText(3, self.tr("Transfer Functions"))
 
         labels = {
             PsoResultField.RUN_TIME: self.tr("PSO run time"),
@@ -372,6 +382,12 @@ class EvaluationView(ViewMixin, QWidget):
             PsoResultField.PERFORMANCE_INDEX: self.tr("Performance Index"),
             PsoResultField.TIME_DOMAIN: self.tr("Time Domain"),
             PsoResultField.FREQUENCY_DOMAIN: self.tr("Frequency Domain"),
+
+            EvaluationField.PLANT: self.tr("Plant"),
+            EvaluationField.CONTROLLER: self.tr("Controller"),
+            EvaluationField.OPEN_LOOP: self.tr("Open Loop"),
+            EvaluationField.CLOSED_LOOP: self.tr("Closed Loop"),
+            EvaluationField.SENSITIVITY: self.tr("Sensitivity"),
         }
 
         for key in labels.keys():
@@ -494,9 +510,15 @@ class EvaluationView(ViewMixin, QWidget):
     def _on_vm_pso_simulation_finished(self) -> None:
         self.logger.debug("PSO simulation finished -> refreshing excitation function")
 
-        self._update_pso_result_values()
-        self._apply_init_value()
         self._load_block_diagram()
+        self._sync_plot_time_window_from_model()
+        self._update_time_domain_plots()
+        self._update_frequency_domain_plots()
+        self._update_pso_result_values()
+
+        widget: FormulaWidget = self.field_widgets.get(EvaluationField.TF_PLANT)
+        snapshot = self._vm_evaluator.get_pso_snapshot()
+        widget.set_formula(r"G(s) = " + snapshot.plant_tf)
 
     def _on_vm_time_changed(self) -> None:
         """Trigger recomputation when plot time range changes."""
@@ -606,7 +628,7 @@ class EvaluationView(ViewMixin, QWidget):
                 case unknown_value:
                     raise ValueError(
                         f"Unsupported anti-windup method: {unknown_value!r}. "
-                        "Expected one of: BACKCALCULATION, CLAMPING, CONDITIONAL."
+                        f"Expected one of: BACKCALCULATION, CLAMPING, CONDITIONAL."
                     )
 
         svg_layers = []

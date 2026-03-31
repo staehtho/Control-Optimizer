@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import StrEnum
 from dataclasses import dataclass
 from typing import Type
 from PySide6.QtWidgets import QWidget, QLabel
@@ -36,7 +36,8 @@ class SectionConfig:
 
         return count // (self.columns // 2) + 1
 
-class FieldType(Enum):
+
+class FieldType(StrEnum):
     ...
 
 
@@ -122,11 +123,15 @@ class PsoField(FieldType):
 # EvaluationViewModel / EvaluationView
 class EvaluationField(FieldType):
     PLANT = "plant"
+    TF_PLANT = "tf_plant"
     CONTROLLER = "controller"
+    TF_CONTROLLER = "tf_controller"
     OPEN_LOOP = "open_loop"
+    TF_OPEN_LOOP = "tf_open_loop"
     CLOSED_LOOP = "closed_loop"
+    TF_CLOSED_LOOP = "tf_closed_loop"
     SENSITIVITY = "sensitivity"
-    COMPLEMENTARY_SENSITIVITY = "complementary_sensitivity"
+    TF_SENSITIVITY = "tf_sensitivity"
 
 
 # EvaluationViewModel / EvaluationView
