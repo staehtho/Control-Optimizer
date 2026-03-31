@@ -67,10 +67,10 @@ class ControllerView(ViewMixin, QWidget):
         main_layout = self._create_page_layout()
 
         # Title row (icon + title)
-        icon = self._load_icon(Icons.controller, self._titel_icon_size)
+        icon = self._load_icon(Icons.controller, self._title_icon_size)
         self._label_icon = QLabel(self)
-        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
-        self._label_icon.setFixedSize(self._titel_icon_size, self._titel_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._title_icon_size, self._title_icon_size))
+        self._label_icon.setFixedSize(self._title_icon_size, self._title_icon_size)
 
         self._lbl_title = QLabel(self)
         self._lbl_title.setObjectName("viewTitle")
@@ -216,8 +216,8 @@ class ControllerView(ViewMixin, QWidget):
         """Update theme-dependent UI elements."""
         self._load_block_diagram()
 
-        icon = self._load_icon(Icons.controller, self._titel_icon_size)
-        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
+        icon = self._load_icon(Icons.controller, self._title_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._title_icon_size, self._title_icon_size))
 
     # ============================================================
     # ViewModel change handlers

@@ -63,10 +63,10 @@ class SettingsView(ViewMixin, QWidget):
         main_layout = self._create_page_layout()
 
         # Title row (icon + title)
-        icon = self._load_icon(Icons.settings, self._titel_icon_size)
+        icon = self._load_icon(Icons.settings, self._title_icon_size)
         self._label_icon = QLabel(self)
-        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
-        self._label_icon.setFixedSize(self._titel_icon_size, self._titel_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._title_icon_size, self._title_icon_size))
+        self._label_icon.setFixedSize(self._title_icon_size, self._title_icon_size)
 
         self._lbl_title = QLabel(self)
         self._lbl_title.setObjectName("viewTitle")
@@ -99,7 +99,7 @@ class SettingsView(ViewMixin, QWidget):
     def _create_frame(self, key: str) -> QFrame:
         """Create a settings section frame for the given key."""
         frame = QFrame(self)
-        layout = self._create_grid(FIELDS.get(key), 1)
+        layout = self._create_grid(FIELDS[key], 1)
 
         frame.setLayout(layout)
         return frame
@@ -191,8 +191,8 @@ class SettingsView(ViewMixin, QWidget):
     # ============================================================
     def _on_theme_applied(self) -> None:
         """Update theme-dependent UI elements."""
-        icon = self._load_icon(Icons.settings, self._titel_icon_size)
-        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
+        icon = self._load_icon(Icons.settings, self._title_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._title_icon_size, self._title_icon_size))
 
     # ============================================================
     # UI event handlers
