@@ -86,6 +86,7 @@ class ControllerView(ViewMixin, QWidget):
         self._frm_controller = self._create_controller_frame()
         main_layout.addWidget(self._frm_controller)
         main_layout.addStretch()
+        main_layout.addLayout(self._create_navigation_buttons_layout(parent=self))
 
         self.setLayout(main_layout)
 
@@ -158,6 +159,8 @@ class ControllerView(ViewMixin, QWidget):
     # ============================================================
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
+        super()._retranslate()
+
         self._lbl_title.setText(self.tr("Controller"))
         self._frm_controller.setText(self.tr("Parameters"))
 

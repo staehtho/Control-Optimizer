@@ -7,7 +7,6 @@ from PySide6.QtCore import QTimer
 from PySide6.QtGui import QPixmap, Qt
 from PySide6.QtWidgets import QApplication, QSplashScreen
 
-# TODO: add buttons to switch to the next or previous view in the view it self
 # TODO: TabIndex
 
 # TODO: Evaluation: TF with L and N
