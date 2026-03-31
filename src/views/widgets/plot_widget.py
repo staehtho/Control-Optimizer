@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 import math
 
 from PySide6.QtWidgets import QWidget, QLabel, QCheckBox, QLineEdit, QSizePolicy, QGridLayout
-from PySide6.QtCore import QCoreApplication, QObject, QSize, Qt
+from PySide6.QtCore import QCoreApplication, QSize, Qt
 from PySide6.QtGui import QDoubleValidator, QColor, QPainter, QPixmap, QIcon
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
@@ -62,7 +62,7 @@ class PlotWidget(ViewMixin, QWidget):
 
     def __init__(self, ui_context: UiContext, vm: PlotViewModel,
                  plot_configuration: PlotWidgetConfiguration,
-                 parent: QObject = None):
+                 parent: QWidget = None):
         QWidget.__init__(self, parent)
 
         self._vm = vm

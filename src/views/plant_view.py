@@ -75,6 +75,7 @@ class PlantView(ViewMixin, QWidget):
         main_layout.addWidget(self._frm_plot, 1)
 
         main_layout.addStretch()
+        main_layout.addLayout(self._create_navigation_buttons_layout(pre_btn=False, parent=self))
         self.setLayout(main_layout)
 
     def _create_transfer_function_frame(self) -> SectionFrame:
@@ -300,6 +301,8 @@ class PlantView(ViewMixin, QWidget):
     # ============================================================
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
+        super()._retranslate()
+
         self._lbl_title.setText(self.tr("Plant"))
         self._frm_tf.setText(self.tr("Transfer function"))
         self._frm_plot.setText(self.tr("Step Response"))

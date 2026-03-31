@@ -22,9 +22,9 @@ class ToggleableSectionFrame(SectionFrame):
     ):
         self._active = bool(active)
         super().__init__(title=title, parent=parent)
-        self._inactive_effect = QGraphicsOpacityEffect(self._content_widget)
+        self._inactive_effect = QGraphicsOpacityEffect(self.content_widget)
         self._inactive_effect.setOpacity(1.0)
-        self._content_widget.setGraphicsEffect(self._inactive_effect)
+        self.content_widget.setGraphicsEffect(self._inactive_effect)
         self._apply_active_state(self._active)
 
     # ============================================================
@@ -100,7 +100,7 @@ class ToggleableSectionFrame(SectionFrame):
         self.set_active(checked)
 
     def _apply_active_state(self, active: bool) -> None:
-        self._content_widget.setEnabled(active)
+        self.content_widget.setEnabled(active)
         self._inactive_effect.setOpacity(1.0 if active else 0.45)
 
     def _sync_toggle_checked(self, active: bool) -> None:
