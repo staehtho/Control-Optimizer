@@ -40,6 +40,8 @@ class Icons:
     evaluation: str = "evaluation.svg"
     excitation_function: str = "excitation_function.svg"
     menu: str = "menu.svg"
+    nav_next: str = "nav_next.svg"
+    nav_previous: str = "nav_previous.svg"
     plant: str = "plant.svg"
     pso_parameter: str = "pso_parameter.svg"
     settings: str = "settings.svg"

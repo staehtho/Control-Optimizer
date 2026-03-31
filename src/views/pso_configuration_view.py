@@ -129,6 +129,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
         main_layout.addWidget(self._frm_run_pso)
 
         main_layout.addStretch()
+        main_layout.addLayout(self._create_navigation_buttons_layout())
         self.setLayout(main_layout)
 
     def _create_field_grid(self) -> QLayout:
@@ -274,6 +275,8 @@ class PsoConfigurationView(ViewMixin, QWidget):
     # ============================================================
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
+        super()._retranslate()
+
         self._lbl_title.setText(self.tr("PSO Parameter"))
         self._frm_run_pso.setText(self.tr("PSO Simulation"))
 
@@ -367,8 +370,16 @@ class PsoConfigurationView(ViewMixin, QWidget):
         for key, attr in attributes.items():
             self._on_vm_field_enabled_changed(key, attr)
 
-        self._on_vm_plant_tf_changed()
-        self._on_vm_function_function_changed()
+        self._set_formula_tf()
+        self._set_formula_function()
+
+        self._btn_nav_next.setEnabled(False)
+        effect = self._btn_nav_next.graphicsEffect()
+        if not isinstance(effect, QGraphicsOpacityEffect):
+            effect = QGraphicsOpacityEffect(self._btn_nav_next)
+            self._btn_nav_next.setGraphicsEffect(effect)
+
+        effect.setOpacity(0.45)
 
     # ============================================================
     # Applied theme
@@ -417,6 +428,14 @@ class PsoConfigurationView(ViewMixin, QWidget):
         self._btn_run_pso.setEnabled(True)
         self._btn_interrupt_pso.setEnabled(False)
 
+        self._btn_nav_next.setEnabled(True)
+        effect = self._btn_nav_next.graphicsEffect()
+        if not isinstance(effect, QGraphicsOpacityEffect):
+            effect = QGraphicsOpacityEffect(self._btn_nav_next)
+            self._btn_nav_next.setGraphicsEffect(effect)
+
+        effect.setOpacity(1.0)
+
     def _on_vm_pso_simulation_interrupted(self) -> None:
         """Re-enable the run button after PSO simulation interruption."""
         self._btn_run_pso.setEnabled(self._vm_plant.is_valid)
@@ -449,8 +468,8 @@ class PsoConfigurationView(ViewMixin, QWidget):
 
             effect.setOpacity(1.0 if enabled else 0.45)
 
-        if toggle is not None and hasattr(toggle, "_content_widget"):
-            for child in toggle._content_widget.findChildren(QWidget):
+        if toggle is not None and hasattr(toggle, "content_widget"):
+            for child in toggle.content_widget.findChildren(QWidget):
                 effect = child.graphicsEffect()
                 if not isinstance(effect, QGraphicsOpacityEffect):
                     effect = QGraphicsOpacityEffect(child)

@@ -28,15 +28,15 @@ class SectionFrame(QFrame):
 
         self._header_widget = self._create_header_widget(title)
 
-        self._content_widget = QWidget(self)
-        self._content_layout = QVBoxLayout(self._content_widget)
+        self.content_widget = QWidget(self)
+        self._content_layout = QVBoxLayout(self.content_widget)
         self._content_layout.setContentsMargins(0, 0, 0, 0)
         self._content_layout.setSpacing(6)
 
         self._main_layout.addWidget(self._header_widget, 0, Qt.AlignmentFlag.AlignTop)
-        self._main_layout.addWidget(self._content_widget)
+        self._main_layout.addWidget(self.content_widget)
 
-        self._content_widget.setVisible(True)
+        self.content_widget.setVisible(True)
 
     # ============================================================
     # UI Construction
