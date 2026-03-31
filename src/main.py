@@ -1,5 +1,6 @@
 import logging
 import sys
+from pathlib import Path
 from typing import Callable
 
 from PySide6.QtCore import QTimer
@@ -32,7 +33,8 @@ def show_splash_message_setup(app: QApplication, splash: QSplashScreen) -> Calla
 
 
 def show_splash():
-    pixmap = QPixmap("resources/icons/control_optimizer.svg")
+    path = Path(__file__).parent / "resources" / "icons" / "control_optimizer.svg"
+    pixmap = QPixmap(path)
     splash = QSplashScreen(pixmap)
     splash.show()
     return splash
