@@ -189,7 +189,7 @@ class MainView(ViewMixin, QMainWindow):
             self.restoreGeometry(geometry)
         else:
             # default size on first run / no saved geometry
-            self.resize(1200, 800)
+            self.resize(1200, 1000)
 
         if self._ui_context.settings.get_window_maximized():
             self.showMaximized()
