@@ -161,8 +161,8 @@ def create_card_layout() -> QVBoxLayout:
 
 
 def create_card(
-        title: Optional[str],
-        toggleable: Optional[bool] = False,
+        title: str = "",
+        toggleable: bool = False,
         parent: Optional[QWidget] = None
 ) -> tuple[QFrame, QVBoxLayout]:
     """Create a themed card container using SectionFrame."""

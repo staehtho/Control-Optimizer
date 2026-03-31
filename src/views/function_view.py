@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import QObject, QT_TRANSLATE_NOOP
+from PySide6.QtCore import QT_TRANSLATE_NOOP
 from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QSizePolicy, QHBoxLayout
 from numpy import ndarray
 
@@ -30,7 +30,7 @@ class FunctionView(ViewMixin, QWidget):
             ui_context: UiContext,
             vm_function: FunctionViewModel,
             vm_plot: PlotViewModel,
-            parent: QObject | None = None,
+            parent: QWidget | None = None,
     ) -> None:
         QWidget.__init__(self, parent)
 
@@ -49,10 +49,10 @@ class FunctionView(ViewMixin, QWidget):
         main_layout = self._create_page_layout()
 
         # Title row (icon + title)
-        icon = self._load_icon(Icons.excitation_function, self._titel_icon_size)
+        icon = self._load_icon(Icons.excitation_function, self._title_icon_size)
         self._label_icon = QLabel(self)
-        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
-        self._label_icon.setFixedSize(self._titel_icon_size, self._titel_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._title_icon_size, self._title_icon_size))
+        self._label_icon.setFixedSize(self._title_icon_size, self._title_icon_size)
 
         self._lbl_title = QLabel(self)
         self._lbl_title.setObjectName("viewTitle")
@@ -155,8 +155,8 @@ class FunctionView(ViewMixin, QWidget):
     # ============================================================
     def _on_theme_applied(self) -> None:
         """Update theme-dependent UI elements."""
-        icon = self._load_icon(Icons.excitation_function, self._titel_icon_size)
-        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
+        icon = self._load_icon(Icons.excitation_function, self._title_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._title_icon_size, self._title_icon_size))
 
     # ============================================================
     # ViewModel change handlers

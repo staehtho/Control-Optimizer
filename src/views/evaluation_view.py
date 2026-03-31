@@ -180,10 +180,10 @@ class EvaluationView(ViewMixin, QWidget):
         main_layout = self._create_page_layout()
 
         # Title row (icon + title)
-        icon = self._load_icon(Icons.evaluation, self._titel_icon_size)
+        icon = self._load_icon(Icons.evaluation, self._title_icon_size)
         self._label_icon = QLabel(self)
-        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
-        self._label_icon.setFixedSize(self._titel_icon_size, self._titel_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._title_icon_size, self._title_icon_size))
+        self._label_icon.setFixedSize(self._title_icon_size, self._title_icon_size)
 
         self._lbl_title = QLabel(self)
         self._lbl_title.setObjectName("viewTitle")
@@ -210,7 +210,7 @@ class EvaluationView(ViewMixin, QWidget):
         frame: SectionFrame
         frame, frame_layout = self._create_card(parent=self)
 
-        grid_layout = self._create_grid(FIELDS.get("result"))
+        grid_layout = self._create_grid(FIELDS["result"])
 
         frame_layout.addLayout(grid_layout)
 
@@ -264,7 +264,7 @@ class EvaluationView(ViewMixin, QWidget):
             subplot_configuration=subplot_cfgs,
         )
 
-        widget = PlotWidget(self._ui_context, self._vm_plots.get(TIME_DOMAIN), cl_plot_cfg, parent=self._plot_tab)
+        widget = PlotWidget(self._ui_context, self._vm_plots[TIME_DOMAIN], cl_plot_cfg, parent=self._plot_tab)
         widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         layout.addWidget(widget)
@@ -277,7 +277,7 @@ class EvaluationView(ViewMixin, QWidget):
         layout = self._create_card_layout()
         container.setLayout(layout)
 
-        widget = BodePlotWidget(self._ui_context, self._vm_plots.get(FREQUENCY_DOMAIN), parent=self._plot_tab)
+        widget = BodePlotWidget(self._ui_context, self._vm_plots[FREQUENCY_DOMAIN], parent=self._plot_tab)
         widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         layout.addWidget(widget)
 
@@ -306,7 +306,7 @@ class EvaluationView(ViewMixin, QWidget):
 
         widget = QWidget(self)
 
-        grid_layout = self._create_grid(FIELDS.get("tf"))
+        grid_layout = self._create_grid(FIELDS["tf"])
         widget.setLayout(grid_layout)
 
         plant_tf = ""
@@ -414,8 +414,8 @@ class EvaluationView(ViewMixin, QWidget):
     # ============================================================
     def _on_theme_applied(self) -> None:
         """Update theme-dependent UI elements."""
-        icon = self._load_icon(Icons.evaluation, self._titel_icon_size)
-        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
+        icon = self._load_icon(Icons.evaluation, self._title_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._title_icon_size, self._title_icon_size))
         self._load_block_diagram()
 
     # ============================================================
@@ -496,13 +496,13 @@ class EvaluationView(ViewMixin, QWidget):
                 label_enum = PlotLabels[key]
             else:
                 label_enum = PlotLabels(key)
-            self._vm_plots.get(FREQUENCY_DOMAIN).update_data(
+            self._vm_plots[FREQUENCY_DOMAIN].update_data(
                 BodePlotData(
                     key=label_enum.value,
                     label=self._enum_translation(label_enum),
                     omega=result.omega,
-                    margin=result.margin.get(key),
-                    phase=result.phase.get(key),
+                    margin=result.margin[key],
+                    phase=result.phase[key],
                     plot_style=PLOT_STYLE.get(label_enum),
                 )
             )
@@ -516,14 +516,16 @@ class EvaluationView(ViewMixin, QWidget):
         self._update_frequency_domain_plots()
         self._update_pso_result_values()
 
-        widget: FormulaWidget = self.field_widgets.get(EvaluationField.TF_PLANT)
+        widget: FormulaWidget = self.field_widgets[EvaluationField.TF_PLANT]
         snapshot = self._vm_evaluator.get_pso_snapshot()
+        if snapshot is None:
+            return
         widget.set_formula(r"G(s) = " + snapshot.plant_tf)
 
     def _on_vm_time_changed(self) -> None:
         """Trigger recomputation when plot time range changes."""
-        t0 = self._vm_plots.get(TIME_DOMAIN).x_min
-        t1 = self._vm_plots.get(TIME_DOMAIN).x_max
+        t0 = self._vm_plots[TIME_DOMAIN].x_min
+        t1 = self._vm_plots[TIME_DOMAIN].x_max
 
         self.logger.debug(f"Time range changed: t0={t0}, t1={t1}")
         self._update_time_domain_plots()
@@ -548,16 +550,16 @@ class EvaluationView(ViewMixin, QWidget):
     # Helpers
     # ============================================================
     def _update_time_domain_plots(self) -> None:
-        t0 = self._vm_plots.get(TIME_DOMAIN).x_min
-        t1 = self._vm_plots.get(TIME_DOMAIN).x_max
+        t0 = self._vm_plots[TIME_DOMAIN].x_min
+        t1 = self._vm_plots[TIME_DOMAIN].x_max
 
         self._vm_evaluator.compute_closed_loop_response(t0, t1)
         self._vm_evaluator.compute_plant_response(t0, t1)
         self._vm_evaluator.compute_function(t0, t1)
 
     def _update_frequency_domain_plots(self) -> None:
-        omega_min = self._vm_plots.get(FREQUENCY_DOMAIN).x_min
-        omega_max = self._vm_plots.get(FREQUENCY_DOMAIN).x_max
+        omega_min = self._vm_plots[FREQUENCY_DOMAIN].x_min
+        omega_max = self._vm_plots[FREQUENCY_DOMAIN].x_max
 
         self._vm_evaluator.compute_plant_frequency_response(omega_min, omega_max)
         self._vm_evaluator.compute_closed_loop_frequency_response(omega_max, omega_min)
@@ -601,7 +603,7 @@ class EvaluationView(ViewMixin, QWidget):
             val_dict, visible = value
             widget = self.field_widgets.get(key)
             widget.setVisible(visible)
-            widget.setText(self.tr(PSO_RESULT_TEMPLATE.get(key)) % val_dict)
+            widget.setText(self.tr(PSO_RESULT_TEMPLATE[key]) % val_dict)
 
     def _load_block_diagram(self) -> None:
         """Build and recolor the closed loop block diagram SVG."""

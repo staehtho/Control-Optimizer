@@ -13,7 +13,6 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QLayout, QGraphicsOpacityEffect,
 )
-from PySide6.QtCore import QObject
 from PySide6.QtGui import QDoubleValidator, QIntValidator
 
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
@@ -26,7 +25,7 @@ from resources.resources import Icons
 if TYPE_CHECKING:
     from app_domain.ui_context import UiContext
     from viewmodels import PlantViewModel, FunctionViewModel, PsoConfigurationViewModel
-    from views.widgets import SectionFrame, ToggleableSectionFrame
+    from views.widgets import SectionFrame
 
 
 FIELDS: list[FieldConfig | SectionConfig] = [
@@ -90,7 +89,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
             vm_plant: PlantViewModel,
             vm_function: FunctionViewModel,
             vm_pso: PsoConfigurationViewModel,
-            parent: QObject = None,
+            parent: QWidget = None,
     ):
         QWidget.__init__(self, parent)
 
@@ -108,10 +107,10 @@ class PsoConfigurationView(ViewMixin, QWidget):
         main_layout = self._create_page_layout()
 
         # Title row (icon + title)
-        icon = self._load_icon(Icons.pso_parameter, self._titel_icon_size)
+        icon = self._load_icon(Icons.pso_parameter, self._title_icon_size)
         self._label_icon = QLabel(self)
-        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
-        self._label_icon.setFixedSize(self._titel_icon_size, self._titel_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._title_icon_size, self._title_icon_size))
+        self._label_icon.setFixedSize(self._title_icon_size, self._title_icon_size)
 
         self._lbl_title = QLabel(self)
         self._lbl_title.setObjectName("viewTitle")
@@ -376,8 +375,8 @@ class PsoConfigurationView(ViewMixin, QWidget):
     # ============================================================
     def _on_theme_applied(self) -> None:
         """Update theme-dependent UI elements."""
-        icon = self._load_icon(Icons.pso_parameter, self._titel_icon_size)
-        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
+        icon = self._load_icon(Icons.pso_parameter, self._title_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._title_icon_size, self._title_icon_size))
 
         self._set_formula_tf()
         self._set_formula_function()

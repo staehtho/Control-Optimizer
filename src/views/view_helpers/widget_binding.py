@@ -67,7 +67,7 @@ def set_attr_path(root, attribute: str, value) -> None:
     setattr(attr, attrs[-1], value)
 
 
-def format_value(value):
+def format_value(value) -> str:
     """Format values for display, using scientific notation for extreme floats."""
     if isinstance(value, float):
         if value == 0.0:

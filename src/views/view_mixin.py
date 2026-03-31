@@ -58,7 +58,7 @@ class ViewMixin:
         # Scale factor for rendering the LaTeX formula
         self._formula_font_size_scale = 1.5
 
-        self._titel_icon_size = 50
+        self._title_icon_size = 50
 
         self.field_widgets = {}
         self.labels = {}
@@ -139,7 +139,7 @@ class ViewMixin:
     @staticmethod
     def _clear_layout(layout: QLayout) -> None:
         """Remove and delete all widgets/layouts from a layout."""
-        return layout_helpers.clear_layout(layout)
+        layout_helpers.clear_layout(layout)
 
     @staticmethod
     def _create_page_layout() -> QVBoxLayout:
@@ -176,16 +176,16 @@ class ViewMixin:
 
     def _on_widget_changed(self, widget: QWidget, key: str | FieldType, attribute: str, *args, **kwargs) -> None:
         """Handle changes from various input widgets and update the corresponding attribute."""
-        return widget_binding.on_widget_changed(self, widget, key, attribute, *args, **kwargs)
+        widget_binding.on_widget_changed(self, widget, key, attribute, *args, **kwargs)
 
     @staticmethod
-    def _format_value(value):
+    def _format_value(value) -> str:
         """Format values for display, using scientific notation for extreme floats."""
         return widget_binding.format_value(value)
 
     def _on_vm_changed(self, key: str | FieldType, attribute: str) -> None:
         """Update a widget to reflect the current value of its corresponding attribute."""
-        return widget_binding.on_vm_changed(self, key, attribute)
+        widget_binding.on_vm_changed(self, key, attribute)
 
     # ============================================================
     # Validation Handling
@@ -193,12 +193,12 @@ class ViewMixin:
 
     def _on_validation_failed(self, field: FieldType, message: str) -> None:
         """Handle a validation error for a specific field."""
-        return validation_helpers.on_validation_failed(self, field, message)
+        validation_helpers.on_validation_failed(self, field, message)
 
     @staticmethod
     def _clear_input_error(widget: QWidget) -> None:
         """Restore a line edit to its normal state after invalid-input handling."""
-        return validation_helpers.clear_input_error(widget)
+        validation_helpers.clear_input_error(widget)
 
     # ============================================================
     # Theme Handling
