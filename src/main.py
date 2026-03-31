@@ -10,10 +10,7 @@ from PySide6.QtWidgets import QApplication, QSplashScreen
 # TODO: add buttons to switch to the next or previous view in the view it self
 # TODO: TabIndex
 
-# TODO: BodePlot: when all plots are disabled, the y-axis should not be rescaled. now it scale to 99999 or so :)
-
 # TODO: Evaluation: TF with L and N
-# TODO: Evaluation: clean TF of C, G, etc.
 
 
 def create_app():

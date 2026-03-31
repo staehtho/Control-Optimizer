@@ -233,6 +233,11 @@ class PlotWidget(ViewMixin, QWidget):
         self.logger.debug(f"Plot contains {len(data)} data series")
 
         sorted_series = sorted(data.values(), key=lambda s: s.plot_style.plot_order)
+        visible_series = [s for s in sorted_series if s.show and not s.ignore_plot]
+        if not visible_series:
+            self._figure.suptitle(QCoreApplication.translate(context, self._cfg.title))
+            self._canvas.draw_idle()
+            return
         active_positions = self._get_active_subplot_positions(sorted_series)
         subplot = self._cfg.subplot
         rows, cols = subplot
