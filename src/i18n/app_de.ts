@@ -1669,12 +1669,12 @@ Tf   = %(tf).3f</translation>
 <context>
     <name>ViewMixin</name>
     <message>
-        <location filename="../views/view_mixin.py" line="318"/>
+        <location filename="../views/view_mixin.py" line="317"/>
         <source>Previous</source>
         <translation>Zurück</translation>
     </message>
     <message>
-        <location filename="../views/view_mixin.py" line="319"/>
+        <location filename="../views/view_mixin.py" line="318"/>
         <source>Next</source>
         <translation>Nächstes</translation>
     </message>
