@@ -159,10 +159,10 @@ class Translation:
                 return QCoreApplication.translate("ControlEnums", "C_controller")
             case PlotLabels.L:
                 return QCoreApplication.translate("ControlEnums", "L_open_loop")
+            case PlotLabels.T:
+                return QCoreApplication.translate("ControlEnums", "T_closed_loop")
             case PlotLabels.S:
                 return QCoreApplication.translate("ControlEnums", "S_sensitivity")
-            case PlotLabels.T:
-                return QCoreApplication.translate("ControlEnums", "T_complement_sensitivity")
             case _:
                 raise NotImplementedError(f"No translation registered for enum value: {value}")
 
