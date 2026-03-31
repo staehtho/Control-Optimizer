@@ -32,6 +32,8 @@ from .plot_data import (
     PlotLabels,
 )
 
+from .plot_style import PlotStyle
+
 from .pso_simulation import (
     PsoSimulationParam,
     PsoResult
@@ -62,6 +64,7 @@ __all__ = [
     "PlotData",
     "BodePlotData",
     "PlotLabels",
+    "PlotStyle",
     "PsoSimulationParam",
     "PsoResult",
     "LanguageType",
