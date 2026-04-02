@@ -11,6 +11,9 @@ from PySide6.QtWidgets import QApplication, QSplashScreen
 
 # TODO: Evaluation: TF with L and N
 
+# TODO: PSO: block diagram this view at the first position
+# TODO: PSO: move the PSO simulation fram at the second position
+
 
 def create_app():
     return QApplication(sys.argv)
