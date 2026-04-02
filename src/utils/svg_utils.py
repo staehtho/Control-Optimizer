@@ -65,6 +65,7 @@ def _extract_svg_inner(svg_text: str) -> str:
 
 def _prepare_svg_for_merge(svg_text: str, scope_id: str, defs_suffix: str) -> str:
     svg_text = _suffix_defs_ids(svg_text, defs_suffix)
+    svg_text = _inline_svg_class_styles(svg_text)
     svg_text = _scope_svg_styles(svg_text, f"#{scope_id}")
     return svg_text
 
@@ -116,6 +117,98 @@ def _scope_svg_styles(svg_text: str, scope: str) -> str:
     return re.sub(r"<style\b[^>]*>(.*?)</style>", repl, svg_text, flags=re.IGNORECASE | re.DOTALL)
 
 
+def _inline_svg_class_styles(svg_text: str) -> str:
+    class_styles = _extract_simple_class_styles(svg_text)
+
+    def repl(match: re.Match) -> str:
+        tag = match.group(0)
+        class_match = re.search(r'\bclass\s*=\s*"([^"]+)"', tag, flags=re.IGNORECASE)
+        if class_match is None:
+            return tag
+
+        classes = [cls for cls in class_match.group(1).split() if cls]
+        styles = [class_styles[cls] for cls in classes if cls in class_styles]
+
+        tag = re.sub(r'\s*\bclass\s*=\s*"[^"]*"', "", tag, count=1, flags=re.IGNORECASE)
+        if not styles:
+            return tag
+
+        style_match = re.search(r'\bstyle\s*=\s*"([^"]*)"', tag, flags=re.IGNORECASE)
+        class_style = "; ".join(style.rstrip(" ;") for style in styles if style.strip())
+        if style_match is not None:
+            existing_style = style_match.group(1).strip()
+            merged_style = _merge_style_declarations(class_style, existing_style)
+            return re.sub(
+                r'\bstyle\s*=\s*"[^"]*"',
+                f'style="{merged_style}"',
+                tag,
+                count=1,
+                flags=re.IGNORECASE,
+            )
+
+        closing = "/>" if tag.endswith("/>") else ">"
+        return tag[:-len(closing)] + f' style="{class_style}"{closing}'
+
+    svg_text = re.sub(r"<([a-zA-Z][^/\s>]*)\b[^>]*class\s*=\s*\"[^\"]+\"[^>]*/?>", repl, svg_text)
+    return re.sub(r"<style\b[^>]*>.*?</style>", "", svg_text, flags=re.IGNORECASE | re.DOTALL)
+
+
+def _extract_simple_class_styles(svg_text: str) -> dict[str, str]:
+    class_styles: dict[str, str] = {}
+
+    for style_match in re.finditer(r"<style\b[^>]*>(.*?)</style>", svg_text, flags=re.IGNORECASE | re.DOTALL):
+        css = style_match.group(1)
+        for rule_match in re.finditer(r"\.([a-zA-Z_][\w\-]*)\s*\{([^{}]+)\}", css):
+            class_name = rule_match.group(1)
+            declarations = rule_match.group(2).strip().rstrip(" ;")
+            if declarations:
+                class_styles[class_name] = declarations
+
+    return class_styles
+
+
+def _merge_style_declarations(base_style: str, override_style: str) -> str:
+    merged: list[tuple[str | None, str]] = []
+    index_by_name: dict[str, int] = {}
+
+    for declaration in _parse_style_declarations(base_style):
+        name = declaration[0]
+        if name is not None:
+            index_by_name[name] = len(merged)
+        merged.append(declaration)
+
+    for declaration in _parse_style_declarations(override_style):
+        name = declaration[0]
+        if name is not None and name in index_by_name:
+            merged[index_by_name[name]] = declaration
+        else:
+            if name is not None:
+                index_by_name[name] = len(merged)
+            merged.append(declaration)
+
+    return "; ".join(value for _, value in merged if value).strip()
+
+
+def _parse_style_declarations(style_text: str) -> list[tuple[str | None, str]]:
+    declarations: list[tuple[str | None, str]] = []
+
+    for raw_declaration in style_text.split(";"):
+        declaration = raw_declaration.strip()
+        if not declaration:
+            continue
+
+        if ":" not in declaration:
+            declarations.append((None, declaration))
+            continue
+
+        name, value = declaration.split(":", 1)
+        normalized_name = name.strip().lower()
+        normalized_value = value.strip()
+        declarations.append((normalized_name, f"{normalized_name}:{normalized_value}"))
+
+    return declarations
+
+
 def _scope_css_selectors(css_text: str, scope: str) -> str:
     i = 0
     n = len(css_text)
@@ -163,7 +256,7 @@ def svg_to_icon(svg_text: str, size: int = 32) -> QIcon:
 
 
 def save_svg(path: str | Path, svg_content: str, size: int = 32) -> None:
-    path = Path(path)
+    path: Path = Path(path)
 
     # Optional: inject width/height if missing
     if 'width=' not in svg_content and 'height=' not in svg_content:
