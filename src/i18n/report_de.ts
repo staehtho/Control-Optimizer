@@ -4,12 +4,22 @@
 <context>
     <name>Report</name>
     <message>
+        <location filename="../service/reporting/dynamic_report.py" line="43"/>
+        <source>Control Optimizer</source>
+        <translation>Control Optimizer</translation>
+    </message>
+    <message>
         <location filename="../service/reporting/dynamic_report.py" line="44"/>
+        <source>Page %d</source>
+        <translation>Seite %d</translation>
+    </message>
+    <message>
+        <location filename="../service/reporting/dynamic_report.py" line="48"/>
         <source>Control Optimizer Report</source>
         <translation>Control-Optimierer Bericht</translation>
     </message>
     <message>
-        <location filename="../service/reporting/dynamic_report.py" line="71"/>
+        <location filename="../service/reporting/dynamic_report.py" line="75"/>
         <source>This report was generated dynamically.</source>
         <translation>Dieser Bericht wurde dynamisch erstellt.</translation>
     </message>

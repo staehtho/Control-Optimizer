@@ -40,6 +40,10 @@ class DynamicReport(BaseReport):
         self._selection = selection
         self._data = data
 
+        self.header_text = QCoreApplication.translate("Report", "Control Optimizer")
+        self.footer_text = QCoreApplication.translate("Report", "Page %d")
+
+
     def build_report(self) -> None:
         self.add_title(QCoreApplication.translate("Report", "Control Optimizer Report"))
 
