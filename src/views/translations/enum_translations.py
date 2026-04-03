@@ -1,3 +1,4 @@
+import inspect
 from typing import Callable, Type, Any
 from PySide6.QtCore import QCoreApplication
 from enum import Enum
@@ -5,6 +6,43 @@ from enum import Enum
 from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex, MySolver
 from app_domain.functions import FunctionTypes
 from app_types import LanguageType, ThemeType, PlotLabels, NavLabels
+
+
+def register_translation(enum_type):
+    """Decorator to register a method as a translation handler for a given enum type.
+
+    This decorator attaches metadata to the decorated function indicating
+    which enum type it is responsible for. The metadata can later be used
+    to automatically build a registry of enum-to-function mappings.
+
+    Args:
+        enum_type: The enum class that the decorated function will handle.
+
+    Returns:
+        A decorator that attaches the enum type metadata to the function
+        and returns the function unchanged.
+
+    Example:
+        ```
+        @register_translation(MyEnum)
+        def translate_my_enum(self, value: MyEnum) -> str:
+            return "some label"
+        ```
+    """
+
+    def decorator(func):
+        """Attach enum type metadata to the function.
+
+        Args:
+            func: The function to decorate.
+
+        Returns:
+            The same function with an added `register_for` attribute.
+        """
+        func.register_for = enum_type
+        return func
+
+    return decorator
 
 
 class Translation:
@@ -15,19 +53,14 @@ class Translation:
     """
 
     def __init__(self) -> None:
+        self._registry: dict[Type[Any], Callable[[Enum], str]] = {}
 
-        # Central registry of enum type -> translation method
-        self._registry: dict[Type[Any], Callable[[Enum], str]] = {
-            AntiWindup: self._anti_windup_label,
-            ExcitationTarget: self._excitation_target_label,
-            FunctionTypes: self._function_type_label,
-            PerformanceIndex: self._performance_index_label,
-            NavLabels: self._nav_label,
-            PlotLabels: self._plot_labels,
-            MySolver: self._solver_label,
-            LanguageType: self._language_type_label,
-            ThemeType: self._theme_type_label
-        }
+        # automatically find and register methods
+        for _, method in inspect.getmembers(self, predicate=inspect.ismethod):
+            if hasattr(method, "register_for"):
+                enum_type = method.register_for
+                self._registry[enum_type] = method
+
 
     def __call__(self, value: Enum) -> str:
         """Return the translated string for a given enum value.
@@ -50,8 +83,8 @@ class Translation:
     # ------------------------------------------------------------------
     # Individual enum translation mappings
     # ------------------------------------------------------------------
-    @staticmethod
-    def _anti_windup_label(value: Enum) -> str:
+    @register_translation(AntiWindup)
+    def _anti_windup(self, value: Enum) -> str:
         """Return translated label for AntiWindup enum."""
         match value:
             case AntiWindup.CLAMPING:
@@ -63,8 +96,8 @@ class Translation:
             case _:
                 raise NotImplementedError(f"No translation registered for enum type: {value}")
 
-    @staticmethod
-    def _excitation_target_label(value: Enum) -> str:
+    @register_translation(ExcitationTarget)
+    def _excitation_target(self, value: Enum) -> str:
         """Return translated label for ExcitationTarget enum."""
         match value:
             case ExcitationTarget.REFERENCE:
@@ -76,8 +109,8 @@ class Translation:
             case _:
                 raise NotImplementedError(f"No translation registered for enum type: {value}")
 
-    @staticmethod
-    def _performance_index_label(value: Enum) -> str:
+    @register_translation(PerformanceIndex)
+    def _performance_index(self, value: Enum) -> str:
         """Return translated label for PerformanceIndex enum."""
         match value:
             case PerformanceIndex.ITAE:
@@ -91,8 +124,8 @@ class Translation:
             case _:
                 raise NotImplementedError(f"No translation registered for enum type: {value}")
 
-    @staticmethod
-    def _function_type_label(value: Enum) -> str:
+    @register_translation(FunctionTypes)
+    def _function_type(self, value: Enum) -> str:
         """Return translated label for FunctionTypes enum."""
         match value:
             case FunctionTypes.NULL:
@@ -114,8 +147,8 @@ class Translation:
             case _:
                 raise NotImplementedError(f"No translation registered for enum value: {value}")
 
-    @staticmethod
-    def _nav_label(value: Enum) -> str:
+    @register_translation(NavLabels)
+    def _nav_labels(self, value: Enum) -> str:
         """Return translated label for NavLabels enum."""
         match value:
             case NavLabels.PLANT:
@@ -135,8 +168,8 @@ class Translation:
             case _:
                 raise NotImplementedError(f"No translation registered for enum value: {value}")
 
-    @staticmethod
-    def _plot_labels(value: Enum) -> str:
+    @register_translation(PlotLabels)
+    def _plot_labels(self, value: Enum) -> str:
         """Return translated label for PlotLabels enum."""
         match value:
             case PlotLabels.PLANT:
@@ -166,8 +199,8 @@ class Translation:
             case _:
                 raise NotImplementedError(f"No translation registered for enum value: {value}")
 
-    @staticmethod
-    def _solver_label(value: Enum) -> str:
+    @register_translation(MySolver)
+    def _my_solver(self, value: Enum) -> str:
         """Return translated label for MySolver enum."""
         match value:
             case MySolver.RK4:
@@ -175,8 +208,8 @@ class Translation:
             case _:
                 raise NotImplementedError(f"No translation registered for enum value: {value}")
 
-    @staticmethod
-    def _language_type_label(value: Enum) -> str:
+    @register_translation(LanguageType)
+    def _language_type(self, value: Enum) -> str:
         """Return translated label for LanguageType enum."""
         match value:
             case LanguageType.ENGLISH:
@@ -186,8 +219,8 @@ class Translation:
             case _:
                 raise NotImplementedError(f"No translation registered for enum value: {value}")
 
-    @staticmethod
-    def _theme_type_label(value: Enum) -> str:
+    @register_translation(ThemeType)
+    def _theme_type(self, value: Enum) -> str:
         """Return translated label for ThemeType enum."""
         match value:
             case ThemeType.LIGHT:
