@@ -135,6 +135,7 @@ def create_view_factories(engine, ui_context):
             ui_context,
             engine.ensure_plant_viewmodel(),
             create_vm_function(engine),
+            engine.ensure_controller_viewmodel(),
             engine.ensure_pso_viewmodel(),
             parent=parent
         )
