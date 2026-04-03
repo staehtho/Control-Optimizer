@@ -122,13 +122,14 @@ class PsoConfigurationView(ViewMixin, QWidget):
         self._frm_block_diagram = self._create_block_diagram_frame()
         main_layout.addWidget(self._frm_block_diagram)
 
-        main_layout.addLayout(self._create_field_grid())
-
         self._frm_run_pso = self._create_run_pso_frame()
         main_layout.addWidget(self._frm_run_pso)
 
-        main_layout.addStretch()
+        main_layout.addLayout(self._create_field_grid())
+
         main_layout.addLayout(self._create_navigation_buttons_layout())
+
+        main_layout.addStretch()
         self.setLayout(main_layout)
 
     def _create_block_diagram_frame(self) -> SectionFrame:
@@ -164,9 +165,17 @@ class PsoConfigurationView(ViewMixin, QWidget):
         self._progress_bar.setValue(0)
         frame_layout.addWidget(self._progress_bar)
 
+
         btn_layout = QHBoxLayout()
         btn_layout.setContentsMargins(0, 0, 0, 0)
         btn_layout.setSpacing(8)
+
+        self._lbl_interrupt_status = QLabel(frame)
+        self._lbl_interrupt_status.setObjectName("statusText")
+        self._lbl_interrupt_status.setText("")
+        btn_layout.addWidget(self._lbl_interrupt_status)
+
+        btn_layout.addStretch()
 
         self._btn_run_pso = QPushButton(frame)
         self._btn_run_pso.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
@@ -179,12 +188,6 @@ class PsoConfigurationView(ViewMixin, QWidget):
         btn_layout.addWidget(self._btn_interrupt_pso)
         self.labels[PsoField.INTERRUPT_PSO] = self._btn_interrupt_pso
 
-        self._lbl_interrupt_status = QLabel(frame)
-        self._lbl_interrupt_status.setObjectName("statusText")
-        self._lbl_interrupt_status.setText("")
-        btn_layout.addWidget(self._lbl_interrupt_status)
-
-        btn_layout.addStretch()
         frame_layout.addLayout(btn_layout)
 
         return frame
