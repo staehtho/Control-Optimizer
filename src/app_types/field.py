@@ -82,6 +82,8 @@ class ControllerField(FieldType):
 
 # PsoConfigurationViewModel / PsoConfigurationView
 class PsoField(FieldType):
+    BLOCK_DIAGRAM = "block_diagram"
+
     PLANT = "plant"
     PLANT_TF = "plant_tf"
 

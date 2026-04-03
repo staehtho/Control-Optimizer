@@ -3,15 +3,8 @@ from typing import TYPE_CHECKING
 from functools import partial
 
 from PySide6.QtWidgets import (
-    QWidget,
-    QLabel,
-    QLineEdit,
-    QComboBox,
-    QPushButton,
-    QProgressBar,
-    QHBoxLayout,
-    QSizePolicy,
-    QLayout, QGraphicsOpacityEffect,
+    QWidget, QLabel, QLineEdit, QComboBox, QPushButton, QProgressBar, QHBoxLayout, QSizePolicy, QLayout,
+    QGraphicsOpacityEffect,
 )
 from PySide6.QtGui import QDoubleValidator, QIntValidator
 
@@ -19,12 +12,13 @@ from app_domain.controlsys import ExcitationTarget, PerformanceIndex
 from app_domain.functions import FunctionTypes, resolve_function_type
 from app_types import PsoField, FieldConfig, SectionConfig
 from views.view_mixin import ViewMixin
-from views.widgets import FormulaWidget
+from views.widgets import FormulaWidget, AspectRatioSvgWidget
 from resources.resources import Icons
+from resources.blockdiagram import load_closed_loop_diagram
 
 if TYPE_CHECKING:
     from app_domain.ui_context import UiContext
-    from viewmodels import PlantViewModel, FunctionViewModel, PsoConfigurationViewModel
+    from viewmodels import PlantViewModel, FunctionViewModel, PsoConfigurationViewModel, ControllerViewModel
     from views.widgets import SectionFrame
 
 
@@ -88,6 +82,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
             ui_context: UiContext,
             vm_plant: PlantViewModel,
             vm_function: FunctionViewModel,
+            vm_controller: ControllerViewModel,
             vm_pso: PsoConfigurationViewModel,
             parent: QWidget = None,
     ):
@@ -95,6 +90,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
 
         self._vm_plant = vm_plant
         self._vm_function = vm_function
+        self._vm_controller = vm_controller
         self._vm_pso = vm_pso
 
         ViewMixin.__init__(self, ui_context)
@@ -123,6 +119,9 @@ class PsoConfigurationView(ViewMixin, QWidget):
         title_layout.addStretch()
         main_layout.addLayout(title_layout)
 
+        self._frm_block_diagram = self._create_block_diagram_frame()
+        main_layout.addWidget(self._frm_block_diagram)
+
         main_layout.addLayout(self._create_field_grid())
 
         self._frm_run_pso = self._create_run_pso_frame()
@@ -132,8 +131,22 @@ class PsoConfigurationView(ViewMixin, QWidget):
         main_layout.addLayout(self._create_navigation_buttons_layout())
         self.setLayout(main_layout)
 
-    def _create_field_grid(self) -> QLayout:
+    def _create_block_diagram_frame(self) -> SectionFrame:
+        """Create the block diagram control card."""
+        frame: SectionFrame
+        frame, frame_layout = self._create_card(parent=self)
 
+        svg_widget = AspectRatioSvgWidget()
+        svg_widget.set_initial_scale(4)
+        svg_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        svg_widget.setMinimumHeight(400)
+        frame_layout.addWidget(svg_widget)
+        self.field_widgets[PsoField.BLOCK_DIAGRAM] = svg_widget
+
+        return frame
+
+    def _create_field_grid(self) -> QLayout:
+        """Create the field grid layout."""
         grid = self._create_grid(FIELDS)
 
         self.field_widgets[PsoField.PLANT_TF].set_font_size(self._formula_font_size_scale)
@@ -227,8 +240,13 @@ class PsoConfigurationView(ViewMixin, QWidget):
         # Plant ViewModel
         self._vm_plant.polyTfChanged.connect(self._on_vm_plant_tf_changed)
         self._vm_plant.isValidChanged.connect(self._on_vm_plant_is_valid_changed)
+
         # Function ViewModel
         self._vm_function.functionChanged.connect(self._on_vm_function_function_changed)
+
+        # Controller ViewModel
+        self._vm_controller.antiWindupChanged.connect(self._load_closed_loop_block_diagram)
+
         # PSO Configuration ViewModel
         self._vm_pso.validationFailed.connect(self._on_validation_failed)
         attributes: dict[PsoField, tuple[str, str]] = {
@@ -278,6 +296,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
         super()._retranslate()
 
         self._lbl_title.setText(self.tr("PSO Parameter"))
+        self._frm_block_diagram.setText(self.tr("Closed Loop Block Diagram"))
         self._frm_run_pso.setText(self.tr("PSO Simulation"))
 
         labels = {
@@ -381,6 +400,8 @@ class PsoConfigurationView(ViewMixin, QWidget):
 
         effect.setOpacity(0.45)
 
+        self._load_closed_loop_block_diagram()
+
     # ============================================================
     # Applied theme
     # ============================================================
@@ -422,6 +443,15 @@ class PsoConfigurationView(ViewMixin, QWidget):
         else:
             self._vm_pso.overshoot_control_enabled = False
         self._vm_pso.blockSignals(False)
+
+    def _load_closed_loop_block_diagram(self) -> None:
+        """Build and recolor the closed loop block diagram SVG."""
+        merged_svg = load_closed_loop_diagram(
+            self._vm_controller.anti_windup,
+            (self._vm_controller.constraint_min, self._vm_controller.constraint_max),
+            self._vm_theme.get_svg_color_map(),
+        )
+        self.field_widgets[PsoField.BLOCK_DIAGRAM].set_svg_bytes(merged_svg.encode("utf-8"))
 
     def _on_vm_pso_simulation_finished(self) -> None:
         """Re-enable the run button after PSO simulation completes."""
