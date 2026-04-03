@@ -68,11 +68,11 @@ class Translation:
         """Return translated label for ExcitationTarget enum."""
         match value:
             case ExcitationTarget.REFERENCE:
-                return QCoreApplication.translate("ControlEnums", "Reference")
+                return QCoreApplication.translate("ControlEnums", "Reference r")
             case ExcitationTarget.INPUT_DISTURBANCE:
-                return QCoreApplication.translate("ControlEnums", "Input Disturbance")
+                return QCoreApplication.translate("ControlEnums", "Input Disturbance l")
             case ExcitationTarget.MEASUREMENT_DISTURBANCE:
-                return QCoreApplication.translate("ControlEnums", "Measurement Disturbance")
+                return QCoreApplication.translate("ControlEnums", "Measurement Disturbance n")
             case _:
                 raise NotImplementedError(f"No translation registered for enum type: {value}")
 
