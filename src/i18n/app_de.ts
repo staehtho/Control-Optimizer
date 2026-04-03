@@ -77,19 +77,28 @@
         <translation>Backcalculation</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="71"/>
+        <source>r Reference</source>
+        <translation type="vanished">r Führung</translation>
+    </message>
+    <message>
+        <source>l Input Disturbance</source>
+        <translation type="vanished">l Eingangsstörung</translation>
+    </message>
+    <message>
+        <source>n Measurement Disturbance</source>
+        <translation type="vanished">n Messstörung</translation>
+    </message>
+    <message>
         <location filename="../views/translations/enum_translations.py" line="151"/>
         <source>Reference</source>
         <translation>Führung</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="73"/>
         <location filename="../views/translations/enum_translations.py" line="153"/>
         <source>Input Disturbance</source>
         <translation>Eingangsstörung</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="75"/>
         <location filename="../views/translations/enum_translations.py" line="155"/>
         <source>Measurement Disturbance</source>
         <translation>Messstörung</translation>
@@ -98,6 +107,21 @@
         <location filename="../views/translations/enum_translations.py" line="84"/>
         <source>ITAE</source>
         <translation>ITAE</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="71"/>
+        <source>Reference r</source>
+        <translation>Führung r</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="73"/>
+        <source>Input Disturbance l</source>
+        <translation>Eingangsstörung l</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="75"/>
+        <source>Measurement Disturbance n</source>
+        <translation>Messstörung n</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="86"/>
