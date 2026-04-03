@@ -5,15 +5,14 @@ from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QTabWidget, QHBoxLay
 from PySide6.QtCore import QT_TRANSLATE_NOOP, Qt
 from numpy import ndarray
 
-from app_domain.controlsys import AntiWindup
 from app_types import EvaluationField, SectionConfig, FieldConfig, PlotData, BodePlotData, PlotLabels, PsoResultField
-from utils import SvgLayer, merge_svgs, recolor_svg
+from resources.blockdiagram import load_closed_loop_diagram
 from views import ViewMixin
 from views.plot_style import PLOT_STYLE
 from views.widgets import (
     PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, BodePlotWidget, AspectRatioSvgWidget, FormulaWidget
 )
-from resources.resources import BLOCK_DIAGRAM_DIR, BlockDiagram, Icons
+from resources.resources import Icons
 
 if TYPE_CHECKING:
     from app_domain.ui_context import UiContext
@@ -610,43 +609,14 @@ class EvaluationView(ViewMixin, QWidget):
 
     def _load_block_diagram(self) -> None:
         """Build and recolor the closed loop block diagram SVG."""
-        x_offset = 100
-        y = 125
-        node_x = 150
-        sum_x = 475
-        svgs = [
-            (BlockDiagram.closed_loop, (0, 0)),
-            (BlockDiagram.controller_in, (x_offset, y)),
-            (BlockDiagram.controller_out, (sum_x + x_offset, y)),
-            (BlockDiagram.p_path, (node_x + x_offset, y)),
-            (BlockDiagram.d_path, (node_x + x_offset, y))
-        ]
 
-        if self._vm_evaluator.has_snapshot():
-            match self._vm_evaluator.anti_windup:
-                case AntiWindup.BACKCALCULATION:
-                    svgs.append((BlockDiagram.backcalculation, (node_x + x_offset, y)))
-                case AntiWindup.CLAMPING:
-                    svgs.append((BlockDiagram.clamping, (node_x + x_offset, y)))
-                case AntiWindup.CONDITIONAL:
-                    svgs.append((BlockDiagram.conditional, (node_x + x_offset, y)))
-                case unknown_value:
-                    raise ValueError(
-                        f"Unsupported anti-windup method: {unknown_value!r}. "
-                        f"Expected one of: BACKCALCULATION, CLAMPING, CONDITIONAL."
-                    )
+        snapshot = self._vm_evaluator.get_pso_snapshot()
+        if snapshot is None:
+            return
 
-        svg_layers = []
-        for svg, translate in svgs:
-            svg_path = BLOCK_DIAGRAM_DIR / svg
-            svg_layers.append(SvgLayer(svg_path.read_text(encoding="utf-8"), translate=translate))
-
-        merged_svg = merge_svgs(svg_layers)
-
-        if self._vm_evaluator.has_snapshot():
-            # set min and max constraint
-            merged_svg = merged_svg.replace("min: ###", f"min: {self._vm_evaluator.constraint_min}")
-            merged_svg = merged_svg.replace("max: ###", f"max: {self._vm_evaluator.constraint_max}")
-
-        recolored = recolor_svg(merged_svg, self._vm_theme.get_svg_color_map())
-        self.field_widgets.get(BLOCK_DIAGRAM).set_svg_bytes(recolored.encode("utf-8"))
+        merged_svg = load_closed_loop_diagram(
+            snapshot.controller_anti_windup,
+            (snapshot.controller_constraint_min, snapshot.controller_constraint_max),
+            self._vm_theme.get_svg_color_map(),
+        )
+        self.field_widgets.get(BLOCK_DIAGRAM).set_svg_bytes(merged_svg.encode("utf-8"))

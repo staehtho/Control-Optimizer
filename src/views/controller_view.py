@@ -6,11 +6,11 @@ from PySide6.QtGui import QDoubleValidator, QValidator
 from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit, QHBoxLayout, QGraphicsOpacityEffect
 
 from app_domain.controlsys import AntiWindup
-from utils import recolor_svg, merge_svgs, SvgLayer
 from app_types import ControllerField, FieldConfig, SectionConfig
 from .view_mixin import ViewMixin
 from views.widgets import AspectRatioSvgWidget
-from resources.resources import BLOCK_DIAGRAM_DIR, BlockDiagram, Icons
+from resources.resources import Icons
+from resources.blockdiagram import load_controller_diagram
 
 if TYPE_CHECKING:
     from app_domain.ui_context import UiContext
@@ -275,40 +275,10 @@ class ControllerView(ViewMixin, QWidget):
     # ============================================================
     def _load_block_diagram(self) -> None:
         """Build and recolor the controller block diagram SVG."""
-        y = 125
-        node_x = 150
-        sum_x = 475
-        svgs = [
-            (BlockDiagram.blank_base, (0, 0)),
-            (BlockDiagram.controller_in, (0, y)),
-            (BlockDiagram.controller_out, (sum_x, y)),
-            (BlockDiagram.p_path, (node_x, y)),
-            (BlockDiagram.d_path, (node_x, y))
-        ]
+        merged_svg = load_controller_diagram(
+            self._vm_controller.anti_windup,
+            (self._vm_controller.constraint_min, self._vm_controller.constraint_max),
+            self._vm_theme.get_svg_color_map(),
+        )
 
-        match self._vm_controller.anti_windup:
-            case AntiWindup.BACKCALCULATION:
-                svgs.append((BlockDiagram.backcalculation, (node_x, y)))
-            case AntiWindup.CLAMPING:
-                svgs.append((BlockDiagram.clamping, (node_x, y)))
-            case AntiWindup.CONDITIONAL:
-                svgs.append((BlockDiagram.conditional, (node_x, y)))
-            case unknown_value:
-                raise ValueError(
-                    f"Unsupported anti-windup method: {unknown_value!r}. "
-                    "Expected one of: BACKCALCULATION, CLAMPING, CONDITIONAL."
-                )
-
-        svg_layers = []
-        for svg, translate in svgs:
-            svg_path = BLOCK_DIAGRAM_DIR / svg
-            svg_layers.append(SvgLayer(svg_path.read_text(encoding="utf-8"), translate=translate))
-
-        merged_svg = merge_svgs(svg_layers)
-
-        # set min and max constraint
-        merged_svg = merged_svg.replace("min: ###", f"min: {self._vm_controller.constraint_min}")
-        merged_svg = merged_svg.replace("max: ###", f"max: {self._vm_controller.constraint_max}")
-
-        recolored = recolor_svg(merged_svg, self._vm_theme.get_svg_color_map())
-        self.field_widgets.get(ControllerField.BLOCK_DIAGRAM).set_svg_bytes(recolored.encode("utf-8"))
+        self.field_widgets.get(ControllerField.BLOCK_DIAGRAM).set_svg_bytes(merged_svg.encode("utf-8"))
