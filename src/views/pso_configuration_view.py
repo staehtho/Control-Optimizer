@@ -231,7 +231,8 @@ class PsoConfigurationView(ViewMixin, QWidget):
                 attr_name="_vm_pso.error_criterion",
                 widget=self.field_widgets.get(k_error_criterion),
                 kwargs={"value_type": PerformanceIndex},
-                main_event_handler=self._on_widget_changed
+                main_event_handler=self._on_widget_changed,
+                post_event_handler=self._apply_tool_tip_error_criterion
             ),
             ConnectSignalConfig(
                 key=k_t0,
@@ -618,6 +619,8 @@ class PsoConfigurationView(ViewMixin, QWidget):
             data = {k: self._enum_translation(k) for k in value}
             self._cmb_add_item(self.field_widgets[key], data)
 
+        self._apply_tool_tip_error_criterion()
+
     # ============================================================
     # Apply initial values
     # ============================================================
@@ -837,6 +840,13 @@ class PsoConfigurationView(ViewMixin, QWidget):
         for config in self._get_toggle_vm_bindings():
             self._on_vm_field_enabled_changed(**config.kwargs)
         self._on_vm_overshoot_control_visibility_changed()
+
+    def _apply_tool_tip_error_criterion(self) -> None:
+        """Apply the tool tip."""
+        field = self.field_widgets[PsoField.ERROR_CRITERION]
+        tooltip = get_performance_tooltip(self._vm_pso.error_criterion)
+        field.setToolTip(self._enum_translation(tooltip))
+
 
     def _get_toggle_vm_bindings(self) -> list[ConnectSignalConfig]:
         k_overshoot_control = PsoField.OVERSHOOT_CONTROL
