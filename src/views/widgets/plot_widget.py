@@ -13,7 +13,7 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib import cbook
 
-from app_types import PlotField
+from app_types import PlotField, ConnectSignalConfig
 from views import ViewMixin
 from views.widgets.toggle_switch import ToggleSwitch, TextPosition
 
@@ -163,15 +163,39 @@ class PlotWidget(ViewMixin, QWidget):
     # ============================================================
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
-        attributes: dict[PlotField, tuple[str, str, object]] = {
-            PlotField.X_MIN: ("editingFinished", "_vm.x_min", float),
-            PlotField.X_MAX: ("editingFinished", "_vm.x_max", float),
-            PlotField.GRID: ("toggled", "_vm.grid", bool),
-        }
-        for key, value in attributes.items():
-            attr, vm_attr, value_type = value
-            widget = self.field_widgets[key]
-            getattr(widget, attr).connect(partial(self._on_widget_changed, widget, key, vm_attr, value_type=value_type))
+
+        # Define key variables for readability
+        k_x_min = PlotField.X_MIN
+        k_x_max = PlotField.X_MAX
+        k_grid = PlotField.GRID
+
+        configs = [
+            ConnectSignalConfig(
+                key=k_x_min,
+                signal_name="editingFinished",
+                attr_name="_vm.x_min",
+                widget=self.field_widgets.get(k_x_min),
+                kwargs={"value_type": float},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_x_max,
+                signal_name="editingFinished",
+                attr_name="_vm.x_max",
+                widget=self.field_widgets.get(k_x_max),
+                kwargs={"value_type": float},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_grid,
+                signal_name="toggled",
+                attr_name="_vm.grid",
+                widget=self.field_widgets.get(k_grid),
+                kwargs={"value_type": bool},
+                main_event_handler=self._on_widget_changed
+            ),
+        ]
+        self._connect_object_signals(configs)
 
     # ============================================================
     # ViewModel bindings (ViewModel -> UI)
@@ -184,10 +208,31 @@ class PlotWidget(ViewMixin, QWidget):
         self._vm.dataChanged.connect(self._update_plot)
         self._vm.xMinChanged.connect(self._update_plot)
         self._vm.xMaxChanged.connect(self._update_plot)
-        self._vm.xMinChanged.connect(partial(self._on_vm_changed, PlotField.X_MIN, "_vm.x_min"))
-        self._vm.xMaxChanged.connect(partial(self._on_vm_changed, PlotField.X_MAX, "_vm.x_max"))
         self._vm.saveSvgRequested.connect(self.save_svg)
 
+        # Define key variables for readability
+        k_x_min = PlotField.X_MIN
+        k_x_max = PlotField.X_MAX
+
+        configs = [
+            ConnectSignalConfig(
+                key=k_x_min,
+                signal_name="xMinChanged",
+                attr_name="x_min",
+                widget=self._vm,
+                kwargs={"field": self.field_widgets.get(k_x_min)},
+                main_event_handler=self._on_vm_changed,
+            ),
+            ConnectSignalConfig(
+                key=k_x_max,
+                signal_name="xMaxChanged",
+                attr_name="x_max",
+                widget=self._vm,
+                kwargs={"field": self.field_widgets.get(k_x_max)},
+                main_event_handler=self._on_vm_changed,
+            ),
+        ]
+        self._connect_object_signals(configs)
     # ============================================================
     # Translation
     # ============================================================

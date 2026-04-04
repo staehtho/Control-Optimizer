@@ -1,5 +1,12 @@
 from .closed_loop_context import ClosedLoopResponseContext
 
+from .conect_signal_config import ConnectSignalConfig
+
+from .enum_tooltips import (
+    PerformanceIndexDescription,
+    get_performance_tooltip,
+    validate_enum_mapping)
+
 from .field import (
     FieldConfig,
     SectionConfig,
@@ -45,6 +52,10 @@ from .validation_result import ValidationResult
 
 __all__ = [
     "ClosedLoopResponseContext",
+    "ConnectSignalConfig",
+    "PerformanceIndexDescription",
+    "get_performance_tooltip",
+    "validate_enum_mapping",
     "FieldConfig",
     "SectionConfig",
     "FieldType",

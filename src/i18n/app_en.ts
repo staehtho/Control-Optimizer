@@ -62,17 +62,17 @@
 <context>
     <name>ControlEnums</name>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="61"/>
+        <location filename="../views/translations/enum_translations.py" line="92"/>
         <source>Clamping</source>
         <translation>Clamping</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="63"/>
+        <location filename="../views/translations/enum_translations.py" line="94"/>
         <source>Conditional</source>
         <translation>Conditional</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="65"/>
+        <location filename="../views/translations/enum_translations.py" line="96"/>
         <source>Backcalculation</source>
         <translation>Backcalculation</translation>
     </message>
@@ -89,57 +89,77 @@
         <translation type="vanished">n Measurement Disturbance</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="154"/>
+        <location filename="../views/translations/enum_translations.py" line="200"/>
         <source>Reference</source>
         <translation>Reference</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="156"/>
+        <location filename="../views/translations/enum_translations.py" line="202"/>
         <source>Input Disturbance</source>
         <translation>Input Disturbance</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="158"/>
+        <location filename="../views/translations/enum_translations.py" line="204"/>
         <source>Measurement Disturbance</source>
         <translation>Measurement Disturbance</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="87"/>
+        <location filename="../views/translations/enum_translations.py" line="118"/>
         <source>ITAE</source>
         <translation>ITAE</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="74"/>
+        <location filename="../views/translations/enum_translations.py" line="105"/>
         <source>Reference r</source>
         <translation>Reference r</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="76"/>
+        <location filename="../views/translations/enum_translations.py" line="107"/>
         <source>Input Disturbance l</source>
         <translation>Input Disturbance l</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="78"/>
+        <location filename="../views/translations/enum_translations.py" line="109"/>
         <source>Measurement Disturbance n</source>
         <translation>Measurement Disturbance n</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="89"/>
+        <location filename="../views/translations/enum_translations.py" line="120"/>
         <source>IAE</source>
         <translation>IAE</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="91"/>
+        <location filename="../views/translations/enum_translations.py" line="122"/>
         <source>ITSE</source>
         <translation>ITSE</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="93"/>
+        <location filename="../views/translations/enum_translations.py" line="124"/>
         <source>ISE</source>
         <translation>ISE</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="102"/>
+        <location filename="../views/translations/enum_translations.py" line="133"/>
+        <source>Integral of Time-weighted Absolute Error</source>
+        <translation>Integral of Time-weighted Absolute Error</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="135"/>
+        <source>Integral of Absolute Error</source>
+        <translation>Integral of Absolute Error</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="137"/>
+        <source>Integral of Time-weighted Squared Error</source>
+        <translation>Integral of Time-weighted Squared Error</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="139"/>
+        <source>Integral of Squared Error</source>
+        <translation>Integral of Squared Error</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="148"/>
         <source>Null</source>
         <translation>No function</translation>
     </message>
@@ -160,103 +180,103 @@
         <translation type="vanished">Rectangular function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="104"/>
+        <location filename="../views/translations/enum_translations.py" line="150"/>
         <source>Step</source>
         <translation>Step function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="106"/>
+        <location filename="../views/translations/enum_translations.py" line="152"/>
         <source>Sine</source>
         <translation>Sine function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="108"/>
+        <location filename="../views/translations/enum_translations.py" line="154"/>
         <source>Cosine</source>
         <translation>Cosine function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="110"/>
+        <location filename="../views/translations/enum_translations.py" line="156"/>
         <source>Rectangle</source>
         <translation>Rectangular function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="112"/>
+        <location filename="../views/translations/enum_translations.py" line="158"/>
         <source>BrownianNoise</source>
         <translation>Brownian Noise</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="114"/>
+        <location filename="../views/translations/enum_translations.py" line="160"/>
         <source>PinkNoise</source>
         <translation>Pink Noise</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="116"/>
+        <location filename="../views/translations/enum_translations.py" line="162"/>
         <source>WhiteNoise</source>
         <translation>White Noise</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="125"/>
-        <location filename="../views/translations/enum_translations.py" line="146"/>
+        <location filename="../views/translations/enum_translations.py" line="171"/>
+        <location filename="../views/translations/enum_translations.py" line="192"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="127"/>
+        <location filename="../views/translations/enum_translations.py" line="173"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="129"/>
+        <location filename="../views/translations/enum_translations.py" line="175"/>
         <source>Controller</source>
         <translation>Controller</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="131"/>
+        <location filename="../views/translations/enum_translations.py" line="177"/>
         <source>PSO Parameter</source>
         <translation>PSO Parameter</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="133"/>
+        <location filename="../views/translations/enum_translations.py" line="179"/>
         <source>Evaluation</source>
         <translation>Evaluation</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="135"/>
+        <location filename="../views/translations/enum_translations.py" line="181"/>
         <source>Simulation</source>
         <translation>Simulation</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="137"/>
+        <location filename="../views/translations/enum_translations.py" line="183"/>
         <source>Settings</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="148"/>
+        <location filename="../views/translations/enum_translations.py" line="194"/>
         <source>Function</source>
         <translation>Function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="160"/>
+        <location filename="../views/translations/enum_translations.py" line="206"/>
         <source>G_plant</source>
         <translation>G Plant</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="162"/>
+        <location filename="../views/translations/enum_translations.py" line="208"/>
         <source>C_controller</source>
         <translation>C controller</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="164"/>
+        <location filename="../views/translations/enum_translations.py" line="210"/>
         <source>L_open_loop</source>
         <translation>L open loop</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="166"/>
+        <location filename="../views/translations/enum_translations.py" line="212"/>
         <source>T_closed_loop</source>
         <translation>T closed loop</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="168"/>
+        <location filename="../views/translations/enum_translations.py" line="214"/>
         <source>S_sensitivity</source>
         <translation>S sensitivity</translation>
     </message>
@@ -265,27 +285,27 @@
         <translation type="vanished">T complement sensitivity</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="177"/>
+        <location filename="../views/translations/enum_translations.py" line="223"/>
         <source>RK4</source>
         <translation>RK4</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="186"/>
+        <location filename="../views/translations/enum_translations.py" line="232"/>
         <source>English</source>
         <translation>English</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="188"/>
+        <location filename="../views/translations/enum_translations.py" line="234"/>
         <source>German</source>
         <translation>German</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="197"/>
+        <location filename="../views/translations/enum_translations.py" line="243"/>
         <source>Light</source>
         <translation>Light</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="199"/>
+        <location filename="../views/translations/enum_translations.py" line="245"/>
         <source>Dark</source>
         <translation>Dark</translation>
     </message>
@@ -298,7 +318,7 @@
         <translation type="vanished">Response</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="152"/>
+        <location filename="../views/translations/enum_translations.py" line="198"/>
         <source>Control Signal</source>
         <translation>Control Signal</translation>
     </message>
@@ -307,7 +327,7 @@
         <translation type="vanished">Excitation Function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="150"/>
+        <location filename="../views/translations/enum_translations.py" line="196"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
@@ -323,62 +343,62 @@
 <context>
     <name>ControllerView</name>
     <message>
-        <location filename="../views/controller_view.py" line="164"/>
+        <location filename="../views/controller_view.py" line="259"/>
         <source>Controller</source>
         <translation>Controller</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="165"/>
+        <location filename="../views/controller_view.py" line="260"/>
         <source>Parameters</source>
         <translation>Parameters</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="168"/>
+        <location filename="../views/controller_view.py" line="263"/>
         <source>Controller Type</source>
         <translation>Controller Type</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="169"/>
+        <location filename="../views/controller_view.py" line="264"/>
         <source>Anti Windup</source>
         <translation>Anti Windup</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="170"/>
+        <location filename="../views/controller_view.py" line="265"/>
         <source>Methode</source>
         <translation>Methode</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="171"/>
+        <location filename="../views/controller_view.py" line="266"/>
         <source>Constraint</source>
         <translation>Constraint</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="172"/>
+        <location filename="../views/controller_view.py" line="267"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="173"/>
+        <location filename="../views/controller_view.py" line="268"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="174"/>
+        <location filename="../views/controller_view.py" line="269"/>
         <source>Ka</source>
         <translation>Ka</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="175"/>
+        <location filename="../views/controller_view.py" line="270"/>
         <source>Filter Time Constant Tf</source>
         <translation>Filter Time Constant Tf</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="177"/>
+        <location filename="../views/controller_view.py" line="272"/>
         <source>Sampling Rate [Hz]</source>
         <translation>Sampling Rate [Hz]</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="185"/>
+        <location filename="../views/controller_view.py" line="280"/>
         <source>Sampling rate unknown</source>
         <translation>Sampling rate unknown</translation>
     </message>
@@ -387,7 +407,7 @@
         <translation type="vanished">Filter Time Constant</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="176"/>
+        <location filename="../views/controller_view.py" line="271"/>
         <source>N</source>
         <translation>N</translation>
     </message>
@@ -875,18 +895,18 @@
 <context>
     <name>PlantView</name>
     <message>
-        <location filename="../views/plant_view.py" line="314"/>
+        <location filename="../views/plant_view.py" line="386"/>
         <source>plant.num</source>
         <translation>Numerator</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="315"/>
+        <location filename="../views/plant_view.py" line="387"/>
         <source>plant.den</source>
         <translation>Denumerator</translation>
     </message>
     <message>
         <location filename="../views/plant_view.py" line="242"/>
-        <location filename="../views/plant_view.py" line="308"/>
+        <location filename="../views/plant_view.py" line="380"/>
         <source>Step Response</source>
         <translation>Step Response</translation>
     </message>
@@ -901,43 +921,43 @@
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="306"/>
+        <location filename="../views/plant_view.py" line="378"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="307"/>
+        <location filename="../views/plant_view.py" line="379"/>
         <source>Transfer function</source>
         <translation>Transfer function</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="311"/>
+        <location filename="../views/plant_view.py" line="383"/>
         <source>Polynomial</source>
         <translation>Polynomial</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="312"/>
+        <location filename="../views/plant_view.py" line="384"/>
         <source>Pole-Zeros</source>
         <translation>Pole-Zeros</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="316"/>
+        <location filename="../views/plant_view.py" line="388"/>
         <source>plant.zero</source>
         <translation>Zeros</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="317"/>
+        <location filename="../views/plant_view.py" line="389"/>
         <source>plant.pole</source>
         <translation>Poles</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="319"/>
-        <location filename="../views/plant_view.py" line="321"/>
+        <location filename="../views/plant_view.py" line="391"/>
+        <location filename="../views/plant_view.py" line="393"/>
         <source>e.g. 1  → 1</source>
         <translation>e.g. 1  → 1</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="320"/>
+        <location filename="../views/plant_view.py" line="392"/>
         <source>e.g. 1, 2, 1  → 1s² + 2s + 1</source>
         <translation>e.g. 1, 2, 1  → 1s² + 2s + 1</translation>
     </message>
@@ -946,7 +966,7 @@
         <translation type="vanished">e.g. 1, 0, 0  → 1s² + 0s + 0</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="322"/>
+        <location filename="../views/plant_view.py" line="394"/>
         <source>e.g. (s + 1)^2  → (s + 1)²</source>
         <translation>e.g. (s + 1)^2  → (s + 1)²</translation>
     </message>
@@ -955,7 +975,7 @@
         <translation type="vanished">e.g. 1, 0, 0  → 1*s² + 0*s + 0</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="324"/>
+        <location filename="../views/plant_view.py" line="396"/>
         <source>Enter coefficients separated by commas, spaces, or semicolons.
         Use &apos;.&apos; as the decimal point.
         The first number corresponds to the highest power of s.
@@ -966,7 +986,7 @@ The first number corresponds to the highest power of s.
 Example: 1, 0.5, 2 → 1*s² + 0.5*s + 2</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="331"/>
+        <location filename="../views/plant_view.py" line="403"/>
         <source>Enter a polynomial expression in s (factors or expanded form).
         Use parentheses for factors. Multiplication can be implicit.
         Use &apos;^&apos; for powers.
@@ -1090,29 +1110,29 @@ Example: 1, 0.5, 2 → 1*s^2 + 0.5*s + 2</translation>
 <context>
     <name>PlotWidget</name>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="196"/>
+        <location filename="../views/widgets/plot_widget.py" line="241"/>
         <source>plot.grid</source>
         <translation>Grid</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="197"/>
+        <location filename="../views/widgets/plot_widget.py" line="242"/>
         <source>plot.start</source>
         <translation>Start time</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="198"/>
+        <location filename="../views/widgets/plot_widget.py" line="243"/>
         <source>plot.end</source>
         <translation>End time</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="199"/>
+        <location filename="../views/widgets/plot_widget.py" line="244"/>
         <source>plot.start.tooltip</source>
         <translation>Lower x-axis limit (x_min).
 Defines where the time axis begins.
 Unit: seconds (s).</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="200"/>
+        <location filename="../views/widgets/plot_widget.py" line="245"/>
         <source>plot.end.tooltip</source>
         <translation>Upper x-axis limit (x_max).
 Defines where the time axis ends.
@@ -1120,7 +1140,7 @@ Unit: seconds (s).
 Must be greater than the start time.</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="202"/>
+        <location filename="../views/widgets/plot_widget.py" line="247"/>
         <source>plot.legend</source>
         <translation>Legend</translation>
     </message>
@@ -1136,22 +1156,22 @@ Must be greater than the start time.</translation>
 <context>
     <name>PsoConfigurationView</name>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="301"/>
+        <location filename="../views/pso_configuration_view.py" line="577"/>
         <source>PSO Parameter</source>
         <translation>PSO Parameter</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="302"/>
+        <location filename="../views/pso_configuration_view.py" line="578"/>
         <source>Closed Loop Block Diagram</source>
         <translation>Closed Loop Block Diagram</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="306"/>
+        <location filename="../views/pso_configuration_view.py" line="582"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="307"/>
+        <location filename="../views/pso_configuration_view.py" line="583"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
     </message>
@@ -1160,12 +1180,12 @@ Must be greater than the start time.</translation>
         <translation type="vanished">Controller Optimization Parameters</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="303"/>
+        <location filename="../views/pso_configuration_view.py" line="579"/>
         <source>PSO Simulation</source>
         <translation>PSO Simulation</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="309"/>
+        <location filename="../views/pso_configuration_view.py" line="585"/>
         <source>Simulation Time</source>
         <translation>Simulation Time</translation>
     </message>
@@ -1178,7 +1198,7 @@ Must be greater than the start time.</translation>
         <translation type="vanished">End Time</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="314"/>
+        <location filename="../views/pso_configuration_view.py" line="590"/>
         <source>Error Criterion</source>
         <translation>Error Criterion</translation>
     </message>
@@ -1187,12 +1207,12 @@ Must be greater than the start time.</translation>
         <translation type="vanished">Overshoot Control</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="310"/>
+        <location filename="../views/pso_configuration_view.py" line="586"/>
         <source>Start Time [s]</source>
         <translation>Start Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="311"/>
+        <location filename="../views/pso_configuration_view.py" line="587"/>
         <source>End Time [s]</source>
         <translation>End Time [s]</translation>
     </message>
@@ -1201,62 +1221,62 @@ Must be greater than the start time.</translation>
         <translation type="vanished">Overshoot Control [%]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="315"/>
+        <location filename="../views/pso_configuration_view.py" line="591"/>
         <source>Max Overshoot [%]</source>
         <translation>Max Overshoot [%]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="316"/>
+        <location filename="../views/pso_configuration_view.py" line="592"/>
         <source>Slew Rate Limit</source>
         <translation>Slew Rate Limit</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="317"/>
+        <location filename="../views/pso_configuration_view.py" line="593"/>
         <source>Maximum du/dt</source>
         <translation>Maximum du/dt</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="318"/>
+        <location filename="../views/pso_configuration_view.py" line="594"/>
         <source>Window Size</source>
         <translation>Window Size</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="319"/>
+        <location filename="../views/pso_configuration_view.py" line="595"/>
         <source>Frequency Domain</source>
         <translation>Frequency Domain</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="320"/>
+        <location filename="../views/pso_configuration_view.py" line="596"/>
         <source>Gain Margin [dB]</source>
         <translation>Gain Margin [dB]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="321"/>
+        <location filename="../views/pso_configuration_view.py" line="597"/>
         <source>Phase Margin [°]</source>
         <translation>Phase Margin [°]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="322"/>
+        <location filename="../views/pso_configuration_view.py" line="598"/>
         <source>Sensitivity [dB]</source>
         <translation>Sensitivity [dB]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="323"/>
+        <location filename="../views/pso_configuration_view.py" line="599"/>
         <source>PSO Bounds</source>
         <translation>PSO Bounds</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="324"/>
+        <location filename="../views/pso_configuration_view.py" line="600"/>
         <source>Kp Bounds</source>
         <translation>Kp Bounds</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="327"/>
+        <location filename="../views/pso_configuration_view.py" line="603"/>
         <source>Ti Bounds</source>
         <translation>Ti Bounds</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="330"/>
+        <location filename="../views/pso_configuration_view.py" line="606"/>
         <source>Td Bounds</source>
         <translation>Td Bounds</translation>
     </message>
@@ -1273,17 +1293,17 @@ Must be greater than the start time.</translation>
         <translation type="vanished">Sensitivity</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="334"/>
+        <location filename="../views/pso_configuration_view.py" line="610"/>
         <source>Interrupt</source>
         <translation>Interrupt</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="476"/>
+        <location filename="../views/pso_configuration_view.py" line="726"/>
         <source>Interrupted</source>
         <translation>Interrupted</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="308"/>
+        <location filename="../views/pso_configuration_view.py" line="584"/>
         <source>Excitation Target</source>
         <translation></translation>
     </message>
@@ -1292,12 +1312,12 @@ Must be greater than the start time.</translation>
         <translation type="vanished">Function</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="312"/>
+        <location filename="../views/pso_configuration_view.py" line="588"/>
         <source>Performance Index</source>
         <translation>Performance Index</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="313"/>
+        <location filename="../views/pso_configuration_view.py" line="589"/>
         <source>Time Domain</source>
         <translation>Time Domain</translation>
     </message>
@@ -1306,16 +1326,16 @@ Must be greater than the start time.</translation>
         <translation type="vanished">PSO Bounds: Kp</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="325"/>
-        <location filename="../views/pso_configuration_view.py" line="328"/>
-        <location filename="../views/pso_configuration_view.py" line="331"/>
+        <location filename="../views/pso_configuration_view.py" line="601"/>
+        <location filename="../views/pso_configuration_view.py" line="604"/>
+        <location filename="../views/pso_configuration_view.py" line="607"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="326"/>
-        <location filename="../views/pso_configuration_view.py" line="329"/>
-        <location filename="../views/pso_configuration_view.py" line="332"/>
+        <location filename="../views/pso_configuration_view.py" line="602"/>
+        <location filename="../views/pso_configuration_view.py" line="605"/>
+        <location filename="../views/pso_configuration_view.py" line="608"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
@@ -1328,7 +1348,7 @@ Must be greater than the start time.</translation>
         <translation type="vanished">PSO Bounds: Td</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="333"/>
+        <location filename="../views/pso_configuration_view.py" line="609"/>
         <source>Start PSO Simulation</source>
         <translation>Start PSO Simulation</translation>
     </message>
@@ -1525,26 +1545,26 @@ Tf   = %(tf).3f</translation>
 <context>
     <name>PsoConfigurationViewModel</name>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="76"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="84"/>
         <source>Invalid value: start time ({t0}) must be smaller than end time ({t1}).</source>
         <translation>Invalid value: start time ({t0}) must be smaller than end time ({t1}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="99"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="107"/>
         <source>Invalid value: end time ({t1}) must be greater than start time ({t0}).</source>
         <translation>Invalid value: end time ({t1}) must be greater than start time ({t0}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="217"/>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="263"/>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="309"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="237"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="283"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="329"/>
         <source>Invalid value: min ({value}) must be smaller than max ({max}).</source>
         <translation>Invalid value: min ({value}) must be smaller than max ({max}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="237"/>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="286"/>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="329"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="257"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="306"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="349"/>
         <source>Invalid value: max ({value}) must be greater than min ({min}).</source>
         <translation>Invalid value: max ({value}) must be greater than min ({min}).</translation>
     </message>
@@ -1552,47 +1572,47 @@ Tf   = %(tf).3f</translation>
 <context>
     <name>SettingsView</name>
     <message>
-        <location filename="../views/settings_view.py" line="141"/>
+        <location filename="../views/settings_view.py" line="190"/>
         <source>Settings</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="144"/>
+        <location filename="../views/settings_view.py" line="193"/>
         <source>Language</source>
         <translation>Language</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="145"/>
+        <location filename="../views/settings_view.py" line="194"/>
         <source>Theme</source>
         <translation>Theme</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="146"/>
+        <location filename="../views/settings_view.py" line="195"/>
         <source>Solver</source>
         <translation>Solver</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="147"/>
+        <location filename="../views/settings_view.py" line="196"/>
         <source>Type</source>
         <translation>Type</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="148"/>
+        <location filename="../views/settings_view.py" line="197"/>
         <source>Time Step</source>
         <translation>Time Step</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="149"/>
+        <location filename="../views/settings_view.py" line="198"/>
         <source>PSO</source>
         <translation>PSO</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="150"/>
+        <location filename="../views/settings_view.py" line="199"/>
         <source>Iterations</source>
         <translation>Iterations</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="151"/>
+        <location filename="../views/settings_view.py" line="200"/>
         <source>Particles</source>
         <translation>Particles</translation>
     </message>
@@ -1697,12 +1717,12 @@ Tf   = %(tf).3f</translation>
 <context>
     <name>ViewMixin</name>
     <message>
-        <location filename="../views/view_mixin.py" line="317"/>
+        <location filename="../views/view_mixin.py" line="339"/>
         <source>Previous</source>
         <translation>Previous</translation>
     </message>
     <message>
-        <location filename="../views/view_mixin.py" line="318"/>
+        <location filename="../views/view_mixin.py" line="340"/>
         <source>Next</source>
         <translation>Next</translation>
     </message>
