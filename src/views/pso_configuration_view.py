@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Callable
 
+from PySide6.QtCore import QT_TRANSLATE_NOOP
 from PySide6.QtWidgets import (
     QWidget, QLabel, QLineEdit, QComboBox, QPushButton, QProgressBar, QHBoxLayout, QSizePolicy, QLayout,
     QGraphicsOpacityEffect
@@ -8,6 +9,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QDoubleValidator, QIntValidator
 
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
+from app_domain.functions import FunctionTypes
 from app_types import PsoField, FieldConfig, SectionConfig, ConnectSignalConfig, get_performance_tooltip
 from views.view_mixin import ViewMixin
 from views.widgets import FormulaWidget, AspectRatioSvgWidget, ToggleSwitch, ToggleableSectionFrame
@@ -66,6 +68,14 @@ FIELDS: list[FieldConfig | SectionConfig] = [
         ])
     ]),
 ]
+
+TOOL_TIP: dict[PsoField, Any] = {
+    PsoField.OVERSHOOT_CONTROL: QT_TRANSLATE_NOOP(
+        "PsoConfigurationView",
+        "Specifies the maximum allowed overshoot as a percentage."
+        "This setting is only available for excitation type %(excitation_target)s and function type %(function_type)s."
+    )
+}
 
 
 class PsoConfigurationView(ViewMixin, QWidget):
@@ -621,6 +631,20 @@ class PsoConfigurationView(ViewMixin, QWidget):
         for key, value in enums.items():
             data = {k: self._enum_translation(k) for k in value}
             self._cmb_add_item(self.field_widgets[key], data)
+
+        self._apply_tool_tips()
+
+    def _apply_tool_tips(self) -> None:
+        tool_tips = {
+            PsoField.OVERSHOOT_CONTROL: {
+                "excitation_target": self._enum_translation(ExcitationTarget.REFERENCE),
+                "function_type": self._enum_translation(FunctionTypes.STEP),
+            }
+        }
+
+        for key, val_dict in tool_tips.items():
+            field = self.field_widgets[key]
+            field.setToolTip(self.tr(TOOL_TIP[key]) % val_dict)
 
         self._apply_tool_tip_error_criterion()
 
