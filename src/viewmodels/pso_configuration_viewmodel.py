@@ -159,7 +159,9 @@ class PsoConfigurationViewModel(BaseViewModel):
         self.overshoot_control_visibility = self._get_overshoot_control_visibility()
 
     def _get_overshoot_control_visibility(self) -> bool:
-        return resolve_function_type(self._model_function.selected_function) == FunctionTypes.STEP
+        visible = self.excitation_target == ExcitationTarget.REFERENCE
+        visible = visible and resolve_function_type(self._model_function.selected_function) == FunctionTypes.STEP
+        return visible
 
     # ============================================================
     # slew rate limit
