@@ -1157,22 +1157,22 @@ Muss grösser als die Startzeit sein.</translation>
 <context>
     <name>PsoConfigurationView</name>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="578"/>
+        <location filename="../views/pso_configuration_view.py" line="580"/>
         <source>PSO Parameter</source>
         <translation>PSO Parameter</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="579"/>
+        <location filename="../views/pso_configuration_view.py" line="581"/>
         <source>Closed Loop Block Diagram</source>
         <translation>Closed Loop Blockschaltbild</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="583"/>
+        <location filename="../views/pso_configuration_view.py" line="585"/>
         <source>Plant</source>
         <translation>Regelstrecke</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="584"/>
+        <location filename="../views/pso_configuration_view.py" line="586"/>
         <source>Excitation Function</source>
         <translation>Anregungsfunktion</translation>
     </message>
@@ -1181,12 +1181,12 @@ Muss grösser als die Startzeit sein.</translation>
         <translation type="vanished">Parameter zur Optimierung des Reglers</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="580"/>
+        <location filename="../views/pso_configuration_view.py" line="582"/>
         <source>PSO Simulation</source>
         <translation>PSO Simulation</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="586"/>
+        <location filename="../views/pso_configuration_view.py" line="588"/>
         <source>Simulation Time</source>
         <translation>Simulationszeit</translation>
     </message>
@@ -1199,7 +1199,7 @@ Muss grösser als die Startzeit sein.</translation>
         <translation type="vanished">Endzeit</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="591"/>
+        <location filename="../views/pso_configuration_view.py" line="593"/>
         <source>Error Criterion</source>
         <translation>Fehlerkriterium</translation>
     </message>
@@ -1208,12 +1208,12 @@ Muss grösser als die Startzeit sein.</translation>
         <translation type="vanished">Überschiessen</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="587"/>
+        <location filename="../views/pso_configuration_view.py" line="589"/>
         <source>Start Time [s]</source>
         <translation>Startzeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="588"/>
+        <location filename="../views/pso_configuration_view.py" line="590"/>
         <source>End Time [s]</source>
         <translation>Endzeit [s]</translation>
     </message>
@@ -1222,62 +1222,62 @@ Muss grösser als die Startzeit sein.</translation>
         <translation type="vanished">Überschiessen [%]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="592"/>
+        <location filename="../views/pso_configuration_view.py" line="594"/>
         <source>Max Overshoot [%]</source>
         <translation>Max Überschiessen [%]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="593"/>
+        <location filename="../views/pso_configuration_view.py" line="595"/>
         <source>Slew Rate Limit</source>
         <translation>Stellratenbegrenzung</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="594"/>
+        <location filename="../views/pso_configuration_view.py" line="596"/>
         <source>Maximum du/dt</source>
         <translation>Maximum du/dt</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="595"/>
+        <location filename="../views/pso_configuration_view.py" line="597"/>
         <source>Window Size</source>
         <translation>Fenstergrösse</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="596"/>
+        <location filename="../views/pso_configuration_view.py" line="598"/>
         <source>Frequency Domain</source>
         <translation>Frequenzbereich</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="597"/>
+        <location filename="../views/pso_configuration_view.py" line="599"/>
         <source>Gain Margin [dB]</source>
         <translation>Amplitudenreserve [dB]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="598"/>
+        <location filename="../views/pso_configuration_view.py" line="600"/>
         <source>Phase Margin [°]</source>
         <translation>Phasenreserve [°]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="599"/>
+        <location filename="../views/pso_configuration_view.py" line="601"/>
         <source>Sensitivity [dB]</source>
         <translation>Sensitivität [dB]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="600"/>
+        <location filename="../views/pso_configuration_view.py" line="602"/>
         <source>PSO Bounds</source>
         <translation>PSO Grenzen</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="601"/>
+        <location filename="../views/pso_configuration_view.py" line="603"/>
         <source>Kp Bounds</source>
         <translation>Kp Grenze</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="604"/>
+        <location filename="../views/pso_configuration_view.py" line="606"/>
         <source>Ti Bounds</source>
         <translation>Ti Grenze</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="607"/>
+        <location filename="../views/pso_configuration_view.py" line="609"/>
         <source>Td Bounds</source>
         <translation>Td Grenze</translation>
     </message>
@@ -1294,17 +1294,17 @@ Muss grösser als die Startzeit sein.</translation>
         <translation type="vanished">Sensitivität</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="611"/>
+        <location filename="../views/pso_configuration_view.py" line="613"/>
         <source>Interrupt</source>
         <translation>Abbruch</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="729"/>
+        <location filename="../views/pso_configuration_view.py" line="731"/>
         <source>Interrupted</source>
         <translation>Abgebrochen</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="585"/>
+        <location filename="../views/pso_configuration_view.py" line="587"/>
         <source>Excitation Target</source>
         <translation>Anregungsfunktion</translation>
     </message>
@@ -1313,12 +1313,12 @@ Muss grösser als die Startzeit sein.</translation>
         <translation type="vanished">Funktion</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="589"/>
+        <location filename="../views/pso_configuration_view.py" line="591"/>
         <source>Performance Index</source>
         <translation>Gütekriterium</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="590"/>
+        <location filename="../views/pso_configuration_view.py" line="592"/>
         <source>Time Domain</source>
         <translation>Zeitbereich</translation>
     </message>
@@ -1327,16 +1327,16 @@ Muss grösser als die Startzeit sein.</translation>
         <translation type="vanished">PSO Grenze Kp</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="602"/>
-        <location filename="../views/pso_configuration_view.py" line="605"/>
-        <location filename="../views/pso_configuration_view.py" line="608"/>
+        <location filename="../views/pso_configuration_view.py" line="604"/>
+        <location filename="../views/pso_configuration_view.py" line="607"/>
+        <location filename="../views/pso_configuration_view.py" line="610"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="603"/>
-        <location filename="../views/pso_configuration_view.py" line="606"/>
-        <location filename="../views/pso_configuration_view.py" line="609"/>
+        <location filename="../views/pso_configuration_view.py" line="605"/>
+        <location filename="../views/pso_configuration_view.py" line="608"/>
+        <location filename="../views/pso_configuration_view.py" line="611"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
@@ -1349,7 +1349,7 @@ Muss grösser als die Startzeit sein.</translation>
         <translation type="vanished">PSO Grenze Td</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="610"/>
+        <location filename="../views/pso_configuration_view.py" line="612"/>
         <source>Start PSO Simulation</source>
         <translation>Starte PSO Simulation</translation>
     </message>
