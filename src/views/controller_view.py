@@ -1,12 +1,11 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-from functools import partial
 
 from PySide6.QtGui import QDoubleValidator, QValidator
 from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit, QHBoxLayout, QGraphicsOpacityEffect
 
 from app_domain.controlsys import AntiWindup
-from app_types import ControllerField, FieldConfig, SectionConfig
+from app_types import ControllerField, FieldConfig, SectionConfig, ConnectSignalConfig
 from .view_mixin import ViewMixin
 from views.widgets import AspectRatioSvgWidget
 from resources.resources import Icons
@@ -110,26 +109,75 @@ class ControllerView(ViewMixin, QWidget):
     # ============================================================
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
-        attributes: dict[ControllerField, tuple[str, str, object]] = {
-            ControllerField.CONSTRAINT_MIN: ("editingFinished", "_vm_controller.constraint_min", float),
-            ControllerField.CONSTRAINT_MAX: ("editingFinished", "_vm_controller.constraint_max", float),
-            ControllerField.FACTOR_KA: ("editingFinished", "_vm_controller.ka", float),
-            ControllerField.TUNING_FACTOR: ("editingFinished", "_vm_controller.tuning_factor", float),
-        }
-        for key, value in attributes.items():
-            attr, vm_attr, value_type = value
-            widget = self.field_widgets[key]
-            getattr(widget, attr).connect(partial(self._on_widget_changed, widget, key, vm_attr, value_type=value_type))
 
-        sampling_rate_widget: QLineEdit = self.field_widgets.get(ControllerField.SAMPLING_RATE)
-        if sampling_rate_widget is not None:
-            sampling_rate_widget.textEdited.connect(
-                partial(self._vm_controller.set_sampling_rate_text, commit=False)
-            )
-            sampling_rate_widget.editingFinished.connect(self._on_sampling_rate_editing_finished)
+        # Define key variables for readability
+        k_constraint_min = ControllerField.CONSTRAINT_MIN
+        k_constraint_max = ControllerField.CONSTRAINT_MAX
+        k_anti_windup_methode = ControllerField.ANTI_WINDUP_METHODE
+        k_factor_ka = ControllerField.FACTOR_KA
+        k_tuning_factor = ControllerField.TUNING_FACTOR
+        k_sampling_rate = ControllerField.SAMPLING_RATE
 
-        self.field_widgets.get(ControllerField.ANTI_WINDUP_METHODE).currentIndexChanged.connect(
-            self._on_index_changed_anti_windup)
+        configs = [
+            ConnectSignalConfig(
+                key=k_constraint_min,
+                signal_name="editingFinished",
+                attr_name="_vm_controller.constraint_min",
+                widget=self.field_widgets.get(k_constraint_min),
+                kwargs={"value_type": float},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_constraint_max,
+                signal_name="editingFinished",
+                attr_name="_vm_controller.constraint_max",
+                widget=self.field_widgets.get(k_constraint_max),
+                kwargs={"value_type": float},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_anti_windup_methode,
+                signal_name="currentIndexChanged",
+                attr_name="_vm_controller.anti_windup",
+                widget=self.field_widgets.get(k_anti_windup_methode),
+                kwargs={"value_type": AntiWindup},
+                main_event_handler=self._on_widget_changed,
+                post_event_handler=self._load_block_diagram
+            ),
+            ConnectSignalConfig(
+                key=k_factor_ka,
+                signal_name="editingFinished",
+                attr_name="_vm_controller.ka",
+                widget=self.field_widgets.get(k_factor_ka),
+                kwargs={"value_type": float},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_tuning_factor,
+                signal_name="editingFinished",
+                attr_name="_vm_controller.tuning_factor",
+                widget=self.field_widgets.get(k_tuning_factor),
+                kwargs={"value_type": float},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_sampling_rate,
+                signal_name="textEdited",
+                attr_name="_vm_controller.sampling_rate",
+                widget=self.field_widgets.get(k_sampling_rate),
+                kwargs={"commit": False, "get_text": lambda: self.field_widgets.get(k_sampling_rate).text()},
+                override_event_handler=self._vm_controller.set_sampling_rate_text,
+            ),
+            ConnectSignalConfig(
+                key=k_sampling_rate,
+                signal_name="editingFinished",
+                attr_name="_vm_controller.sampling_rate",
+                widget=self.field_widgets.get(k_sampling_rate),
+                kwargs={"commit": True, "get_text": lambda: self.field_widgets.get(k_sampling_rate).text()},
+                override_event_handler=self._vm_controller.set_sampling_rate_text,
+            ),
+        ]
+        self._connect_object_signals(configs)
 
     # ============================================================
     # ViewModel bindings (ViewModel -> UI)
@@ -137,22 +185,69 @@ class ControllerView(ViewMixin, QWidget):
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
         self._vm_controller.validationFailed.connect(self._on_validation_failed)
-        self._vm_controller.constraintMinChanged.connect(self._on_vm_constraint_min_changed)
-        self._vm_controller.constraintMaxChanged.connect(self._on_vm_constraint_max_changed)
-
-        attributes: dict[ControllerField, tuple[str, str]] = {
-            ControllerField.ANTI_WINDUP_METHODE: ("antiWindupChanged", "_vm_controller.anti_windup"),
-            ControllerField.FACTOR_KA: ("kaChanged", "_vm_controller.ka"),
-            ControllerField.TUNING_FACTOR: ("tuningFactorChanged", "_vm_controller.tuning_factor"),
-            ControllerField.SAMPLING_RATE: ("samplingRateChanged", "_vm_controller.sampling_rate"),
-        }
-
-        for key, value in attributes.items():
-            signal, vm_attr = value
-            vm = self._vm_controller
-            getattr(vm, signal).connect(partial(self._on_vm_changed, key, vm_attr))
-
         self._vm_controller.kaEnabledChanged.connect(self._on_ka_enable_changed)
+
+        # Define key variables for readability
+        k_constraint_min = ControllerField.CONSTRAINT_MIN
+        k_constraint_max = ControllerField.CONSTRAINT_MAX
+        k_anti_windup_methode = ControllerField.ANTI_WINDUP_METHODE
+        k_factor_ka = ControllerField.FACTOR_KA
+        k_tuning_factor = ControllerField.TUNING_FACTOR
+        k_sampling_rate = ControllerField.SAMPLING_RATE
+
+        configs = [
+            ConnectSignalConfig(
+                key=k_constraint_min,
+                signal_name="constraintMinChanged",
+                attr_name="constraint_min",
+                widget=self._vm_controller,
+                kwargs={"field": self.field_widgets.get(k_constraint_min)},
+                main_event_handler=self._on_vm_changed,
+                post_event_handler=self._load_block_diagram,
+            ),
+            ConnectSignalConfig(
+                key=k_constraint_max,
+                signal_name="constraintMaxChanged",
+                attr_name="constraint_max",
+                widget=self._vm_controller,
+                kwargs={"field": self.field_widgets.get(k_constraint_max)},
+                main_event_handler=self._on_vm_changed,
+                post_event_handler=self._load_block_diagram,
+            ),
+            ConnectSignalConfig(
+                key=k_anti_windup_methode,
+                signal_name="antiWindupChanged",
+                attr_name="anti_windup",
+                widget=self._vm_controller,
+                kwargs={"field": self.field_widgets.get(k_anti_windup_methode)},
+                main_event_handler=self._on_vm_changed
+            ),
+            ConnectSignalConfig(
+                key=k_factor_ka,
+                signal_name="kaChanged",
+                attr_name="ka",
+                widget=self._vm_controller,
+                kwargs={"field": self.field_widgets.get(k_factor_ka)},
+                main_event_handler=self._on_vm_changed
+            ),
+            ConnectSignalConfig(
+                key=k_tuning_factor,
+                signal_name="tuningFactorChanged",
+                attr_name="tuning_factor",
+                widget=self._vm_controller,
+                kwargs={"field": self.field_widgets.get(k_tuning_factor)},
+                main_event_handler=self._on_vm_changed
+            ),
+            ConnectSignalConfig(
+                key=k_sampling_rate,
+                signal_name="samplingRateChanged",
+                attr_name="sampling_rate",
+                widget=self._vm_controller,
+                kwargs={"field": self.field_widgets.get(k_sampling_rate)},
+                main_event_handler=self._on_vm_changed
+            ),
+        ]
+        self._connect_object_signals(configs)
 
     # ============================================================
     # Translation
@@ -223,28 +318,8 @@ class ControllerView(ViewMixin, QWidget):
         self._label_icon.setPixmap(icon.pixmap(self._title_icon_size, self._title_icon_size))
 
     # ============================================================
-    # ViewModel change handlers
-    # ============================================================
-    def _on_vm_constraint_min_changed(self) -> None:
-        """Handle VM constraint minimum changed."""
-        self._on_vm_changed(ControllerField.CONSTRAINT_MIN, "_vm_controller.constraint_min")
-        self._load_block_diagram()
-
-    def _on_vm_constraint_max_changed(self) -> None:
-        """Handle VM constraint maximum changed."""
-        self._on_vm_changed(ControllerField.CONSTRAINT_MAX, "_vm_controller.constraint_max")
-        self._load_block_diagram()
-
-    # ============================================================
     # UI event handlers
     # ============================================================
-    def _on_index_changed_anti_windup(self, index: int) -> None:
-        """Handle anti-windup selection changes."""
-        widget = self.field_widgets.get(ControllerField.ANTI_WINDUP_METHODE)
-        value = widget.itemData(index)
-        self._vm_controller.anti_windup = value
-        self._load_block_diagram()
-
     def _on_ka_enable_changed(self) -> None:
         lbl: QLabel = self.labels.get(ControllerField.FACTOR_KA)
         widget: QLineEdit = self.field_widgets.get(ControllerField.FACTOR_KA)
@@ -254,21 +329,11 @@ class ControllerView(ViewMixin, QWidget):
         for w in (lbl, widget):
             w.setVisible(True)  # keep in layout
             w.setEnabled(visible)
-            eff = w.graphicsEffect()
-            if eff is None:
-                eff = QGraphicsOpacityEffect(w)
-                w.setGraphicsEffect(eff)
-            eff.setOpacity(1.0 if visible else 0.0)
-
-    def _on_sampling_rate_editing_finished(self) -> None:
-        if self.initializing:
-            return
-
-        widget: QLineEdit = self.field_widgets.get(ControllerField.SAMPLING_RATE)
-        if widget is None:
-            return
-
-        self._vm_controller.set_sampling_rate_text(widget.text(), commit=True)
+            effect = w.graphicsEffect()
+            if not isinstance(effect, QGraphicsOpacityEffect):
+                effect = QGraphicsOpacityEffect(w)
+                w.setGraphicsEffect(effect)
+            effect.setOpacity(1.0 if visible else 0.0)
 
     # ============================================================
     # Internal helpers

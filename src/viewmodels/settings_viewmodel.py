@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 class SettingsViewModel(BaseViewModel):
     solverChanged = Signal()
-    timeStampChanged = Signal()
+    timeStepChanged = Signal()
     psoIterationsChanged = Signal()
     psoParticleChanged = Signal()
 
@@ -39,7 +39,7 @@ class SettingsViewModel(BaseViewModel):
         self.logger.debug(f"Setter 'time_step' called (value={value})")
         self._settings.set_time_step(value)
 
-    time_stamp = Property(float, _get_time_step, _set_time_step, notify=timeStampChanged)
+    time_step = Property(float, _get_time_step, _set_time_step, notify=timeStepChanged)
 
     def _get_pso_iterations(self) -> int:
         self.logger.debug(f"Getter 'pso_iterations' called (value={self._settings.get_pso_iterations()})")

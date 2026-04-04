@@ -5,7 +5,7 @@ from enum import Enum
 
 from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex, MySolver
 from app_domain.functions import FunctionTypes
-from app_types import LanguageType, ThemeType, PlotLabels, NavLabels
+from app_types import LanguageType, ThemeType, PlotLabels, NavLabels, PerformanceIndexDescription, validate_enum_mapping
 
 
 def register_translation(enum_type):
@@ -53,6 +53,7 @@ class Translation:
     """
 
     def __init__(self) -> None:
+        validate_enum_mapping(PerformanceIndex, PerformanceIndexDescription)
         self._registry: dict[Type[Any], Callable[[Enum], str]] = {}
 
         # automatically find and register methods
@@ -78,7 +79,7 @@ class Translation:
         try:
             return self._registry[type(value)](value)
         except KeyError:
-            raise NotImplementedError(f"No translation registered for enum type: {type(value).__name__}")
+            raise ValueError(f"No translation registered for enum type: {type(value).__name__}")
 
     # ------------------------------------------------------------------
     # Individual enum translation mappings
@@ -94,7 +95,7 @@ class Translation:
             case AntiWindup.BACKCALCULATION:
                 return QCoreApplication.translate("ControlEnums", "Backcalculation")
             case _:
-                raise NotImplementedError(f"No translation registered for enum type: {value}")
+                raise ValueError(f"No translation registered for enum type: {value}")
 
     @register_translation(ExcitationTarget)
     def _excitation_target(self, value: Enum) -> str:
@@ -107,7 +108,7 @@ class Translation:
             case ExcitationTarget.MEASUREMENT_DISTURBANCE:
                 return QCoreApplication.translate("ControlEnums", "Measurement Disturbance n")
             case _:
-                raise NotImplementedError(f"No translation registered for enum type: {value}")
+                raise ValueError(f"No translation registered for enum type: {value}")
 
     @register_translation(PerformanceIndex)
     def _performance_index(self, value: Enum) -> str:
@@ -122,7 +123,22 @@ class Translation:
             case PerformanceIndex.ISE:
                 return QCoreApplication.translate("ControlEnums", "ISE")
             case _:
-                raise NotImplementedError(f"No translation registered for enum type: {value}")
+                raise ValueError(f"No translation registered for enum type: {value}")
+
+    @register_translation(PerformanceIndexDescription)
+    def _performance_index_description(self, value: Enum) -> str:
+        """Return translated description for PerformanceIndex enum."""
+        match value:
+            case PerformanceIndexDescription.ITAE:
+                return QCoreApplication.translate("ControlEnums", "Integral of Time-weighted Absolute Error")
+            case PerformanceIndexDescription.IAE:
+                return QCoreApplication.translate("ControlEnums", "Integral of Absolute Error")
+            case PerformanceIndexDescription.ITSE:
+                return QCoreApplication.translate("ControlEnums", "Integral of Time-weighted Squared Error")
+            case PerformanceIndexDescription.ISE:
+                return QCoreApplication.translate("ControlEnums", "Integral of Squared Error")
+            case _:
+                raise ValueError(f"No translation registered for enum type: {value}")
 
     @register_translation(FunctionTypes)
     def _function_type(self, value: Enum) -> str:
@@ -145,7 +161,7 @@ class Translation:
             case FunctionTypes.WHITE_NOISE:
                 return QCoreApplication.translate("ControlEnums", "WhiteNoise")
             case _:
-                raise NotImplementedError(f"No translation registered for enum value: {value}")
+                raise ValueError(f"No translation registered for enum value: {value}")
 
     @register_translation(NavLabels)
     def _nav_labels(self, value: Enum) -> str:
@@ -166,7 +182,7 @@ class Translation:
             case NavLabels.SETTINGS:
                 return QCoreApplication.translate("ControlEnums", "Settings")
             case _:
-                raise NotImplementedError(f"No translation registered for enum value: {value}")
+                raise ValueError(f"No translation registered for enum value: {value}")
 
     @register_translation(PlotLabels)
     def _plot_labels(self, value: Enum) -> str:
@@ -197,7 +213,7 @@ class Translation:
             case PlotLabels.S:
                 return QCoreApplication.translate("ControlEnums", "S_sensitivity")
             case _:
-                raise NotImplementedError(f"No translation registered for enum value: {value}")
+                raise ValueError(f"No translation registered for enum value: {value}")
 
     @register_translation(MySolver)
     def _my_solver(self, value: Enum) -> str:
@@ -206,7 +222,7 @@ class Translation:
             case MySolver.RK4:
                 return QCoreApplication.translate("ControlEnums", "RK4")
             case _:
-                raise NotImplementedError(f"No translation registered for enum value: {value}")
+                raise ValueError(f"No translation registered for enum value: {value}")
 
     @register_translation(LanguageType)
     def _language_type(self, value: Enum) -> str:
@@ -217,7 +233,7 @@ class Translation:
             case LanguageType.GERMAN:
                 return QCoreApplication.translate("ControlEnums", "German")
             case _:
-                raise NotImplementedError(f"No translation registered for enum value: {value}")
+                raise ValueError(f"No translation registered for enum value: {value}")
 
     @register_translation(ThemeType)
     def _theme_type(self, value: Enum) -> str:
@@ -228,6 +244,4 @@ class Translation:
             case ThemeType.DARK:
                 return QCoreApplication.translate("ControlEnums", "Dark")
             case _:
-                raise NotImplementedError(f"No translation registered for enum value: {value}")
-
-
+                raise ValueError(f"No translation registered for enum value: {value}")

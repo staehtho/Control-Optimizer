@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Any
 import logging
 from pathlib import Path
 
@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (
     QSizePolicy,
 )
 from PySide6.QtGui import QIcon
-from PySide6.QtCore import Signal, Qt, QObject, QTranslator, QCoreApplication, QT_TRANSLATE_NOOP
+from PySide6.QtCore import Signal, Qt, QObject, QCoreApplication, QT_TRANSLATE_NOOP
 
 from views.translations import Translation
 from views.view_helpers import layout_helpers, widget_binding, validation_helpers, icon_helpers
@@ -25,8 +25,7 @@ from resources.resources import Icons
 
 if TYPE_CHECKING:
     from app_domain.ui_context import UiContext
-    from app_types import FieldType, FieldConfig, SectionConfig
-
+    from app_types import FieldType, FieldConfig, SectionConfig, ConnectSignalConfig
 
 class NavigationSignals(QObject):
     nextRequested = Signal()
@@ -229,19 +228,39 @@ class ViewMixin:
     # ============================================================
     # Widget -> ViewModel Synchronization
     # ============================================================
-
-    def _on_widget_changed(self, widget: QWidget, key: str | FieldType, attribute: str, *args, **kwargs) -> None:
+    @staticmethod
+    def _on_widget_changed(
+            view: Any,
+            widget: QObject,
+            key: str | FieldType,
+            attr_name: str,
+            *args: Any,
+            **kwargs: Any,
+    ) -> None:
         """Handle changes from various input widgets and update the corresponding attribute."""
-        widget_binding.on_widget_changed(self, widget, key, attribute, *args, **kwargs)
+        widget_binding.on_widget_changed(view, widget, key, attr_name, *args, **kwargs)
+
+    def _connect_object_signals(self, configs: list[ConnectSignalConfig]) -> None:
+        """Connect widgets or objects signal handlers."""
+        for config in configs:
+            widget_binding.connect_signal(self, config)
 
     @staticmethod
     def _format_value(value) -> str:
         """Format values for display, using scientific notation for extreme floats."""
         return widget_binding.format_value(value)
 
-    def _on_vm_changed(self, key: str | FieldType, attribute: str) -> None:
+    @staticmethod
+    def _on_vm_changed(
+            view: Any,
+            widget: QObject,
+            key: str | FieldType,
+            attr_name: str,
+            *args: Any,
+            **kwargs: Any,
+    ) -> None:
         """Update a widget to reflect the current value of its corresponding attribute."""
-        widget_binding.on_vm_changed(self, key, attribute)
+        widget_binding.on_vm_changed(view, widget, key, attr_name, *args, **kwargs)
 
     # ============================================================
     # Validation Handling

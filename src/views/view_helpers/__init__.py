@@ -16,6 +16,7 @@ from .layout_helpers import (
 )
 from .widget_binding import (
     on_widget_changed,
+    on_vm_changed_old,
     on_vm_changed,
     format_value,
     extract_widget_value,
@@ -42,6 +43,7 @@ __all__ = [
     "wrap_in_scroll_area",
     "clear_layout",
     "on_widget_changed",
+    "on_vm_changed_old",
     "on_vm_changed",
     "format_value",
     "extract_widget_value",

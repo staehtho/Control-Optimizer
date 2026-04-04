@@ -1,12 +1,11 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
-from functools import partial
+from typing import TYPE_CHECKING, Any, Callable
 
 from PySide6.QtWidgets import QWidget, QComboBox, QLineEdit, QFrame, QLabel, QGridLayout, QHBoxLayout
 from PySide6.QtGui import QIntValidator
 
 from app_domain.controlsys import MySolver
-from app_types import SettingsField, LanguageType, ThemeType, FieldConfig, SectionConfig
+from app_types import SettingsField, LanguageType, ThemeType, FieldConfig, SectionConfig, ConnectSignalConfig
 from views.view_mixin import ViewMixin
 from resources.resources import Icons
 
@@ -109,22 +108,72 @@ class SettingsView(ViewMixin, QWidget):
     # ============================================================
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
-        attributes: dict[SettingsField, tuple[str, str, object]] = {
-            SettingsField.SOLVER_TYPE: ("currentIndexChanged", "_vm_settings.solver", MySolver),
-            SettingsField.PSO_ITERATIONS: ("editingFinished", "_vm_settings.pso_iterations", int),
-            SettingsField.PSO_PARTICLES: ("editingFinished", "_vm_settings.pso_particle", int),
-        }
-        for key, value in attributes.items():
-            attr, vm_attr, value_type = value
-            widget = self.field_widgets[key]
-            getattr(widget, attr).connect(partial(self._on_widget_changed, widget, key, vm_attr, value_type=value_type))
 
-        self.field_widgets.get(SettingsField.LANGUAGE).currentIndexChanged.connect(
-            self._on_language_index_changed
-        )
-        self.field_widgets.get(SettingsField.THEME).currentIndexChanged.connect(
-            self._on_theme_index_changed
-        )
+        # Define key variables for readability
+        k_language = SettingsField.LANGUAGE
+        k_theme = SettingsField.THEME
+        k_solver_type = SettingsField.SOLVER_TYPE
+        k_time_step = SettingsField.SOLVER_TIME_STEP
+        k_pos_iterations = SettingsField.PSO_ITERATIONS
+        k_pso_particles = SettingsField.PSO_PARTICLES
+
+        configs = [
+            ConnectSignalConfig(
+                key=k_language,
+                signal_name="currentIndexChanged",
+                attr_name="",
+                widget=self.field_widgets[k_language],
+                kwargs={
+                    "field": self.field_widgets[k_language],
+                    "setter": lambda value: self._vm_lang.set_language(value)
+                },
+                override_event_handler=self._on_index_changed
+            ),
+            ConnectSignalConfig(
+                key=k_theme,
+                signal_name="currentIndexChanged",
+                attr_name="",
+                widget=self.field_widgets[k_theme],
+                kwargs={
+                    "field": self.field_widgets[k_theme],
+                    "setter": lambda value: self._vm_theme.set_theme(value)
+                },
+                override_event_handler=self._on_index_changed
+            ),
+            ConnectSignalConfig(
+                key=k_solver_type,
+                signal_name="currentIndexChanged",
+                attr_name="_vm_settings.solver",
+                widget=self.field_widgets[k_solver_type],
+                kwargs={"value_type": MySolver},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_time_step,
+                signal_name="editingFinished",
+                attr_name="_vm_settings.time_step",
+                widget=self.field_widgets[k_time_step],
+                kwargs={"value_type": float},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_pos_iterations,
+                signal_name="editingFinished",
+                attr_name="_vm_settings.pso_iterations",
+                widget=self.field_widgets[k_pos_iterations],
+                kwargs={"value_type": int},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_pso_particles,
+                signal_name="editingFinished",
+                attr_name="_vm_settings.pso_particle",
+                widget=self.field_widgets[k_pso_particles],
+                kwargs={"value_type": int},
+                main_event_handler=self._on_widget_changed
+            ),
+        ]
+        self._connect_object_signals(configs)
 
     # ============================================================
     # ViewModel bindings (ViewModel -> UI)
@@ -169,7 +218,7 @@ class SettingsView(ViewMixin, QWidget):
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
         init_value = {
-            SettingsField.SOLVER_TIME_STEP: self._vm_settings.time_stamp,
+            SettingsField.SOLVER_TIME_STEP: self._vm_settings.time_step,
             SettingsField.PSO_ITERATIONS: self._vm_settings.pso_iterations,
             SettingsField.PSO_PARTICLES: self._vm_settings.pso_particle,
         }
@@ -197,14 +246,15 @@ class SettingsView(ViewMixin, QWidget):
     # ============================================================
     # UI event handlers
     # ============================================================
-    def _on_language_index_changed(self, index: int) -> None:
-        """Handle language selection changes."""
-        widget = self.field_widgets.get(SettingsField.LANGUAGE)
-        value = widget.itemData(index)
-        self._vm_lang.set_language(LanguageType(value))
+    @staticmethod
+    def _on_index_changed(index: int, **kwargs: Any) -> None:
+        """Handle index selection changes."""
+        field = kwargs.get("field")
+        if not isinstance(field, QComboBox) or field is None:
+            raise TypeError(f"Expected QObject, got {type(field)}")
 
-    def _on_theme_index_changed(self, index: int) -> None:
-        """Handle theme selection changes."""
-        widget = self.field_widgets.get(SettingsField.THEME)
-        value = widget.itemData(index)
-        self._vm_theme.set_theme(ThemeType(value))
+        setter = kwargs.get("setter")
+        if not isinstance(setter, Callable) or setter is None:
+            raise TypeError(f"Expected Callable, got {type(setter)}")
+
+        setter(field.itemData(index))

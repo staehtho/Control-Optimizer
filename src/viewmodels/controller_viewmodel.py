@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from PySide6.QtCore import QObject, Signal
 
 from app_domain.controlsys import AntiWindup
@@ -117,12 +117,14 @@ class ControllerViewModel(BaseViewModel):
         typ=float,
     )
 
-    def set_sampling_rate_text(self, text: str, *, commit: bool) -> None:
+    def set_sampling_rate_text(self, **kwargs: Any) -> None:
+        get_text = kwargs.get("get_text", lambda: "")
+        text = get_text()
         if text.strip() == "":
             self.sampling_rate = ""
             return
 
-        if not commit:
+        if not kwargs.get("commit", False):
             return
 
         self.sampling_rate = text
