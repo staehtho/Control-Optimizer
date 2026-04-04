@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QObject, Signal, Slot
 
+from app_domain.functions import resolve_function_type, FunctionTypes
 from app_types import PsoSimulationParam
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
 from utils import LoggedProperty
@@ -22,6 +23,7 @@ class PsoConfigurationViewModel(BaseViewModel):
     performanceIndexChanged = Signal()
     overshootControlChanged = Signal()
     overshootControlEnabledChanged = Signal()
+    overshootControlVisibilityChanged = Signal()
     slewRateMaxChanged = Signal()
     slewWindowSizeChanged = Signal()
     slewRateLimitEnabledChanged = Signal()
@@ -41,8 +43,12 @@ class PsoConfigurationViewModel(BaseViewModel):
     psoSimulationFinished = Signal()
     psoSimulationInterrupted = Signal()
 
-    def __init__(self, model_container: ModelContainer, simulation_service: SimulationService,
-                 parent: QObject = None) -> None:
+    def __init__(
+            self,
+            model_container: ModelContainer,
+            simulation_service: SimulationService,
+            parent: QObject = None
+    ) -> None:
         super().__init__(parent)
 
         self._model_plant: PlantModel = model_container.model_plant
@@ -55,6 +61,8 @@ class PsoConfigurationViewModel(BaseViewModel):
         self._pos_iteration: int = 0
         self._pso_result: PsoResult | None = None
         self._pso_snapshot: PsoSimulationSnapshot | None = None
+
+        self._overshoot_control_visibility: bool = self._get_overshoot_control_visibility()
 
         self._connect_signals()
         self.run_pso_simulation()
@@ -140,6 +148,18 @@ class PsoConfigurationViewModel(BaseViewModel):
         signal="overshootControlEnabledChanged",
         typ=bool
     )
+    overshoot_control_visibility: bool = LoggedProperty(
+        path="_overshoot_control_visibility",
+        signal="overshootControlVisibilityChanged",
+        typ=bool,
+    )
+
+    @Slot()
+    def check_overshoot_control_visibility(self) -> None:
+        self.overshoot_control_visibility = self._get_overshoot_control_visibility()
+
+    def _get_overshoot_control_visibility(self) -> bool:
+        return resolve_function_type(self._model_function.selected_function) == FunctionTypes.STEP
 
     # ============================================================
     # slew rate limit
@@ -395,7 +415,7 @@ class PsoConfigurationViewModel(BaseViewModel):
             slew_window_size=self._model_pso.slew_window_size,
             slew_rate_limit_enabled=self._model_pso.slew_rate_limit_enabled,
             overshoot_control=self._model_pso.overshoot_control,
-            overshoot_control_enabled=self._model_pso.overshoot_control_enabled,
+            overshoot_control_enabled=self._model_pso.overshoot_control_enabled and self._overshoot_control_visibility,
             gain_margin=self._model_pso.gain_margin,
             gain_margin_enabled=self._model_pso.gain_margin_enabled,
             phase_margin=self._model_pso.phase_margin,

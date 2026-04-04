@@ -252,6 +252,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
 
         # PSO Configuration ViewModel
         self._vm_pso.validationFailed.connect(self._on_validation_failed)
+        self._vm_pso.overshootControlVisibilityChanged.connect(self._on_vm_overshoot_control_visibility_changed)
         attributes: dict[PsoField, tuple[str, str]] = {
             PsoField.T0: ("t0Changed", "_vm_pso.t0"),
             PsoField.T1: ("t1Changed", "_vm_pso.t1"),
@@ -427,25 +428,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
         """Update the excitation function formula when it changes."""
         self._set_formula_function()
 
-        # set opacity to hide the overshoot control, when the selected function is not StepFunction
-        lbl = self.labels.get(PsoField.OVERSHOOT_CONTROL)
-        widget = self.field_widgets.get(PsoField.OVERSHOOT_CONTROL)
-        visible = resolve_function_type(self._vm_function.selected_function) == FunctionTypes.STEP
-
-        self._vm_pso.blockSignals(True)
-        for w in (lbl, widget):
-            w.setEnabled(visible)
-            eff = w.graphicsEffect()
-            if eff is None:
-                eff = QGraphicsOpacityEffect(w)
-                w.setGraphicsEffect(eff)
-            eff.setOpacity(1.0 if visible else 0.0)
-
-        if visible:
-            self._on_vm_field_enabled_changed(PsoField.OVERSHOOT_CONTROL, "_vm_pso.overshoot_control_enabled")
-        else:
-            self._vm_pso.overshoot_control_enabled = False
-        self._vm_pso.blockSignals(False)
+        self._vm_pso.check_overshoot_control_visibility()
 
     def _load_closed_loop_block_diagram(self) -> None:
         """Build and recolor the closed loop block diagram SVG."""
@@ -491,6 +474,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
                 if hasattr(toggle, "set_offset"):
                     toggle.set_offset(1.0 if enabled else 0.0)
                 toggle.blockSignals(False)
+
         widget = self.field_widgets.get(key)
         if widget is not None:
             widget.setEnabled(enabled)
@@ -499,7 +483,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
                 effect = QGraphicsOpacityEffect(widget)
                 widget.setGraphicsEffect(effect)
 
-            effect.setOpacity(1.0 if enabled else 0.45)
+            effect.setOpacity(1.0 if enabled else self._opacity_disabled)
 
         if toggle is not None and hasattr(toggle, "content_widget"):
             for child in toggle.content_widget.findChildren(QWidget):
@@ -507,7 +491,34 @@ class PsoConfigurationView(ViewMixin, QWidget):
                 if not isinstance(effect, QGraphicsOpacityEffect):
                     effect = QGraphicsOpacityEffect(child)
                     child.setGraphicsEffect(effect)
-                effect.setOpacity(1.0 if enabled else 0.45)
+                effect.setOpacity(1.0 if enabled else self._opacity_disabled)
+
+    def _on_vm_overshoot_control_visibility_changed(self) -> None:
+        # set opacity to hide the overshoot control
+        lbl = self.labels.get(PsoField.OVERSHOOT_CONTROL)
+        widget = self.field_widgets.get(PsoField.OVERSHOOT_CONTROL)
+        visible = self._vm_pso.overshoot_control_visibility
+        enabled = self._vm_pso.overshoot_control_enabled
+
+        lbl.setEnabled(visible)
+        eff = lbl.graphicsEffect()
+        if eff is None:
+            eff = QGraphicsOpacityEffect(lbl)
+            lbl.setGraphicsEffect(eff)
+        eff.setOpacity(1.0 if visible else 0.0)
+
+        widget.setEnabled(visible and enabled)
+        eff = widget.graphicsEffect()
+        if eff is None:
+            eff = QGraphicsOpacityEffect(widget)
+            widget.setGraphicsEffect(eff)
+
+        if visible and enabled:
+            eff.setOpacity(1.0)
+        if visible and not enabled:
+            eff.setOpacity(self._opacity_disabled)
+        if not visible:
+            eff.setOpacity(0.0)
 
     # ============================================================
     # UI event handlers

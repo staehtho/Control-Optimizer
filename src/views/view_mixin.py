@@ -77,6 +77,8 @@ class ViewMixin:
         self._nav_icon_size = 20
         self._nav_buttons_initialized = False
 
+        self._opacity_disabled = 0.45
+
         self.field_widgets = {}
         self.labels = {}
         # -----------------------------
