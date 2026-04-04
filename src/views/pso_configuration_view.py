@@ -223,7 +223,8 @@ class PsoConfigurationView(ViewMixin, QWidget):
                 attr_name="_vm_pso.excitation_target",
                 widget=self.field_widgets.get(k_excitation_target),
                 kwargs={"value_type": ExcitationTarget},
-                main_event_handler=self._on_widget_changed
+                main_event_handler=self._on_widget_changed,
+                post_event_handler=self._vm_pso.check_overshoot_control_visibility
             ),
             ConnectSignalConfig(
                 key=k_error_criterion,

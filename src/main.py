@@ -11,9 +11,6 @@ from PySide6.QtWidgets import QApplication, QSplashScreen
 
 # TODO: Evaluation: TF with L and N
 
-# TODO: Pos: only overshoot control if reference
-
-
 def create_app():
     return QApplication(sys.argv)
 
