@@ -408,6 +408,8 @@ class PsoConfigurationView(ViewMixin, QWidget):
 
         # Controller ViewModel
         self._vm_controller.antiWindupChanged.connect(self._load_closed_loop_block_diagram)
+        self._vm_controller.constraintMinChanged.connect(self._load_closed_loop_block_diagram)
+        self._vm_controller.constraintMaxChanged.connect(self._load_closed_loop_block_diagram)
 
         # PSO Configuration ViewModel
         self._vm_pso.validationFailed.connect(self._on_validation_failed)
