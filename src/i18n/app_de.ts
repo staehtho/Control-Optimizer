@@ -1304,7 +1304,7 @@ Muss grösser als die Startzeit sein.</translation>
         <translation>Abbruch</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="753"/>
+        <location filename="../views/pso_configuration_view.py" line="756"/>
         <source>Interrupted</source>
         <translation>Abgebrochen</translation>
     </message>

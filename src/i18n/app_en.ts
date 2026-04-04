@@ -1303,7 +1303,7 @@ Must be greater than the start time.</translation>
         <translation>Interrupt</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="753"/>
+        <location filename="../views/pso_configuration_view.py" line="756"/>
         <source>Interrupted</source>
         <translation>Interrupted</translation>
     </message>
