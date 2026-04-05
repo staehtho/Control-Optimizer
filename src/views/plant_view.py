@@ -1,6 +1,5 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Any
-from functools import partial
 
 from PySide6.QtCore import QRegularExpression, Qt, QT_TRANSLATE_NOOP
 from PySide6.QtGui import QRegularExpressionValidator
@@ -16,7 +15,6 @@ from resources.resources import Icons
 
 if TYPE_CHECKING:
     from app_domain.ui_context import UiContext
-    from app_types import PlotField
     from viewmodels import PlantViewModel, PlotViewModel
     from views.widgets import SectionFrame
 

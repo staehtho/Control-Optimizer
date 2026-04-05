@@ -358,10 +358,10 @@ class EvaluationView(ViewMixin, QWidget):
         self._vm_evaluator.saveSvgRequested.connect(self._on_vm_save_svg_requested)
 
         # Plot ViewModel -> Function recomputation
-        self._vm_plots.get(TIME_DOMAIN).xMinChanged.connect(self._on_vm_time_changed)
-        self._vm_plots.get(TIME_DOMAIN).xMaxChanged.connect(self._on_vm_time_changed)
-        self._vm_plots.get(FREQUENCY_DOMAIN).xMinChanged.connect(self._on_vm_frequency_changed)
-        self._vm_plots.get(FREQUENCY_DOMAIN).xMaxChanged.connect(self._on_vm_frequency_changed)
+        self._vm_plots[TIME_DOMAIN].xMinChanged.connect(self._on_vm_time_changed)
+        self._vm_plots[TIME_DOMAIN].xMaxChanged.connect(self._on_vm_time_changed)
+        self._vm_plots[FREQUENCY_DOMAIN].xMinChanged.connect(self._on_vm_frequency_changed)
+        self._vm_plots[FREQUENCY_DOMAIN].xMaxChanged.connect(self._on_vm_frequency_changed)
 
     # ============================================================
     # Translation
@@ -435,7 +435,7 @@ class EvaluationView(ViewMixin, QWidget):
 
         key = self._vm_evaluator.excitation_target.name
 
-        self._vm_plots.get(TIME_DOMAIN).update_data(
+        self._vm_plots[TIME_DOMAIN].update_data(
             PlotData(
                 key=PlotLabels[key].value,
                 label=self._enum_translation(PlotLabels[key]),
@@ -446,14 +446,14 @@ class EvaluationView(ViewMixin, QWidget):
             )
         )
 
-        self._vm_plots.get(TIME_DOMAIN).request_save_svg("system_response.svg")
+        self._vm_plots[TIME_DOMAIN].request_save_svg("system_response.svg")
 
     def _on_vm_closed_loop_compute_finished(self, t: ndarray, u: ndarray, y: ndarray) -> None:
         self.logger.debug(
             "Closed-loop response computation finished -> updating response plot (samples=%d)",
             len(t),
         )
-        self._vm_plots.get(TIME_DOMAIN).update_data(
+        self._vm_plots[TIME_DOMAIN].update_data(
             PlotData(
                 key=PlotLabels.CLOSED_LOOP.value,
                 label=self._enum_translation(PlotLabels.CLOSED_LOOP),
@@ -464,7 +464,7 @@ class EvaluationView(ViewMixin, QWidget):
             )
         )
 
-        self._vm_plots.get(TIME_DOMAIN).update_data(
+        self._vm_plots[TIME_DOMAIN].update_data(
             PlotData(
                 key=PlotLabels.CONTROL_SIGNAL.value,
                 label=self._enum_translation(PlotLabels.CONTROL_SIGNAL),
@@ -475,14 +475,14 @@ class EvaluationView(ViewMixin, QWidget):
             )
         )
 
-        self._vm_plots.get(TIME_DOMAIN).request_save_svg("system_response.svg")
+        self._vm_plots[TIME_DOMAIN].request_save_svg("system_response.svg")
 
     def _on_vm_plant_compute_finished(self, t: ndarray, y: ndarray) -> None:
         self.logger.debug(
             "Plant response computation finished -> updating response plot (samples=%d)",
             len(t),
         )
-        self._vm_plots.get(TIME_DOMAIN).update_data(
+        self._vm_plots[TIME_DOMAIN].update_data(
             PlotData(
                 key=PlotLabels.PLANT.value,
                 label=self._enum_translation(PlotLabels.PLANT),
@@ -493,7 +493,7 @@ class EvaluationView(ViewMixin, QWidget):
             )
         )
 
-        self._vm_plots.get(TIME_DOMAIN).request_save_svg("system_response.svg")
+        self._vm_plots[TIME_DOMAIN].request_save_svg("system_response.svg")
 
     def _on_vm_frequency_computation_finished(self, result: FrequencyResponse) -> None:
         self.logger.debug(
@@ -519,7 +519,7 @@ class EvaluationView(ViewMixin, QWidget):
                 )
             )
 
-        self._vm_plots.get(FREQUENCY_DOMAIN).request_save_svg("bode_plot.svg")
+        self._vm_plots[FREQUENCY_DOMAIN].request_save_svg("bode_plot.svg")
 
     def _on_vm_pso_simulation_finished(self) -> None:
         self.logger.debug("PSO simulation finished -> refreshing excitation function")
@@ -548,8 +548,8 @@ class EvaluationView(ViewMixin, QWidget):
 
     def _on_vm_frequency_changed(self) -> None:
         """Trigger recomputation when plot time range changes."""
-        omega_min = self._vm_plots.get(FREQUENCY_DOMAIN).x_min
-        omega_max = self._vm_plots.get(FREQUENCY_DOMAIN).x_max
+        omega_min = self._vm_plots[FREQUENCY_DOMAIN].x_min
+        omega_max = self._vm_plots[FREQUENCY_DOMAIN].x_max
 
         self.logger.debug(f"Frequency range changed: {omega_min=}, {omega_max=}")
         self._update_frequency_domain_plots()
@@ -559,8 +559,8 @@ class EvaluationView(ViewMixin, QWidget):
     # ============================================================
     def _sync_plot_time_window_from_model(self) -> None:
         """Sync plot time range from persisted evaluator state via evaluator VM."""
-        self._vm_plots.get(TIME_DOMAIN).x_min = self._vm_evaluator.t0
-        self._vm_plots.get(TIME_DOMAIN).x_max = self._vm_evaluator.t1
+        self._vm_plots[TIME_DOMAIN].x_min = self._vm_evaluator.t0
+        self._vm_plots[TIME_DOMAIN].x_max = self._vm_evaluator.t1
 
     def _on_vm_save_svg_requested(self, path: str | Path) -> None:
         target = Path(path)
@@ -631,14 +631,17 @@ class EvaluationView(ViewMixin, QWidget):
 
     def _load_block_diagram(self) -> None:
         """Build and recolor the closed loop block diagram SVG."""
-
+        svg = self._build_block_diagram()
+        self.field_widgets.get(BLOCK_DIAGRAM).set_svg_bytes(svg.encode("utf-8"))
+        
+    def _build_block_diagram(self) -> str:
+        """Build and recolor the closed loop block diagram SVG."""
         snapshot = self._vm_evaluator.get_pso_snapshot()
         if snapshot is None:
-            return
+            return ""
 
-        merged_svg = load_closed_loop_diagram(
+        return load_closed_loop_diagram(
             snapshot.controller_anti_windup,
             (snapshot.controller_constraint_min, snapshot.controller_constraint_max),
             self._vm_theme.get_svg_color_map(),
         )
-        self.field_widgets.get(BLOCK_DIAGRAM).set_svg_bytes(merged_svg.encode("utf-8"))
