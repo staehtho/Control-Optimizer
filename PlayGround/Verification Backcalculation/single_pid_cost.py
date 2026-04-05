@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -29,17 +30,18 @@ plant_den = [1, 2, 1]
 Kp = 10
 Ti = 9.5608
 Td = 0.2972
-Tf = 0.01
 
 # Simulation / Kosten
 t0 = 0.0
 t1 = 20.0
 dt = 1e-4
 control_constraint = (-2.0, 2.0)
-anti_windup = AntiWindup.BACKCALCULATION
+anti_windup = AntiWindup.CLAMPING
 ka = 1/10.0
 solver = MySolver.RK4
 performance_index = PerformanceIndex.ITAE
+tf_tuning_factor_n = 5.0
+tf_limit_factor_k = 5.0
 
 
 def main() -> None:
@@ -49,7 +51,6 @@ def main() -> None:
         Kp=Kp,
         Ti=Ti,
         Td=Td,
-        Tf=Tf,
         control_constraint=list(control_constraint),
         anti_windup_method=anti_windup,
         ka=ka,
@@ -73,7 +74,12 @@ def main() -> None:
         pre_compiling=False,
         use_freq_metrics=False,
         use_overshoot_control=False,
+        tf_tuning_factor_n=tf_tuning_factor_n,
+        tf_limit_factor_k=tf_limit_factor_k,
     )
+
+    tf_report = objective.evaluate_tf_for_td(Td)
+    controller.set_filter(tf_report.tf_effective)
 
     result = objective.evaluate_candidates(
         np.array([[Kp, Ti, Td]], dtype=np.float64)
@@ -84,6 +90,16 @@ def main() -> None:
     feasible = bool(result["feasible"][0])
     violation = float(result["violation"][0])
 
+    t_eval, u_eval, y_eval = controller.system_response(
+        t0=t0,
+        t1=t1,
+        dt=dt,
+        r=r,
+        l=l,
+        n=n,
+        solver=solver,
+    )
+
     print("Plant:")
     print(f"  num = {plant_num}")
     print(f"  den = {plant_den}")
@@ -91,7 +107,13 @@ def main() -> None:
     print(f"  Kp = {Kp}")
     print(f"  Ti = {Ti}")
     print(f"  Td = {Td}")
-    print(f"  Tf = {Tf}")
+    print("D-Filter:")
+    print(f"  N                 = {tf_tuning_factor_n}")
+    print(f"  limit factor k    = {tf_limit_factor_k}")
+    print(f"  Tf_raw            = {tf_report.tf_raw}")
+    print(f"  Tf_eff            = {tf_report.tf_effective}")
+    print(f"  Tf_min            = {tf_report.tf_min}")
+    print(f"  limited           = {tf_report.limited}")
     print("Setup:")
     print(f"  anti_windup       = {anti_windup.name}")
     print(f"  ka                = {ka}")
@@ -103,6 +125,40 @@ def main() -> None:
     print(f"  violation = {violation}")
     print(f"  perf_J    = {perf}")
     print(f"  cost      = {cost}")
+
+    fig, (ax_y, ax_u) = plt.subplots(2, 1, sharex=True, figsize=(10, 7))
+    fig.suptitle(
+        f"Backcalculation Verification | Tf_eff = {tf_report.tf_effective:.6f} s"
+    )
+
+    ax_y.plot(t_eval, y_eval, label="y(t)")
+    ax_y.axhline(1.0, color="0.4", linestyle="--", linewidth=1.0, label="r(t)")
+    ax_y.set_ylabel("y(t)")
+    ax_y.grid(True)
+    ax_y.legend()
+    ax_y.text(
+        0.02,
+        0.98,
+        (
+            f"Tf_raw = {tf_report.tf_raw:.6f} s\n"
+            f"Tf_eff = {tf_report.tf_effective:.6f} s\n"
+            f"limited = {tf_report.limited}"
+        ),
+        transform=ax_y.transAxes,
+        va="top",
+        bbox={"boxstyle": "round", "facecolor": "white", "alpha": 0.85},
+    )
+
+    ax_u.plot(t_eval, u_eval, label="u(t)", color="tab:orange")
+    ax_u.axhline(control_constraint[0], color="tab:red", linestyle="--", linewidth=1.0)
+    ax_u.axhline(control_constraint[1], color="tab:red", linestyle="--", linewidth=1.0)
+    ax_u.set_xlabel("t")
+    ax_u.set_ylabel("u(t)")
+    ax_u.grid(True)
+    ax_u.legend()
+
+    fig.tight_layout()
+    plt.show()
 
 
 if __name__ == "__main__":

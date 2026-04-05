@@ -7,8 +7,9 @@ s = tf('s');
 Kp = 10;
 Ti = 9.5608;
 Td = 0.2972;
-Tf = 0.01;
+Tf = Td/5;
 filter = s / ( Tf * s + 1); 
+
 ka = 1/10;
 
 sim('Vorlage_clamping')
