@@ -1,5 +1,12 @@
 from .closed_loop_context import ClosedLoopResponseContext
 
+from .conect_signal_config import ConnectSignalConfig
+
+from .enum_tooltips import (
+    PerformanceIndexDescription,
+    get_performance_tooltip,
+    validate_enum_mapping)
+
 from .field import (
     FieldConfig,
     SectionConfig,
@@ -32,6 +39,8 @@ from .plot_data import (
     PlotLabels,
 )
 
+from .plot_style import PlotStyle
+
 from .pso_simulation import (
     PsoSimulationParam,
     PsoResult
@@ -43,6 +52,10 @@ from .validation_result import ValidationResult
 
 __all__ = [
     "ClosedLoopResponseContext",
+    "ConnectSignalConfig",
+    "PerformanceIndexDescription",
+    "get_performance_tooltip",
+    "validate_enum_mapping",
     "FieldConfig",
     "SectionConfig",
     "FieldType",
@@ -62,6 +75,7 @@ __all__ = [
     "PlotData",
     "BodePlotData",
     "PlotLabels",
+    "PlotStyle",
     "PsoSimulationParam",
     "PsoResult",
     "LanguageType",

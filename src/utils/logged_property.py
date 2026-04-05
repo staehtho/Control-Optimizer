@@ -45,8 +45,6 @@ class LoggedProperty:
             if isinstance(valid_or_value, bool):
                 if not valid_or_value:
                     return
-            elif valid_or_value is None:
-                return
             else:
                 value = valid_or_value
 

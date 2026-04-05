@@ -243,18 +243,24 @@ class AppEngine:
             t0=0,
             t1=10,
             dt=1e-4,
+            tuning_factor=5.0,
+            limit_factor=5.0,
+            sampling_rate=None,
             solver=MySolver.RK4,
             anti_windup=AntiWindup.CLAMPING,
             ka=1.0,
             constraint=(-5, 5),
             excitation_target=ExcitationTarget.REFERENCE,
             function=StepFunction(),
-            error_criterion=PerformanceIndex.ITAE,
             kp=(0, 10),
             ti=(1e-9, 10),
             td=(0, 10),
             swarm_size=40,
             pso_iteration=1,  # only one iteration for warmup
+            error_criterion=PerformanceIndex.ITAE,
+            slew_rate_max=2,
+            slew_window_size=10,
+            slew_rate_limit_enabled=True,
             overshoot_control=5,
             overshoot_control_enabled=True,
             gain_margin=16,
@@ -262,7 +268,10 @@ class AppEngine:
             phase_margin=60,
             phase_margin_enabled=True,
             stability_margin=6.0,
-            stability_margin_enabled=True
+            stability_margin_enabled=True,
+            omega_exp_low=-5,
+            omega_exp_high=5,
+            omega_points=500
         )
 
         self.logger.info("Starting PSO engine warmup.")

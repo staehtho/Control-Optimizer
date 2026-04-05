@@ -54,10 +54,10 @@ class SimulationView(ViewMixin, QWidget):
         main_layout = self._create_page_layout()
 
         # Title row (icon + title)
-        icon = self._load_icon(Icons.simulation, self._titel_icon_size)
+        icon = self._load_icon(Icons.simulation, self._title_icon_size)
         self._label_icon = QLabel(self)
-        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
-        self._label_icon.setFixedSize(self._titel_icon_size, self._titel_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._title_icon_size, self._title_icon_size))
+        self._label_icon.setFixedSize(self._title_icon_size, self._title_icon_size)
 
         self._lbl_title = QLabel(self)
         self._lbl_title.setObjectName("viewTitle")
@@ -76,6 +76,7 @@ class SimulationView(ViewMixin, QWidget):
         main_layout.addWidget(self._frm_response, 1)
 
         main_layout.addStretch()
+        main_layout.addLayout(self._create_navigation_buttons_layout(next_btn=False, parent=self))
         self.setLayout(main_layout)
 
     def _create_function_frame(self) -> SectionFrame:
@@ -168,6 +169,8 @@ class SimulationView(ViewMixin, QWidget):
     # ============================================================
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
+        super()._retranslate()
+
         self._lbl_title.setText(self.tr("Simulation"))
         self._frm_function.setText(self.tr("Excitation Function"))
         self._frm_response.setText(self.tr("Closed Loop"))
@@ -192,8 +195,8 @@ class SimulationView(ViewMixin, QWidget):
     # ============================================================
     def _on_theme_applied(self) -> None:
         """Update theme-dependent UI elements."""
-        icon = self._load_icon(Icons.simulation, self._titel_icon_size)
-        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
+        icon = self._load_icon(Icons.simulation, self._title_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._title_icon_size, self._title_icon_size))
 
     # ============================================================
     # ViewModel change handlers
@@ -205,7 +208,7 @@ class SimulationView(ViewMixin, QWidget):
         )
 
         ignore = False
-        if resolve_function_type(self._vm_functions.get(key).selected_function) == FunctionTypes.NULL:
+        if resolve_function_type(self._vm_functions[key].selected_function) == FunctionTypes.NULL:
             ignore = True
 
         self._vm_plot.update_data(
@@ -287,7 +290,7 @@ class SimulationView(ViewMixin, QWidget):
             vm.compute_function(t0, t1)
 
         # update tab index
-        index = self._function_tab.indexOf(self._function_tab_pages.get(target.name))
+        index = self._function_tab.indexOf(self._function_tab_pages[target.name])
         if index >= 0:
             self._function_tab.setCurrentIndex(index)
 
@@ -315,7 +318,7 @@ class SimulationView(ViewMixin, QWidget):
             t0, t1,
         )
 
-        self._vm_functions.get(key).compute_function(t0, t1)
+        self._vm_functions[key].compute_function(t0, t1)
         self._vm_simulation.compute_closed_loop_response(t0, t1)
         self._vm_simulation.compute_plant_response(t0, t1)
 

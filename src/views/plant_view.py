@@ -1,14 +1,14 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from functools import partial
 
-from PySide6.QtCore import QObject, QRegularExpression, Qt, QT_TRANSLATE_NOOP
+from PySide6.QtCore import QRegularExpression, Qt, QT_TRANSLATE_NOOP
 from PySide6.QtGui import QRegularExpressionValidator
 from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QScrollArea, QSizePolicy, QHBoxLayout, QTabWidget
 from typing import Callable
 from numpy import ndarray
 
-from app_types import PlotData, PlantField, PlotLabels
+from app_types import PlotData, PlantField, PlotLabels, ConnectSignalConfig
 from views import ViewMixin
 from views.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, FormulaWidget
@@ -35,7 +35,7 @@ class PlantView(ViewMixin, QWidget):
             ui_context: UiContext,
         vm_plant: PlantViewModel,
         vm_plot: PlotViewModel,
-        parent: QObject = None,
+            parent: QWidget = None,
     ):
         QWidget.__init__(self, parent)
 
@@ -53,10 +53,10 @@ class PlantView(ViewMixin, QWidget):
         main_layout = self._create_page_layout()
 
         # Title row (icon + title)
-        icon = self._load_icon(Icons.plant, self._titel_icon_size)
+        icon = self._load_icon(Icons.plant, self._title_icon_size)
         self._label_icon = QLabel(self)
-        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
-        self._label_icon.setFixedSize(self._titel_icon_size, self._titel_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._title_icon_size, self._title_icon_size))
+        self._label_icon.setFixedSize(self._title_icon_size, self._title_icon_size)
 
         self._lbl_title = QLabel(self)
         self._lbl_title.setObjectName("viewTitle")
@@ -75,6 +75,7 @@ class PlantView(ViewMixin, QWidget):
         main_layout.addWidget(self._frm_plot, 1)
 
         main_layout.addStretch()
+        main_layout.addLayout(self._create_navigation_buttons_layout(pre_btn=False, parent=self))
         self.setLayout(main_layout)
 
     def _create_transfer_function_frame(self) -> SectionFrame:
@@ -257,18 +258,60 @@ class PlantView(ViewMixin, QWidget):
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
         self._tf_tab.currentChanged.connect(self._vm_plant.update_tf_tab)
-        self.field_widgets.get(PlantField.NUM).textChanged.connect(
-            partial(self._on_txt_changed, key=PlantField.NUM, update=self._vm_plant.update_num)
-        )
-        self.field_widgets.get(PlantField.DEN).textChanged.connect(
-            partial(self._on_txt_changed, key=PlantField.DEN, update=self._vm_plant.update_den)
-        )
-        self.field_widgets.get(PlantField.ZERO).textChanged.connect(
-            partial(self._on_txt_changed, key=PlantField.ZERO, update=self._vm_plant.update_zero)
-        )
-        self.field_widgets.get(PlantField.POLE).textChanged.connect(
-            partial(self._on_txt_changed, key=PlantField.POLE, update=self._vm_plant.update_pole)
-        )
+
+        # Define key variables for readability
+        k_num = PlantField.NUM
+        k_den = PlantField.DEN
+        k_zero = PlantField.ZERO
+        k_pole = PlantField.POLE
+
+        configs = [
+            ConnectSignalConfig(
+                key=k_num,
+                signal_name="textChanged",
+                attr_name="",
+                widget=self.field_widgets[k_num],
+                kwargs={
+                    "field": self.field_widgets[k_num],
+                    "setter": lambda value: self._vm_plant.update_num(value)
+                },
+                override_event_handler=self._on_txt_changed
+            ),
+            ConnectSignalConfig(
+                key=k_den,
+                signal_name="textChanged",
+                attr_name="",
+                widget=self.field_widgets[k_den],
+                kwargs={
+                    "field": self.field_widgets[k_den],
+                    "setter": lambda value: self._vm_plant.update_den(value)
+                },
+                override_event_handler=self._on_txt_changed
+            ),
+            ConnectSignalConfig(
+                key=k_zero,
+                signal_name="textChanged",
+                attr_name="",
+                widget=self.field_widgets[k_zero],
+                kwargs={
+                    "field": self.field_widgets[k_zero],
+                    "setter": lambda value: self._vm_plant.update_zero(value)
+                },
+                override_event_handler=self._on_txt_changed
+            ),
+            ConnectSignalConfig(
+                key=k_pole,
+                signal_name="textChanged",
+                attr_name="",
+                widget=self.field_widgets[k_pole],
+                kwargs={
+                    "field": self.field_widgets[k_pole],
+                    "setter": lambda value: self._vm_plant.update_pole(value)
+                },
+                override_event_handler=self._on_txt_changed
+            ),
+        ]
+        self._connect_object_signals(configs)
 
     # ============================================================
     # ViewModel bindings (ViewModel -> UI)
@@ -277,29 +320,61 @@ class PlantView(ViewMixin, QWidget):
         """Bind ViewModel signals to View update handlers."""
         # vm plant
         self._vm_plant.validationFailed.connect(self._on_validation_failed)
-        self._vm_plant.numChanged.connect(
-            partial(self._on_vm_changed, PlantField.NUM, "_vm_plant.num")
-        )
-        self._vm_plant.denChanged.connect(
-            partial(self._on_vm_changed, PlantField.DEN, "_vm_plant.den")
-        )
-        self._vm_plant.zeroChanged.connect(
-            partial(self._on_vm_changed, PlantField.ZERO, "_vm_plant.zero")
-        )
-        self._vm_plant.poleChanged.connect(
-            partial(self._on_vm_changed, PlantField.POLE, "_vm_plant.pole")
-        )
         self._vm_plant.polyTfChanged.connect(self._on_vm_formula_changed)
         self._vm_plant.stepResponseChanged.connect(self._on_step_response_changed)
         # vm plot
         self._vm_plot.xMinChanged.connect(self._on_plot_time_changed)
         self._vm_plot.xMaxChanged.connect(self._on_plot_time_changed)
 
+        # Define key variables for readability
+        k_num = PlantField.NUM
+        k_den = PlantField.DEN
+        k_zero = PlantField.ZERO
+        k_pole = PlantField.POLE
+
+        configs = [
+            ConnectSignalConfig(
+                key=k_num,
+                signal_name="numChanged",
+                attr_name="num",
+                widget=self._vm_plant,
+                kwargs={"field": self.field_widgets.get(k_num)},
+                main_event_handler=self._on_vm_changed
+            ),
+            ConnectSignalConfig(
+                key=k_den,
+                signal_name="denChanged",
+                attr_name="den",
+                widget=self._vm_plant,
+                kwargs={"field": self.field_widgets.get(k_den)},
+                main_event_handler=self._on_vm_changed
+            ),
+            ConnectSignalConfig(
+                key=k_zero,
+                signal_name="zeroChanged",
+                attr_name="zero",
+                widget=self._vm_plant,
+                kwargs={"field": self.field_widgets.get(k_zero)},
+                main_event_handler=self._on_vm_changed
+            ),
+            ConnectSignalConfig(
+                key=k_pole,
+                signal_name="poleChanged",
+                attr_name="pole",
+                widget=self._vm_plant,
+                kwargs={"field": self.field_widgets.get(k_pole)},
+                main_event_handler=self._on_vm_changed
+            ),
+        ]
+        self._connect_object_signals(configs)
+
     # ============================================================
     # Translation
     # ============================================================
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
+        super()._retranslate()
+
         self._lbl_title.setText(self.tr("Plant"))
         self._frm_tf.setText(self.tr("Transfer function"))
         self._frm_plot.setText(self.tr("Step Response"))
@@ -345,8 +420,8 @@ class PlantView(ViewMixin, QWidget):
     # ============================================================
     def _on_theme_applied(self) -> None:
         """Update theme-dependent UI elements."""
-        icon = self._load_icon(Icons.plant, self._titel_icon_size)
-        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
+        icon = self._load_icon(Icons.plant, self._title_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._title_icon_size, self._title_icon_size))
 
         self._set_formula()
 
@@ -376,11 +451,19 @@ class PlantView(ViewMixin, QWidget):
     # ============================================================
     # UI event handlers
     # ============================================================
-    def _on_txt_changed(self, value: str, key: PlotField, update: Callable[[str], None]) -> None:
+    def _on_txt_changed(self, value: str, **kwargs: Any) -> None:
         """Handle user changes in QLineEdit field."""
-        self._clear_input_error(self.field_widgets.get(key))
+        field = kwargs.get("field")
+        if not isinstance(field, QLineEdit) or field is None:
+            raise TypeError(f"Expected QObject, got {type(field)}")
+
+        setter = kwargs.get("setter")
+        if not isinstance(setter, Callable) or setter is None:
+            raise TypeError(f"Expected Callable, got {type(setter)}")
+
+        self._clear_input_error(field)
         self.logger.debug(f"UI event: txt_change changed (value={value})")
-        update(value)
+        setter(value)
 
     # ============================================================
     # Internal helpers

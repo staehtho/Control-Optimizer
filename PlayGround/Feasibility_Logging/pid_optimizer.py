@@ -98,11 +98,18 @@ def main():
 
     use_overshoot_control = True
     allowed_overshoot_pct = 1
-    # Normalized total variation of u_sat:
-    # sum(|u[k] - u[k-1]|) / ((t1 - t0) * (u_max - u_min))
+    # Keep the diagnostic metric available independently from the feasibility
+    # toggle so the final candidate can always report its overshoot value.
+    calculate_overshoot = True
+    # Maximum absolute control-rate estimate over a window of m steps:
+    # max(|u[k] - u[k-m]| / (m * dt))
     # Keep disabled until the log data has been used to calibrate a limit.
-    use_control_activity_constraint = False
-    allowed_control_activity = 0.05
+    use_max_du_dt_constraint = False
+    # Keep the diagnostic metric available independently from the feasibility
+    # toggle so the final candidate can still report its max du/dt value.
+    calculate_max_du_dt = True
+    allowed_max_du_dt = 0.05
+    du_dt_window_steps = 10
 
     sim_mode = "fixed"
     start_time = 0
@@ -181,8 +188,11 @@ def main():
         ms_max_db=ms_max_db,
         use_overshoot_control=use_overshoot_control,
         allowed_overshoot_pct=allowed_overshoot_pct,
-        use_control_activity_constraint=use_control_activity_constraint,
-        allowed_control_activity=allowed_control_activity,
+        calculate_overshoot=calculate_overshoot,
+        use_max_du_dt_constraint=use_max_du_dt_constraint,
+        calculate_max_du_dt=calculate_max_du_dt,
+        allowed_max_du_dt=allowed_max_du_dt,
+        du_dt_window_steps=du_dt_window_steps,
         performance_index=performance_index,
         swarm_size=swarm_size,
         enable_logging=True,
@@ -229,14 +239,16 @@ def main():
     )
     pid.set_filter(Tf=tf_report.tf_effective)
     best_eval = obj_func.evaluate_candidates(np.array([[best_Kp, best_Ti, best_Td]], dtype=np.float64))
-    best_control_activity = float(best_eval["control_activity"][0])
+    best_overshoot_pct = float(best_eval["overshoot_pct"][0])
+    best_max_du_dt = float(best_eval["max_du_dt"][0])
 
     data = {
         "best_Kp": best_Kp,
         "best_Ti": best_Ti,
         "best_Td": best_Td,
         "best_Tf": tf_report.tf_effective,
-        "best_control_activity": best_control_activity,
+        "best_overshoot_pct": best_overshoot_pct,
+        "best_max_du_dt": best_max_du_dt,
         "performance_index": performance_index,
         # Backward-compatible key name kept for existing consumers.
         "best_performance_index": best_objective_cost,
@@ -257,8 +269,11 @@ def main():
 
         "plant_num": plant_num,
         "plant_den": plant_den,
-        "use_control_activity_constraint": use_control_activity_constraint,
-        "allowed_control_activity": allowed_control_activity,
+        "calculate_overshoot": calculate_overshoot,
+        "use_max_du_dt_constraint": use_max_du_dt_constraint,
+        "calculate_max_du_dt": calculate_max_du_dt,
+        "allowed_max_du_dt": allowed_max_du_dt,
+        "du_dt_window_steps": du_dt_window_steps,
     }
 
     print_result_block("Best PID summary", data)
@@ -289,8 +304,10 @@ def main():
     print(f"PM  [deg]: {pm_dbg:.3f}   (has_wc={has_wc_dbg})")
     print(f"GM  [dB ]: {gm_dbg:.3f}   (has_w180={has_w180_dbg})")
     print(f"Ms  [dB ]: {ms_dbg:.3f}")
-    print("\n=== Control activity (best PID) ===")
-    print(f"control_activity: {best_control_activity:.6f}")
+    print("\n=== Overshoot (best PID) ===")
+    print(f"overshoot_pct: {best_overshoot_pct:.6f}")
+    print("\n=== Max du/dt (best PID) ===")
+    print(f"max_du_dt: {best_max_du_dt:.6f}")
 
 
     # --- Open-loop step ---

@@ -7,15 +7,15 @@ from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QTabWidget, QHBoxLay
 from PySide6.QtCore import QT_TRANSLATE_NOOP, Qt
 from numpy import ndarray
 
-from app_domain.controlsys import AntiWindup
 from app_types import EvaluationField, SectionConfig, FieldConfig, PlotData, BodePlotData, PlotLabels, PsoResultField
-from utils import SvgLayer, merge_svgs, recolor_svg, save_svg
+from resources.blockdiagram import load_closed_loop_diagram
+from utils import save_svg
 from views import ViewMixin
 from views.plot_style import PLOT_STYLE
 from views.widgets import (
     PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, BodePlotWidget, AspectRatioSvgWidget, FormulaWidget
 )
-from resources.resources import BLOCK_DIAGRAM_DIR, BlockDiagram, Icons
+from resources.resources import Icons
 
 if TYPE_CHECKING:
     from app_domain.ui_context import UiContext
@@ -23,40 +23,130 @@ if TYPE_CHECKING:
     from viewmodels import EvaluationViewModel, PlotViewModel
     from views.widgets import SectionFrame
 
-
 TIME_DOMAIN = "time_domain"
 FREQUENCY_DOMAIN = "frequency_domain"
 TRANSFER_FUNCTION = "transfer_function"
 BLOCK_DIAGRAM = "block_diagram"
 
-FIELDS: dict[str, list[FieldConfig]] = {
+type PsoFieldText = tuple[dict[str, Any], bool]
+
+FIELDS: dict[str, list[SectionConfig | FieldConfig]] = {
     "tf": [
-        FieldConfig(EvaluationField.PLANT, FormulaWidget),
-        FieldConfig(EvaluationField.CONTROLLER, FormulaWidget),
-        FieldConfig(EvaluationField.OPEN_LOOP, FormulaWidget),
-        FieldConfig(EvaluationField.CLOSED_LOOP, FormulaWidget),
-        FieldConfig(EvaluationField.SENSITIVITY, FormulaWidget),
-        FieldConfig(EvaluationField.COMPLEMENTARY_SENSITIVITY, FormulaWidget),
+        SectionConfig(EvaluationField.PLANT, [
+            FieldConfig(EvaluationField.TF_PLANT, FormulaWidget, create_label=False),
+        ]),
+        SectionConfig(EvaluationField.CONTROLLER, [
+            FieldConfig(EvaluationField.TF_CONTROLLER, FormulaWidget, create_label=False),
+        ]),
+        SectionConfig(EvaluationField.OPEN_LOOP, [
+            FieldConfig(EvaluationField.TF_OPEN_LOOP, FormulaWidget, create_label=False),
+        ]),
+        SectionConfig(EvaluationField.CLOSED_LOOP, [
+            FieldConfig(EvaluationField.TF_CLOSED_LOOP, FormulaWidget, create_label=False),
+        ]),
+        SectionConfig(EvaluationField.SENSITIVITY, [
+            FieldConfig(EvaluationField.TF_SENSITIVITY, FormulaWidget, create_label=False),
+        ]),
     ],
     "result": [
         SectionConfig(PsoResultField.RUN_TIME, [
             FieldConfig(PsoResultField.TIME, QLabel, False)
         ]),
-        SectionConfig(PsoResultField.PARAMETERS, [
+        SectionConfig(PsoResultField.PERFORMANCE_INDEX, [
+            SectionConfig(PsoResultField.TIME_DOMAIN, [
+                FieldConfig(PsoResultField.ERROR_CRITERION, QLabel, False),
+                FieldConfig(PsoResultField.OVERSHOOT_CONTROL, QLabel, False),
+                FieldConfig(PsoResultField.SLEW_RATE, QLabel, False),
+            ]),
+            SectionConfig(PsoResultField.FREQUENCY_DOMAIN, [
+                FieldConfig(PsoResultField.GAIN_MARGIN, QLabel, False),
+                FieldConfig(PsoResultField.PHASE_MARGIN, QLabel, False),
+                FieldConfig(PsoResultField.STABILITY_MARGIN, QLabel, False),
+            ])
+        ]),
+        SectionConfig(PsoResultField.CONTROLLER_PARAMETERS, [
             FieldConfig(PsoResultField.KP, QLabel, False),
             FieldConfig(PsoResultField.TI, QLabel, False),
             FieldConfig(PsoResultField.TD, QLabel, False),
-            FieldConfig(PsoResultField.TF, QLabel, False),
-        ])
+            SectionConfig(PsoResultField.FILTER_TIME_CONSTANT, [
+                FieldConfig(PsoResultField.TF, QLabel, False),
+                FieldConfig(PsoResultField.TF_LIMITED, QLabel, False),
+                FieldConfig(PsoResultField.MIN_SAMPLING_RATE, QLabel, False),
+            ]),
+        ]),
     ]
 }
 
 PSO_RESULT_TEMPLATE: dict[PsoResultField, Any] = {
-    PsoResultField.TIME: QT_TRANSLATE_NOOP("EvaluationView", "PSO finished after %(time).1f seconds."),
-    PsoResultField.KP: QT_TRANSLATE_NOOP("EvaluationView", "Kp = %(kp).3f"),
-    PsoResultField.TI: QT_TRANSLATE_NOOP("EvaluationView", "Ti = %(ti).3f"),
-    PsoResultField.TD: QT_TRANSLATE_NOOP("EvaluationView", "Td = %(td).3f"),
-    PsoResultField.TF: QT_TRANSLATE_NOOP("EvaluationView", "Tf = %(tf).3f"),
+    PsoResultField.TIME: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "PSO finished after %(time).3f s."
+    ),
+
+    PsoResultField.ERROR_CRITERION: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "%(error_criterion)s = %(value).3f"
+    ),
+
+    PsoResultField.OVERSHOOT_CONTROL: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "Overshoot: %(value).3f %%"
+    ),
+
+    PsoResultField.SLEW_RATE: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "Slew rate: %(value).3f"
+    ),
+
+    PsoResultField.GAIN_MARGIN: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "Gain margin: %(value).3f dB @ %(omega).3f rad/s"
+    ),
+
+    PsoResultField.PHASE_MARGIN: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "Phase margin: %(value).3f° @ %(omega).3f rad/s"
+    ),
+
+    PsoResultField.STABILITY_MARGIN: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "Stability margin: %(value).3f dB"
+    ),
+
+    PsoResultField.KP: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "Kp: %(kp).3f"
+    ),
+
+    PsoResultField.TI: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "Ti: %(ti).3f"
+    ),
+
+    PsoResultField.TD: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "Td: %(td).3f"
+    ),
+
+    PsoResultField.TF: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "Tf: %(tf).3f"
+    ),
+
+    PsoResultField.TF_LIMITED: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "Tf limited by %(limited)s"
+    ),
+
+    PsoResultField.MIN_SAMPLING_RATE: QT_TRANSLATE_NOOP(
+        "EvaluationView",
+        "Min. sampling rate: %(sampling_rate).3f Hz"
+    ),
+}
+
+LIMITED_TEMPLATE: dict[str, Any] = {
+    "simulation": QT_TRANSLATE_NOOP("EvaluationView", "simulation"),
+    "sampling": QT_TRANSLATE_NOOP("EvaluationView", "sampling rate"),
 }
 
 
@@ -92,10 +182,10 @@ class EvaluationView(ViewMixin, QWidget):
         main_layout = self._create_page_layout()
 
         # Title row (icon + title)
-        icon = self._load_icon(Icons.evaluation, self._titel_icon_size)
+        icon = self._load_icon(Icons.evaluation, self._title_icon_size)
         self._label_icon = QLabel(self)
-        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
-        self._label_icon.setFixedSize(self._titel_icon_size, self._titel_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._title_icon_size, self._title_icon_size))
+        self._label_icon.setFixedSize(self._title_icon_size, self._title_icon_size)
 
         self._lbl_title = QLabel(self)
         self._lbl_title.setObjectName("viewTitle")
@@ -115,6 +205,7 @@ class EvaluationView(ViewMixin, QWidget):
         main_layout.addWidget(self._frm_plot, 1)
 
         main_layout.addStretch()
+        main_layout.addLayout(self._create_navigation_buttons_layout(parent=self))
         self.setLayout(main_layout)
 
     def _create_result_frame(self) -> SectionFrame:
@@ -122,7 +213,7 @@ class EvaluationView(ViewMixin, QWidget):
         frame: SectionFrame
         frame, frame_layout = self._create_card(parent=self)
 
-        grid_layout = self._create_grid(FIELDS.get("result"))
+        grid_layout = self._create_grid(FIELDS["result"])
 
         frame_layout.addLayout(grid_layout)
 
@@ -176,7 +267,7 @@ class EvaluationView(ViewMixin, QWidget):
             subplot_configuration=subplot_cfgs,
         )
 
-        widget = PlotWidget(self._ui_context, self._vm_plots.get(TIME_DOMAIN), cl_plot_cfg, parent=self._plot_tab)
+        widget = PlotWidget(self._ui_context, self._vm_plots[TIME_DOMAIN], cl_plot_cfg, parent=self._plot_tab)
         widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
         layout.addWidget(widget)
@@ -189,7 +280,7 @@ class EvaluationView(ViewMixin, QWidget):
         layout = self._create_card_layout()
         container.setLayout(layout)
 
-        widget = BodePlotWidget(self._ui_context, self._vm_plots.get(FREQUENCY_DOMAIN), parent=self._plot_tab)
+        widget = BodePlotWidget(self._ui_context, self._vm_plots[FREQUENCY_DOMAIN], parent=self._plot_tab)
         widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         layout.addWidget(widget)
 
@@ -218,7 +309,7 @@ class EvaluationView(ViewMixin, QWidget):
 
         widget = QWidget(self)
 
-        grid_layout = self._create_grid(FIELDS.get("tf"))
+        grid_layout = self._create_grid(FIELDS["tf"])
         widget.setLayout(grid_layout)
 
         plant_tf = ""
@@ -226,12 +317,11 @@ class EvaluationView(ViewMixin, QWidget):
             plant_tf = self._vm_evaluator.plant_tf
 
         tf: dict[EvaluationField, str] = {
-            EvaluationField.PLANT: plant_tf,
-            EvaluationField.CONTROLLER: r"C(S) = ",
-            EvaluationField.OPEN_LOOP: r"L(S) = C(S) \cdot G(S)",
-            EvaluationField.CLOSED_LOOP: r"",
-            EvaluationField.SENSITIVITY: r"",
-            EvaluationField.COMPLEMENTARY_SENSITIVITY: r"",
+            EvaluationField.TF_PLANT: r" G(s) = " + plant_tf,
+            EvaluationField.TF_CONTROLLER: r"C(S) = Kp \frac{(Ti s + 1)(Td s + 1)}{Ti s (Tf s + 1)}",
+            EvaluationField.TF_OPEN_LOOP: r"L(S) = C(S) \cdot G(S)",
+            EvaluationField.TF_CLOSED_LOOP: r"T(s) = \frac{L(s)}{1 + L(s)} = \frac{C(s) \cdot G(s)}{1 + C(s) \cdot G(s)}",
+            EvaluationField.TF_SENSITIVITY: r"S(s) = \frac{1}{1 + L(s)} = \frac{1}{1 + C(s) \cdot G(s)}",
         }
 
         for key, value in tf.items():
@@ -273,13 +363,15 @@ class EvaluationView(ViewMixin, QWidget):
         self._vm_plots.get(FREQUENCY_DOMAIN).xMinChanged.connect(self._on_vm_frequency_changed)
         self._vm_plots.get(FREQUENCY_DOMAIN).xMaxChanged.connect(self._on_vm_frequency_changed)
 
-
     # ============================================================
     # Translation
     # ============================================================
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
+        super()._retranslate()
+
         self._lbl_title.setText(self.tr("Evaluation"))
+
         self._frm_result.setText(self.tr("PSO Result"))
         self._frm_plot.setText(self.tr("Closed Loop"))
 
@@ -287,10 +379,21 @@ class EvaluationView(ViewMixin, QWidget):
         self._plot_tab.setTabText(0, self.tr("Time Domain"))
         self._plot_tab.setTabText(1, self.tr("Frequency Domain"))
         self._plot_tab.setTabText(2, self.tr("Block Diagram"))
+        self._plot_tab.setTabText(3, self.tr("Transfer Functions"))
 
         labels = {
             PsoResultField.RUN_TIME: self.tr("PSO run time"),
-            PsoResultField.PARAMETERS: self.tr("Controller Parameters"),
+            PsoResultField.CONTROLLER_PARAMETERS: self.tr("Controller Parameters"),
+            PsoResultField.FILTER_TIME_CONSTANT: self.tr("Filter Time Constant"),
+            PsoResultField.PERFORMANCE_INDEX: self.tr("Performance Index"),
+            PsoResultField.TIME_DOMAIN: self.tr("Time Domain"),
+            PsoResultField.FREQUENCY_DOMAIN: self.tr("Frequency Domain"),
+
+            EvaluationField.PLANT: self.tr("Plant"),
+            EvaluationField.CONTROLLER: self.tr("Controller"),
+            EvaluationField.OPEN_LOOP: self.tr("Open Loop"),
+            EvaluationField.CLOSED_LOOP: self.tr("Closed Loop"),
+            EvaluationField.SENSITIVITY: self.tr("Sensitivity"),
         }
 
         for key in labels.keys():
@@ -317,8 +420,8 @@ class EvaluationView(ViewMixin, QWidget):
     # ============================================================
     def _on_theme_applied(self) -> None:
         """Update theme-dependent UI elements."""
-        icon = self._load_icon(Icons.evaluation, self._titel_icon_size)
-        self._label_icon.setPixmap(icon.pixmap(self._titel_icon_size, self._titel_icon_size))
+        icon = self._load_icon(Icons.evaluation, self._title_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._title_icon_size, self._title_icon_size))
         self._load_block_diagram()
 
     # ============================================================
@@ -405,13 +508,13 @@ class EvaluationView(ViewMixin, QWidget):
                 label_enum = PlotLabels[key]
             else:
                 label_enum = PlotLabels(key)
-            self._vm_plots.get(FREQUENCY_DOMAIN).update_data(
+            self._vm_plots[FREQUENCY_DOMAIN].update_data(
                 BodePlotData(
                     key=label_enum.value,
                     label=self._enum_translation(label_enum),
                     omega=result.omega,
-                    margin=result.margin.get(key),
-                    phase=result.phase.get(key),
+                    margin=result.margin[key],
+                    phase=result.phase[key],
                     plot_style=PLOT_STYLE.get(label_enum),
                 )
             )
@@ -421,15 +524,24 @@ class EvaluationView(ViewMixin, QWidget):
     def _on_vm_pso_simulation_finished(self) -> None:
         self.logger.debug("PSO simulation finished -> refreshing excitation function")
 
+        self._load_block_diagram()
+        self._sync_plot_time_window_from_model()
+        self._update_time_domain_plots()
+        self._update_frequency_domain_plots()
         self._update_pso_result_values()
-        self._apply_init_value()
+
+        widget: FormulaWidget = self.field_widgets[EvaluationField.TF_PLANT]
+        snapshot = self._vm_evaluator.get_pso_snapshot()
+        if snapshot is None:
+            return
+        widget.set_formula(r"G(s) = " + snapshot.plant_tf)
 
         self._vm_evaluator.request_save_svg("block_diagram.svg")
 
     def _on_vm_time_changed(self) -> None:
         """Trigger recomputation when plot time range changes."""
-        t0 = self._vm_plots.get(TIME_DOMAIN).x_min
-        t1 = self._vm_plots.get(TIME_DOMAIN).x_max
+        t0 = self._vm_plots[TIME_DOMAIN].x_min
+        t1 = self._vm_plots[TIME_DOMAIN].x_max
 
         self.logger.debug(f"Time range changed: t0={t0}, t1={t1}")
         self._update_time_domain_plots()
@@ -462,85 +574,71 @@ class EvaluationView(ViewMixin, QWidget):
     # Helpers
     # ============================================================
     def _update_time_domain_plots(self) -> None:
-        t0 = self._vm_plots.get(TIME_DOMAIN).x_min
-        t1 = self._vm_plots.get(TIME_DOMAIN).x_max
+        t0 = self._vm_plots[TIME_DOMAIN].x_min
+        t1 = self._vm_plots[TIME_DOMAIN].x_max
 
         self._vm_evaluator.compute_closed_loop_response(t0, t1)
         self._vm_evaluator.compute_plant_response(t0, t1)
         self._vm_evaluator.compute_function(t0, t1)
 
     def _update_frequency_domain_plots(self) -> None:
-        omega_min = self._vm_plots.get(FREQUENCY_DOMAIN).x_min
-        omega_max = self._vm_plots.get(FREQUENCY_DOMAIN).x_max
+        omega_min = self._vm_plots[FREQUENCY_DOMAIN].x_min
+        omega_max = self._vm_plots[FREQUENCY_DOMAIN].x_max
 
         self._vm_evaluator.compute_plant_frequency_response(omega_min, omega_max)
         self._vm_evaluator.compute_closed_loop_frequency_response(omega_max, omega_min)
 
     def _update_pso_result_values(self) -> None:
         result = self._vm_evaluator.get_pso_result()
-        if result is None:
+        snapshot = self._vm_evaluator.get_pso_snapshot()
+
+        if result is None or snapshot is None:
             for key in PSO_RESULT_TEMPLATE.keys():
                 self.field_widgets.get(key).setText("-")
             return
 
-        pso_result = self._vm_evaluator.get_pso_result()
+        limited_key = ""
+        show_limited = False
+        if result.tf_limited_sampling:
+            limited_key = "sampling"
+            show_limited = True
+        elif result.tf_limited_simulation:
+            limited_key = "simulation"
+            show_limited = True
 
-        text = {
-            PsoResultField.TIME: {"time": pso_result.simulation_time},
-            PsoResultField.KP: {"kp": pso_result.kp},
-            PsoResultField.TI: {"ti": pso_result.ti},
-            PsoResultField.TD: {"td": pso_result.td},
-            PsoResultField.TF: {"tf": pso_result.tf}
+        text: dict[PsoResultField, PsoFieldText] = {
+            PsoResultField.TIME: ({"time": result.simulation_time}, True),
+            PsoResultField.ERROR_CRITERION: ({"error_criterion": self._enum_translation(snapshot.error_criterion),
+                                              "value": result.error_criterion, }, True),
+            PsoResultField.OVERSHOOT_CONTROL: ({"value": result.overshoot}, result.show_overshoot),
+            PsoResultField.SLEW_RATE: ({"value": result.slew_rate}, True),
+            PsoResultField.GAIN_MARGIN: ({"value": result.gain_margin, "omega": result.omega_180}, True),
+            PsoResultField.PHASE_MARGIN: ({"value": result.phase_margin, "omega": result.omega_c}, True),
+            PsoResultField.STABILITY_MARGIN: ({"value": result.stability_margin}, True),
+            PsoResultField.KP: ({"kp": result.kp}, True),
+            PsoResultField.TI: ({"ti": result.ti}, True),
+            PsoResultField.TD: ({"td": result.td}, True),
+            PsoResultField.TF: ({"tf": result.tf}, True),
+            PsoResultField.TF_LIMITED: ({"limited": LIMITED_TEMPLATE.get(limited_key, "")}, show_limited),
+            PsoResultField.MIN_SAMPLING_RATE: ({"sampling_rate": result.min_sampling_rate}, not show_limited),
         }
 
         for key, value in text.items():
-            self.field_widgets.get(key).setText(PSO_RESULT_TEMPLATE.get(key) % value)
-
-    def _build_block_diagram(self) -> str:
-        """Build the closed loop block diagram SVG."""
-        x_offset = 100
-        y = 125
-        node_x = 150
-        sum_x = 475
-        svgs = [
-            (BlockDiagram.closed_loop, (0, 0)),
-            (BlockDiagram.controller_in, (x_offset, y)),
-            (BlockDiagram.controller_out, (sum_x + x_offset, y)),
-            (BlockDiagram.p_path, (node_x + x_offset, y)),
-            (BlockDiagram.d_path, (node_x + x_offset, y))
-        ]
-
-        if self._vm_evaluator.has_snapshot():
-            match self._vm_evaluator.anti_windup:
-                case AntiWindup.BACKCALCULATION:
-                    svgs.append((BlockDiagram.backcalculation, (node_x + x_offset, y)))
-                case AntiWindup.CLAMPING:
-                    svgs.append((BlockDiagram.clamping, (node_x + x_offset, y)))
-                case AntiWindup.CONDITIONAL:
-                    svgs.append((BlockDiagram.conditional, (node_x + x_offset, y)))
-                case unknown_value:
-                    raise ValueError(
-                        f"Unsupported anti-windup method: {unknown_value!r}. "
-                        "Expected one of: BACKCALCULATION, CLAMPING, CONDITIONAL."
-                    )
-
-        svg_layers = []
-        for svg, translate in svgs:
-            svg_path = BLOCK_DIAGRAM_DIR / svg
-            svg_layers.append(SvgLayer(svg_path.read_text(encoding="utf-8"), translate=translate))
-
-        merged_svg = merge_svgs(svg_layers)
-
-        if self._vm_evaluator.has_snapshot():
-            # set min and max constraint
-            merged_svg = merged_svg.replace("min: ###", f"min: {self._vm_evaluator.constraint_min}")
-            merged_svg = merged_svg.replace("max: ###", f"max: {self._vm_evaluator.constraint_max}")
-
-        return merged_svg
+            val_dict, visible = value
+            widget = self.field_widgets.get(key)
+            widget.setVisible(visible)
+            widget.setText(self.tr(PSO_RESULT_TEMPLATE[key]) % val_dict)
 
     def _load_block_diagram(self) -> None:
         """Build and recolor the closed loop block diagram SVG."""
-        svg = self._build_block_diagram()
 
-        recolored = recolor_svg(svg, self._vm_theme.get_svg_color_map())
-        self.field_widgets.get(BLOCK_DIAGRAM).set_svg_bytes(recolored.encode("utf-8"))
+        snapshot = self._vm_evaluator.get_pso_snapshot()
+        if snapshot is None:
+            return
+
+        merged_svg = load_closed_loop_diagram(
+            snapshot.controller_anti_windup,
+            (snapshot.controller_constraint_min, snapshot.controller_constraint_max),
+            self._vm_theme.get_svg_color_map(),
+        )
+        self.field_widgets.get(BLOCK_DIAGRAM).set_svg_bytes(merged_svg.encode("utf-8"))

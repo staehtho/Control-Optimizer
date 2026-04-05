@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import StrEnum
 from dataclasses import dataclass
 from typing import Type
 from PySide6.QtWidgets import QWidget, QLabel
@@ -36,7 +36,8 @@ class SectionConfig:
 
         return count // (self.columns // 2) + 1
 
-class FieldType(Enum):
+
+class FieldType(StrEnum):
     ...
 
 
@@ -70,13 +71,19 @@ class ControllerField(FieldType):
 
     ANTI_WINDUP = "anti_wind"
     ANTI_WINDUP_METHODE = "anti_windup_method"
-    KA = "ka"
+    FACTOR_KA = "ka"
+
+    FILTER_TIME_CONSTANT = "filter_time_constant"
+    TUNING_FACTOR = "tuning_factor"
+    SAMPLING_RATE = "sampling_rate"
 
     BLOCK_DIAGRAM = "block_diagram"
 
 
 # PsoConfigurationViewModel / PsoConfigurationView
 class PsoField(FieldType):
+    BLOCK_DIAGRAM = "block_diagram"
+
     PLANT = "plant"
     PLANT_TF = "plant_tf"
 
@@ -92,6 +99,9 @@ class PsoField(FieldType):
     TIME_DOMAIN = "time_domain"
     ERROR_CRITERION = "error_criterion"
     OVERSHOOT_CONTROL = "overshoot_control"
+    SLEW_RATE_LIMITER = "slew_rate_limiter"
+    SLEW_RATE_MAX = "slew_rate_max"
+    SLEW_WINDOW_SIZE = "slew_window_size"
     FREQUENCY_DOMAIN = "frequency_domain"
     GAIN_MARGIN = "gain_margin"
     PHASE_MARGIN = "phase_margin"
@@ -115,22 +125,42 @@ class PsoField(FieldType):
 # EvaluationViewModel / EvaluationView
 class EvaluationField(FieldType):
     PLANT = "plant"
+    TF_PLANT = "tf_plant"
     CONTROLLER = "controller"
+    TF_CONTROLLER = "tf_controller"
     OPEN_LOOP = "open_loop"
+    TF_OPEN_LOOP = "tf_open_loop"
     CLOSED_LOOP = "closed_loop"
+    TF_CLOSED_LOOP = "tf_closed_loop"
     SENSITIVITY = "sensitivity"
-    COMPLEMENTARY_SENSITIVITY = "complementary_sensitivity"
+    TF_SENSITIVITY = "tf_sensitivity"
 
 
 # EvaluationViewModel / EvaluationView
 class PsoResultField(FieldType):
     RUN_TIME = "run_time"
     TIME = "time"
-    PARAMETERS = "parameters"
+
+    CONTROLLER_PARAMETERS = "controller_parameters"
     KP = "kp"
     TI = "ti"
     TD = "td"
+    FILTER_TIME_CONSTANT = "filter_time_constant"
     TF = "tf"
+    TF_LIMITED = "tf_limited"
+    MIN_SAMPLING_RATE = "min_sampling_rate"
+
+    PERFORMANCE_INDEX = "performance_index"
+
+    TIME_DOMAIN = "time_domain"
+    ERROR_CRITERION = "error_criterion"
+    OVERSHOOT_CONTROL = "overshoot_control"
+    SLEW_RATE = "slew_rate"
+
+    FREQUENCY_DOMAIN = "frequency_domain"
+    GAIN_MARGIN = "gain_margin"
+    PHASE_MARGIN = "phase_margin"
+    STABILITY_MARGIN = "stability_margin"
 
 
 # SettingsViewModle / SettingsView

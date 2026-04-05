@@ -44,26 +44,26 @@
             <text class="text" x="25" y="40">Ti</text>
         </g>
 
-        <path class="line" d="M50 0 H65"/>
+        <path class="line" d="M50 0 H77.5"/>
 
         <!-- Sum -->
-        <g transform="translate(75 0)">
+        <g transform="translate(87.5 0)">
             <circle class="block" cx="0" cy="0" r="5"/>
             <use href="#arrow" transform="translate(-5 0)"/>
             <use href="#arrow" transform="translate(0 5) rotate(-90 0 0)"/>
         </g>
 
-        <path class="line" d="M80 0 H95"/>
-        <use href="#arrow" transform="translate(100 0)"/>
+        <path class="line" d="M92.5 0 H120"/>
+        <use href="#arrow" transform="translate(125 0)"/>
 
-        <g transform="translate(100, -25)">
+        <g transform="translate(125, -25)">
             <use href="#integrator"/>
         </g>
     </g>
 
     <!-- Output -->
     <g transform="translate(325 0)">
-        <path class="line" d="M0 10 V75 H-125"/>
+        <path class="line" d="M0 10 V75 H-100"/>
         <use href="#arrow" transform="rotate(-90 2.5 2.5)"/>
         <!-- Node -->
         <circle class="fill" cx="25" cy="0" r="4"/>
@@ -79,15 +79,15 @@
 
         <path class="line" d="M25 0 V115"/>
         <path class="line" d="M125 0 V125 H35"/>
-        <path class="line" d="M20 125 H-45"/>
-        <use href="#arrow" transform="translate(-50 125) rotate(-180)"/>
+        <path class="line" d="M20 125 H-20"/>
+        <use href="#arrow" transform="translate(-25 125) rotate(-180)"/>
 
-        <g transform="translate(-100 100)">
+        <g transform="translate(-75 100)">
             <rect class="block" height="50" width="50"/>
             <text class="text" x="25" y="30">Ka</text>
         </g>
 
-        <path class="line" d="M-100 125 H-200 V85"/>
+        <path class="line" d="M-75 125 H-187.5 V85"/>
 
     </g>
 

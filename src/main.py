@@ -1,24 +1,15 @@
 import logging
 import sys
+from pathlib import Path
 from typing import Callable
 
 from PySide6.QtCore import QTimer
 from PySide6.QtGui import QPixmap, Qt
 from PySide6.QtWidgets import QApplication, QSplashScreen
 
-# TODO: add buttons to switch to the next or previous view in the view it self
 # TODO: TabIndex
 
-# TODO: BodePlot: when all plots are disabled, the y-axis should not be rescaled. now it scale to 99999 or so :)
-
-# TODO: Controller: move the block diagram and the selection of the anti windup in one section called anti windup
-#  and call the selection method or so
-
-# TODO: PSO: add stellrantenbegrenzung
-
 # TODO: Evaluation: TF with L and N
-# TODO: Evaluation: clean TF of C, G, etc.
-
 
 def create_app():
     return QApplication(sys.argv)
@@ -37,7 +28,8 @@ def show_splash_message_setup(app: QApplication, splash: QSplashScreen) -> Calla
 
 
 def show_splash():
-    pixmap = QPixmap("resources/icons/control_optimizer.svg")
+    path = Path(__file__).parent / "resources" / "icons" / "control_optimizer.svg"
+    pixmap = QPixmap(path)
     splash = QSplashScreen(pixmap)
     splash.show()
     return splash
@@ -139,6 +131,7 @@ def create_view_factories(engine, ui_context):
             ui_context,
             engine.ensure_plant_viewmodel(),
             create_vm_function(engine),
+            engine.ensure_controller_viewmodel(),
             engine.ensure_pso_viewmodel(),
             parent=parent
         )

@@ -112,6 +112,7 @@ class MainView(ViewMixin, QMainWindow):
         if not self._is_view_accessible(key):
             return
 
+        self._nav.select_nav_item(key, emit=False)
         self._stack.setUpdatesEnabled(False)
 
         # Save scroll position of the current widget
@@ -122,6 +123,7 @@ class MainView(ViewMixin, QMainWindow):
         # Create the view if it doesn't exist yet
         if key not in self._views:
             view = self._view_factories[key](self._stack)
+            self._connect_view_navigation(view)
             scroll = self._wrap_in_scroll_area(view)
             self._views[key] = scroll
             self._stack.addWidget(scroll)
@@ -145,6 +147,7 @@ class MainView(ViewMixin, QMainWindow):
             key = item.key
             if key not in self._views and key in self._view_factories:
                 view = self._view_factories[key](self._stack)
+                self._connect_view_navigation(view)
                 scroll = self._wrap_in_scroll_area(view)
                 self._views[key] = scroll
                 self._stack.addWidget(scroll)
@@ -164,6 +167,35 @@ class MainView(ViewMixin, QMainWindow):
         views_active = self._has_pso_finished_once
         self._nav.set_nav_item_enabled(NavLabels.SIMULATION, views_active)
         self._nav.set_nav_item_enabled(NavLabels.EVALUATION, views_active)
+
+    def _connect_view_navigation(self, view: QWidget) -> None:
+        """Connect optional next/previous signals if the view exposes them."""
+        nav_signals = getattr(view, "nav_signals", None)
+        if nav_signals is None:
+            return
+
+        next_signal = getattr(nav_signals, "nextRequested", None)
+        if hasattr(next_signal, "connect"):
+            next_signal.connect(lambda: self._navigate_relative(1))
+
+        prev_signal = getattr(nav_signals, "previousRequested", None)
+        if hasattr(prev_signal, "connect"):
+            prev_signal.connect(lambda: self._navigate_relative(-1))
+
+    def _navigate_relative(self, step: int) -> None:
+        """Navigate to the next/previous accessible view."""
+        if self._current_key is None:
+            return
+
+        keys = [item.key for item in self._nav_items if self._is_view_accessible(item.key)]
+        if self._current_key not in keys:
+            return
+
+        idx = keys.index(self._current_key) + step
+        if idx < 0 or idx >= len(keys):
+            return
+
+        self._switch_views(keys[idx])
 
     def _on_vm_pso_simulation_finished(self) -> None:
         """Unlock additional views after the first PSO simulation finishes."""
@@ -189,7 +221,7 @@ class MainView(ViewMixin, QMainWindow):
             self.restoreGeometry(geometry)
         else:
             # default size on first run / no saved geometry
-            self.resize(1200, 800)
+            self.resize(1200, 1000)
 
         if self._ui_context.settings.get_window_maximized():
             self.showMaximized()

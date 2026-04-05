@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QObject, Signal, Slot
 
+from app_domain.functions import resolve_function_type, FunctionTypes
 from app_types import PsoSimulationParam
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
 from utils import LoggedProperty
@@ -20,26 +21,34 @@ class PsoConfigurationViewModel(BaseViewModel):
     t1Changed = Signal()
     excitationTargetChanged = Signal()
     performanceIndexChanged = Signal()
-    kpMinChanged = Signal()
-    kpMaxChanged = Signal()
-    tiMinChanged = Signal()
-    tiMaxChanged = Signal()
-    tdMinChanged = Signal()
-    tdMaxChanged = Signal()
     overshootControlChanged = Signal()
     overshootControlEnabledChanged = Signal()
+    overshootControlVisibilityChanged = Signal()
+    slewRateMaxChanged = Signal()
+    slewWindowSizeChanged = Signal()
+    slewRateLimitEnabledChanged = Signal()
     gainMarginChanged = Signal()
     gainMarginEnabledChanged = Signal()
     phaseMarginChanged = Signal()
     phaseMarginEnabledChanged = Signal()
     stabilityMarginChanged = Signal()
     stabilityMarginEnabledChanged = Signal()
+    kpMinChanged = Signal()
+    kpMaxChanged = Signal()
+    tiMinChanged = Signal()
+    tiMaxChanged = Signal()
+    tdMinChanged = Signal()
+    tdMaxChanged = Signal()
     psoProgressChanged = Signal(int)
     psoSimulationFinished = Signal()
     psoSimulationInterrupted = Signal()
 
-    def __init__(self, model_container: ModelContainer, simulation_service: SimulationService,
-                 parent: QObject = None) -> None:
+    def __init__(
+            self,
+            model_container: ModelContainer,
+            simulation_service: SimulationService,
+            parent: QObject = None
+    ) -> None:
         super().__init__(parent)
 
         self._model_plant: PlantModel = model_container.model_plant
@@ -53,6 +62,8 @@ class PsoConfigurationViewModel(BaseViewModel):
         self._pso_result: PsoResult | None = None
         self._pso_snapshot: PsoSimulationSnapshot | None = None
 
+        self._overshoot_control_visibility: bool = self._get_overshoot_control_visibility()
+
         self._connect_signals()
         self.run_pso_simulation()
 
@@ -60,9 +71,9 @@ class PsoConfigurationViewModel(BaseViewModel):
         # No signals to connect
         ...
 
-    # -------------------
+    # ============================================================
     # start time
-    # -------------------
+    # ============================================================
     def _verify_t0(self, value: float):
 
         result = self._validate_relation(
@@ -83,9 +94,9 @@ class PsoConfigurationViewModel(BaseViewModel):
         custom_setter=_verify_t0
     )
 
-    # -------------------
+    # ============================================================
     # end time
-    # -------------------
+    # ============================================================
     def _verify_t1(self, value: float):
 
         result = self._validate_relation(
@@ -106,27 +117,118 @@ class PsoConfigurationViewModel(BaseViewModel):
         custom_setter=_verify_t1
     )
 
-    # -------------------
+    # ============================================================
     # excitation_target
-    # -------------------
+    # ============================================================
     excitation_target: ExcitationTarget = LoggedProperty(
         path="_model_pso.excitation_target",
         signal="excitationTargetChanged",
         typ=ExcitationTarget
     )
 
-    # -------------------
+    # ============================================================
     # error_criterion
-    # -------------------
+    # ============================================================
     error_criterion: PerformanceIndex = LoggedProperty(
         path="_model_pso.error_criterion",
         signal="performanceIndexChanged",
         typ=PerformanceIndex
     )
 
-    # -------------------
+    # ============================================================
+    # overshoot control
+    # ============================================================
+    overshoot_control: float = LoggedProperty(
+        path="_model_pso.overshoot_control",
+        signal="overshootControlChanged",
+        typ=float,
+    )
+    overshoot_control_enabled: bool = LoggedProperty(
+        path="_model_pso.overshoot_control_enabled",
+        signal="overshootControlEnabledChanged",
+        typ=bool
+    )
+    overshoot_control_visibility: bool = LoggedProperty(
+        path="_overshoot_control_visibility",
+        signal="overshootControlVisibilityChanged",
+        typ=bool,
+    )
+
+    @Slot()
+    def check_overshoot_control_visibility(self) -> None:
+        self.overshoot_control_visibility = self._get_overshoot_control_visibility()
+
+    def _get_overshoot_control_visibility(self) -> bool:
+        visible = self.excitation_target == ExcitationTarget.REFERENCE
+        visible = visible and resolve_function_type(self._model_function.selected_function) == FunctionTypes.STEP
+        return visible
+
+    # ============================================================
+    # slew rate limit
+    # ============================================================
+    slew_rate_max: float = LoggedProperty(
+        path="_model_pso.slew_rate_max",
+        signal="slewRateMaxChanged",
+        typ=float,
+    )
+
+    slew_window_size: float = LoggedProperty(
+        path="_model_pso.slew_window_size",
+        signal="slewWindowSizeChanged",
+        typ=int
+    )
+
+    slew_rate_limit_enabled: bool = LoggedProperty(
+        path="_model_pso.slew_rate_limit_enabled",
+        signal="slewRateLimitEnabledChanged",
+        typ=bool
+    )
+
+    # ============================================================
+    # gain margin
+    # ============================================================
+    gain_margin: float = LoggedProperty(
+        path="_model_pso.gain_margin",
+        signal="gainMarginChanged",
+        typ=float,
+    )
+    gain_margin_enabled: bool = LoggedProperty(
+        path="_model_pso.gain_margin_enabled",
+        signal="gainMarginEnabledChanged",
+        typ=bool
+    )
+
+    # ============================================================
+    # phase margin
+    # ============================================================
+    phase_margin: float = LoggedProperty(
+        path="_model_pso.phase_margin",
+        signal="phaseMarginChanged",
+        typ=float
+    )
+    phase_margin_enabled: bool = LoggedProperty(
+        path="_model_pso.phase_margin_enabled",
+        signal="phaseMarginEnabledChanged",
+        typ=bool
+    )
+
+    # ============================================================
+    # stability margin
+    # ============================================================
+    stability_margin: float = LoggedProperty(
+        path="_model_pso.stability_margin",
+        signal="stabilityMarginChanged",
+        typ=float
+    )
+    stability_margin_enabled: bool = LoggedProperty(
+        path="_model_pso.stability_margin_enabled",
+        signal="stabilityMarginEnabledChanged",
+        typ=bool
+    )
+
+    # ============================================================
     # kp
-    # -------------------
+    # ============================================================
     def _verify_kp_min(self, value: float):
 
         result = self._validate_relation(
@@ -167,9 +269,9 @@ class PsoConfigurationViewModel(BaseViewModel):
         custom_setter=_verify_kp_max
     )
 
-    # -------------------
+    # ============================================================
     # ti
-    # -------------------
+    # ============================================================
     def _verify_ti_min(self, value: float):
 
         if value == 0:
@@ -216,9 +318,9 @@ class PsoConfigurationViewModel(BaseViewModel):
         custom_setter=_verify_ti_max
     )
 
-    # -------------------
+    # ============================================================
     # td
-    # -------------------
+    # ============================================================
     def _verify_td_min(self, value: float) -> bool:
 
         result = self._validate_relation(
@@ -259,65 +361,9 @@ class PsoConfigurationViewModel(BaseViewModel):
         custom_setter=_verify_td_max
     )
 
-    # -------------------
-    # overshoot control
-    # -------------------
-    overshoot_control: float = LoggedProperty(
-        path="_model_pso.overshoot_control",
-        signal="overshootControlChanged",
-        typ=float,
-    )
-    overshoot_control_enabled: bool = LoggedProperty(
-        path="_model_pso.overshoot_control_enabled",
-        signal="overshootControlEnabledChanged",
-        typ=bool
-    )
-
-    # -------------------
-    # gain margin
-    # -------------------
-    gain_margin: float = LoggedProperty(
-        path="_model_pso.gain_margin",
-        signal="gainMarginChanged",
-        typ=float,
-    )
-    gain_margin_enabled: bool = LoggedProperty(
-        path="_model_pso.gain_margin_enabled",
-        signal="gainMarginEnabledChanged",
-        typ=bool
-    )
-
-    # -------------------
-    # phase margin
-    # -------------------
-    phase_margin: float = LoggedProperty(
-        path="_model_pso.phase_margin",
-        signal="phaseMarginChanged",
-        typ=float
-    )
-    phase_margin_enabled: bool = LoggedProperty(
-        path="_model_pso.phase_margin_enabled",
-        signal="phaseMarginEnabledChanged",
-        typ=bool
-    )
-
-    # -------------------
-    # stability margin
-    # -------------------
-    stability_margin: float = LoggedProperty(
-        path="_model_pso.stability_margin",
-        signal="stabilityMarginChanged",
-        typ=float
-    )
-    stability_margin_enabled: bool = LoggedProperty(
-        path="_model_pso.stability_margin_enabled",
-        signal="stabilityMarginEnabledChanged",
-        typ=bool
-    )
-
-    # -------------------
+    # ============================================================
     # run PSO
-    # -------------------
+    # ============================================================
     @Slot()
     def run_pso_simulation(self) -> None:
         self.logger.debug("Running PSO simulation")
@@ -349,6 +395,9 @@ class PsoConfigurationViewModel(BaseViewModel):
             t0=self.t0,
             t1=self.t1,
             dt=self._settings.get_time_step(),
+            tuning_factor=self._model_controller.tuning_factor,
+            limit_factor=5.0,
+            sampling_rate=self._model_controller.sampling_rate,
             solver=self._settings.get_solver(),
             anti_windup=self._model_controller.anti_windup,
             ka=self._model_controller.ka,
@@ -358,20 +407,26 @@ class PsoConfigurationViewModel(BaseViewModel):
             ),
             excitation_target=self.excitation_target,
             function=self._model_function.selected_function.copy(),
-            error_criterion=self.error_criterion,
             kp=(self.kp_min, self.kp_max),
             ti=(self.ti_min, self.ti_max),
             td=(self.td_min, self.td_max),
             swarm_size=self._settings.get_pso_particle(),
             pso_iteration=self._pos_iteration,
+            error_criterion=self.error_criterion,
+            slew_rate_max=self._model_pso.slew_rate_max,
+            slew_window_size=self._model_pso.slew_window_size,
+            slew_rate_limit_enabled=self._model_pso.slew_rate_limit_enabled,
             overshoot_control=self._model_pso.overshoot_control,
-            overshoot_control_enabled=self._model_pso.overshoot_control_enabled,
+            overshoot_control_enabled=self._model_pso.overshoot_control_enabled and self._overshoot_control_visibility,
             gain_margin=self._model_pso.gain_margin,
             gain_margin_enabled=self._model_pso.gain_margin_enabled,
             phase_margin=self._model_pso.phase_margin,
             phase_margin_enabled=self._model_pso.phase_margin_enabled,
             stability_margin=self._model_pso.stability_margin,
-            stability_margin_enabled=self._model_pso.stability_margin_enabled
+            stability_margin_enabled=self._model_pso.stability_margin_enabled,
+            omega_exp_low=-5,
+            omega_exp_high=5,
+            omega_points=500,
         )
 
     def _on_pso_simulation_finished(self, result: PsoResult):
@@ -389,6 +444,7 @@ class PsoConfigurationViewModel(BaseViewModel):
             controller_constraint_max=self._model_controller.constraint_max,
             excitation_target=self.excitation_target,
             excitation_function=self._model_function.selected_function.copy(),
+            error_criterion=self._model_pso.error_criterion,
         )
 
     @Slot()

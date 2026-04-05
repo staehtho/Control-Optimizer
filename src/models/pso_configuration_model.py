@@ -9,7 +9,6 @@ class PsoConfigurationModel:
     t1: float = 10.0
 
     excitation_target: ExcitationTarget = ExcitationTarget.REFERENCE
-    error_criterion: PerformanceIndex = PerformanceIndex.ITAE
 
     kp_min: float = 0.0
     kp_max: float = 10.0
@@ -18,8 +17,12 @@ class PsoConfigurationModel:
     td_min: float = 0.0
     td_max: float = 10.0
 
-    overshoot_control: float = 10
+    error_criterion: PerformanceIndex = PerformanceIndex.ITAE
+    overshoot_control: float = 10.0
     overshoot_control_enabled: bool = False
+    slew_rate_max: float = 2.0
+    slew_window_size: int = 10
+    slew_rate_limit_enabled: bool = False
     gain_margin: float = 16.0
     gain_margin_enabled: bool = False
     phase_margin: float = 60.0

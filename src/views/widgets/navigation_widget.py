@@ -202,13 +202,21 @@ class NavigationWidget(ViewMixin, QWidget):
         self._retranslate()
 
     def _on_btn_clicked(self, key: NavLabels) -> None:
+        self.select_nav_item(key, emit=True)
+
+    # ============================================================
+    # Public API
+    # ============================================================
+    def select_nav_item(self, key: NavLabels, emit: bool = True) -> None:
+        """Select a navigation item programmatically."""
         for k, btn in self._field_widgets.items():
             checked = k == key
             btn.setChecked(checked)
             self._active_bar_frames[k].setStyleSheet(
                 f"background-color: {'#2563eb' if checked else 'transparent'};"
             )
-        self.viewSelected.emit(key)
+        if emit:
+            self.viewSelected.emit(key)
 
     # ============================================================
     # Helpers

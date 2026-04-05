@@ -16,8 +16,8 @@ class PlotLabels(Enum):
     G = "g"
     C = "c"
     L = "l"
-    S = "s"
     T = "t"
+    S = "s"
 
 
 @dataclass

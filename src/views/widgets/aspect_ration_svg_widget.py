@@ -38,6 +38,7 @@ class AspectRatioSvgWidget(QSvgWidget):
         self._svg_file = path
         self._svg_bytes = None
         self.load(path)
+        self.updateGeometry()
         self.update()
 
     def set_svg_bytes(self, data: bytes | bytearray) -> None:
@@ -45,6 +46,7 @@ class AspectRatioSvgWidget(QSvgWidget):
         self._svg_bytes = bytes(data)
         self._svg_file = None
         self.load(QByteArray(self._svg_bytes))
+        self.updateGeometry()
         self.update()
 
     def reload(self) -> None:
