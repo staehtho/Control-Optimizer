@@ -238,9 +238,20 @@ def on_vm_changed(view, widget: QObject, key: str | FieldType, attribute: str, *
         text_value = str(formatted_value)
         if text_value == "None":
             text_value = ""
-        field.setText(text_value)
         if field.text() != text_value:
+            # Preserve user cursor/selection when VM updates while editing.
+            cursor_pos = field.cursorPosition()
+            has_selection = field.hasSelectedText()
+            selection_start = field.selectionStart()
+            selection_length = len(field.selectedText()) if has_selection else 0
+            was_blocked = field.blockSignals(True)
             field.setText(text_value)
+            field.blockSignals(was_blocked)
+            if field.hasFocus():
+                if has_selection and selection_start >= 0:
+                    field.setSelection(selection_start, selection_length)
+                else:
+                    field.setCursorPosition(min(cursor_pos, len(text_value)))
 
     elif isinstance(field, (QSpinBox, QDoubleSpinBox)):
         value_type = kwargs.get("value_type", str)
