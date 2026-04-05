@@ -1,7 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Callable
 
-from PySide6.QtCore import QT_TRANSLATE_NOOP
 from PySide6.QtWidgets import (
     QWidget, QLabel, QLineEdit, QComboBox, QPushButton, QProgressBar, QHBoxLayout, QSizePolicy, QLayout,
     QGraphicsOpacityEffect
@@ -68,14 +67,6 @@ FIELDS: list[FieldConfig | SectionConfig] = [
         ])
     ]),
 ]
-
-TOOL_TIP: dict[PsoField, Any] = {
-    PsoField.OVERSHOOT_CONTROL: QT_TRANSLATE_NOOP(
-        "PsoConfigurationView",
-        "Specifies the maximum allowed overshoot as a percentage."
-        "This setting is only available for excitation type %(excitation_target)s and function type %(function_type)s."
-    )
-}
 
 
 class PsoConfigurationView(ViewMixin, QWidget):
@@ -635,16 +626,41 @@ class PsoConfigurationView(ViewMixin, QWidget):
         self._apply_tool_tips()
 
     def _apply_tool_tips(self) -> None:
-        tool_tips = {
-            PsoField.OVERSHOOT_CONTROL: {
+
+        tool_tips: dict[PsoField, Any] = {
+            PsoField.OVERSHOOT_CONTROL: self.tr(
+                """Specifies the maximum allowed overshoot as a percentage.
+                This setting is only available for excitation type %(excitation_target)s and function type %(function_type)s."""
+            ) % {
                 "excitation_target": self._enum_translation(ExcitationTarget.REFERENCE),
                 "function_type": self._enum_translation(FunctionTypes.STEP),
-            }
+                                        },
+            PsoField.SLEW_RATE_MAX: self.tr(
+                """Limits the maximum rate of change of the controller output du/dt.
+                This constrains how quickly the control signal u can change over time,
+                helping to prevent actuator saturation and excessive dynamics."""
+            ),
+            PsoField.SLEW_WINDOW_SIZE: self.tr(
+                """Defines the time window used to compute the rate of change du/dt of the controller output.
+                Larger windows provide smoother estimates, while smaller windows increase sensitivity to rapid changes."""
+            ),
+            PsoField.GAIN_MARGIN: self.tr(
+                """Defines the minimum required gain margin (in dB).
+                Ensures sufficient robustness by specifying how much the open loop gain can increase before instability occurs."""
+            ),
+            PsoField.PHASE_MARGIN: self.tr(
+                """Defines the minimum required phase margin (in degrees).
+                Ensures adequate stability by limiting the allowable additional phase lag before instability."""
+            ),
+            PsoField.STABILITY_MARGIN: self.tr(
+                """Defines the maximum allowed sensitivity (in dB).
+                Limits how strongly the closed loop system responds to disturbances and model uncertainties."""
+            )
         }
 
-        for key, val_dict in tool_tips.items():
+        for key, tool_tip in tool_tips.items():
             field = self.field_widgets[key]
-            field.setToolTip(self.tr(TOOL_TIP[key]) % val_dict)
+            field.setToolTip(tool_tip)
 
         self._apply_tool_tip_error_criterion()
 
