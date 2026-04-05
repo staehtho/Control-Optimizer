@@ -5,3 +5,5 @@
 
 # TODO: evtl. im Bericht im theorieteil zeigen, wie totzeit in UTF approximiert werden kann, da wir nur UTF darstellen können
 #   (System identifikation, Totzeit in LTI überführen)
+
+# TODO: evt hyperparameter von PSO in systemsettings integrieren?
