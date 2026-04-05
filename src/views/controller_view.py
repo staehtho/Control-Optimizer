@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from PySide6.QtGui import QDoubleValidator, QValidator
 from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit, QHBoxLayout, QGraphicsOpacityEffect
@@ -283,6 +283,26 @@ class ControllerView(ViewMixin, QWidget):
         for key, value in enums.items():
             data = {k: self._enum_translation(k) for k in value}
             self._cmb_add_item(self.field_widgets[key], data)
+
+        self._apply_tool_tips()
+
+    def _apply_tool_tips(self) -> None:
+
+        tool_tips: dict[ControllerField, Any] = {
+            ControllerField.TUNING_FACTOR: self.tr(
+                """Defines the filter factor N used to compute the filter time constant Tf = Td/N.
+                Smaller values of N result in stronger filtering and a smoother but slower control response."""
+            ),
+            ControllerField.SAMPLING_RATE: self.tr(
+                """The filter time constant Tf is automatically limited by the system’s sampling rate and
+                the simulation time step to ensure stable and proper behavior.
+                If the sampling rate is unknown, leave this field empty to receive a recommended value."""
+            )
+        }
+
+        for key, tool_tip in tool_tips.items():
+            field = self.field_widgets[key]
+            field.setToolTip(tool_tip)
 
     # ============================================================
     # Apply initial values
