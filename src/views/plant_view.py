@@ -257,59 +257,7 @@ class PlantView(ViewMixin, QWidget):
         """Connect UI signals to event handlers."""
         self._tf_tab.currentChanged.connect(self._vm_plant.update_tf_tab)
 
-        # Define key variables for readability
-        k_num = PlantField.NUM
-        k_den = PlantField.DEN
-        k_zero = PlantField.ZERO
-        k_pole = PlantField.POLE
-
-        configs = [
-            ConnectSignalConfig(
-                key=k_num,
-                signal_name="textChanged",
-                attr_name="",
-                widget=self.field_widgets[k_num],
-                kwargs={
-                    "field": self.field_widgets[k_num],
-                    "setter": lambda value: self._vm_plant.update_num(value)
-                },
-                override_event_handler=self._on_txt_changed
-            ),
-            ConnectSignalConfig(
-                key=k_den,
-                signal_name="textChanged",
-                attr_name="",
-                widget=self.field_widgets[k_den],
-                kwargs={
-                    "field": self.field_widgets[k_den],
-                    "setter": lambda value: self._vm_plant.update_den(value)
-                },
-                override_event_handler=self._on_txt_changed
-            ),
-            ConnectSignalConfig(
-                key=k_zero,
-                signal_name="textChanged",
-                attr_name="",
-                widget=self.field_widgets[k_zero],
-                kwargs={
-                    "field": self.field_widgets[k_zero],
-                    "setter": lambda value: self._vm_plant.update_zero(value)
-                },
-                override_event_handler=self._on_txt_changed
-            ),
-            ConnectSignalConfig(
-                key=k_pole,
-                signal_name="textChanged",
-                attr_name="",
-                widget=self.field_widgets[k_pole],
-                kwargs={
-                    "field": self.field_widgets[k_pole],
-                    "setter": lambda value: self._vm_plant.update_pole(value)
-                },
-                override_event_handler=self._on_txt_changed
-            ),
-        ]
-        self._connect_object_signals(configs)
+        self._connect_object_signals(self._get_widget_bindings())
 
     # ============================================================
     # ViewModel bindings (ViewModel -> UI)
@@ -324,47 +272,7 @@ class PlantView(ViewMixin, QWidget):
         self._vm_plot.xMinChanged.connect(self._on_plot_time_changed)
         self._vm_plot.xMaxChanged.connect(self._on_plot_time_changed)
 
-        # Define key variables for readability
-        k_num = PlantField.NUM
-        k_den = PlantField.DEN
-        k_zero = PlantField.ZERO
-        k_pole = PlantField.POLE
-
-        configs = [
-            ConnectSignalConfig(
-                key=k_num,
-                signal_name="numChanged",
-                attr_name="num",
-                widget=self._vm_plant,
-                kwargs={"field": self.field_widgets.get(k_num)},
-                main_event_handler=self._on_vm_changed
-            ),
-            ConnectSignalConfig(
-                key=k_den,
-                signal_name="denChanged",
-                attr_name="den",
-                widget=self._vm_plant,
-                kwargs={"field": self.field_widgets.get(k_den)},
-                main_event_handler=self._on_vm_changed
-            ),
-            ConnectSignalConfig(
-                key=k_zero,
-                signal_name="zeroChanged",
-                attr_name="zero",
-                widget=self._vm_plant,
-                kwargs={"field": self.field_widgets.get(k_zero)},
-                main_event_handler=self._on_vm_changed
-            ),
-            ConnectSignalConfig(
-                key=k_pole,
-                signal_name="poleChanged",
-                attr_name="pole",
-                widget=self._vm_plant,
-                kwargs={"field": self.field_widgets.get(k_pole)},
-                main_event_handler=self._on_vm_changed
-            ),
-        ]
-        self._connect_object_signals(configs)
+        self._connect_object_signals(self._get_vm_bindings())
 
     # ============================================================
     # Translation
@@ -470,3 +378,97 @@ class PlantView(ViewMixin, QWidget):
         """Update the LaTeX formula display from the ViewModel transfer function."""
         self.field_widgets.get(PlantField.POLYNOM_FORMULA).set_formula(r"G(s) = " + self._vm_plant.get_poly_tf())
         self.field_widgets.get(PlantField.BINOMINAL_FORMULA).set_formula(r"G(s) = " + self._vm_plant.get_binom_tf())
+
+    def _get_widget_bindings(self) -> list[ConnectSignalConfig]:
+        k_num = PlantField.NUM
+        k_den = PlantField.DEN
+        k_zero = PlantField.ZERO
+        k_pole = PlantField.POLE
+
+        return [
+            ConnectSignalConfig(
+                key=k_num,
+                signal_name="textChanged",
+                attr_name="",
+                widget=self.field_widgets[k_num],
+                kwargs={
+                    "field": self.field_widgets[k_num],
+                    "setter": lambda value: self._vm_plant.update_num(value)
+                },
+                override_event_handler=self._on_txt_changed
+            ),
+            ConnectSignalConfig(
+                key=k_den,
+                signal_name="textChanged",
+                attr_name="",
+                widget=self.field_widgets[k_den],
+                kwargs={
+                    "field": self.field_widgets[k_den],
+                    "setter": lambda value: self._vm_plant.update_den(value)
+                },
+                override_event_handler=self._on_txt_changed
+            ),
+            ConnectSignalConfig(
+                key=k_zero,
+                signal_name="textChanged",
+                attr_name="",
+                widget=self.field_widgets[k_zero],
+                kwargs={
+                    "field": self.field_widgets[k_zero],
+                    "setter": lambda value: self._vm_plant.update_zero(value)
+                },
+                override_event_handler=self._on_txt_changed
+            ),
+            ConnectSignalConfig(
+                key=k_pole,
+                signal_name="textChanged",
+                attr_name="",
+                widget=self.field_widgets[k_pole],
+                kwargs={
+                    "field": self.field_widgets[k_pole],
+                    "setter": lambda value: self._vm_plant.update_pole(value)
+                },
+                override_event_handler=self._on_txt_changed
+            ),
+        ]
+
+    def _get_vm_bindings(self) -> list[ConnectSignalConfig]:
+        k_num = PlantField.NUM
+        k_den = PlantField.DEN
+        k_zero = PlantField.ZERO
+        k_pole = PlantField.POLE
+
+        return [
+            ConnectSignalConfig(
+                key=k_num,
+                signal_name="numChanged",
+                attr_name="num",
+                widget=self._vm_plant,
+                kwargs={"field": self.field_widgets.get(k_num)},
+                main_event_handler=self._on_vm_changed
+            ),
+            ConnectSignalConfig(
+                key=k_den,
+                signal_name="denChanged",
+                attr_name="den",
+                widget=self._vm_plant,
+                kwargs={"field": self.field_widgets.get(k_den)},
+                main_event_handler=self._on_vm_changed
+            ),
+            ConnectSignalConfig(
+                key=k_zero,
+                signal_name="zeroChanged",
+                attr_name="zero",
+                widget=self._vm_plant,
+                kwargs={"field": self.field_widgets.get(k_zero)},
+                main_event_handler=self._on_vm_changed
+            ),
+            ConnectSignalConfig(
+                key=k_pole,
+                signal_name="poleChanged",
+                attr_name="pole",
+                widget=self._vm_plant,
+                kwargs={"field": self.field_widgets.get(k_pole)},
+                main_event_handler=self._on_vm_changed
+            ),
+        ]

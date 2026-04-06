@@ -197,201 +197,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
 
-        # Define key variables for readability
-        k_excitation_target = PsoField.EXCITATION_TARGET
-        k_error_criterion = PsoField.ERROR_CRITERION
-        k_t0 = PsoField.T0
-        k_t1 = PsoField.T1
-        k_overshoot_control = PsoField.OVERSHOOT_CONTROL
-        k_slew_rate_max = PsoField.SLEW_RATE_MAX
-        k_slew_window_size = PsoField.SLEW_WINDOW_SIZE
-        k_gain_margin = PsoField.GAIN_MARGIN
-        k_phase_margin = PsoField.PHASE_MARGIN
-        k_stability_margin = PsoField.STABILITY_MARGIN
-        k_kp_min = PsoField.KP_MIN
-        k_kp_max = PsoField.KP_MAX
-        k_ti_min = PsoField.TI_MIN
-        k_ti_max = PsoField.TI_MAX
-        k_td_min = PsoField.TD_MIN
-        k_td_max = PsoField.TD_MAX
-        k_slew_rate_limiter = PsoField.SLEW_RATE_LIMITER
-
-        configs = [
-            # Widget → VM signals
-            ConnectSignalConfig(
-                key=k_excitation_target,
-                signal_name="currentIndexChanged",
-                attr_name="_vm_pso.excitation_target",
-                widget=self.field_widgets.get(k_excitation_target),
-                kwargs={"value_type": ExcitationTarget},
-                main_event_handler=self._on_widget_changed,
-                post_event_handler=self._vm_pso.check_overshoot_control_visibility
-            ),
-            ConnectSignalConfig(
-                key=k_error_criterion,
-                signal_name="currentIndexChanged",
-                attr_name="_vm_pso.error_criterion",
-                widget=self.field_widgets.get(k_error_criterion),
-                kwargs={"value_type": PerformanceIndex},
-                main_event_handler=self._on_widget_changed,
-                post_event_handler=self._apply_tool_tip_error_criterion
-            ),
-            ConnectSignalConfig(
-                key=k_t0,
-                signal_name="editingFinished",
-                attr_name="_vm_pso.t0",
-                widget=self.field_widgets.get(k_t0),
-                kwargs={"value_type": float},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_t1,
-                signal_name="editingFinished",
-                attr_name="_vm_pso.t1",
-                widget=self.field_widgets.get(k_t1),
-                kwargs={"value_type": float},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_overshoot_control,
-                signal_name="editingFinished",
-                attr_name="_vm_pso.overshoot_control",
-                widget=self.field_widgets.get(k_overshoot_control),
-                kwargs={"value_type": float},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_slew_rate_max,
-                signal_name="editingFinished",
-                attr_name="_vm_pso.slew_rate_max",
-                widget=self.field_widgets.get(k_slew_rate_max),
-                kwargs={"value_type": float},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_slew_window_size,
-                signal_name="editingFinished",
-                attr_name="_vm_pso.slew_window_size",
-                widget=self.field_widgets.get(k_slew_window_size),
-                kwargs={"value_type": int},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_gain_margin,
-                signal_name="editingFinished",
-                attr_name="_vm_pso.gain_margin",
-                widget=self.field_widgets.get(k_gain_margin),
-                kwargs={"value_type": float},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_phase_margin,
-                signal_name="editingFinished",
-                attr_name="_vm_pso.phase_margin",
-                widget=self.field_widgets.get(k_phase_margin),
-                kwargs={"value_type": float},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_stability_margin,
-                signal_name="editingFinished",
-                attr_name="_vm_pso.stability_margin",
-                widget=self.field_widgets.get(k_stability_margin),
-                kwargs={"value_type": float},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_kp_min,
-                signal_name="editingFinished",
-                attr_name="_vm_pso.kp_min",
-                widget=self.field_widgets.get(k_kp_min),
-                kwargs={"value_type": float},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_kp_max,
-                signal_name="editingFinished",
-                attr_name="_vm_pso.kp_max",
-                widget=self.field_widgets.get(k_kp_max),
-                kwargs={"value_type": float},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_ti_min,
-                signal_name="editingFinished",
-                attr_name="_vm_pso.ti_min",
-                widget=self.field_widgets.get(k_ti_min),
-                kwargs={"value_type": float},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_ti_max,
-                signal_name="editingFinished",
-                attr_name="_vm_pso.ti_max",
-                widget=self.field_widgets.get(k_ti_max),
-                kwargs={"value_type": float},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_td_min,
-                signal_name="editingFinished",
-                attr_name="_vm_pso.td_min",
-                widget=self.field_widgets.get(k_td_min),
-                kwargs={"value_type": float},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_td_max,
-                signal_name="editingFinished",
-                attr_name="_vm_pso.td_max",
-                widget=self.field_widgets.get(k_td_max),
-                kwargs={"value_type": float},
-                main_event_handler=self._on_widget_changed
-            ),
-
-            # Toggle / Enabled signals
-            ConnectSignalConfig(
-                key=k_overshoot_control,
-                signal_name="toggled",
-                attr_name="_vm_pso.overshoot_control_enabled",
-                widget=self.labels.get(k_overshoot_control),
-                kwargs={"value_type": bool},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_slew_rate_limiter,
-                signal_name="activeChanged",
-                attr_name="_vm_pso.slew_rate_limit_enabled",
-                widget=self.labels.get(k_slew_rate_limiter),
-                kwargs={"value_type": bool},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_gain_margin,
-                signal_name="toggled",
-                attr_name="_vm_pso.gain_margin_enabled",
-                widget=self.labels.get(k_gain_margin),
-                kwargs={"value_type": bool},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_phase_margin,
-                signal_name="toggled",
-                attr_name="_vm_pso.phase_margin_enabled",
-                widget=self.labels.get(k_phase_margin),
-                kwargs={"value_type": bool},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_stability_margin,
-                signal_name="toggled",
-                attr_name="_vm_pso.stability_margin_enabled",
-                widget=self.labels.get(k_stability_margin),
-                kwargs={"value_type": bool},
-                main_event_handler=self._on_widget_changed
-            ),
-        ]
-        self._connect_object_signals(configs)
+        self._connect_object_signals(self._get_widget_bindings())
 
         self._btn_run_pso.clicked.connect(self._on_btn_run_pso)
         self._btn_interrupt_pso.clicked.connect(self._on_btn_interrupt_pso)
@@ -417,154 +223,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
         self._vm_pso.validationFailed.connect(self._on_validation_failed)
         self._vm_pso.overshootControlVisibilityChanged.connect(self._on_vm_overshoot_control_visibility_changed)
 
-        # Define key variables for readability
-        k_t0 = PsoField.T0
-        k_t1 = PsoField.T1
-        k_excitation_target = PsoField.EXCITATION_TARGET
-        k_error_criterion = PsoField.ERROR_CRITERION
-        k_overshoot_control = PsoField.OVERSHOOT_CONTROL
-        k_slew_rate_max = PsoField.SLEW_RATE_MAX
-        k_slew_window_size = PsoField.SLEW_WINDOW_SIZE
-        k_gain_margin = PsoField.GAIN_MARGIN
-        k_phase_margin = PsoField.PHASE_MARGIN
-        k_stability_margin = PsoField.STABILITY_MARGIN
-        k_kp_min = PsoField.KP_MIN
-        k_kp_max = PsoField.KP_MAX
-        k_ti_min = PsoField.TI_MIN
-        k_ti_max = PsoField.TI_MAX
-        k_td_min = PsoField.TD_MIN
-        k_td_max = PsoField.TD_MAX
-
-        configs = [
-            ConnectSignalConfig(
-                key=k_t0,
-                signal_name="t0Changed",
-                attr_name="t0",
-                widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_t0)},
-                main_event_handler=self._on_vm_changed,
-            ),
-            ConnectSignalConfig(
-                key=k_t1,
-                signal_name="t1Changed",
-                attr_name="t1",
-                widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_t1)},
-                main_event_handler=self._on_vm_changed,
-            ),
-            ConnectSignalConfig(
-                key=k_excitation_target,
-                signal_name="excitationTargetChanged",
-                attr_name="excitation_target",
-                widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_excitation_target)},
-                main_event_handler=self._on_vm_changed,
-            ),
-            ConnectSignalConfig(
-                key=k_error_criterion,
-                signal_name="performanceIndexChanged",
-                attr_name="error_criterion",
-                widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_error_criterion)},
-                main_event_handler=self._on_vm_changed,
-            ),
-            ConnectSignalConfig(
-                key=k_overshoot_control,
-                signal_name="overshootControlChanged",
-                attr_name="overshoot_control",
-                widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_overshoot_control)},
-                main_event_handler=self._on_vm_changed,
-            ),
-            ConnectSignalConfig(
-                key=k_slew_rate_max,
-                signal_name="slewRateMaxChanged",
-                attr_name="slew_rate_max",
-                widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_slew_rate_max)},
-                main_event_handler=self._on_vm_changed,
-            ),
-            ConnectSignalConfig(
-                key=k_slew_window_size,
-                signal_name="slewWindowSizeChanged",
-                attr_name="slew_window_size",
-                widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_slew_window_size)},
-                main_event_handler=self._on_vm_changed,
-            ),
-            ConnectSignalConfig(
-                key=k_gain_margin,
-                signal_name="gainMarginChanged",
-                attr_name="gain_margin",
-                widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_gain_margin)},
-                main_event_handler=self._on_vm_changed,
-            ),
-            ConnectSignalConfig(
-                key=k_phase_margin,
-                signal_name="phaseMarginChanged",
-                attr_name="phase_margin",
-                widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_phase_margin)},
-                main_event_handler=self._on_vm_changed,
-            ),
-            ConnectSignalConfig(
-                key=k_stability_margin,
-                signal_name="stabilityMarginChanged",
-                attr_name="stability_margin",
-                widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_stability_margin)},
-                main_event_handler=self._on_vm_changed,
-            ),
-            ConnectSignalConfig(
-                key=k_kp_min,
-                signal_name="kpMinChanged",
-                attr_name="kp_min",
-                widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_kp_min)},
-                main_event_handler=self._on_vm_changed,
-            ),
-            ConnectSignalConfig(
-                key=k_kp_max,
-                signal_name="kpMaxChanged",
-                attr_name="kp_max",
-                widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_kp_max)},
-                main_event_handler=self._on_vm_changed,
-            ),
-            ConnectSignalConfig(
-                key=k_ti_min,
-                signal_name="tiMinChanged",
-                attr_name="ti_min",
-                widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_ti_min)},
-                main_event_handler=self._on_vm_changed,
-            ),
-            ConnectSignalConfig(
-                key=k_ti_max,
-                signal_name="tiMaxChanged",
-                attr_name="ti_max",
-                widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_ti_max)},
-                main_event_handler=self._on_vm_changed,
-            ),
-            ConnectSignalConfig(
-                key=k_td_min,
-                signal_name="tdMinChanged",
-                attr_name="td_min",
-                widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_td_min)},
-                main_event_handler=self._on_vm_changed,
-            ),
-            ConnectSignalConfig(
-                key=k_td_max,
-                signal_name="tdMaxChanged",
-                attr_name="td_max",
-                widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_td_max)},
-                main_event_handler=self._on_vm_changed,
-            ),
-        ]
+        configs = self._get_vm_bindings()
         configs.extend(self._get_toggle_vm_bindings())
         self._connect_object_signals(configs)
 
@@ -889,6 +548,350 @@ class PsoConfigurationView(ViewMixin, QWidget):
         field = self.field_widgets[PsoField.ERROR_CRITERION]
         tooltip = get_performance_tooltip(self._vm_pso.error_criterion)
         field.setToolTip(self._enum_translation(tooltip))
+
+    def _get_widget_bindings(self) -> list[ConnectSignalConfig]:
+        k_excitation_target = PsoField.EXCITATION_TARGET
+        k_error_criterion = PsoField.ERROR_CRITERION
+        k_t0 = PsoField.T0
+        k_t1 = PsoField.T1
+        k_overshoot_control = PsoField.OVERSHOOT_CONTROL
+        k_slew_rate_max = PsoField.SLEW_RATE_MAX
+        k_slew_window_size = PsoField.SLEW_WINDOW_SIZE
+        k_gain_margin = PsoField.GAIN_MARGIN
+        k_phase_margin = PsoField.PHASE_MARGIN
+        k_stability_margin = PsoField.STABILITY_MARGIN
+        k_kp_min = PsoField.KP_MIN
+        k_kp_max = PsoField.KP_MAX
+        k_ti_min = PsoField.TI_MIN
+        k_ti_max = PsoField.TI_MAX
+        k_td_min = PsoField.TD_MIN
+        k_td_max = PsoField.TD_MAX
+        k_slew_rate_limiter = PsoField.SLEW_RATE_LIMITER
+
+        return [
+            # Widget → VM signals
+            ConnectSignalConfig(
+                key=k_excitation_target,
+                signal_name="currentIndexChanged",
+                attr_name="_vm_pso.excitation_target",
+                widget=self.field_widgets.get(k_excitation_target),
+                kwargs={"value_type": ExcitationTarget},
+                main_event_handler=self._on_widget_changed,
+                post_event_handler=self._vm_pso.check_overshoot_control_visibility
+            ),
+            ConnectSignalConfig(
+                key=k_error_criterion,
+                signal_name="currentIndexChanged",
+                attr_name="_vm_pso.error_criterion",
+                widget=self.field_widgets.get(k_error_criterion),
+                kwargs={"value_type": PerformanceIndex},
+                main_event_handler=self._on_widget_changed,
+                post_event_handler=self._apply_tool_tip_error_criterion
+            ),
+            ConnectSignalConfig(
+                key=k_t0,
+                signal_name="editingFinished",
+                attr_name="_vm_pso.t0",
+                widget=self.field_widgets.get(k_t0),
+                kwargs={"value_type": float},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_t1,
+                signal_name="editingFinished",
+                attr_name="_vm_pso.t1",
+                widget=self.field_widgets.get(k_t1),
+                kwargs={"value_type": float},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_overshoot_control,
+                signal_name="editingFinished",
+                attr_name="_vm_pso.overshoot_control",
+                widget=self.field_widgets.get(k_overshoot_control),
+                kwargs={"value_type": float},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_slew_rate_max,
+                signal_name="editingFinished",
+                attr_name="_vm_pso.slew_rate_max",
+                widget=self.field_widgets.get(k_slew_rate_max),
+                kwargs={"value_type": float},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_slew_window_size,
+                signal_name="editingFinished",
+                attr_name="_vm_pso.slew_window_size",
+                widget=self.field_widgets.get(k_slew_window_size),
+                kwargs={"value_type": int},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_gain_margin,
+                signal_name="editingFinished",
+                attr_name="_vm_pso.gain_margin",
+                widget=self.field_widgets.get(k_gain_margin),
+                kwargs={"value_type": float},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_phase_margin,
+                signal_name="editingFinished",
+                attr_name="_vm_pso.phase_margin",
+                widget=self.field_widgets.get(k_phase_margin),
+                kwargs={"value_type": float},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_stability_margin,
+                signal_name="editingFinished",
+                attr_name="_vm_pso.stability_margin",
+                widget=self.field_widgets.get(k_stability_margin),
+                kwargs={"value_type": float},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_kp_min,
+                signal_name="editingFinished",
+                attr_name="_vm_pso.kp_min",
+                widget=self.field_widgets.get(k_kp_min),
+                kwargs={"value_type": float},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_kp_max,
+                signal_name="editingFinished",
+                attr_name="_vm_pso.kp_max",
+                widget=self.field_widgets.get(k_kp_max),
+                kwargs={"value_type": float},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_ti_min,
+                signal_name="editingFinished",
+                attr_name="_vm_pso.ti_min",
+                widget=self.field_widgets.get(k_ti_min),
+                kwargs={"value_type": float},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_ti_max,
+                signal_name="editingFinished",
+                attr_name="_vm_pso.ti_max",
+                widget=self.field_widgets.get(k_ti_max),
+                kwargs={"value_type": float},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_td_min,
+                signal_name="editingFinished",
+                attr_name="_vm_pso.td_min",
+                widget=self.field_widgets.get(k_td_min),
+                kwargs={"value_type": float},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_td_max,
+                signal_name="editingFinished",
+                attr_name="_vm_pso.td_max",
+                widget=self.field_widgets.get(k_td_max),
+                kwargs={"value_type": float},
+                main_event_handler=self._on_widget_changed
+            ),
+
+            # Toggle / Enabled signals
+            ConnectSignalConfig(
+                key=k_overshoot_control,
+                signal_name="toggled",
+                attr_name="_vm_pso.overshoot_control_enabled",
+                widget=self.labels.get(k_overshoot_control),
+                kwargs={"value_type": bool},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_slew_rate_limiter,
+                signal_name="activeChanged",
+                attr_name="_vm_pso.slew_rate_limit_enabled",
+                widget=self.labels.get(k_slew_rate_limiter),
+                kwargs={"value_type": bool},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_gain_margin,
+                signal_name="toggled",
+                attr_name="_vm_pso.gain_margin_enabled",
+                widget=self.labels.get(k_gain_margin),
+                kwargs={"value_type": bool},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_phase_margin,
+                signal_name="toggled",
+                attr_name="_vm_pso.phase_margin_enabled",
+                widget=self.labels.get(k_phase_margin),
+                kwargs={"value_type": bool},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_stability_margin,
+                signal_name="toggled",
+                attr_name="_vm_pso.stability_margin_enabled",
+                widget=self.labels.get(k_stability_margin),
+                kwargs={"value_type": bool},
+                main_event_handler=self._on_widget_changed
+            ),
+        ]
+
+    def _get_vm_bindings(self) -> list[ConnectSignalConfig]:
+        k_t0 = PsoField.T0
+        k_t1 = PsoField.T1
+        k_excitation_target = PsoField.EXCITATION_TARGET
+        k_error_criterion = PsoField.ERROR_CRITERION
+        k_overshoot_control = PsoField.OVERSHOOT_CONTROL
+        k_slew_rate_max = PsoField.SLEW_RATE_MAX
+        k_slew_window_size = PsoField.SLEW_WINDOW_SIZE
+        k_gain_margin = PsoField.GAIN_MARGIN
+        k_phase_margin = PsoField.PHASE_MARGIN
+        k_stability_margin = PsoField.STABILITY_MARGIN
+        k_kp_min = PsoField.KP_MIN
+        k_kp_max = PsoField.KP_MAX
+        k_ti_min = PsoField.TI_MIN
+        k_ti_max = PsoField.TI_MAX
+        k_td_min = PsoField.TD_MIN
+        k_td_max = PsoField.TD_MAX
+
+        return [
+            ConnectSignalConfig(
+                key=k_t0,
+                signal_name="t0Changed",
+                attr_name="t0",
+                widget=self._vm_pso,
+                kwargs={"field": self.field_widgets.get(k_t0)},
+                main_event_handler=self._on_vm_changed,
+            ),
+            ConnectSignalConfig(
+                key=k_t1,
+                signal_name="t1Changed",
+                attr_name="t1",
+                widget=self._vm_pso,
+                kwargs={"field": self.field_widgets.get(k_t1)},
+                main_event_handler=self._on_vm_changed,
+            ),
+            ConnectSignalConfig(
+                key=k_excitation_target,
+                signal_name="excitationTargetChanged",
+                attr_name="excitation_target",
+                widget=self._vm_pso,
+                kwargs={"field": self.field_widgets.get(k_excitation_target)},
+                main_event_handler=self._on_vm_changed,
+            ),
+            ConnectSignalConfig(
+                key=k_error_criterion,
+                signal_name="performanceIndexChanged",
+                attr_name="error_criterion",
+                widget=self._vm_pso,
+                kwargs={"field": self.field_widgets.get(k_error_criterion)},
+                main_event_handler=self._on_vm_changed,
+            ),
+            ConnectSignalConfig(
+                key=k_overshoot_control,
+                signal_name="overshootControlChanged",
+                attr_name="overshoot_control",
+                widget=self._vm_pso,
+                kwargs={"field": self.field_widgets.get(k_overshoot_control)},
+                main_event_handler=self._on_vm_changed,
+            ),
+            ConnectSignalConfig(
+                key=k_slew_rate_max,
+                signal_name="slewRateMaxChanged",
+                attr_name="slew_rate_max",
+                widget=self._vm_pso,
+                kwargs={"field": self.field_widgets.get(k_slew_rate_max)},
+                main_event_handler=self._on_vm_changed,
+            ),
+            ConnectSignalConfig(
+                key=k_slew_window_size,
+                signal_name="slewWindowSizeChanged",
+                attr_name="slew_window_size",
+                widget=self._vm_pso,
+                kwargs={"field": self.field_widgets.get(k_slew_window_size)},
+                main_event_handler=self._on_vm_changed,
+            ),
+            ConnectSignalConfig(
+                key=k_gain_margin,
+                signal_name="gainMarginChanged",
+                attr_name="gain_margin",
+                widget=self._vm_pso,
+                kwargs={"field": self.field_widgets.get(k_gain_margin)},
+                main_event_handler=self._on_vm_changed,
+            ),
+            ConnectSignalConfig(
+                key=k_phase_margin,
+                signal_name="phaseMarginChanged",
+                attr_name="phase_margin",
+                widget=self._vm_pso,
+                kwargs={"field": self.field_widgets.get(k_phase_margin)},
+                main_event_handler=self._on_vm_changed,
+            ),
+            ConnectSignalConfig(
+                key=k_stability_margin,
+                signal_name="stabilityMarginChanged",
+                attr_name="stability_margin",
+                widget=self._vm_pso,
+                kwargs={"field": self.field_widgets.get(k_stability_margin)},
+                main_event_handler=self._on_vm_changed,
+            ),
+            ConnectSignalConfig(
+                key=k_kp_min,
+                signal_name="kpMinChanged",
+                attr_name="kp_min",
+                widget=self._vm_pso,
+                kwargs={"field": self.field_widgets.get(k_kp_min)},
+                main_event_handler=self._on_vm_changed,
+            ),
+            ConnectSignalConfig(
+                key=k_kp_max,
+                signal_name="kpMaxChanged",
+                attr_name="kp_max",
+                widget=self._vm_pso,
+                kwargs={"field": self.field_widgets.get(k_kp_max)},
+                main_event_handler=self._on_vm_changed,
+            ),
+            ConnectSignalConfig(
+                key=k_ti_min,
+                signal_name="tiMinChanged",
+                attr_name="ti_min",
+                widget=self._vm_pso,
+                kwargs={"field": self.field_widgets.get(k_ti_min)},
+                main_event_handler=self._on_vm_changed,
+            ),
+            ConnectSignalConfig(
+                key=k_ti_max,
+                signal_name="tiMaxChanged",
+                attr_name="ti_max",
+                widget=self._vm_pso,
+                kwargs={"field": self.field_widgets.get(k_ti_max)},
+                main_event_handler=self._on_vm_changed,
+            ),
+            ConnectSignalConfig(
+                key=k_td_min,
+                signal_name="tdMinChanged",
+                attr_name="td_min",
+                widget=self._vm_pso,
+                kwargs={"field": self.field_widgets.get(k_td_min)},
+                main_event_handler=self._on_vm_changed,
+            ),
+            ConnectSignalConfig(
+                key=k_td_max,
+                signal_name="tdMaxChanged",
+                attr_name="td_max",
+                widget=self._vm_pso,
+                kwargs={"field": self.field_widgets.get(k_td_max)},
+                main_event_handler=self._on_vm_changed,
+            ),
+        ]
 
     def _get_toggle_vm_bindings(self) -> list[ConnectSignalConfig]:
         k_overshoot_control = PsoField.OVERSHOOT_CONTROL

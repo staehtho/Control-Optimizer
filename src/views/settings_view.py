@@ -108,72 +108,7 @@ class SettingsView(ViewMixin, QWidget):
     # ============================================================
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
-
-        # Define key variables for readability
-        k_language = SettingsField.LANGUAGE
-        k_theme = SettingsField.THEME
-        k_solver_type = SettingsField.SOLVER_TYPE
-        k_time_step = SettingsField.SOLVER_TIME_STEP
-        k_pos_iterations = SettingsField.PSO_ITERATIONS
-        k_pso_particles = SettingsField.PSO_PARTICLES
-
-        configs = [
-            ConnectSignalConfig(
-                key=k_language,
-                signal_name="currentIndexChanged",
-                attr_name="",
-                widget=self.field_widgets[k_language],
-                kwargs={
-                    "field": self.field_widgets[k_language],
-                    "setter": lambda value: self._vm_lang.set_language(value)
-                },
-                override_event_handler=self._on_index_changed
-            ),
-            ConnectSignalConfig(
-                key=k_theme,
-                signal_name="currentIndexChanged",
-                attr_name="",
-                widget=self.field_widgets[k_theme],
-                kwargs={
-                    "field": self.field_widgets[k_theme],
-                    "setter": lambda value: self._vm_theme.set_theme(value)
-                },
-                override_event_handler=self._on_index_changed
-            ),
-            ConnectSignalConfig(
-                key=k_solver_type,
-                signal_name="currentIndexChanged",
-                attr_name="_vm_settings.solver",
-                widget=self.field_widgets[k_solver_type],
-                kwargs={"value_type": MySolver},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_time_step,
-                signal_name="editingFinished",
-                attr_name="_vm_settings.time_step",
-                widget=self.field_widgets[k_time_step],
-                kwargs={"value_type": float},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_pos_iterations,
-                signal_name="editingFinished",
-                attr_name="_vm_settings.pso_iterations",
-                widget=self.field_widgets[k_pos_iterations],
-                kwargs={"value_type": int},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_pso_particles,
-                signal_name="editingFinished",
-                attr_name="_vm_settings.pso_particle",
-                widget=self.field_widgets[k_pso_particles],
-                kwargs={"value_type": int},
-                main_event_handler=self._on_widget_changed
-            ),
-        ]
-        self._connect_object_signals(configs)
+        self._connect_object_signals(self._get_widget_bindings())
 
     # ============================================================
     # ViewModel bindings (ViewModel -> UI)
@@ -258,3 +193,71 @@ class SettingsView(ViewMixin, QWidget):
             raise TypeError(f"Expected Callable, got {type(setter)}")
 
         setter(field.itemData(index))
+
+    # ============================================================
+    # Internal helpers
+    # ============================================================
+    def _get_widget_bindings(self) -> list[ConnectSignalConfig]:
+        k_language = SettingsField.LANGUAGE
+        k_theme = SettingsField.THEME
+        k_solver_type = SettingsField.SOLVER_TYPE
+        k_time_step = SettingsField.SOLVER_TIME_STEP
+        k_pos_iterations = SettingsField.PSO_ITERATIONS
+        k_pso_particles = SettingsField.PSO_PARTICLES
+
+        return [
+            ConnectSignalConfig(
+                key=k_language,
+                signal_name="currentIndexChanged",
+                attr_name="",
+                widget=self.field_widgets[k_language],
+                kwargs={
+                    "field": self.field_widgets[k_language],
+                    "setter": lambda value: self._vm_lang.set_language(value)
+                },
+                override_event_handler=self._on_index_changed
+            ),
+            ConnectSignalConfig(
+                key=k_theme,
+                signal_name="currentIndexChanged",
+                attr_name="",
+                widget=self.field_widgets[k_theme],
+                kwargs={
+                    "field": self.field_widgets[k_theme],
+                    "setter": lambda value: self._vm_theme.set_theme(value)
+                },
+                override_event_handler=self._on_index_changed
+            ),
+            ConnectSignalConfig(
+                key=k_solver_type,
+                signal_name="currentIndexChanged",
+                attr_name="_vm_settings.solver",
+                widget=self.field_widgets[k_solver_type],
+                kwargs={"value_type": MySolver},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_time_step,
+                signal_name="editingFinished",
+                attr_name="_vm_settings.time_step",
+                widget=self.field_widgets[k_time_step],
+                kwargs={"value_type": float},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_pos_iterations,
+                signal_name="editingFinished",
+                attr_name="_vm_settings.pso_iterations",
+                widget=self.field_widgets[k_pos_iterations],
+                kwargs={"value_type": int},
+                main_event_handler=self._on_widget_changed
+            ),
+            ConnectSignalConfig(
+                key=k_pso_particles,
+                signal_name="editingFinished",
+                attr_name="_vm_settings.pso_particle",
+                widget=self.field_widgets[k_pso_particles],
+                kwargs={"value_type": int},
+                main_event_handler=self._on_widget_changed
+            ),
+        ]
