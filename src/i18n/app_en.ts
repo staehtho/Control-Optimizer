@@ -343,74 +343,74 @@
 <context>
     <name>ControllerView</name>
     <message>
-        <location filename="../views/controller_view.py" line="259"/>
+        <location filename="../views/controller_view.py" line="131"/>
         <source>Controller</source>
         <translation>Controller</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="260"/>
+        <location filename="../views/controller_view.py" line="132"/>
         <source>Parameters</source>
         <translation>Parameters</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="263"/>
+        <location filename="../views/controller_view.py" line="135"/>
         <source>Controller Type</source>
         <translation>Controller Type</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="264"/>
+        <location filename="../views/controller_view.py" line="136"/>
         <source>Anti Windup</source>
         <translation>Anti Windup</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="265"/>
+        <location filename="../views/controller_view.py" line="137"/>
         <source>Methode</source>
         <translation>Methode</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="266"/>
+        <location filename="../views/controller_view.py" line="138"/>
         <source>Constraint</source>
         <translation>Constraint</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="267"/>
+        <location filename="../views/controller_view.py" line="139"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="268"/>
+        <location filename="../views/controller_view.py" line="140"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="269"/>
+        <location filename="../views/controller_view.py" line="141"/>
         <source>Ka</source>
         <translation>Ka</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="270"/>
+        <location filename="../views/controller_view.py" line="142"/>
         <source>Filter Time Constant Tf</source>
         <translation>Filter Time Constant Tf</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="272"/>
+        <location filename="../views/controller_view.py" line="144"/>
         <source>Sampling Rate [Hz]</source>
         <translation>Sampling Rate [Hz]</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="280"/>
+        <location filename="../views/controller_view.py" line="152"/>
         <source>Sampling rate unknown</source>
         <translation>Sampling rate unknown</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="293"/>
+        <location filename="../views/controller_view.py" line="165"/>
         <source>Defines the filter factor N used to compute the filter time constant Tf = Td/N.
                 Smaller values of N result in stronger filtering and a smoother but slower control response.</source>
         <translation>Defines the filter factor N used to compute the filter time constant Tf = Td/N.
 Smaller values of N result in stronger filtering and a smoother but slower control response.</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="297"/>
+        <location filename="../views/controller_view.py" line="169"/>
         <source>The filter time constant Tf is automatically limited by the system’s sampling rate and
                 the simulation time step to ensure stable and proper behavior.
                 If the sampling rate is unknown, leave this field empty to receive a recommended value.</source>
@@ -423,7 +423,7 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <translation type="vanished">Filter Time Constant</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="271"/>
+        <location filename="../views/controller_view.py" line="143"/>
         <source>N</source>
         <translation>N</translation>
     </message>
@@ -911,18 +911,18 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
 <context>
     <name>PlantView</name>
     <message>
-        <location filename="../views/plant_view.py" line="386"/>
+        <location filename="../views/plant_view.py" line="294"/>
         <source>plant.num</source>
         <translation>Numerator</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="387"/>
+        <location filename="../views/plant_view.py" line="295"/>
         <source>plant.den</source>
         <translation>Denumerator</translation>
     </message>
     <message>
         <location filename="../views/plant_view.py" line="242"/>
-        <location filename="../views/plant_view.py" line="380"/>
+        <location filename="../views/plant_view.py" line="288"/>
         <source>Step Response</source>
         <translation>Step Response</translation>
     </message>
@@ -937,43 +937,43 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="378"/>
+        <location filename="../views/plant_view.py" line="286"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="379"/>
+        <location filename="../views/plant_view.py" line="287"/>
         <source>Transfer function</source>
         <translation>Transfer function</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="383"/>
+        <location filename="../views/plant_view.py" line="291"/>
         <source>Polynomial</source>
         <translation>Polynomial</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="384"/>
+        <location filename="../views/plant_view.py" line="292"/>
         <source>Pole-Zeros</source>
         <translation>Pole-Zeros</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="388"/>
+        <location filename="../views/plant_view.py" line="296"/>
         <source>plant.zero</source>
         <translation>Zeros</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="389"/>
+        <location filename="../views/plant_view.py" line="297"/>
         <source>plant.pole</source>
         <translation>Poles</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="391"/>
-        <location filename="../views/plant_view.py" line="393"/>
+        <location filename="../views/plant_view.py" line="299"/>
+        <location filename="../views/plant_view.py" line="301"/>
         <source>e.g. 1  → 1</source>
         <translation>e.g. 1  → 1</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="392"/>
+        <location filename="../views/plant_view.py" line="300"/>
         <source>e.g. 1, 2, 1  → 1s² + 2s + 1</source>
         <translation>e.g. 1, 2, 1  → 1s² + 2s + 1</translation>
     </message>
@@ -982,7 +982,7 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <translation type="vanished">e.g. 1, 0, 0  → 1s² + 0s + 0</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="394"/>
+        <location filename="../views/plant_view.py" line="302"/>
         <source>e.g. (s + 1)^2  → (s + 1)²</source>
         <translation>e.g. (s + 1)^2  → (s + 1)²</translation>
     </message>
@@ -991,7 +991,7 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <translation type="vanished">e.g. 1, 0, 0  → 1*s² + 0*s + 0</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="396"/>
+        <location filename="../views/plant_view.py" line="304"/>
         <source>Enter coefficients separated by commas, spaces, or semicolons.
         Use &apos;.&apos; as the decimal point.
         The first number corresponds to the highest power of s.
@@ -1002,7 +1002,7 @@ The first number corresponds to the highest power of s.
 Example: 1, 0.5, 2 → 1*s² + 0.5*s + 2</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="403"/>
+        <location filename="../views/plant_view.py" line="311"/>
         <source>Enter a polynomial expression in s (factors or expanded form).
         Use parentheses for factors. Multiplication can be implicit.
         Use &apos;^&apos; for powers.
@@ -1172,22 +1172,22 @@ Must be greater than the start time.</translation>
 <context>
     <name>PsoConfigurationView</name>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="582"/>
+        <location filename="../views/pso_configuration_view.py" line="241"/>
         <source>PSO Parameter</source>
         <translation>PSO Parameter</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="583"/>
+        <location filename="../views/pso_configuration_view.py" line="242"/>
         <source>Closed Loop Block Diagram</source>
         <translation>Closed Loop Block Diagram</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="587"/>
+        <location filename="../views/pso_configuration_view.py" line="246"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="588"/>
+        <location filename="../views/pso_configuration_view.py" line="247"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
     </message>
@@ -1196,12 +1196,12 @@ Must be greater than the start time.</translation>
         <translation type="vanished">Controller Optimization Parameters</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="584"/>
+        <location filename="../views/pso_configuration_view.py" line="243"/>
         <source>PSO Simulation</source>
         <translation>PSO Simulation</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="590"/>
+        <location filename="../views/pso_configuration_view.py" line="249"/>
         <source>Simulation Time</source>
         <translation>Simulation Time</translation>
     </message>
@@ -1214,7 +1214,7 @@ Must be greater than the start time.</translation>
         <translation type="vanished">End Time</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="595"/>
+        <location filename="../views/pso_configuration_view.py" line="254"/>
         <source>Error Criterion</source>
         <translation>Error Criterion</translation>
     </message>
@@ -1223,12 +1223,12 @@ Must be greater than the start time.</translation>
         <translation type="vanished">Overshoot Control</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="591"/>
+        <location filename="../views/pso_configuration_view.py" line="250"/>
         <source>Start Time [s]</source>
         <translation>Start Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="592"/>
+        <location filename="../views/pso_configuration_view.py" line="251"/>
         <source>End Time [s]</source>
         <translation>End Time [s]</translation>
     </message>
@@ -1241,62 +1241,62 @@ Must be greater than the start time.</translation>
         <translation type="vanished">Specifies the maximum allowed overshoot as a percentage.This setting is only available for excitation type %(excitation_target)s and function type %(function_type)s.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="596"/>
+        <location filename="../views/pso_configuration_view.py" line="255"/>
         <source>Max Overshoot [%]</source>
         <translation>Max Overshoot [%]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="597"/>
+        <location filename="../views/pso_configuration_view.py" line="256"/>
         <source>Slew Rate Limit</source>
         <translation>Slew Rate Limit</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="598"/>
+        <location filename="../views/pso_configuration_view.py" line="257"/>
         <source>Maximum du/dt</source>
         <translation>Maximum du/dt</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="599"/>
+        <location filename="../views/pso_configuration_view.py" line="258"/>
         <source>Window Size</source>
         <translation>Window Size</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="600"/>
+        <location filename="../views/pso_configuration_view.py" line="259"/>
         <source>Frequency Domain</source>
         <translation>Frequency Domain</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="601"/>
+        <location filename="../views/pso_configuration_view.py" line="260"/>
         <source>Gain Margin [dB]</source>
         <translation>Gain Margin [dB]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="602"/>
+        <location filename="../views/pso_configuration_view.py" line="261"/>
         <source>Phase Margin [°]</source>
         <translation>Phase Margin [°]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="603"/>
+        <location filename="../views/pso_configuration_view.py" line="262"/>
         <source>Sensitivity [dB]</source>
         <translation>Sensitivity [dB]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="604"/>
+        <location filename="../views/pso_configuration_view.py" line="263"/>
         <source>PSO Bounds</source>
         <translation>PSO Bounds</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="605"/>
+        <location filename="../views/pso_configuration_view.py" line="264"/>
         <source>Kp Bounds</source>
         <translation>Kp Bounds</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="608"/>
+        <location filename="../views/pso_configuration_view.py" line="267"/>
         <source>Ti Bounds</source>
         <translation>Ti Bounds</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="611"/>
+        <location filename="../views/pso_configuration_view.py" line="270"/>
         <source>Td Bounds</source>
         <translation>Td Bounds</translation>
     </message>
@@ -1313,19 +1313,19 @@ Must be greater than the start time.</translation>
         <translation type="vanished">Sensitivity</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="615"/>
+        <location filename="../views/pso_configuration_view.py" line="274"/>
         <source>Interrupt</source>
         <translation>Interrupt</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="632"/>
+        <location filename="../views/pso_configuration_view.py" line="291"/>
         <source>Specifies the maximum allowed overshoot as a percentage.
                 This setting is only available for excitation type %(excitation_target)s and function type %(function_type)s.</source>
         <translation>Specifies the maximum allowed overshoot as a percentage.
 This setting is only available for excitation type %(excitation_target)s and function type %(function_type)s.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="639"/>
+        <location filename="../views/pso_configuration_view.py" line="298"/>
         <source>Limits the maximum rate of change of the controller output du/dt.
                 This constrains how quickly the control signal u can change over time,
                 helping to prevent actuator saturation and excessive dynamics.</source>
@@ -1334,40 +1334,40 @@ This constrains how quickly the control signal u can change over time,
 helping to prevent actuator saturation and excessive dynamics.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="644"/>
+        <location filename="../views/pso_configuration_view.py" line="303"/>
         <source>Defines the time window used to compute the rate of change du/dt of the controller output.
                 Larger windows provide smoother estimates, while smaller windows increase sensitivity to rapid changes.</source>
         <translation>Defines the time window used to compute the rate of change du/dt of the controller output.
 Larger windows provide smoother estimates, while smaller windows increase sensitivity to rapid changes.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="648"/>
+        <location filename="../views/pso_configuration_view.py" line="307"/>
         <source>Defines the minimum required gain margin (in dB).
                 Ensures sufficient robustness by specifying how much the open loop gain can increase before instability occurs.</source>
         <translation>Defines the minimum required gain margin (in dB).
 Ensures sufficient robustness by specifying how much the open loop gain can increase before instability occurs.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="652"/>
+        <location filename="../views/pso_configuration_view.py" line="311"/>
         <source>Defines the minimum required phase margin (in degrees).
                 Ensures adequate stability by limiting the allowable additional phase lag before instability.</source>
         <translation>Defines the minimum required phase margin (in degrees).
 Ensures adequate stability by limiting the allowable additional phase lag before instability.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="656"/>
+        <location filename="../views/pso_configuration_view.py" line="315"/>
         <source>Defines the maximum allowed sensitivity (in dB).
                 Limits how strongly the closed loop system responds to disturbances and model uncertainties.</source>
         <translation>Defines the maximum allowed sensitivity (in dB).
 Limits how strongly the closed loop system responds to disturbances and model uncertainties.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="772"/>
+        <location filename="../views/pso_configuration_view.py" line="431"/>
         <source>Interrupted</source>
         <translation>Interrupted</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="589"/>
+        <location filename="../views/pso_configuration_view.py" line="248"/>
         <source>Excitation Target</source>
         <translation></translation>
     </message>
@@ -1376,12 +1376,12 @@ Limits how strongly the closed loop system responds to disturbances and model un
         <translation type="vanished">Function</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="593"/>
+        <location filename="../views/pso_configuration_view.py" line="252"/>
         <source>Performance Index</source>
         <translation>Performance Index</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="594"/>
+        <location filename="../views/pso_configuration_view.py" line="253"/>
         <source>Time Domain</source>
         <translation>Time Domain</translation>
     </message>
@@ -1390,16 +1390,16 @@ Limits how strongly the closed loop system responds to disturbances and model un
         <translation type="vanished">PSO Bounds: Kp</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="606"/>
-        <location filename="../views/pso_configuration_view.py" line="609"/>
-        <location filename="../views/pso_configuration_view.py" line="612"/>
+        <location filename="../views/pso_configuration_view.py" line="265"/>
+        <location filename="../views/pso_configuration_view.py" line="268"/>
+        <location filename="../views/pso_configuration_view.py" line="271"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="607"/>
-        <location filename="../views/pso_configuration_view.py" line="610"/>
-        <location filename="../views/pso_configuration_view.py" line="613"/>
+        <location filename="../views/pso_configuration_view.py" line="266"/>
+        <location filename="../views/pso_configuration_view.py" line="269"/>
+        <location filename="../views/pso_configuration_view.py" line="272"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
@@ -1412,7 +1412,7 @@ Limits how strongly the closed loop system responds to disturbances and model un
         <translation type="vanished">PSO Bounds: Td</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="614"/>
+        <location filename="../views/pso_configuration_view.py" line="273"/>
         <source>Start PSO Simulation</source>
         <translation>Start PSO Simulation</translation>
     </message>
@@ -1636,47 +1636,47 @@ Tf   = %(tf).3f</translation>
 <context>
     <name>SettingsView</name>
     <message>
-        <location filename="../views/settings_view.py" line="190"/>
+        <location filename="../views/settings_view.py" line="125"/>
         <source>Settings</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="193"/>
+        <location filename="../views/settings_view.py" line="128"/>
         <source>Language</source>
         <translation>Language</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="194"/>
+        <location filename="../views/settings_view.py" line="129"/>
         <source>Theme</source>
         <translation>Theme</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="195"/>
+        <location filename="../views/settings_view.py" line="130"/>
         <source>Solver</source>
         <translation>Solver</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="196"/>
+        <location filename="../views/settings_view.py" line="131"/>
         <source>Type</source>
         <translation>Type</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="197"/>
+        <location filename="../views/settings_view.py" line="132"/>
         <source>Time Step</source>
         <translation>Time Step</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="198"/>
+        <location filename="../views/settings_view.py" line="133"/>
         <source>PSO</source>
         <translation>PSO</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="199"/>
+        <location filename="../views/settings_view.py" line="134"/>
         <source>Iterations</source>
         <translation>Iterations</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="200"/>
+        <location filename="../views/settings_view.py" line="135"/>
         <source>Particles</source>
         <translation>Particles</translation>
     </message>
