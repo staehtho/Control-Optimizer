@@ -4,26 +4,23 @@ from PySide6.QtCore import QCoreApplication
 
 if TYPE_CHECKING:
     from .base_report import BaseReport
+    from app_types import DynamicReportPlant, DynamicReportFunction
 
 
-def section_pid_parameters(
-    report: BaseReport,
-    kp: float,
-    ki: float,
-    kd: float
-) -> None:
-    report.add_heading(QCoreApplication.translate("Report", "PID Parameters"))
-    report.add_table(
-        [
-            [
-                QCoreApplication.translate("Report", "Parameter"),
-                QCoreApplication.translate("Report", "Value"),
-            ],
-            ["Kp", f"{kp}"],
-            ["Ki", f"{ki}"],
-            ["Kd", f"{kd}"],
-        ]
-    )
+def section_plant(report: BaseReport, data: DynamicReportPlant) -> None:
+    report.add_heading(QCoreApplication.translate("Report", "Summary"))
+    report.add_svg(data.formula_svg, height=32)
+
+
+def section_function(report: BaseReport, data: DynamicReportFunction) -> None:
+    report.add_heading(QCoreApplication.translate("Report", "Summary"))
+    report.add_svg(data.formula_svg, height=32)
+    header = [
+        QCoreApplication.translate("Report", "Parameter"),
+        QCoreApplication.translate("Report", "Value"),
+    ]
+    table_data = [[{"latex": param}, str(value)] for param, value in data.parameters.items()]
+    report.add_table(header, table_data)
 
 
 def section_plot(report: BaseReport, svg_path: str) -> None:
@@ -34,6 +31,7 @@ def section_plot(report: BaseReport, svg_path: str) -> None:
 def section_block_diagram(report: BaseReport, svg_path: str) -> None:
     report.add_heading(QCoreApplication.translate("Report", "System Response Plot"))
     report.add_svg(svg_path)
+
 
 def section_notes(report: BaseReport, text: str) -> None:
     report.add_heading(QCoreApplication.translate("Report", "User Notes"))

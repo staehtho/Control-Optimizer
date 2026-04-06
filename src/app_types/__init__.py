@@ -46,6 +46,13 @@ from .pso_simulation import (
     PsoResult
 )
 
+from .reporting import (
+    DynamicReportSections,
+    DynamicReportData,
+    DynamicReportPlant,
+    DynamicReportFunction
+)
+
 from .settings import LanguageType, ThemeType
 
 from .validation_result import ValidationResult
@@ -78,6 +85,10 @@ __all__ = [
     "PlotStyle",
     "PsoSimulationParam",
     "PsoResult",
+    "DynamicReportSections",
+    "DynamicReportData",
+    "DynamicReportPlant",
+    "DynamicReportFunction",
     "LanguageType",
     "ThemeType",
     "ValidationResult"

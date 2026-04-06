@@ -1,8 +1,27 @@
+from typing import Literal
+
+from reportlab.graphics.shapes import Drawing
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
 from svglib.svglib import svg2rlg
+
+from utils import latex_to_drawing
+
+Alignment = Literal["LEFT", "CENTER", "RIGHT"]
+
+
+def _convert_cell(cell):
+    # Already a drawing
+    if isinstance(cell, Drawing):
+        return cell
+
+    # LaTeX input
+    if isinstance(cell, dict) and "latex" in cell:
+        return latex_to_drawing(cell["latex"])
+
+    return cell
 
 
 class BaseReport:
@@ -63,29 +82,77 @@ class BaseReport:
         self.story.append(Paragraph(text, self.styles["BodyText"]))
         self.story.append(Spacer(1, 8))
 
-    def add_table(self, data):
-        table = Table(data)
-        table.setStyle(
-            TableStyle(
-                [
-                    ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
-                    ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-                    ("ALIGN", (0, 0), (-1, -1), "LEFT"),
-                ]
-            )
-        )
+    def add_table(self, header: list, data: list) -> None:
+        # Convert all cells
+        processed_header = [_convert_cell(c) for c in header]
+        processed_data = [[_convert_cell(c) for c in row] for row in data]
+
+        data_table = [processed_header] + processed_data
+
+        table = Table(data_table)
+        table.setStyle(TableStyle([
+            # Header
+            ("BACKGROUND", (0, 0), (-1, 0), colors.white),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.black),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica"),
+            ("FONTSIZE", (0, 0), (-1, 0), 11),
+
+            # Body
+            ("FONTNAME", (0, 1), (-1, -1), "Helvetica"),
+            ("FONTSIZE", (0, 1), (-1, -1), 10),
+
+            # Lines (minimalist!)
+            ("LINEBELOW", (0, 0), (-1, 0), 1, colors.black),
+            ("LINEBELOW", (0, -1), (-1, -1), 1, colors.black),
+
+            # Alignment
+            ("ALIGN", (1, 1), (-1, -1), "RIGHT"),
+            ("ALIGN", (0, 1), (0, -1), "CENTER"),
+
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+
+            # Padding (huge visual impact)
+            ("LEFTPADDING", (0, 0), (-1, -1), 6),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+            ("TOPPADDING", (0, 0), (-1, -1), 4),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+        ]))
         self.story.append(table)
         self.story.append(Spacer(1, 15))
 
-    def add_svg(self, svg_path: str, width: int = 500) -> None:
+    def add_svg(
+            self,
+            svg_path: str,
+            *,
+            width: int | None = None,
+            height: int | None = None,
+            align: Alignment = "CENTER",
+    ) -> None:
         drawing = svg2rlg(svg_path)
 
-        scale = width / drawing.width
+        if drawing is None:
+            return
+
+        original_width = drawing.width
+        original_height = drawing.height
+
+        # Determine scale factor
+        if width is not None and height is not None:
+            scale = min(width / original_width, height / original_height)
+        elif width is not None:
+            scale = width / original_width
+        elif height is not None:
+            scale = height / original_height
+        else:
+            scale = 1.0
+
         drawing.scale(scale, scale)
 
-        # Fix bounding box
-        drawing.height *= scale
+        # Properly update dimensions
         drawing.width *= scale
+        drawing.height *= scale
+
+        drawing.hAlign = align
 
         self.story.append(Spacer(1, 20))
         self.story.append(drawing)

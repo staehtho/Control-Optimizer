@@ -4,29 +4,27 @@
 <context>
     <name>Report</name>
     <message>
-        <location filename="../service/reporting/dynamic_report.py" line="43"/>
+        <location filename="../service/reporting/dynamic_report.py" line="26"/>
         <source>Control Optimizer</source>
         <translation>Control Optimizer</translation>
     </message>
     <message>
-        <location filename="../service/reporting/dynamic_report.py" line="44"/>
+        <location filename="../service/reporting/dynamic_report.py" line="27"/>
         <source>Page %d</source>
         <translation>Page %d</translation>
     </message>
     <message>
-        <location filename="../service/reporting/dynamic_report.py" line="48"/>
+        <location filename="../service/reporting/dynamic_report.py" line="31"/>
         <source>Control Optimizer Report</source>
         <translation>Control Optimizer Report</translation>
     </message>
     <message>
-        <location filename="../service/reporting/dynamic_report.py" line="75"/>
         <source>This report was generated dynamically.</source>
-        <translation>This report was generated dynamically.</translation>
+        <translation type="vanished">This report was generated dynamically.</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="15"/>
         <source>PID Parameters</source>
-        <translation>PID Parameters</translation>
+        <translation type="vanished">PID Parameters</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="19"/>
@@ -39,18 +37,20 @@
         <translation>Value</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="30"/>
-        <location filename="../service/reporting/sections.py" line="35"/>
+        <location filename="../service/reporting/sections.py" line="27"/>
+        <location filename="../service/reporting/sections.py" line="32"/>
         <source>System Response Plot</source>
         <translation>System Response Plot</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="39"/>
+        <location filename="../service/reporting/sections.py" line="37"/>
         <source>User Notes</source>
         <translation>User Notes</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="44"/>
+        <location filename="../service/reporting/sections.py" line="11"/>
+        <location filename="../service/reporting/sections.py" line="16"/>
+        <location filename="../service/reporting/sections.py" line="42"/>
         <source>Summary</source>
         <translation>Summary</translation>
     </message>

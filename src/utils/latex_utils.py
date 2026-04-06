@@ -1,7 +1,9 @@
 import io
 import logging
+import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
+from svglib.svglib import svg2rlg
 
 from PySide6.QtGui import QPixmap, QPalette, QColor
 from PySide6.QtWidgets import QApplication
@@ -78,3 +80,27 @@ def latex_to_pixmap(text: str, font_size: int = 0, font_size_scale: float = 1.0)
     logger.setLevel(old_level)
 
     return pixmap
+
+
+def latex_to_drawing(latex: str, font_size=12):
+    """
+    Convert LaTeX string to ReportLab Drawing via SVG (in-memory).
+    """
+    fig = plt.figure(figsize=(0.01, 0.01))  # tiny canvas
+    fig.text(0, 0, f"${latex}$", fontsize=font_size)
+
+    buffer = io.BytesIO()
+    plt.axis('off')
+    fig.savefig(buffer, format="svg", bbox_inches='tight', pad_inches=0.05)
+    plt.close(fig)
+
+    buffer.seek(0)
+    drawing = svg2rlg(buffer)
+
+    # scale to consistent height
+    target_height = 14
+    if drawing.height:
+        scale = target_height / drawing.height
+        drawing.scale(scale, scale)
+
+    return drawing

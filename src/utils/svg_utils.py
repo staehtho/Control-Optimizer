@@ -1,3 +1,4 @@
+import io
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -5,6 +6,8 @@ from pathlib import Path
 from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtGui import QPixmap, QPainter, QIcon
 from PySide6.QtCore import QByteArray, Qt
+from matplotlib.backends.backend_svg import FigureCanvasSVG
+from matplotlib.figure import Figure
 
 
 @dataclass
@@ -267,3 +270,42 @@ def save_svg(path: str | Path, svg_content: str, size: int = 32) -> None:
         )
 
     path.write_text(svg_content, encoding="utf-8")
+
+
+def latex_to_svg(text: str, font_size: float | None = None) -> str:
+    logical_dpi = 96.0
+
+    # --- Figure (off-screen SVG canvas) ---
+    fig = Figure(figsize=(0.01, 0.01))
+    canvas = (FigureCanvasSVG(fig))
+    fig.patch.set_alpha(0)
+
+    text_kwargs = {
+        "ha": "left",
+        "va": "bottom",
+    }
+    if font_size is not None:
+        text_kwargs["fontsize"] = str(font_size)
+
+    fig.text(
+        0,
+        0,
+        f"${text}$",
+        **text_kwargs,
+    )
+
+    # --- Render ---
+    buf = io.StringIO()
+    fig.savefig(
+        buf,
+        format="svg",
+        dpi=logical_dpi,
+        bbox_inches="tight",
+        pad_inches=0,
+        transparent=True,
+    )
+    canvas.draw()
+
+    svg_text = buf.getvalue()
+
+    return svg_text
