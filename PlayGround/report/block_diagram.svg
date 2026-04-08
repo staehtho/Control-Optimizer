@@ -1,0 +1,286 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2250" height="700" viewBox="-25 0 1125 350">
+    <g id="merged_svg_0">
+        <style>#merged_svg_0 .fill{ fill:#000000 }#merged_svg_0 .line{ stroke:#000000; stroke-width:2; fill:none;
+            }#merged_svg_0 .block{ stroke:#000000; stroke-width:2; fill:none; }#merged_svg_0 .text{ fill:#000000;
+            font-family:Arial, sans-serif; font-size:14px; text-anchor:middle;
+            dominant-baseline:middle; }
+        </style>
+
+        <!-- Arrow -->
+        <defs>
+            <path id="arrow__m0" class="fill" d=" M0 0 L-5 2 L-5 -2" transform="scale(1.5)"/>
+        </defs>
+
+        <!-- Input -->
+        <path class="line" d="M0 125 H90"/>
+        <text class="text" x="75" y="115">r</text>
+
+        <!-- sum -->
+        <g transform="translate(95 125)">
+            <circle class="block" cx="0" cy="0" r="5"/>
+            <use href="#arrow__m0" transform="translate(-5 0)"/>
+            <use href="#arrow__m0" transform="translate(0 5) rotate(-90 0 0)"/>
+            <line class="line" x1="-5" y1="10" x2="-10" y2="10"/>
+        </g>
+
+        <!-- l -->
+        <g transform="translate(675 125)">
+            <!-- sum -->
+            <g transform="translate(55 0)">
+                <circle class="block" cx="0" cy="0" r="5"/>
+                <use href="#arrow__m0" transform="translate(0 -5) rotate(90 0 0)"/>
+            </g>
+            <path class="line" d="M60 0 H95"/>
+            <use href="#arrow__m0" transform="translate(100 0)"/>
+
+            <path class="line" d="M55 -10 V-100"/>
+
+            <text class="text" x="65" y="-20">l</text>
+        </g>
+
+        <!-- Plant -->
+        <g transform="translate(775 125)">
+            <rect class="block" height="50" width="100" x="0" y="-25"/>
+            <text class="text" x="50" y="5">G(s)</text>
+        </g>
+
+        <!-- n -->
+        <g transform="translate(875 125)">
+            <path class="line" d="M0 0 H40"/>
+            <!-- sum -->
+            <g transform="translate(50 0)">
+                <circle class="block" cx="0" cy="0" r="5"/>
+                <use href="#arrow__m0" transform="translate(-5 0)"/>
+                <use href="#arrow__m0" transform="translate(0 -5) rotate(90 0 0)"/>
+            </g>
+            <path class="line" d="M55 0 H145"/>
+            <use href="#arrow__m0" transform="translate(150 0)"/>
+
+            <path class="line" d="M50 -10 V-100"/>
+
+            <text class="text" x="60" y="-20">n</text>
+        </g>
+
+        <!-- Output -->
+        <path class="line" d="M975 125 H995 M975 125 V300 H95 V135"/>
+        <text class="text" x="1000" y="115">y</text>
+        <!-- Node -->
+        <circle class="fill" cx="975" cy="125" r="4"/>
+    </g>
+    <g id="merged_svg_1" transform="translate(100,125)">
+        <style>#merged_svg_1 .fill{ fill:#000000 }#merged_svg_1 .line{ stroke:#000000; stroke-width:2; fill:none;
+            }#merged_svg_1 .block{ stroke:#000000; stroke-width:2; fill:none; }#merged_svg_1 .text{ fill:#000000;
+            font-family:Arial, sans-serif; font-size:14px; text-anchor:middle;
+            dominant-baseline:middle; }
+        </style>
+
+        <!-- Arrow -->
+        <defs>
+            <path id="arrow__m1" class="fill" d=" M0 0 L-5 2 L-5 -2" transform="scale(1.5)"/>
+        </defs>
+
+        <!-- Rect -->
+        <defs>
+            <rect id="rect__m1" class="block" width="50" height="50"/>
+        </defs>
+
+        <!-- Input -->
+        <g transform="translate(0, 0)">
+            <path class="line" d="M0 0 H45"/>
+            <use href="#arrow__m1" x="50" y="0"/>
+            <text class="text" x="25" y="-10">e</text>
+        </g>
+
+        <g transform="translate(50, 0)">
+            <g transform="translate(0, -25)">
+                <rect class="block" height="50" width="50"/>
+                <text class="text" x="25" y="30">Kp</text>
+            </g>
+        </g>
+
+        <g transform="translate(100, 0)">
+            <path class="line" d="M0 0 H50"/>
+            <!-- Node -->
+            <circle class="fill" cx="50" cy="0" r="4"/>
+        </g>
+    </g>
+    <g id="merged_svg_2" transform="translate(575,125)">
+        <style>#merged_svg_2 .fill{ fill:#000000 }#merged_svg_2 .line{ stroke:#000000; stroke-width:2; fill:none;
+            }#merged_svg_2 .block{ stroke:#000000; stroke-width:2; fill:none; }#merged_svg_2 .text{ fill:#000000;
+            font-family:Arial, sans-serif; font-size:14px; text-anchor:middle;
+            dominant-baseline:middle; }
+        </style>
+
+        <!-- Arrow -->
+        <defs>
+            <path id="arrow__m2" class="fill" d=" M0 0 L-5 2 L-5 -2" transform="scale(1.5)"/>
+        </defs>
+
+        <!-- Rect -->
+        <defs>
+            <rect id="rect__m2" class="block" width="50" height="50"/>
+        </defs>
+
+        <!-- Constraint -->
+        <defs>
+            <g id="constraint__m2">
+                <use href="#rect__m2"/>
+                <path class="line" d="M7 40 H20 L30 10 H43"/>
+                <path class="line" d="M5 25 H45" style="stroke-width:0.7"/>
+                <path class="line" d="M25 5 V45" style="stroke-width:0.7"/>
+
+                <!-- min max -->
+                <text class="text" x="0" y="-8" style="font-size:10px; text-anchor:start">max: 5.0</text>
+                <text class="text" x="0" y="65" style="font-size:10px; text-anchor:start">min: -5.0</text>
+            </g>
+        </defs>
+
+        <!-- Sum -->
+        <g transform="translate(0 0)">
+            <!-- Sum -->
+            <circle class="block" cx="0" cy="0" r="5"/>
+
+            <!-- Output -->
+            <path class="line" d="M5 0 H45"/>
+            <use href="#arrow__m2" transform="translate(50, 0)"/>
+        </g>
+
+        <!-- Output -->
+        <g transform="translate(50 0)">
+            <use href="#constraint__m2" transform="translate(0 -25)"/>
+            <path class="line" d="M50 0 H95"/>
+            <use href="#arrow__m2" transform="translate(100 0)"/>
+            <text class="text" x="75" y="-10">u</text>
+        </g>
+    </g>
+    <g id="merged_svg_3" transform="translate(250,125)">
+        <style>#merged_svg_3 .fill{ fill:#000000 }#merged_svg_3 .line{ stroke:#000000; stroke-width:2; fill:none; }
+        </style>
+
+        <!-- Arrow -->
+        <defs>
+            <path id="arrow__m3" class="fill" d=" M0 0 L-5 2 L-5 -2" transform="scale(1.5)"/>
+        </defs>
+
+        <!-- Input -->
+        <g transform="translate(0 0)">
+            <path class="line" d="M0 0 H315"/>
+            <use href="#arrow__m3" transform="translate(320, 0)"/>
+        </g>
+    </g>
+    <g id="merged_svg_4" transform="translate(250,125)">
+        <style>#merged_svg_4 .fill{ fill:#000000 }#merged_svg_4 .line{ stroke:#000000; stroke-width:2; fill:none;
+            }#merged_svg_4 .block{ stroke:#000000; stroke-width:2; fill:none; }#merged_svg_4 .text{ fill:#000000;
+            font-family:Arial, sans-serif; font-size:14px; text-anchor:middle;
+            dominant-baseline:middle; }
+        </style>
+
+        <!-- Arrow -->
+        <defs>
+            <path id="arrow__m4" class="fill" d=" M0 0 L-5 2 L-5 -2" transform="scale(1.5)"/>
+        </defs>
+
+        <!-- Rect -->
+        <defs>
+            <rect id="rect__m4" class="block" width="50" height="50"/>
+        </defs>
+
+        <!-- Input -->
+        <g transform="translate(0 0)">
+            <path class="line" d="M0 0 V-75 H45"/>
+            <use href="#arrow__m4" transform="translate(50 -75)"/>
+        </g>
+
+        <!-- D -->
+        <g transform="translate(50, -75)">
+            <g transform="translate(0, -25)">
+                <rect class="block" height="50" width="50"/>
+                <text class="text" x="25" y="30">Td</text>
+            </g>
+
+            <path class="line" d="M50 0 H95"/>
+            <use href="#arrow__m4" transform="translate(100, 0)"/>
+
+            <!-- Filter and differentiator -->
+            <g transform="translate(100, -25)">
+                <rect class="block" height="50" width="100"/>
+                <!-- num -->
+                <text class="text" x="50" y="17.5">s</text>
+                <path class="line" d="M17.5 25 H82.5"/>
+                <!-- den -->
+                <text class="text" x="50" y="40">Tf s + 1</text>
+            </g>
+        </g>
+
+        <!-- Output -->
+        <g transform="translate(325 0)">
+            <path class="line" d="M0 -10 V-75 H-75"/>
+            <use href="#arrow__m4" transform="rotate(90 2.5 -2.5)"/>
+        </g>
+    </g>
+    <g id="merged_svg_5" transform="translate(250,125)">
+        <style>#merged_svg_5 .fill{ fill:#000000 }#merged_svg_5 .line{ stroke:#000000; stroke-width:2; fill:none;
+            }#merged_svg_5 .block{ stroke:#000000; stroke-width:2; fill:none; }#merged_svg_5 .text{ fill:#000000;
+            font-family:Arial, sans-serif; font-size:14px; text-anchor:middle;
+            dominant-baseline:middle; }
+        </style>
+
+        <!-- Arrow -->
+        <defs>
+            <path id="arrow__m5" class="fill" d=" M0 0 L-5 2 L-5 -2" transform="scale(1.5)"/>
+        </defs>
+
+        <!-- Rect -->
+        <defs>
+            <rect id="rect__m5" class="block" width="50" height="50"/>
+        </defs>
+
+
+        <!-- Integrator -->
+        <defs>
+            <g id="integrator__m5">
+                <use href="#rect__m5"/>
+                <text class="text" x="15" y="17.5">1</text>
+                <path class="line" d="M7.5 25 H22.5"/>
+                <text class="text" x="15" y="40">s</text>
+
+                <!-- clamping -->
+                <path class="line" d="M25 40 H32.5 L37.5 10 H45"/>
+
+                <!-- min max -->
+                <text class="text" x="0" y="-8" style="font-size:10px; text-anchor:start">max: 5.0</text>
+                <text class="text" x="0" y="65" style="font-size:10px; text-anchor:start">min: -5.0</text>
+            </g>
+        </defs>
+
+
+        <!-- Input -->
+        <g transform="translate(0 0)">
+            <path class="line" d="M0 0 V75 H45"/>
+            <use href="#arrow__m5" transform="translate(50 75)"/>
+        </g>
+
+        <!-- I -->
+        <g transform="translate(50, 75)">
+            <g transform="translate(0, -25)">
+                <use href="#rect__m5"/>
+                <text class="text" x="25" y="17.5">1</text>
+                <path class="line" d="M17.5 25 H32.5"/>
+                <text class="text" x="25" y="40">Ti</text>
+            </g>
+
+            <path class="line" d="M50 0 H95"/>
+            <use href="#arrow__m5" transform="translate(100, 0)"/>
+
+            <g transform="translate(100, -25)">
+                <use href="#integrator__m5"/>
+            </g>
+        </g>
+
+        <!-- Output -->
+        <g transform="translate(325 0)">
+            <path class="line" d="M0 10 V75 H-125"/>
+            <use href="#arrow__m5" transform="rotate(-90 2.5 2.5)"/>
+        </g>
+    </g>
+</svg>

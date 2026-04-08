@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Control Optimizer Report</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 40px;
+            background: #f7f7f7;
+            color: #222;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 {
+            color: #333;
+            margin-top: 40px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+
+        table th, table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        table th {
+            background: #eee;
+        }
+
+        .quote {
+            font-style: italic;
+            background: #fff8d9;
+            padding: 15px;
+            border-left: 4px solid #e0c200;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Control Optimizer Report</h1>
+
+<div class="card">
+    <div class="quote">
+        “PSO simulation finished after 10 seconds.”<br>
+        “Controller Parameter: Kp = 10, Ti = 5, Td = 1, Tf = 0.01, Min sampling rate = 100Hz.”
+    </div>
+</div>
+
+<h2>1. Plant Model</h2>
+<div class="card">
+    <p>The plant is defined by the general transfer function:</p>
+    <pre>
+G(s) = (bq s^q + bq-1 s^(q-1) + ... + b1 s + b0)
+       -----------------------------------------
+       (an s^n + an-1 s^(n-1) + ... + a1 s + a0)
+</pre>
+</div>
+
+<h2>2. Excitation Function</h2>
+<div class="card">
+    <p>The excitation input is:</p>
+    <pre>u(t) = 1 · θ(t − t₀)</pre>
+
+    <table>
+        <tr>
+            <th>Parameter</th>
+            <th>Value</th>
+        </tr>
+        <tr>
+            <td>λ</td>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td>t₀</td>
+            <td>0</td>
+        </tr>
+    </table>
+</div>
+
+<h2>3. Controller Configuration</h2>
+<div class="card">
+    <h3>Controller Type</h3>
+    <p>PID controller with clamping anti-windup.</p>
+
+    <h3>Constraints</h3>
+    <ul>
+        <li>Minimum output: −5</li>
+        <li>Maximum output: 5</li>
+    </ul>
+
+    <h3>Anti-Windup</h3>
+    <p>Clamping method with Ka = 1.</p>
+
+    <h3>Filter Time Constant</h3>
+    <p>N = 5</p>
+    <p>Minimum sampling rate: 100 Hz</p>
+</div>
+
+<h2>4. PSO Configuration</h2>
+<div class="card">
+    <h3>Simulation Settings</h3>
+    <ul>
+        <li>Excitation target: Reference</li>
+        <li>Simulation time: 0–10 s</li>
+    </ul>
+
+    <h3>Performance Index</h3>
+    <p>Time-domain ITAE criterion.</p>
+
+    <h3>Frequency-Domain Targets</h3>
+    <ul>
+        <li>Gain margin target: 16 dB</li>
+        <li>Phase margin: disabled</li>
+        <li>Sensitivity constraints: disabled</li>
+    </ul>
+
+    <h3>PSO Parameter Bounds</h3>
+    <table>
+        <tr>
+            <th>Parameter</th>
+            <th>Min</th>
+            <th>Max</th>
+        </tr>
+        <tr>
+            <td>Kp</td>
+            <td>0</td>
+            <td>10</td>
+        </tr>
+        <tr>
+            <td>Ti</td>
+            <td>0</td>
+            <td>10</td>
+        </tr>
+        <tr>
+            <td>Td</td>
+            <td>0</td>
+            <td>10</td>
+        </tr>
+    </table>
+</div>
+
+<h2>5. PSO Results</h2>
+<div class="card">
+    <h3>Optimized Controller Parameters</h3>
+    <table>
+        <tr>
+            <th>Parameter</th>
+            <th>Value</th>
+        </tr>
+        <tr>
+            <td>Kp</td>
+            <td>10</td>
+        </tr>
+        <tr>
+            <td>Ti</td>
+            <td>5</td>
+        </tr>
+        <tr>
+            <td>Td</td>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td>Tf</td>
+            <td>0.01</td>
+        </tr>
+        <tr>
+            <td>Min sampling rate</td>
+            <td>100 Hz</td>
+        </tr>
+    </table>
+
+    <h3>Time-Domain Performance</h3>
+    <table>
+        <tr>
+            <th>Metric</th>
+            <th>Value</th>
+        </tr>
+        <tr>
+            <td>ITAE</td>
+            <td>0.1</td>
+        </tr>
+        <tr>
+            <td>Overshoot</td>
+            <td>10%</td>
+        </tr>
+        <tr>
+            <td>Slew rate</td>
+            <td>0.2</td>
+        </tr>
+    </table>
+</div>
+
+<h2>6. Frequency-Domain Characteristics</h2>
+<div class="card">
+    <table>
+        <tr>
+            <th>Parameter</th>
+            <th>Value</th>
+        </tr>
+        <tr>
+            <td>Gain margin</td>
+            <td>8 dB @ 100 rad/s</td>
+        </tr>
+        <tr>
+            <td>Phase margin</td>
+            <td>59° @ 4 rad/s</td>
+        </tr>
+        <tr>
+            <td>Stability margin</td>
+            <td>2 dB</td>
+        </tr>
+    </table>
+</div>
+
+<h2>7. Block Diagram (Conceptual)</h2>
+<div class="card">
+    <p>A standard unity-feedback PID loop with saturation and anti-windup:</p>
+    <ul>
+        <li>Reference: r</li>
+        <li>Error: e = r − y</li>
+        <li>PID controller with Kp, Ti, Td, Tf</li>
+        <li>Output limits: [−5, 5]</li>
+        <li>Plant: G(s)</li>
+    </ul>
+</div>
+
+<h2>8. Transfer Functions</h2>
+<div class="card">
+<pre>
+C(s) = Kp * (Ti s + 1)(Td s + 1) / (Ti s (Tf s + 1))
+
+L(s) = G(s) C(s)
+
+T(s) = C(s)G(s) / (1 + C(s)G(s))
+
+S(s) = 1 / (1 + C(s)G(s))
+</pre>
+</div>
+
+</body>
+</html>

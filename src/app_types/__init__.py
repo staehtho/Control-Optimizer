@@ -50,7 +50,14 @@ from .reporting import (
     DynamicReportSections,
     DynamicReportData,
     DynamicReportPlant,
-    DynamicReportFunction
+    DynamicReportExcitationFunction,
+    DynamicReportControllerConfiguration,
+    DynamicReportPsoConfiguration,
+    DynamicReportPsoResult,
+    DynamicReportBlockDiagram,
+    DynamicReportTimeDomainPlot,
+    DynamicReportBodePlot,
+    DynamicReportTransferFunctions
 )
 
 from .settings import LanguageType, ThemeType
@@ -88,7 +95,14 @@ __all__ = [
     "DynamicReportSections",
     "DynamicReportData",
     "DynamicReportPlant",
-    "DynamicReportFunction",
+    "DynamicReportExcitationFunction",
+    "DynamicReportControllerConfiguration",
+    "DynamicReportPsoConfiguration",
+    "DynamicReportPsoResult",
+    "DynamicReportBlockDiagram",
+    "DynamicReportTimeDomainPlot",
+    "DynamicReportBodePlot",
+    "DynamicReportTransferFunctions",
     "LanguageType",
     "ThemeType",
     "ValidationResult"
