@@ -47,7 +47,6 @@ from .pso_simulation import (
 )
 
 from .reporting import (
-    DynamicReportSections,
     DynamicReportData,
     DynamicReportPlant,
     DynamicReportExcitationFunction,
@@ -92,7 +91,6 @@ __all__ = [
     "PlotStyle",
     "PsoSimulationParam",
     "PsoResult",
-    "DynamicReportSections",
     "DynamicReportData",
     "DynamicReportPlant",
     "DynamicReportExcitationFunction",

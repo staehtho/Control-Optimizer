@@ -1,16 +1,18 @@
 from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex
 from app_types import (
-    DynamicReportData, DynamicReportSections, DynamicReportPlant, DynamicReportExcitationFunction,
+    DynamicReportData, DynamicReportPlant, DynamicReportExcitationFunction,
     DynamicReportControllerConfiguration, DynamicReportPsoConfiguration, DynamicReportPsoResult,
     DynamicReportBlockDiagram, DynamicReportTimeDomainPlot, DynamicReportBodePlot, DynamicReportTransferFunctions
 )
 from service.reporting import DynamicReport
 from utils import latex_to_svg, save_svg
 
+from models import ReportModel
+
 save_svg("plant.svg", latex_to_svg(r"G(s) = \frac{(s - z_1)(s - z_2)\ldots}{(s - p_1)(s - p_2)\ldots}"))
 save_svg("function.svg", latex_to_svg(r"u(t) = \lambda \cdot \sigma(t - t_0)"))
 
-sections = DynamicReportSections()
+sections = ReportModel()
 
 plant_data = DynamicReportPlant(
     formula_svg="plant.svg",

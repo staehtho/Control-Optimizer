@@ -16,7 +16,8 @@ from .sections import (
 )
 
 if TYPE_CHECKING:
-    from app_types import DynamicReportSections, DynamicReportData
+    from app_types import DynamicReportData
+    from models import ReportModel
 
 
 class DynamicReport(BaseReport):
@@ -24,7 +25,7 @@ class DynamicReport(BaseReport):
     def __init__(
         self,
         filename: str,
-            sections: DynamicReportSections,
+            sections: ReportModel,
         data: DynamicReportData
     ) -> None:
         super().__init__(filename)

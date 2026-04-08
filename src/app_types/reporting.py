@@ -5,18 +5,6 @@ if TYPE_CHECKING:
     from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex
 
 
-@dataclass(frozen=True)
-class DynamicReportSections:
-    plant: bool = True
-    excitation_function: bool = True
-    controller_configuration: bool = True
-    pso_configuration: bool = True
-    pso_result: bool = True
-    block_diagram: bool = True
-    time_domain_plot: bool = True
-    bode_plot: bool = True
-    transfer_functions: bool = True
-
 
 @dataclass(frozen=True)
 class DynamicReportData:

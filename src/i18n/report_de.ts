@@ -4,17 +4,17 @@
 <context>
     <name>Report</name>
     <message>
-        <location filename="../service/reporting/dynamic_report.py" line="34"/>
+        <location filename="../service/reporting/dynamic_report.py" line="35"/>
         <source>Control Optimizer</source>
         <translation>Regelungsoptimierer</translation>
     </message>
     <message>
-        <location filename="../service/reporting/dynamic_report.py" line="35"/>
+        <location filename="../service/reporting/dynamic_report.py" line="36"/>
         <source>Page %d</source>
         <translation>Seite %d</translation>
     </message>
     <message>
-        <location filename="../service/reporting/dynamic_report.py" line="38"/>
+        <location filename="../service/reporting/dynamic_report.py" line="39"/>
         <source>Control Optimizer Report</source>
         <translation>Regelungsoptimierer Bericht</translation>
     </message>

@@ -5,5 +5,6 @@ from .controller_model import ControllerModel
 from .pso_configuration_model import PsoConfigurationModel
 from .pso_simulation_snapshot import PsoSimulationSnapshot
 from .simulation_model import SimulationModel
+from .report_model import ReportModel
 
 from .model_container import ModelContainer
