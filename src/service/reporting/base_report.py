@@ -237,6 +237,31 @@ class BaseReport:
         self.story.append(drawing)
         self.story.append(Spacer(1, 15))
 
+    def add_latex(self, latex: str, *, width=None, height=None, align="CENTER"):
+        drawing = latex_to_drawing(latex)
+        if drawing is None:
+            return
+
+        # Optional scaling
+        original_width = drawing.width
+        original_height = drawing.height
+
+        if width and height:
+            scale = min(width / original_width, height / original_height)
+        elif width:
+            scale = width / original_width
+        elif height:
+            scale = height / original_height
+        else:
+            scale = 1.0
+
+        drawing.scale(scale, scale)
+        drawing.hAlign = align
+
+        self.story.append(Spacer(1, 10))
+        self.story.append(drawing)
+        self.story.append(Spacer(1, 10))
+
     def build(self) -> None:
         self.doc.build(
             self.story,

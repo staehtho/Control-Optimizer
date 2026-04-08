@@ -15,11 +15,11 @@ save_svg("function.svg", latex_to_svg(r"u(t) = \lambda \cdot \sigma(t - t_0)"))
 sections = ReportModel()
 
 plant_data = DynamicReportPlant(
-    formula_svg="plant.svg",
+    formula=r"G(s) = \frac{(s - z_1)(s - z_2)\ldots}{(s - p_1)(s - p_2)\ldots}",
 )
 
 excitation_function_data = DynamicReportExcitationFunction(
-    formula_svg="function.svg",
+    formula=r"u(t) = \lambda \cdot \sigma(t - t_0)",
     parameters={
         r"\lambda": 1.0,
         r"t_0": 0.0,

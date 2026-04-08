@@ -21,12 +21,12 @@ class DynamicReportData:
 
 @dataclass(frozen=True)
 class DynamicReportPlant:
-    formula_svg: str
+    formula: str
 
 
 @dataclass(frozen=True)
 class DynamicReportExcitationFunction:
-    formula_svg: str
+    formula: str
     parameters: dict[str, float]
 
 

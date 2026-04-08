@@ -1,5 +1,7 @@
 from app_domain.functions import NullFunction
-from models import PlantModel, SettingsModel, FunctionModel, PsoConfigurationModel, ControllerModel, SimulationModel
+from models import (
+    PlantModel, SettingsModel, FunctionModel, PsoConfigurationModel, ControllerModel, SimulationModel, ReportModel
+)
 
 
 class ModelContainer:
@@ -11,6 +13,7 @@ class ModelContainer:
         self.model_pso = PsoConfigurationModel()
         self.model_controller = ControllerModel()
         self.model_simulation = SimulationModel()
+        self.model_report = ReportModel()
 
     def ensure_function_model(self, key: str) -> FunctionModel:
         """

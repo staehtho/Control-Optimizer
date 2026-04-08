@@ -59,7 +59,7 @@ def section_plant(report: BaseReport, data: DynamicReportPlant) -> None:
             "The plant is defined by the transfer function:"
         )
     )
-    report.add_svg(data.formula_svg, height=24)
+    report.add_latex(data.formula, height=80)
 
 
 def section_excitation_function(report: BaseReport, data: DynamicReportExcitationFunction) -> None:
@@ -71,7 +71,7 @@ def section_excitation_function(report: BaseReport, data: DynamicReportExcitatio
         )
 
     )
-    report.add_svg(data.formula_svg, height=16)
+    report.add_svg(data.formula, height=16)
     report.add_paragraph(
         QCoreApplication.translate(
             "Report",

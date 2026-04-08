@@ -3,11 +3,10 @@ from dataclasses import dataclass
 
 SRC_DIR = Path(__file__).parent.parent
 RESOURCES_DIR = SRC_DIR / "resources"
-OUTPUT_DIR = RESOURCES_DIR / "output"
 
-# -------------------------------------------------
+# ============================================================
 # Block Diagram
-# -------------------------------------------------
+# ============================================================
 BLOCK_DIAGRAM_DIR = RESOURCES_DIR / "block_diagram"
 
 
@@ -27,9 +26,9 @@ class BlockDiagram:
     conditional: str = "conditional.svg"
 
 
-# -------------------------------------------------
+# ============================================================
 # Icons
-# -------------------------------------------------
+# ============================================================
 ICONS_DIR = RESOURCES_DIR / "icons"
 
 
@@ -47,3 +46,14 @@ class Icons:
     settings: str = "settings.svg"
     simulation: str = "simulation.svg"
 
+
+# ============================================================
+# Output
+# ============================================================
+OUTPUT_DIR = RESOURCES_DIR / "output"
+
+
+@dataclass(frozen=True)
+class OutputFiles:
+    plant: str = "plant.svg"
+    function: str = "function.svg"
