@@ -312,16 +312,14 @@ class EvaluationView(ViewMixin, QWidget):
         grid_layout = self._create_grid(FIELDS["tf"])
         widget.setLayout(grid_layout)
 
-        plant_tf = ""
-        if self._vm_evaluator.has_snapshot():
-            plant_tf = self._vm_evaluator.plant_tf
+        tf = self._vm_evaluator.get_transfer_functions()
 
         tf: dict[EvaluationField, str] = {
-            EvaluationField.TF_PLANT: r" G(s) = " + plant_tf,
-            EvaluationField.TF_CONTROLLER: r"C(S) = Kp \frac{(Ti s + 1)(Td s + 1)}{Ti s (Tf s + 1)}",
-            EvaluationField.TF_OPEN_LOOP: r"L(S) = C(S) \cdot G(S)",
-            EvaluationField.TF_CLOSED_LOOP: r"T(s) = \frac{L(s)}{1 + L(s)} = \frac{C(s) \cdot G(s)}{1 + C(s) \cdot G(s)}",
-            EvaluationField.TF_SENSITIVITY: r"S(s) = \frac{1}{1 + L(s)} = \frac{1}{1 + C(s) \cdot G(s)}",
+            EvaluationField.TF_PLANT: tf.plant,
+            EvaluationField.TF_CONTROLLER: tf.controller,
+            EvaluationField.TF_OPEN_LOOP: tf.open_loop,
+            EvaluationField.TF_CLOSED_LOOP: tf.closed_loop,
+            EvaluationField.TF_SENSITIVITY: tf.sensitivity,
         }
 
         for key, value in tf.items():

@@ -61,6 +61,8 @@ from .reporting import (
 
 from .settings import LanguageType, ThemeType
 
+from .transfer_function import TransferFunctions
+
 from .validation_result import ValidationResult
 
 __all__ = [
@@ -103,5 +105,6 @@ __all__ = [
     "DynamicReportTransferFunctions",
     "LanguageType",
     "ThemeType",
+    "TransferFunctions",
     "ValidationResult"
 ]
