@@ -36,6 +36,7 @@ ICONS_DIR = RESOURCES_DIR / "icons"
 class Icons:
     control_optimizer: str = "control_optimizer.svg"
     controller: str = "controller.svg"
+    data_management: str = "data_management.svg"
     evaluation: str = "evaluation.svg"
     excitation_function: str = "excitation_function.svg"
     menu: str = "menu.svg"
