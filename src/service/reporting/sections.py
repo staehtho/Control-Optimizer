@@ -71,7 +71,7 @@ def section_excitation_function(report: BaseReport, data: DynamicReportExcitatio
         )
 
     )
-    report.add_svg(data.formula, height=16)
+    report.add_latex(data.formula, height=40)
     report.add_paragraph(
         QCoreApplication.translate(
             "Report",
