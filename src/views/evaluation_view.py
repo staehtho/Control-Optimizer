@@ -560,7 +560,8 @@ class EvaluationView(ViewMixin, QWidget):
         system_response_target = Path(request[TIME_DOMAIN])
         bode_plot_target = Path(request[FREQUENCY_DOMAIN])
 
-        svg = self._build_block_diagram()
+        svg = self._build_block_diagram(False)
+
         self._vm_plots[TIME_DOMAIN].request_save_svg(str(system_response_target))
         self._vm_plots[FREQUENCY_DOMAIN].request_save_svg(str(bode_plot_target))
         save_svg(block_diagram_target, svg)
@@ -629,8 +630,8 @@ class EvaluationView(ViewMixin, QWidget):
         """Build and recolor the closed loop block diagram SVG."""
         svg = self._build_block_diagram()
         self.field_widgets.get(BLOCK_DIAGRAM).set_svg_bytes(svg.encode("utf-8"))
-        
-    def _build_block_diagram(self) -> str:
+
+    def _build_block_diagram(self, use_color_mape: bool = True) -> str:
         """Build and recolor the closed loop block diagram SVG."""
         snapshot = self._vm_evaluator.get_pso_snapshot()
         if snapshot is None:
@@ -639,5 +640,5 @@ class EvaluationView(ViewMixin, QWidget):
         return load_closed_loop_diagram(
             snapshot.controller_anti_windup,
             (snapshot.controller_constraint_min, snapshot.controller_constraint_max),
-            self._vm_theme.get_svg_color_map(),
+            self._vm_theme.get_svg_color_map() if use_color_mape else None,
         )

@@ -33,14 +33,14 @@ def load_controller_diagram(
 def load_closed_loop_diagram(
         anti_windup: AntiWindup,
         constraint: tuple[float, float],
-        color_map: dict[str, str],
+        color_map: dict[str, str] | None = None,
 ) -> str:
     """Build and return the SVG for a full closed-loop system diagram.
 
     Args:
         anti_windup: Selected anti-windup strategy.
         constraint: Tuple of (min, max) constraint values.
-        color_map: Mapping of original SVG colors to new colors.
+        color_map: Optional Mapping of original SVG colors to new colors.
 
     Returns:
         A recolored SVG string representing the closed-loop diagram.
@@ -60,10 +60,11 @@ def load_closed_loop_diagram(
         svg_elements.append((svg_name, (x + offset_x, y + offset_y)))
 
     merged_svg = merge_svg_layers(svg_elements)
-    constrained_svg = inject_constraints_into_svg(merged_svg, constraint)
-    recolored_svg = recolor_svg(constrained_svg, color_map)
+    svg = inject_constraints_into_svg(merged_svg, constraint)
+    if color_map is not None:
+        svg = recolor_svg(svg, color_map)
 
-    return recolored_svg
+    return svg
 
 
 def merge_svg_layers(svg_data: list[SvgData]) -> str:

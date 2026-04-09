@@ -18,13 +18,15 @@ if TYPE_CHECKING:
 TRANSLATION = Translation()
 
 
-def _format_value(value: Any) -> str:
+def _format_value(value: Any, exp_allowed: bool = False) -> str:
     """Format values for display, using scientific notation for extreme floats."""
     if isinstance(value, float):
         if value == 0.0:
             return "0.0"
-        if abs(value) >= 1e4 or abs(value) < 1e-3:
+        if abs(value) >= 1e4 or abs(value) < 1e-3 and exp_allowed:
             return f"{value:.1e}"
+
+        return str(round(value, 3))
 
     return str(value)
 
@@ -59,7 +61,7 @@ def section_plant(report: BaseReport, data: DynamicReportPlant) -> None:
             "The plant is defined by the transfer function:"
         )
     )
-    report.add_latex(data.formula, height=80)
+    report.add_latex(data.formula, height=50)
 
 
 def section_excitation_function(report: BaseReport, data: DynamicReportExcitationFunction) -> None:
@@ -71,7 +73,7 @@ def section_excitation_function(report: BaseReport, data: DynamicReportExcitatio
         )
 
     )
-    report.add_latex(data.formula, height=40)
+    report.add_latex(data.formula, height=50)
     report.add_paragraph(
         QCoreApplication.translate(
             "Report",
@@ -294,11 +296,11 @@ def section_pso_result(report: BaseReport, data_config: DynamicReportPsoConfigur
     table_data = [
         [
             QCoreApplication.translate("Report", "Gain margin"),
-            f"{_format_value(data.gain_margin)} dB @ {_format_value(data.omega_180)} rad/s"
+            f"{_format_value(data.gain_margin)} dB @ {_format_value(data.omega_180, True)} rad/s"
         ],
         [
             QCoreApplication.translate("Report", "Phase margin"),
-            f"{_format_value(data.phase_margin)}° @ {_format_value(data.omega_c)} rad/s"
+            f"{_format_value(data.phase_margin)}° @ {_format_value(data.omega_c, True)} rad/s"
         ],
         [
             QCoreApplication.translate("Report", "Stability margin"),
@@ -336,4 +338,4 @@ def section_transfer_function(report: BaseReport, data: DynamicReportTransferFun
 
     for subheading, formula in tf_data:
         report.add_subheading(subheading)
-        report.add_svg(formula, height=24)
+        report.add_latex(formula, height=50)
