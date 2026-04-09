@@ -12,6 +12,7 @@
 # TODO: Wo ist die automatische Simulationszeit in App
 # TODO: Minimalwert Ti auf 0.001?
 # TODO: schieberegler farbe in light mode
-# TODO: Plots in App zu gross
+# TODO: Plots in App zu gross wenn in fullscreen
 # TODO: Einheit von slewrate du/dt in Evaluationsfenster. Evt auch Fenstergrösse anzeigen?
-
+# TODO: Transfer function in plant: die reiterkarten sind farblich verwirrend
+# TODO: Controller Type in controller wirkt etwas komisch
