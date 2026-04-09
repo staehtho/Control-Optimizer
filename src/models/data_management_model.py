@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class ReportModel:
+class DataManagementModel:
     plant: bool = True
     excitation_function: bool = True
     controller_configuration: bool = True

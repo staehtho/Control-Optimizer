@@ -163,8 +163,8 @@ class PsoResultField(FieldType):
     STABILITY_MARGIN = "stability_margin"
 
 
-# ReportViewModel / ReportView
-class ReportField(FieldType):
+# DataManagementViewModel / DataManagementView
+class DataManagementField(FieldType):
     EXPORT = "export"
     IMPORT = "import"
     REPORT = "report"

@@ -494,6 +494,34 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
     </message>
 </context>
 <context>
+    <name>DataManagementView</name>
+    <message>
+        <location filename="../views/data_management_view.py" line="65"/>
+        <source>JSON Files (*.json)</source>
+        <translation>JSON Files (*.json)</translation>
+    </message>
+    <message>
+        <location filename="../views/data_management_view.py" line="83"/>
+        <source>PDF Files (*.pdf)</source>
+        <translation>PDF Files (*.pdf)</translation>
+    </message>
+    <message>
+        <location filename="../views/data_management_view.py" line="112"/>
+        <source>Data Management</source>
+        <translation>Data Management</translation>
+    </message>
+    <message>
+        <location filename="../views/data_management_view.py" line="113"/>
+        <source>Import and Export App Data</source>
+        <translation>Import and Export App Data</translation>
+    </message>
+    <message>
+        <location filename="../views/data_management_view.py" line="114"/>
+        <source>Create Report</source>
+        <translation>Create Report</translation>
+    </message>
+</context>
+<context>
     <name>EvaluationView</name>
     <message>
         <source>Simulation Time [s]</source>
@@ -1657,34 +1685,6 @@ Tf   = %(tf).3f</translation>
         <location filename="../viewmodels/pso_configuration_viewmodel.py" line="351"/>
         <source>Invalid value: max ({value}) must be greater than min ({min}).</source>
         <translation>Invalid value: max ({value}) must be greater than min ({min}).</translation>
-    </message>
-</context>
-<context>
-    <name>ReportView</name>
-    <message>
-        <location filename="../views/report_view.py" line="65"/>
-        <source>JSON Files (*.json)</source>
-        <translation>JSON Files (*.json)</translation>
-    </message>
-    <message>
-        <location filename="../views/report_view.py" line="83"/>
-        <source>PDF Files (*.pdf)</source>
-        <translation>PDF Files (*.pdf)</translation>
-    </message>
-    <message>
-        <location filename="../views/report_view.py" line="112"/>
-        <source>Data Management</source>
-        <translation>Data Management</translation>
-    </message>
-    <message>
-        <location filename="../views/report_view.py" line="113"/>
-        <source>Import and Export App Data</source>
-        <translation>Import and Export App Data</translation>
-    </message>
-    <message>
-        <location filename="../views/report_view.py" line="114"/>
-        <source>Create Report</source>
-        <translation>Create Report</translation>
     </message>
 </context>
 <context>

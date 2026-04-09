@@ -19,14 +19,14 @@ from .base_viewmodel import BaseViewModel
 
 if TYPE_CHECKING:
     from app_domain import AppEngine
-    from models import ModelContainer, ReportModel, PsoConfigurationModel, PsoSimulationSnapshot
+    from models import ModelContainer, DataManagementModel, PsoConfigurationModel, PsoSimulationSnapshot
 
 BLOCK_DIAGRAM = "block_diagram"
 TIME_DOMAIN = "time_domain"
 FREQUENCY_DOMAIN = "frequency_domain"
 
 
-class ReportViewModel(BaseViewModel):
+class DataManagementViewModel(BaseViewModel):
     includePlantChanged = Signal()
     includeExcitationFunctionChanged = Signal()
     includeControllerConfigurationChanged = Signal()
@@ -49,7 +49,7 @@ class ReportViewModel(BaseViewModel):
 
         self._engine = engine
         self._vm_evaluator = vm_evaluator
-        self._model_report: ReportModel = model_container.model_report
+        self._model_data: DataManagementModel = model_container.model_data
         self._model_pso: PsoConfigurationModel = model_container.model_pso
         self._pending_snapshot: PsoSimulationSnapshot | None = None
         self._pending_result: PsoResult | None = None
@@ -62,55 +62,55 @@ class ReportViewModel(BaseViewModel):
     # Property
     # ============================================================
     include_plant: bool = LoggedProperty(
-        path="_model_report.plant",
+        path="_model_data.plant",
         signal="includePlantChanged",
         typ=bool,
     )
 
     include_excitation_function: bool = LoggedProperty(
-        path="_model_report.excitation_function",
+        path="_model_data.excitation_function",
         signal="includeExcitationFunctionChanged",
         typ=bool,
     )
 
     include_controller_configuration: bool = LoggedProperty(
-        path="_model_report.controller_configuration",
+        path="_model_data.controller_configuration",
         signal="includeControllerConfigurationChanged",
         typ=bool,
     )
 
     include_pso_configuration: bool = LoggedProperty(
-        path="_model_report.pso_configuration",
+        path="_model_data.pso_configuration",
         signal="includePsoConfigurationChanged",
         typ=bool,
     )
 
     include_pso_result: bool = LoggedProperty(
-        path="_model_report.pso_result",
+        path="_model_data.pso_result",
         signal="includePsoResultChanged",
         typ=bool,
     )
 
     include_block_diagram: bool = LoggedProperty(
-        path="_model_report.block_diagram",
+        path="_model_data.block_diagram",
         signal="includeBlockDiagramChanged",
         typ=bool,
     )
 
     include_time_domain_plot: bool = LoggedProperty(
-        path="_model_report.time_domain_plot",
+        path="_model_data.time_domain_plot",
         signal="includeTimeDomainPlotChanged",
         typ=bool,
     )
 
     include_bode_plot: bool = LoggedProperty(
-        path="_model_report.bode_plot",
+        path="_model_data.bode_plot",
         signal="includeBodePlotChanged",
         typ=bool,
     )
 
     include_transfer_functions: bool = LoggedProperty(
-        path="_model_report.transfer_functions",
+        path="_model_data.transfer_functions",
         signal="includeTransferFunctionsChanged",
         typ=bool,
     )
@@ -164,7 +164,7 @@ class ReportViewModel(BaseViewModel):
         )
 
         self.logger.debug("Create report")
-        report = DynamicReport(str(self._report_path), self._model_report, report_data)
+        report = DynamicReport(str(self._report_path), self._model_data, report_data)
         report.build_report()
 
         self._pending_snapshot = None

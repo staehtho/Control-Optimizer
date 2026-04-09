@@ -167,8 +167,8 @@ def create_view_factories(engine, ui_context):
         )
 
     def _create_report_view(parent=None):
-        from views.report_view import ReportView
-        return ReportView(ui_context, engine.ensure_report_viewmodel(), parent=parent)
+        from views.data_management_view import DataManagementView
+        return DataManagementView(ui_context, engine.ensure_report_viewmodel(), parent=parent)
 
     def _create_settings_view(parent=None):
         from views.settings_view import SettingsView

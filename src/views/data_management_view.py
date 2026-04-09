@@ -5,19 +5,19 @@ from typing import TYPE_CHECKING
 
 from PySide6.QtWidgets import QWidget, QLabel, QHBoxLayout
 
-from app_types import ReportField
+from app_types import DataManagementField
 from resources.resources import Icons
 from views.widgets.path_widget import SavePathWidget, ImportPathWidget
 from views.view_mixin import ViewMixin
 
 if TYPE_CHECKING:
     from app_domain import UiContext
-    from viewmodels.report_viewmodel import ReportViewModel
+    from viewmodels.data_management_viewmodel import DataManagementViewModel
     from views.widgets import SectionFrame
 
 
-class ReportView(ViewMixin, QWidget):
-    def __init__(self, ui_context: UiContext, vm_report: ReportViewModel, parent: QWidget = None) -> None:
+class DataManagementView(ViewMixin, QWidget):
+    def __init__(self, ui_context: UiContext, vm_report: DataManagementViewModel, parent: QWidget = None) -> None:
         QWidget.__init__(self, parent)
 
         self._vm_report = vm_report
@@ -66,12 +66,12 @@ class ReportView(ViewMixin, QWidget):
 
         export_widget = SavePathWidget(default_filename, file_filter=file_filter, parent=self)
         layout.addWidget(export_widget)
-        self.field_widgets.setdefault(ReportField.EXPORT, export_widget)
+        self.field_widgets.setdefault(DataManagementField.EXPORT, export_widget)
 
         # import
         import_widget = ImportPathWidget(file_filter=file_filter, parent=self)
         layout.addWidget(import_widget)
-        self.field_widgets.setdefault(ReportField.IMPORT, import_widget)
+        self.field_widgets.setdefault(DataManagementField.IMPORT, import_widget)
 
         return frame
 
@@ -84,7 +84,7 @@ class ReportView(ViewMixin, QWidget):
         # TODO: creat check box to select section
         save_report_widget = SavePathWidget(default_filename, file_filter=file_filter, parent=self)
         layout.addWidget(save_report_widget)
-        self.field_widgets.setdefault(ReportField.REPORT, save_report_widget)
+        self.field_widgets.setdefault(DataManagementField.REPORT, save_report_widget)
 
         return frame
 
@@ -93,9 +93,9 @@ class ReportView(ViewMixin, QWidget):
     # ============================================================
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
-        self.field_widgets[ReportField.EXPORT].exportRequested.connect(self._on_export_requested)
-        self.field_widgets[ReportField.IMPORT].importRequested.connect(self._on_import_requested)
-        self.field_widgets[ReportField.REPORT].exportRequested.connect(self._on_export_report_requested)
+        self.field_widgets[DataManagementField.EXPORT].exportRequested.connect(self._on_export_requested)
+        self.field_widgets[DataManagementField.IMPORT].importRequested.connect(self._on_import_requested)
+        self.field_widgets[DataManagementField.REPORT].exportRequested.connect(self._on_export_report_requested)
 
     # ============================================================
     # ViewModel bindings (ViewModel -> UI)
@@ -113,7 +113,7 @@ class ReportView(ViewMixin, QWidget):
         self._frm_export_import.setText(self.tr("Import and Export App Data"))
         self._frm_report.setText(self.tr("Create Report"))
 
-        for key in (ReportField.EXPORT, ReportField.IMPORT, ReportField.REPORT):
+        for key in (DataManagementField.EXPORT, DataManagementField.IMPORT, DataManagementField.REPORT):
             self.field_widgets[key].retranslate()
 
     # ============================================================

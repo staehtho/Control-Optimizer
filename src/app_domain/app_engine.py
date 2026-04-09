@@ -15,7 +15,7 @@ if TYPE_CHECKING:
         PlotViewModel, BodePlotViewModel, FunctionViewModel,
         LanguageViewModel, ThemeViewModel, PlantViewModel,
         ControllerViewModel, PsoConfigurationViewModel,
-        EvaluationViewModel, SimulationViewModel, SettingsViewModel, ReportViewModel
+        EvaluationViewModel, SimulationViewModel, SettingsViewModel, DataManagementViewModel
     )
 
 T = TypeVar("T")
@@ -67,7 +67,7 @@ class AppEngine:
         self._vm_pso: PsoConfigurationViewModel | None = None
         self._vm_evaluator: EvaluationViewModel | None = None
         self._vm_simulation: SimulationViewModel | None = None
-        self._vm_report: ReportViewModel | None = None
+        self._vm_report: DataManagementViewModel | None = None
 
         # ------------------------------
         # Keyed ViewModel caches
@@ -184,11 +184,11 @@ class AppEngine:
 
         return self._ensure("_vm_simulation", factory)
 
-    def ensure_report_viewmodel(self) -> ReportViewModel:
-        from viewmodels import ReportViewModel
+    def ensure_report_viewmodel(self) -> DataManagementViewModel:
+        from viewmodels import DataManagementViewModel
         return self._ensure(
             "_vm_report",
-            lambda: ReportViewModel(
+            lambda: DataManagementViewModel(
                 self,
                 self.ensure_evaluator_viewmodel(),
                 self.model_container

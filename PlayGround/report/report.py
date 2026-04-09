@@ -5,9 +5,9 @@ from app_types import (
     DynamicReportBlockDiagram, DynamicReportTimeDomainPlot, DynamicReportBodePlot, DynamicReportTransferFunctions
 )
 from service.reporting import DynamicReport
-from models import ReportModel
+from models import DataManagementModel
 
-sections = ReportModel()
+sections = DataManagementModel()
 
 plant_data = DynamicReportPlant(
     formula=r"G(s) = \frac{(s - z_1)(s - z_2)\ldots}{(s - p_1)(s - p_2)\ldots}",
