@@ -6,16 +6,17 @@ from PySide6.QtCore import QObject, Signal, Slot
 from app_types import (
     DynamicReportData, DynamicReportPlant, DynamicReportExcitationFunction,
     DynamicReportControllerConfiguration, DynamicReportPsoConfiguration, DynamicReportPsoResult,
-    DynamicReportBlockDiagram, DynamicReportTimeDomainPlot, DynamicReportBodePlot, DynamicReportTransferFunctions
+    DynamicReportBlockDiagram, DynamicReportTimeDomainPlot, DynamicReportBodePlot, DynamicReportTransferFunctions,
+    PsoResult
 )
 from resources.resources import OUTPUT_DIR, OutputFiles
 from service.reporting import DynamicReport
 from utils import LoggedProperty
-from . import EvaluationViewModel
+from .evaluation_viewmodel import EvaluationViewModel
 from .base_viewmodel import BaseViewModel
 
 if TYPE_CHECKING:
-    from models import ModelContainer, ReportModel, PsoConfigurationModel
+    from models import ModelContainer, ReportModel, PsoConfigurationModel, PsoSimulationSnapshot
 
 
 class ReportViewModel(BaseViewModel):
@@ -99,56 +100,46 @@ class ReportViewModel(BaseViewModel):
     # ============================================================
     @Slot()
     def generate_report(self) -> None:
-        plant_data = self._get_plant_data()
-        if plant_data is None:
+        snapshot = self._vm_evaluator.get_pso_snapshot()
+        if snapshot is None:
             return
 
-        excitation_function_data = self._get_excitation_function_data()
-        if excitation_function_data is None:
+        result = self._vm_evaluator.get_pso_result()
+        if result is None:
             return
-
-        controller_configuration_data = self._get_controller_configuration_data()
-        if controller_configuration_data is None:
-            return
-
-        '''report_data = DynamicReportData(
-            plant_data=plant_data,
-            excitation_function_data=excitation_function_data,
-            controller_configuration_data=controller_configuration_data,
-            pso_configuration_data=self._get_pso_configuration_data(),
-            pso_result_data=pso_result_data,
-            block_diagram_data=block_diagram_data,
-            time_domain_plot_data=time_domain_data,
-            bode_plot_data=bode_plot_data,
-            transfer_functions_data=transfer_function_data,
-        )'''
+        # TODO: request svg: time domain bode and block diagram
+        report_data = DynamicReportData(
+            plant_data=self._get_plant_data(snapshot),
+            excitation_function_data=self._get_excitation_function_data(snapshot),
+            controller_configuration_data=self._get_controller_configuration_data(snapshot),
+            pso_configuration_data=self._get_pso_configuration_data(snapshot),
+            pso_result_data=self._get_pso_result_data(result),
+            block_diagram_data=self._get_block_diagram_data(),
+            time_domain_plot_data=self._get_time_domain_plot_data(),
+            bode_plot_data=self._get_bode_plot_data(),
+            transfer_functions_data=self._get_transfer_function_data(),
+        )
 
         self.reportFinished.emit()
 
     # ============================================================
     # Internal Helper
     # ============================================================
-    def _get_plant_data(self) -> DynamicReportPlant | None:
-        snapshot = self._vm_evaluator.get_pso_snapshot()
-        if snapshot is None:
-            return None
+    @staticmethod
+    def _get_plant_data(snapshot: PsoSimulationSnapshot) -> DynamicReportPlant:
         return DynamicReportPlant(
             formula=snapshot.plant_tf,
         )
 
-    def _get_excitation_function_data(self) -> DynamicReportExcitationFunction | None:
-        snapshot = self._vm_evaluator.get_pso_snapshot()
-        if snapshot is None:
-            return None
+    @staticmethod
+    def _get_excitation_function_data(snapshot: PsoSimulationSnapshot) -> DynamicReportExcitationFunction:
         return DynamicReportExcitationFunction(
             formula=snapshot.excitation_function.get_formula(),
             parameters=snapshot.excitation_function.get_param()
         )
 
-    def _get_controller_configuration_data(self) -> DynamicReportControllerConfiguration | None:
-        snapshot = self._vm_evaluator.get_pso_snapshot()
-        if snapshot is None:
-            return None
+    @staticmethod
+    def _get_controller_configuration_data(snapshot: PsoSimulationSnapshot) -> DynamicReportControllerConfiguration:
         return DynamicReportControllerConfiguration(
             controller_type=snapshot.controller_type,
             anti_windup=snapshot.controller_anti_windup,
@@ -159,41 +150,75 @@ class ReportViewModel(BaseViewModel):
             min_sampling_rate=snapshot.sampling_rate,
         )
 
-    def _get_pso_configuration_data(self) -> DynamicReportPsoConfiguration:
-        # TODO: add all pso configuration in the snapshot
+    @staticmethod
+    def _get_pso_configuration_data(snapshot: PsoSimulationSnapshot) -> DynamicReportPsoConfiguration:
         return DynamicReportPsoConfiguration(
-            simulation_time=(self._model_pso.t0, self._model_pso.t1),
-            excitation_target=self._model_pso.excitation_target,
-            error_criterion=self._model_pso.error_criterion,
-            overshoot_control=self._model_pso.overshoot_control if self._model_pso.overshoot_control_enabled else None,
-            slew_rate_max=self._model_pso.slew_rate_max if self._model_pso.slew_rate_limit_enabled else None,
-            slew_rate_window_size=self._model_pso.slew_window_size if self._model_pso.slew_rate_limit_enabled else None,
-            gain_margin=self._model_pso.gain_margin if self._model_pso.gain_margin_enabled else None,
-            phase_margin=self._model_pso.phase_margin if self._model_pso.phase_margin_enabled else None,
-            stability=self._model_pso.stability_margin if self._model_pso.stability_margin_enabled else None,
+            simulation_time=snapshot.simulation_time,
+            excitation_target=snapshot.excitation_target,
+            error_criterion=snapshot.error_criterion,
+            overshoot_control=snapshot.overshoot_control if snapshot.overshoot_control_enabled else None,
+            slew_rate_max=snapshot.slew_rate_max if snapshot.slew_rate_limit_enabled else None,
+            slew_rate_window_size=snapshot.slew_window_size if snapshot.slew_rate_limit_enabled else None,
+            gain_margin=snapshot.gain_margin if snapshot.gain_margin_enabled else None,
+            phase_margin=snapshot.phase_margin if snapshot.phase_margin_enabled else None,
+            stability=snapshot.stability_margin if snapshot.stability_margin_enabled else None,
             pso_bounds_parameters={
-                "kp": (self._model_pso.kp_min, self._model_pso.kp_max),
-                "ti": (self._model_pso.ti_min, self._model_pso.ti_max),
-                "td": (self._model_pso.td_min, self._model_pso.td_max),
+                "kp": snapshot.kp,
+                "ti": snapshot.ti,
+                "td": snapshot.td,
             }
         )
 
-    def _get_pso_result_data(self) -> DynamicReportPsoResult:
-        result = self._vm_evaluator.get_pso_result()
+    @staticmethod
+    def _get_pso_result_data(result: PsoResult) -> DynamicReportPsoResult:
+        tf_limitation = None
+        if result.tf_limited_sampling:
+            tf_limitation = "sampling"
+        elif result.tf_limited_simulation:
+            tf_limitation = "simulation"
+
         return DynamicReportPsoResult(
-            simulation_time=10.5,
-            kp=10,
-            ti=5,
-            td=1,
-            tf=0.01,
-            recommended_sampling_rate=100,
-            tf_limitation=None,
-            error_criterion=0.15,
-            overshoot_control=20.1,
-            slew_rate_max=2,
-            gain_margin=12,
-            omega_180=4.5,
-            phase_margin=50,
-            omega_c=5.8,
-            stability=2
+            simulation_time=result.simulation_time,
+            kp=result.kp,
+            ti=result.ti,
+            td=result.td,
+            tf=result.tf,
+            recommended_sampling_rate=result.min_sampling_rate,
+            tf_limitation=tf_limitation,
+            error_criterion=result.error_criterion,
+            overshoot_control=result.overshoot if result.show_overshoot else None,
+            slew_rate_max=result.slew_rate,
+            gain_margin=result.gain_margin,
+            omega_180=result.omega_180,
+            phase_margin=result.phase_margin,
+            omega_c=result.omega_c,
+            stability_margin=result.stability_margin
+        )
+
+    @staticmethod
+    def _get_block_diagram_data() -> DynamicReportBlockDiagram:
+        return DynamicReportBlockDiagram(
+            block_diagram_svg=OUTPUT_DIR / OutputFiles.block_diagram
+        )
+
+    @staticmethod
+    def _get_time_domain_plot_data() -> DynamicReportTimeDomainPlot:
+        return DynamicReportTimeDomainPlot(
+            plot_svg=OUTPUT_DIR / OutputFiles.time_domain_plot
+        )
+
+    @staticmethod
+    def _get_bode_plot_data() -> DynamicReportBodePlot:
+        return DynamicReportBodePlot(
+            plot_svg=OUTPUT_DIR / OutputFiles.bode_plot
+        )
+
+    def _get_transfer_function_data(self) -> DynamicReportTransferFunctions:
+        tf = self._vm_evaluator.get_transfer_functions()
+        return DynamicReportTransferFunctions(
+            plant=tf.plant,
+            controller=tf.controller,
+            open_loop=tf.open_loop,
+            closed_loop=tf.closed_loop,
+            sensitivity=tf.sensitivity,
         )

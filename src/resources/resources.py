@@ -55,5 +55,6 @@ OUTPUT_DIR = RESOURCES_DIR / "output"
 
 @dataclass(frozen=True)
 class OutputFiles:
-    plant: str = "plant.svg"
-    function: str = "function.svg"
+    block_diagram: str = "block_diagram.svg"
+    time_domain_plot: str = "time_domain_plot.svg"
+    bode_plot: str = "bode_plot.svg"

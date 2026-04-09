@@ -272,17 +272,18 @@ def section_pso_result(report: BaseReport, data_config: DynamicReportPsoConfigur
         QCoreApplication.translate("Report", "Metric"),
         QCoreApplication.translate("Report", "Value"),
     ]
-    table_data = [
-        [TRANSLATION(data_config.error_criterion), _format_value(data.error_criterion)],
-        [
+    table_data = [[TRANSLATION(data_config.error_criterion), _format_value(data.error_criterion)]]
+    if data.overshoot_control is not None:
+        table_data.append([
             QCoreApplication.translate("Report", "Maximum Overshoot"),
             _format_value(data.overshoot_control) + " %"
-        ],
+        ])
+    table_data.extend([
         [
             QCoreApplication.translate("Report", "Maximum Slew Rate"),
             _format_value(data.slew_rate_max)
         ],
-    ]
+    ])
     report.add_table(header, table_data, width=250)
 
     report.add_subheading(QCoreApplication.translate("Report", "Frequency Domain Characteristics"))
@@ -301,7 +302,7 @@ def section_pso_result(report: BaseReport, data_config: DynamicReportPsoConfigur
         ],
         [
             QCoreApplication.translate("Report", "Stability margin"),
-            f"{_format_value(data.stability)} dB"
+            f"{_format_value(data.stability_margin)} dB"
         ],
     ]
     report.add_table(header, table_data, width=250)
@@ -329,7 +330,7 @@ def section_transfer_function(report: BaseReport, data: DynamicReportTransferFun
         [QCoreApplication.translate("Report", "Plant"), data.plant],
         [QCoreApplication.translate("Report", "Controller"), data.controller],
         [QCoreApplication.translate("Report", "Open Loop"), data.open_loop],
-        [QCoreApplication.translate("Report", "Closed Loop"), data.close_loop],
+        [QCoreApplication.translate("Report", "Closed Loop"), data.closed_loop],
         [QCoreApplication.translate("Report", "Sensitivity"), data.sensitivity],
     ]
 

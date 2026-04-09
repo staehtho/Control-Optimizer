@@ -72,14 +72,14 @@ class DynamicReportPsoResult:
     tf_limitation: str | None
 
     error_criterion: float
-    overshoot_control: float
+    overshoot_control: float | None
     slew_rate_max: float
 
     gain_margin: float
     omega_180: float
     phase_margin: float
     omega_c: float
-    stability: float
+    stability_margin: float
 
 
 @dataclass(frozen=True)
@@ -102,5 +102,5 @@ class DynamicReportTransferFunctions:
     plant: str
     controller: str
     open_loop: str
-    close_loop: str
+    closed_loop: str
     sensitivity: str

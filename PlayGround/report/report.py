@@ -63,7 +63,7 @@ pso_result_data = DynamicReportPsoResult(
     omega_180=4.5,
     phase_margin=50,
     omega_c=5.8,
-    stability=2
+    stability_margin=2
 )
 
 block_diagram_data = DynamicReportBlockDiagram(
@@ -82,7 +82,7 @@ transfer_function_data = DynamicReportTransferFunctions(
     plant="plant.svg",
     controller="controller.svg",
     open_loop="open_loop.svg",
-    close_loop="close_loop.svg",
+    closed_loop="close_loop.svg",
     sensitivity="sensitivity.svg",
 )
 
