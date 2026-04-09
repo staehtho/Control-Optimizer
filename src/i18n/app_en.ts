@@ -631,75 +631,75 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
     </message>
     <message>
         <location filename="../views/evaluation_view.py" line="265"/>
-        <location filename="../views/evaluation_view.py" line="376"/>
-        <location filename="../views/evaluation_view.py" line="395"/>
+        <location filename="../views/evaluation_view.py" line="374"/>
+        <location filename="../views/evaluation_view.py" line="393"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="373"/>
+        <location filename="../views/evaluation_view.py" line="371"/>
         <source>Evaluation</source>
         <translation>Evaluation</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="375"/>
+        <location filename="../views/evaluation_view.py" line="373"/>
         <source>PSO Result</source>
         <translation>PSO Result</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="379"/>
-        <location filename="../views/evaluation_view.py" line="389"/>
+        <location filename="../views/evaluation_view.py" line="377"/>
+        <location filename="../views/evaluation_view.py" line="387"/>
         <source>Time Domain</source>
         <translation>Time Domain</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="380"/>
-        <location filename="../views/evaluation_view.py" line="390"/>
+        <location filename="../views/evaluation_view.py" line="378"/>
+        <location filename="../views/evaluation_view.py" line="388"/>
         <source>Frequency Domain</source>
         <translation>Frequency Domain</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="381"/>
+        <location filename="../views/evaluation_view.py" line="379"/>
         <source>Block Diagram</source>
         <translation>Block Diagram</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="382"/>
+        <location filename="../views/evaluation_view.py" line="380"/>
         <source>Transfer Functions</source>
         <translation>Transfer Functions</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="385"/>
+        <location filename="../views/evaluation_view.py" line="383"/>
         <source>PSO run time</source>
         <translation>PSO run time</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="387"/>
+        <location filename="../views/evaluation_view.py" line="385"/>
         <source>Filter Time Constant</source>
         <translation>Filter Time Constant</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="388"/>
+        <location filename="../views/evaluation_view.py" line="386"/>
         <source>Performance Index</source>
         <translation>Performance Index</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="392"/>
+        <location filename="../views/evaluation_view.py" line="390"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="393"/>
+        <location filename="../views/evaluation_view.py" line="391"/>
         <source>Controller</source>
         <translation>Controller</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="394"/>
+        <location filename="../views/evaluation_view.py" line="392"/>
         <source>Open Loop</source>
         <translation>Open Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="396"/>
+        <location filename="../views/evaluation_view.py" line="394"/>
         <source>Sensitivity</source>
         <translation>Sensitivity</translation>
     </message>
@@ -708,7 +708,7 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <translation type="vanished">PSO runt time</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="386"/>
+        <location filename="../views/evaluation_view.py" line="384"/>
         <source>Controller Parameters</source>
         <translation>Controller Parameters</translation>
     </message>

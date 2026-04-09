@@ -635,75 +635,75 @@ Ist die Abtastrate unbekannt, kann das Feld leer gelassen werden, um einen empfo
     </message>
     <message>
         <location filename="../views/evaluation_view.py" line="265"/>
-        <location filename="../views/evaluation_view.py" line="376"/>
-        <location filename="../views/evaluation_view.py" line="395"/>
+        <location filename="../views/evaluation_view.py" line="374"/>
+        <location filename="../views/evaluation_view.py" line="393"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="373"/>
+        <location filename="../views/evaluation_view.py" line="371"/>
         <source>Evaluation</source>
         <translation>Auswertung</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="375"/>
+        <location filename="../views/evaluation_view.py" line="373"/>
         <source>PSO Result</source>
         <translation>PSO Ergebnis</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="379"/>
-        <location filename="../views/evaluation_view.py" line="389"/>
+        <location filename="../views/evaluation_view.py" line="377"/>
+        <location filename="../views/evaluation_view.py" line="387"/>
         <source>Time Domain</source>
         <translation>Zeitbereich</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="380"/>
-        <location filename="../views/evaluation_view.py" line="390"/>
+        <location filename="../views/evaluation_view.py" line="378"/>
+        <location filename="../views/evaluation_view.py" line="388"/>
         <source>Frequency Domain</source>
         <translation>Frequenzbereich</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="381"/>
+        <location filename="../views/evaluation_view.py" line="379"/>
         <source>Block Diagram</source>
         <translation>Blockschaltbild</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="382"/>
+        <location filename="../views/evaluation_view.py" line="380"/>
         <source>Transfer Functions</source>
         <translation>Übertragungsfunktionen</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="385"/>
+        <location filename="../views/evaluation_view.py" line="383"/>
         <source>PSO run time</source>
         <translation>PSO Laufzeit</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="387"/>
+        <location filename="../views/evaluation_view.py" line="385"/>
         <source>Filter Time Constant</source>
         <translation>Filterzeitkonstante</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="388"/>
+        <location filename="../views/evaluation_view.py" line="386"/>
         <source>Performance Index</source>
         <translation>Gütekriterium</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="392"/>
+        <location filename="../views/evaluation_view.py" line="390"/>
         <source>Plant</source>
         <translation>Regelstrecke</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="393"/>
+        <location filename="../views/evaluation_view.py" line="391"/>
         <source>Controller</source>
         <translation>Regler</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="394"/>
+        <location filename="../views/evaluation_view.py" line="392"/>
         <source>Open Loop</source>
         <translation>Offene Kette</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="396"/>
+        <location filename="../views/evaluation_view.py" line="394"/>
         <source>Sensitivity</source>
         <translation>Sensitivität</translation>
     </message>
@@ -712,7 +712,7 @@ Ist die Abtastrate unbekannt, kann das Feld leer gelassen werden, um einen empfo
         <translation type="vanished">PSO Laufzeit</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="386"/>
+        <location filename="../views/evaluation_view.py" line="384"/>
         <source>Controller Parameters</source>
         <translation>Reglerparameter</translation>
     </message>
