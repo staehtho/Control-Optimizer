@@ -8,6 +8,7 @@ class NavLabels(Enum):
     PSO_PARAMETER = "PSO Parameter"
     EVALUATION = "Evaluation"
     SIMULATION = "Simulation"
+    REPORT = "Report"
     SETTINGS = "Settings"
 
 

@@ -7,7 +7,9 @@ from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QTabWidget, QHBoxLay
 from PySide6.QtCore import QT_TRANSLATE_NOOP, Qt
 from numpy import ndarray
 
-from app_types import EvaluationField, SectionConfig, FieldConfig, PlotData, BodePlotData, PlotLabels, PsoResultField
+from app_types import (
+    EvaluationField, SectionConfig, FieldConfig, PlotData, BodePlotData, PlotLabels, PsoResultField
+)
 from resources.blockdiagram import load_closed_loop_diagram
 from utils import save_svg
 from views import ViewMixin
@@ -444,8 +446,6 @@ class EvaluationView(ViewMixin, QWidget):
             )
         )
 
-        self._vm_plots[TIME_DOMAIN].request_save_svg("system_response.svg")
-
     def _on_vm_closed_loop_compute_finished(self, t: ndarray, u: ndarray, y: ndarray) -> None:
         self.logger.debug(
             "Closed-loop response computation finished -> updating response plot (samples=%d)",
@@ -473,8 +473,6 @@ class EvaluationView(ViewMixin, QWidget):
             )
         )
 
-        self._vm_plots[TIME_DOMAIN].request_save_svg("system_response.svg")
-
     def _on_vm_plant_compute_finished(self, t: ndarray, y: ndarray) -> None:
         self.logger.debug(
             "Plant response computation finished -> updating response plot (samples=%d)",
@@ -490,8 +488,6 @@ class EvaluationView(ViewMixin, QWidget):
                 subplot_position=1,
             )
         )
-
-        self._vm_plots[TIME_DOMAIN].request_save_svg("system_response.svg")
 
     def _on_vm_frequency_computation_finished(self, result: FrequencyResponse) -> None:
         self.logger.debug(
@@ -517,8 +513,6 @@ class EvaluationView(ViewMixin, QWidget):
                 )
             )
 
-        self._vm_plots[FREQUENCY_DOMAIN].request_save_svg("bode_plot.svg")
-
     def _on_vm_pso_simulation_finished(self) -> None:
         self.logger.debug("PSO simulation finished -> refreshing excitation function")
 
@@ -533,8 +527,6 @@ class EvaluationView(ViewMixin, QWidget):
         if snapshot is None:
             return
         widget.set_formula(r"G(s) = " + snapshot.plant_tf)
-
-        self._vm_evaluator.request_save_svg("block_diagram.svg")
 
     def _on_vm_time_changed(self) -> None:
         """Trigger recomputation when plot time range changes."""
@@ -560,13 +552,19 @@ class EvaluationView(ViewMixin, QWidget):
         self._vm_plots[TIME_DOMAIN].x_min = self._vm_evaluator.t0
         self._vm_plots[TIME_DOMAIN].x_max = self._vm_evaluator.t1
 
-    def _on_vm_save_svg_requested(self, path: str | Path) -> None:
-        target = Path(path)
-        if target.suffix.lower() != ".svg":
-            target = target.with_suffix(".svg")
+    def _on_vm_save_svg_requested(self, request: dict[str, str]) -> None:
+        self._save_svg_bundle(request)
+
+    def _save_svg_bundle(self, request: dict[str, str]) -> None:
+        block_diagram_target = Path(request[BLOCK_DIAGRAM])
+        system_response_target = Path(request[TIME_DOMAIN])
+        bode_plot_target = Path(request[FREQUENCY_DOMAIN])
 
         svg = self._build_block_diagram()
-        save_svg(target, svg)
+        self._vm_plots[TIME_DOMAIN].request_save_svg(str(system_response_target))
+        self._vm_plots[FREQUENCY_DOMAIN].request_save_svg(str(bode_plot_target))
+        save_svg(block_diagram_target, svg)
+        self._vm_evaluator.notify_svg_export_finished()
 
     # ============================================================
     # Helpers

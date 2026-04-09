@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QObject, Signal, Slot
@@ -17,6 +19,10 @@ from .base_viewmodel import BaseViewModel
 
 if TYPE_CHECKING:
     from models import ModelContainer, ReportModel, PsoConfigurationModel, PsoSimulationSnapshot
+
+BLOCK_DIAGRAM = "block_diagram"
+TIME_DOMAIN = "time_domain"
+FREQUENCY_DOMAIN = "frequency_domain"
 
 
 class ReportViewModel(BaseViewModel):
@@ -37,6 +43,12 @@ class ReportViewModel(BaseViewModel):
         self._vm_evaluator = vm_evaluator
         self._model_report: ReportModel = model_container.model_report
         self._model_pso: PsoConfigurationModel = model_container.model_pso
+        self._pending_snapshot: PsoSimulationSnapshot | None = None
+        self._pending_result: PsoResult | None = None
+        self._pending_svg_request: dict[str, str] | None = None
+        self._report_path: Path = OUTPUT_DIR / "report.pdf"
+
+        self._vm_evaluator.svgExportFinished.connect(self._on_svg_export_finished)
 
     # ============================================================
     # Property
@@ -98,8 +110,8 @@ class ReportViewModel(BaseViewModel):
     # ============================================================
     # Report
     # ============================================================
-    @Slot()
-    def generate_report(self) -> None:
+    @Slot(str)
+    def generate_report(self, path: str | Path) -> None:
         snapshot = self._vm_evaluator.get_pso_snapshot()
         if snapshot is None:
             return
@@ -107,19 +119,49 @@ class ReportViewModel(BaseViewModel):
         result = self._vm_evaluator.get_pso_result()
         if result is None:
             return
-        # TODO: request svg: time domain bode and block diagram
+
+        self._report_path = Path(path)
+        if self._report_path.suffix.lower() != ".pdf":
+            self._report_path = self._report_path.with_suffix(".pdf")
+
+        self._pending_snapshot = snapshot
+        self._pending_result = result
+        self._pending_svg_request = {
+            BLOCK_DIAGRAM: str(OUTPUT_DIR / OutputFiles.block_diagram),
+            TIME_DOMAIN: str(OUTPUT_DIR / OutputFiles.time_domain_plot),
+            FREQUENCY_DOMAIN: str(OUTPUT_DIR / OutputFiles.bode_plot),
+        }
+        if self._pending_svg_request is None:
+            return
+        self._vm_evaluator.request_save_svg(self._pending_svg_request)
+
+    @Slot()
+    def _on_svg_export_finished(self) -> None:
+
+        if self._pending_snapshot is None or self._pending_result is None:
+            return
+
+        self.logger.debug("Collecting report data...")
+
         report_data = DynamicReportData(
-            plant_data=self._get_plant_data(snapshot),
-            excitation_function_data=self._get_excitation_function_data(snapshot),
-            controller_configuration_data=self._get_controller_configuration_data(snapshot),
-            pso_configuration_data=self._get_pso_configuration_data(snapshot),
-            pso_result_data=self._get_pso_result_data(result),
+            plant_data=self._get_plant_data(self._pending_snapshot),
+            excitation_function_data=self._get_excitation_function_data(self._pending_snapshot),
+            controller_configuration_data=self._get_controller_configuration_data(self._pending_snapshot),
+            pso_configuration_data=self._get_pso_configuration_data(self._pending_snapshot),
+            pso_result_data=self._get_pso_result_data(self._pending_result),
             block_diagram_data=self._get_block_diagram_data(),
             time_domain_plot_data=self._get_time_domain_plot_data(),
             bode_plot_data=self._get_bode_plot_data(),
             transfer_functions_data=self._get_transfer_function_data(),
         )
 
+        self.logger.debug("Create report")
+        report = DynamicReport(str(self._report_path), self._model_report, report_data)
+        report.build_report()
+
+        self._pending_snapshot = None
+        self._pending_result = None
+        self._pending_svg_request = None
         self.reportFinished.emit()
 
     # ============================================================

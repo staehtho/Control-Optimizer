@@ -9,4 +9,5 @@ from .controller_viewmodel import ControllerViewModel
 from .pso_configuration_viewmodel import PsoConfigurationViewModel
 from .evaluation_viewmodel import EvaluationViewModel
 from .simulation_viewmodel import SimulationViewModel
+from .report_viewmodel import ReportViewModel
 from .settings_viewmodel import SettingsViewModel
