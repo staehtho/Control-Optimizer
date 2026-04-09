@@ -1,5 +1,7 @@
 from __future__ import annotations
+import json
 import logging
+from pathlib import Path
 from typing import TYPE_CHECKING, TypeVar, Callable
 
 from app_types import PlantResponseContext, PsoSimulationParam
@@ -289,6 +291,38 @@ class AppEngine:
         """Run PSO warmup multiple times to prime caches/JIT."""
         for _ in range(max(0, runs)):
             self.pso_warmup()
+
+    def export_project_state(self) -> dict:
+        return self.model_container.export_project_state()
+
+    def save_project(self, path: str | Path) -> Path:
+        target = Path(path)
+        if target.suffix.lower() != ".json":
+            target = target.with_suffix(".json")
+
+        payload = self.export_project_state()
+        target.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        self.logger.info("Project state saved to %s", target)
+        return target
+
+    def load_project(self, path: str | Path) -> None:
+        source = Path(path)
+        payload = json.loads(source.read_text(encoding="utf-8"))
+        self.model_container.import_project_state(payload)
+        self.refresh_ui_from_models()
+        self.logger.info("Project state loaded from %s", source)
+
+    def refresh_ui_from_models(self) -> None:
+        self.ensure_settings_viewmodel().refresh_from_model()
+        self.ensure_language_viewmodel().refresh_from_model()
+        self.ensure_theme_viewmodel().refresh_from_model()
+
+        self.ensure_controller_viewmodel().refresh_from_model()
+        self.ensure_plant_viewmodel().refresh_from_model()
+        self.ensure_pso_viewmodel().refresh_from_model()
+
+        for vm in self._vm_functions.values():
+            vm.refresh_from_model()
 
     def shutdown(self) -> None:
         """Stop background workers before the application exits."""

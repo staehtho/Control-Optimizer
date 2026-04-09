@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Any
-from PySide6.QtCore import QObject, Signal
+from PySide6.QtCore import QObject, Signal, Slot
 
 from app_domain.controlsys import AntiWindup
 from .base_viewmodel import BaseViewModel
@@ -148,3 +148,14 @@ class ControllerViewModel(BaseViewModel):
         typ=str,
         custom_setter=_custom_setter_sampling_rate
     )
+
+    @Slot()
+    def refresh_from_model(self) -> None:
+        self.controllerTypeChanged.emit()
+        self.antiWindupChanged.emit()
+        self.constraintMinChanged.emit()
+        self.constraintMaxChanged.emit()
+        self.kaChanged.emit()
+        self.kaEnabledChanged.emit()
+        self.tuningFactorChanged.emit()
+        self.samplingRateChanged.emit()

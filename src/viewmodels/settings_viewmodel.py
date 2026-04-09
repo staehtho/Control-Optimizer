@@ -90,3 +90,10 @@ class SettingsViewModel(BaseViewModel):
     def set_nav_collapsed(self, value: bool) -> None:
         self.logger.debug(f"Setter 'nav_collapsed' called (value={value})")
         self._settings.set_nav_collapsed(value)
+
+    @Slot()
+    def refresh_from_model(self) -> None:
+        self.solverChanged.emit()
+        self.timeStepChanged.emit()
+        self.psoIterationsChanged.emit()
+        self.psoParticleChanged.emit()

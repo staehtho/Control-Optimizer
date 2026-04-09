@@ -480,3 +480,30 @@ class PsoConfigurationViewModel(BaseViewModel):
     def _on_pso_progress(self, iteration: int) -> None:
         self.psoProgressChanged.emit(iteration)
 
+    @Slot()
+    def refresh_from_model(self) -> None:
+        self._overshoot_control_visibility = self._get_overshoot_control_visibility()
+
+        self.t0Changed.emit()
+        self.t1Changed.emit()
+        self.excitationTargetChanged.emit()
+        self.performanceIndexChanged.emit()
+        self.overshootControlChanged.emit()
+        self.overshootControlEnabledChanged.emit()
+        self.overshootControlVisibilityChanged.emit()
+        self.slewRateMaxChanged.emit()
+        self.slewWindowSizeChanged.emit()
+        self.slewRateLimitEnabledChanged.emit()
+        self.gainMarginChanged.emit()
+        self.gainMarginEnabledChanged.emit()
+        self.phaseMarginChanged.emit()
+        self.phaseMarginEnabledChanged.emit()
+        self.stabilityMarginChanged.emit()
+        self.stabilityMarginEnabledChanged.emit()
+        self.kpMinChanged.emit()
+        self.kpMaxChanged.emit()
+        self.tiMinChanged.emit()
+        self.tiMaxChanged.emit()
+        self.tdMinChanged.emit()
+        self.tdMaxChanged.emit()
+

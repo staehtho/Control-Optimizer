@@ -98,10 +98,38 @@ Write-Host "Translators: $( $translators.Keys -join ', ' )"
 # -----------------------------
 # Virtual environment
 # -----------------------------
-$venvActivate = Join-Path $projectRoot ".venv\Scripts\Activate.ps1"
+function Find-VenvActivateUpward {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$startDir
+    )
 
-if (Test-Path $venvActivate) {
-    Write-Host "Activating virtual environment..."
+    $currentDir = Resolve-Path $startDir
+    while ($null -ne $currentDir) {
+        $candidatePaths = @(
+            (Join-Path $currentDir ".venv\Scripts\Activate.ps1"),
+            (Join-Path $currentDir "venv\Scripts\Activate.ps1")
+        )
+
+        foreach ($candidate in $candidatePaths) {
+            if (Test-Path $candidate) {
+                return $candidate
+            }
+        }
+
+        $parentDir = Split-Path $currentDir -Parent
+        if ($parentDir -eq $currentDir -or [string]::IsNullOrWhiteSpace($parentDir)) {
+            break
+        }
+        $currentDir = $parentDir
+    }
+
+    return $null
+}
+
+$venvActivate = Find-VenvActivateUpward -startDir $scriptDir
+if ($venvActivate) {
+    Write-Host "Activating virtual environment: $venvActivate"
     . $venvActivate
 } else {
     Write-Host "No virtual environment found, continuing without venv"

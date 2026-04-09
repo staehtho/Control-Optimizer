@@ -720,7 +720,7 @@ class PsoFunc:
         v_pm[hard_fail] = 1.0
         v_ms[hard_fail] = 1.0
 
-        V = v_pm * v_pm + v_gm * v_gm + v_ms * v_ms
+        V = v_pm + v_gm + v_ms
         V = np.nan_to_num(V, nan=np.inf, posinf=np.inf, neginf=0.0)
         V[hard_fail] = np.inf
         return V
@@ -879,22 +879,24 @@ class PsoFunc:
             infeasible_time_constraint = np.zeros(Pf, dtype=np.bool_)
 
             if self.use_overshoot_control:
+                overshoot_scale = max(abs(self.allowed_overshoot_pct), 1.0)
                 overshoot_violation = np.maximum(
                     0.0,
-                    (overshoot_vals - self.allowed_overshoot_pct),
+                    (overshoot_vals - self.allowed_overshoot_pct) / overshoot_scale,
                 )
                 overshoot_violation = np.nan_to_num(overshoot_violation, nan=1.0, posinf=1.0, neginf=0.0)
 
                 # Keep overshoot as feasibility component in total violation V.
-                V_ov_local = overshoot_violation * overshoot_violation
+                V_ov_local = overshoot_violation
                 V_ov[feasible_indices] = V_ov_local
                 V[feasible_indices] += V_ov_local
                 infeasible_time_constraint |= overshoot_violation > 0.0
 
             if self.use_max_du_dt_constraint:
+                du_dt_scale = max(abs(self.allowed_max_du_dt), 1.0)
                 max_du_dt_violation = np.maximum(
                     0.0,
-                    (max_du_dt_vals - self.allowed_max_du_dt),
+                    (max_du_dt_vals - self.allowed_max_du_dt) / du_dt_scale,
                 )
                 max_du_dt_violation = np.nan_to_num(
                     max_du_dt_violation,
@@ -903,7 +905,7 @@ class PsoFunc:
                     neginf=0.0,
                 )
 
-                V_du_local = max_du_dt_violation * max_du_dt_violation
+                V_du_local = max_du_dt_violation
                 V_du[feasible_indices] = V_du_local
                 V[feasible_indices] += V_du_local
                 infeasible_time_constraint |= max_du_dt_violation > 0.0
