@@ -189,6 +189,7 @@ class AppEngine:
         return self._ensure(
             "_vm_report",
             lambda: ReportViewModel(
+                self,
                 self.ensure_evaluator_viewmodel(),
                 self.model_container
             )

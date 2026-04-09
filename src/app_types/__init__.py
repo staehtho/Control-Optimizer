@@ -17,6 +17,7 @@ from .field import (
     PsoField,
     EvaluationField,
     PsoResultField,
+    ReportField,
     SettingsField
 )
 
@@ -80,6 +81,7 @@ __all__ = [
     "PsoField",
     "EvaluationField",
     "PsoResultField",
+    "ReportField",
     "SettingsField",
     "PlantTransferContext",
     "ControllerTransferContext",

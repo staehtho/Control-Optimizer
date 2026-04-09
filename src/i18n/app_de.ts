@@ -13,6 +13,19 @@
     </message>
 </context>
 <context>
+    <name>BasePathWidget</name>
+    <message>
+        <location filename="../views/widgets/path_widget/base_path_widget.py" line="42"/>
+        <source>Browse…</source>
+        <translation>Durchsuchen…</translation>
+    </message>
+    <message>
+        <location filename="../views/widgets/path_widget/base_path_widget.py" line="48"/>
+        <source>All Files (*)</source>
+        <translation>Alle Dateien (*)</translation>
+    </message>
+</context>
+<context>
     <name>BodePlotViewModel</name>
     <message>
         <location filename="../viewmodels/bode_plot_viewmodel.py" line="22"/>
@@ -887,6 +900,19 @@ Ist die Abtastrate unbekannt, kann das Feld leer gelassen werden, um einen empfo
     </message>
 </context>
 <context>
+    <name>ImportPathWidget</name>
+    <message>
+        <location filename="../views/widgets/path_widget/import_path_widget.py" line="17"/>
+        <source>Import</source>
+        <translation>Importieren</translation>
+    </message>
+    <message>
+        <location filename="../views/widgets/path_widget/import_path_widget.py" line="24"/>
+        <source>Import File</source>
+        <translation>Datei importieren</translation>
+    </message>
+</context>
+<context>
     <name>MainView</name>
     <message>
         <location filename="../views/main_view.py" line="96"/>
@@ -1632,6 +1658,55 @@ Tf   = %(tf).3f</translation>
         <location filename="../viewmodels/pso_configuration_viewmodel.py" line="351"/>
         <source>Invalid value: max ({value}) must be greater than min ({min}).</source>
         <translation>Ungültiger Wert: max ({value}) muss grösser als min ({min}) sein.</translation>
+    </message>
+</context>
+<context>
+    <name>ReportView</name>
+    <message>
+        <location filename="../views/report_view.py" line="65"/>
+        <source>JSON Files (*.json)</source>
+        <translation>JSON‑Dateien (*.json)</translation>
+    </message>
+    <message>
+        <location filename="../views/report_view.py" line="83"/>
+        <source>PDF Files (*.pdf)</source>
+        <translation>PDF-Dateien (*.pdf)</translation>
+    </message>
+    <message>
+        <location filename="../views/report_view.py" line="112"/>
+        <source>Data Management</source>
+        <translation>Datenverwaltung</translation>
+    </message>
+    <message>
+        <location filename="../views/report_view.py" line="113"/>
+        <source>Import and Export App Data</source>
+        <translation>App‑Daten importieren und exportieren</translation>
+    </message>
+    <message>
+        <location filename="../views/report_view.py" line="114"/>
+        <source>Create Report</source>
+        <translation>Bericht erstellen</translation>
+    </message>
+</context>
+<context>
+    <name>SavePathWidget</name>
+    <message>
+        <source>Browse…</source>
+        <translation type="vanished">Durchsuchen…</translation>
+    </message>
+    <message>
+        <location filename="../views/widgets/path_widget/save_path_widget.py" line="18"/>
+        <source>Export</source>
+        <translation>Exportieren</translation>
+    </message>
+    <message>
+        <source>All Files (*)</source>
+        <translation type="vanished">Alle Dateien (*)</translation>
+    </message>
+    <message>
+        <location filename="../views/widgets/path_widget/save_path_widget.py" line="30"/>
+        <source>Save As</source>
+        <translation>Speichern unter</translation>
     </message>
 </context>
 <context>

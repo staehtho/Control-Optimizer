@@ -163,6 +163,13 @@ class PsoResultField(FieldType):
     STABILITY_MARGIN = "stability_margin"
 
 
+# ReportViewModel / ReportView
+class ReportField(FieldType):
+    EXPORT = "export"
+    IMPORT = "import"
+    REPORT = "report"
+
+
 # SettingsViewModle / SettingsView
 class SettingsField(FieldType):
     LANGUAGE = "language"

@@ -18,6 +18,7 @@ from .evaluation_viewmodel import EvaluationViewModel
 from .base_viewmodel import BaseViewModel
 
 if TYPE_CHECKING:
+    from app_domain import AppEngine
     from models import ModelContainer, ReportModel, PsoConfigurationModel, PsoSimulationSnapshot
 
 BLOCK_DIAGRAM = "block_diagram"
@@ -37,9 +38,16 @@ class ReportViewModel(BaseViewModel):
     includeTransferFunctionsChanged = Signal()
     reportFinished = Signal()
 
-    def __init__(self, vm_evaluator: EvaluationViewModel, model_container: ModelContainer, parent: QObject = None):
+    def __init__(
+            self,
+            engine: AppEngine,
+            vm_evaluator: EvaluationViewModel,
+            model_container: ModelContainer,
+            parent: QObject = None
+    ) -> None:
         super().__init__(parent)
 
+        self._engine = engine
         self._vm_evaluator = vm_evaluator
         self._model_report: ReportModel = model_container.model_report
         self._model_pso: PsoConfigurationModel = model_container.model_pso
@@ -163,6 +171,17 @@ class ReportViewModel(BaseViewModel):
         self._pending_result = None
         self._pending_svg_request = None
         self.reportFinished.emit()
+
+    # ============================================================
+    # save / load project
+    # ============================================================
+    @Slot(str)
+    def save_project(self, path: str | Path) -> None:
+        self._engine.save_project(path)
+
+    @Slot(str)
+    def load_project(self, path: str | Path) -> None:
+        self._engine.load_project(path)
 
     # ============================================================
     # Internal Helper
