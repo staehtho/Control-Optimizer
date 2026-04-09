@@ -96,6 +96,8 @@ class FunctionViewModel(BaseViewModel):
         Notify bound views that the selected function instance in the model changed
         externally (e.g. by another ViewModel).
         """
+        for key in self._model_function.selected_function.get_param().keys():
+            self.parameterChanged.emit(key)
         self.functionChanged.emit()
 
     # -------------------

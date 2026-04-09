@@ -186,7 +186,7 @@ class PlantViewModel(BaseViewModel):
 
                 self._sync_poly_with_binom("num", "zero")
 
-        except SympifyError, AttributeError, TypeError:
+        except (SympifyError, AttributeError, TypeError):
             self._verify(
                 PlantField.ZERO,
                 ValidationResult(False, message=self.tr("Invalid expression: enter a valid expression."))
@@ -227,7 +227,7 @@ class PlantViewModel(BaseViewModel):
 
                 self._sync_poly_with_binom("den", "pole")
 
-        except SympifyError, AttributeError, TypeError:
+        except (SympifyError, AttributeError, TypeError):
             self._verify(
                 PlantField.POLE,
                 ValidationResult(False, message=self.tr("Invalid expression: enter a valid expression."))
@@ -443,3 +443,30 @@ class PlantViewModel(BaseViewModel):
 
             except SympifyError:
                 self.logger.warning("Error while building poly representation")
+
+    @Slot()
+    def refresh_from_model(self) -> None:
+        self._num_input = " ".join(str(value) for value in self._model_plant.num)
+        self._den_input = " ".join(str(value) for value in self._model_plant.den)
+
+        try:
+            self._zero_input = array2expr(self._model_plant.num) if self._model_plant.num else ""
+        except (SympifyError, AttributeError, TypeError):
+            self._zero_input = ""
+
+        try:
+            self._pole_input = array2expr(self._model_plant.den) if self._model_plant.den else ""
+        except (SympifyError, AttributeError, TypeError):
+            self._pole_input = ""
+
+        self._update_transfer_functions()
+        self._was_valid = self._model_plant.is_valid
+
+        self.numChanged.emit()
+        self.denChanged.emit()
+        self.zeroChanged.emit()
+        self.poleChanged.emit()
+        self.isValidChanged.emit()
+
+        if self._model_plant.is_valid:
+            self.compute_step_response(*self._step_time)

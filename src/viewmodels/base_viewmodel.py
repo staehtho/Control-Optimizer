@@ -52,6 +52,10 @@ class BaseViewModel(QObject):
         """
         raise NotImplementedError
 
+    def refresh_from_model(self) -> None:
+        """Re-emit externally visible state after the underlying model changed."""
+        return
+
     @contextmanager
     def updating(self, field: str) -> Iterator[None]:
         """
