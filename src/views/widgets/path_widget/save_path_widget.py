@@ -1,5 +1,5 @@
 from typing import Optional
-from PySide6.QtWidgets import QFileDialog, QWidget
+from PySide6.QtWidgets import QFileDialog, QWidget, QMessageBox, QPushButton
 from PySide6.QtCore import Signal
 from pathlib import Path
 
@@ -38,5 +38,34 @@ class SavePathWidget(BasePathWidget):
 
     def _emit_action(self):
         path = self.path_edit.text().strip()
-        if path:
-            self.exportRequested.emit(path)
+        if not path:
+            return
+
+        target = Path(path)
+
+        if target.exists():
+            msg = QMessageBox(self)
+            msg.setIcon(QMessageBox.Icon.Warning)
+            msg.setWindowTitle(self.tr("File Exists"))
+            msg.setText(self.tr("The file already exists. Do you want to overwrite it?"))
+
+            # Create translated buttons
+            btn_ok = QPushButton(self.tr("OK"))
+            btn_cancel = QPushButton(self.tr("Cancel"))
+
+            # Add buttons manually
+            msg.addButton(btn_ok, QMessageBox.ButtonRole.AcceptRole)
+            msg.addButton(btn_cancel, QMessageBox.ButtonRole.RejectRole)
+
+            # Ensure same width
+            w = max(btn_ok.sizeHint().width(), btn_cancel.sizeHint().width())
+            btn_ok.setFixedWidth(w)
+            btn_cancel.setFixedWidth(w)
+
+            result = msg.exec()
+
+            if msg.clickedButton() != btn_ok:
+                return  # user canceled
+
+        # User confirmed or file does not exist
+        self.exportRequested.emit(path)
