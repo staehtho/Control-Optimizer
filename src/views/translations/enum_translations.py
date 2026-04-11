@@ -179,6 +179,8 @@ class Translation:
                 return QCoreApplication.translate("ControlEnums", "Evaluation")
             case NavLabels.SIMULATION:
                 return QCoreApplication.translate("ControlEnums", "Simulation")
+            case NavLabels.DATA_MANAGEMENT:
+                return QCoreApplication.translate("ControlEnums", "Data Management")
             case NavLabels.SETTINGS:
                 return QCoreApplication.translate("ControlEnums", "Settings")
             case _:

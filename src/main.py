@@ -198,6 +198,7 @@ def create_main_view(engine, ui_context, view_factories):
         NavItem(NavLabels.PSO_PARAMETER, Icons.pso_parameter),
         NavItem(NavLabels.EVALUATION, Icons.evaluation),
         NavItem(NavLabels.SIMULATION, Icons.simulation),
+        NavItem(NavLabels.DATA_MANAGEMENT, Icons.data_management, bottom=True),
         NavItem(NavLabels.SETTINGS, Icons.settings, bottom=True),
     ]
 
@@ -237,10 +238,6 @@ def run_app():
     splash.finish(main_view)
 
     QTimer.singleShot(750, lambda: engine.run_warmup(2))
-
-    from app_types import NavLabels
-    view = view_factories[NavLabels.DATA_MANAGEMENT]()
-    view.show()
 
     sys.exit(app.exec())
 
