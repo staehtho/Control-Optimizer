@@ -45,19 +45,20 @@ class SavePathWidget(BasePathWidget):
 
         if target.exists():
             msg = QMessageBox(self)
+            msg.setObjectName("OverwriteDialog")
             msg.setIcon(QMessageBox.Icon.Warning)
             msg.setWindowTitle(self.tr("File Exists"))
             msg.setText(self.tr("The file already exists. Do you want to overwrite it?"))
 
-            # Create translated buttons
             btn_ok = QPushButton(self.tr("OK"))
-            btn_cancel = QPushButton(self.tr("Cancel"))
+            btn_ok.setObjectName("DialogButton")
 
-            # Add buttons manually
+            btn_cancel = QPushButton(self.tr("Cancel"))
+            btn_cancel.setObjectName("DialogButton")
+
             msg.addButton(btn_ok, QMessageBox.ButtonRole.AcceptRole)
             msg.addButton(btn_cancel, QMessageBox.ButtonRole.RejectRole)
 
-            # Ensure same width
             w = max(btn_ok.sizeHint().width(), btn_cancel.sizeHint().width())
             btn_ok.setFixedWidth(w)
             btn_cancel.setFixedWidth(w)

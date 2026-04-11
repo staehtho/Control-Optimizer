@@ -255,3 +255,27 @@ QToolButton[id^="navBtn_"]:disabled {
 #BannerLabel {
     font-weight: 600;
 }
+
+QMessageBox#OverwriteDialog {
+    background-color: #111827;
+    color: #e2e8f0;
+    border: 1px solid #334155;
+    border-radius: 10px;
+}
+
+QPushButton#DialogButton {
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-weight: 600;
+}
+
+QPushButton#DialogButton:hover {
+    background: #1d4ed8;
+}
+
+QPushButton#DialogButton:pressed {
+    background: #1e40af;
+}
