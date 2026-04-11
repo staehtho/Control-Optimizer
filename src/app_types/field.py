@@ -168,6 +168,16 @@ class DataManagementField(FieldType):
     EXPORT = "export"
     IMPORT = "import"
     REPORT = "report"
+    REPORT_PLANT = "report_plant"
+    REPORT_EXCITATION_FUNCTION = "report_excitaion_function"
+    REPORT_CONTROLLER = "report_controller"
+    REPORT_PSO = "report_pso"
+    REPORT_PSO_RESULT = "report_pso_result"
+    REPORT_BLOCK_DIAGRAM = "report_block_diagram"
+    REPORT_TIME_DOMAIN = "report_time_domain"
+    REPORT_BODE = "report_bode"
+    REPORT_TRANSFER_FUNCTION = "report_transfer_function"
+    REPORT_DIALOG = "report_dialog"
 
 
 # SettingsViewModle / SettingsView

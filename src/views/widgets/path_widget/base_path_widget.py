@@ -27,13 +27,9 @@ class BasePathWidget(QWidget):
         self.action_btn = QPushButton()  # Save or Import depending on subclass
 
         row = QHBoxLayout(self)
-        row.addWidget(self.path_edit)
-        row.addWidget(self.browse_btn)
-        row.addWidget(self.action_btn)
-
-        # Equal button sizes
-        self.browse_btn.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        self.action_btn.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        row.addWidget(self.path_edit, 5)
+        row.addWidget(self.browse_btn, 1)
+        row.addWidget(self.action_btn, 1)
 
         self.browse_btn.clicked.connect(self.choose_path)
         self.action_btn.clicked.connect(self._emit_action)

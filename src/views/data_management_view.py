@@ -3,9 +3,9 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from PySide6.QtWidgets import QWidget, QLabel, QHBoxLayout
+from PySide6.QtWidgets import QWidget, QLabel, QHBoxLayout, QCheckBox
 
-from app_types import DataManagementField
+from app_types import DataManagementField, FieldConfig, SectionConfig, ConnectSignalConfig
 from resources.resources import Icons
 from views.widgets.path_widget import SavePathWidget, ImportPathWidget
 from views.view_mixin import ViewMixin
@@ -16,11 +16,24 @@ if TYPE_CHECKING:
     from views.widgets import SectionFrame
 
 
+FIELDS: list[FieldConfig | SectionConfig] = [
+    SectionConfig(DataManagementField.REPORT, [
+        FieldConfig(DataManagementField.REPORT_PLANT, QCheckBox, create_label=False),
+        FieldConfig(DataManagementField.REPORT_EXCITATION_FUNCTION, QCheckBox, create_label=True),
+        FieldConfig(DataManagementField.REPORT_CONTROLLER, QCheckBox, create_label=False),
+        FieldConfig(DataManagementField.REPORT_PSO, QCheckBox, create_label=False),
+        FieldConfig(DataManagementField.REPORT_PSO_RESULT, QCheckBox, create_label=False),
+        FieldConfig(DataManagementField.REPORT_TIME_DOMAIN, QCheckBox, create_label=False),
+        FieldConfig(DataManagementField.REPORT_BODE, QCheckBox, create_label=False),
+        FieldConfig(DataManagementField.REPORT_TRANSFER_FUNCTION, QCheckBox, create_label=False),
+    ])
+]
+
 class DataManagementView(ViewMixin, QWidget):
-    def __init__(self, ui_context: UiContext, vm_report: DataManagementViewModel, parent: QWidget = None) -> None:
+    def __init__(self, ui_context: UiContext, vm_data: DataManagementViewModel, parent: QWidget = None) -> None:
         QWidget.__init__(self, parent)
 
-        self._vm_report = vm_report
+        self._vm_data = vm_data
 
         ViewMixin.__init__(self, ui_context)
 
@@ -79,12 +92,14 @@ class DataManagementView(ViewMixin, QWidget):
         frame: SectionFrame
         frame, layout = self._create_card()
 
+        layout.addLayout(self._create_grid(FIELDS, 2))
+
         default_filename = f"control_optimizer_report_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"
         file_filter = self.tr("PDF Files (*.pdf)")
-        # TODO: creat check box to select section
+
         save_report_widget = SavePathWidget(default_filename, file_filter=file_filter, parent=self)
         layout.addWidget(save_report_widget)
-        self.field_widgets.setdefault(DataManagementField.REPORT, save_report_widget)
+        self.field_widgets[DataManagementField.REPORT_DIALOG] = save_report_widget
 
         return frame
 
@@ -93,16 +108,18 @@ class DataManagementView(ViewMixin, QWidget):
     # ============================================================
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
+        self._connect_object_signals(self._get_widget_bindings())
+
         self.field_widgets[DataManagementField.EXPORT].exportRequested.connect(self._on_export_requested)
         self.field_widgets[DataManagementField.IMPORT].importRequested.connect(self._on_import_requested)
-        self.field_widgets[DataManagementField.REPORT].exportRequested.connect(self._on_export_report_requested)
+        self.field_widgets[DataManagementField.REPORT_DIALOG].exportRequested.connect(self._on_export_report_requested)
 
     # ============================================================
     # ViewModel bindings (ViewModel -> UI)
     # ============================================================
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
-        ...
+        self._connect_object_signals(self._get_vm_bindings())
 
     # ============================================================
     # Translation
@@ -113,17 +130,67 @@ class DataManagementView(ViewMixin, QWidget):
         self._frm_export_import.setText(self.tr("Import and Export App Data"))
         self._frm_report.setText(self.tr("Create Report"))
 
-        for key in (DataManagementField.EXPORT, DataManagementField.IMPORT, DataManagementField.REPORT):
+        for key in (DataManagementField.EXPORT, DataManagementField.IMPORT, DataManagementField.REPORT_DIALOG):
             self.field_widgets[key].retranslate()
 
     # ============================================================
     # UI event handlers
     # ============================================================
     def _on_export_requested(self, path: str) -> None:
-        self._vm_report.save_project(path)
+        self._vm_data.save_project(path)
 
     def _on_import_requested(self, path: str) -> None:
-        self._vm_report.load_project(path)
+        self._vm_data.load_project(path)
 
     def _on_export_report_requested(self, path: str) -> None:
-        self._vm_report.generate_report(path)
+        self._vm_data.generate_report(path)
+
+    # ============================================================
+    # Internal helpers
+    # ============================================================
+    def _get_widget_bindings(self) -> list[ConnectSignalConfig]:
+
+        def _wrapper(key: DataManagementField, attr: str) -> ConnectSignalConfig:
+            return ConnectSignalConfig(
+                key=key,
+                signal_name="stateChanged",
+                attr_name=attr,
+                widget=self.field_widgets[key],
+                kwargs={"value_type": bool},
+                main_event_handler=self._on_widget_changed
+            )
+
+        return [
+            _wrapper(DataManagementField.REPORT_PLANT, "_vm_data.include_plant"),
+            _wrapper(DataManagementField.REPORT_EXCITATION_FUNCTION, "_vm_data.include_excitation_function"),
+            _wrapper(DataManagementField.REPORT_CONTROLLER, "_vm_data.include_controller_configuration"),
+            _wrapper(DataManagementField.REPORT_PSO, "_vm_data.include_pso_configuration"),
+            _wrapper(DataManagementField.REPORT_PSO_RESULT, "_vm_data.include_pso_result"),
+            _wrapper(DataManagementField.REPORT_BLOCK_DIAGRAM, "_vm_data.include_block_diagram"),
+            _wrapper(DataManagementField.REPORT_TIME_DOMAIN, "_vm_data.include_time_domain_plot"),
+            _wrapper(DataManagementField.REPORT_BODE, "_vm_data.include_bode_plot"),
+            _wrapper(DataManagementField.REPORT_TRANSFER_FUNCTION, "_vm_data.include_transfer_functions"),
+        ]
+
+    def _get_vm_bindings(self) -> list[ConnectSignalConfig]:
+        def _wrapper(key: DataManagementField, signal_name: str, attr: str) -> ConnectSignalConfig:
+            return ConnectSignalConfig(
+                key=key,
+                signal_name=signal_name,
+                attr_name=attr,
+                widget=self._vm_data,
+                kwargs={"field": self.field_widgets[key]},
+                main_event_handler=self._on_vm_changed
+            )
+
+        return [
+            _wrapper(DataManagementField.REPORT_PLANT, "includePlantChanged", "include_plant"),
+            _wrapper(DataManagementField.REPORT_EXCITATION_FUNCTION, "includeExcitationFunctionChanged", "include_excitation_function"),
+            _wrapper(DataManagementField.REPORT_CONTROLLER, "includeControllerConfigurationChanged", "include_controller_configuration"),
+            _wrapper(DataManagementField.REPORT_PSO, "includePsoConfigurationChanged", "include_pso_configuration"),
+            _wrapper(DataManagementField.REPORT_PSO_RESULT, "includePsoResultChanged", "include_pso_result"),
+            _wrapper(DataManagementField.REPORT_BLOCK_DIAGRAM, "includeBlockDiagramChanged", "include_block_diagram"),
+            _wrapper(DataManagementField.REPORT_TIME_DOMAIN, "includeTimeDomainPlotChanged", "include_time_domain_plot"),
+            _wrapper(DataManagementField.REPORT_BODE, "includeBodePlotChanged", "include_bode_plot"),
+            _wrapper(DataManagementField.REPORT_TRANSFER_FUNCTION, "includeTransferFunctionsChanged", "include_transfer_functions"),
+        ]
