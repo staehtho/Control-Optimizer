@@ -7,6 +7,7 @@ from PySide6.QtWidgets import QWidget, QLabel, QHBoxLayout, QCheckBox, QGraphics
 
 from app_types import DataManagementField, FieldConfig, SectionConfig, ConnectSignalConfig
 from resources.resources import Icons
+from views.widgets import InfoBanner
 from views.widgets.path_widget import SavePathWidget, ImportPathWidget
 from views.view_mixin import ViewMixin
 
@@ -14,7 +15,6 @@ if TYPE_CHECKING:
     from app_domain import UiContext
     from viewmodels import DataManagementViewModel
     from views.widgets import SectionFrame
-
 
 FIELDS: list[FieldConfig | SectionConfig] = [
     SectionConfig(DataManagementField.REPORT, [
@@ -71,6 +71,10 @@ class DataManagementView(ViewMixin, QWidget):
 
         self._frm_report = self._create_report_frame()
         main_layout.addWidget(self._frm_report)
+        main_layout.addStretch()
+
+        self._banner = InfoBanner("", self)
+        main_layout.addWidget(self._banner)
 
         self.setLayout(main_layout)
 
@@ -125,6 +129,9 @@ class DataManagementView(ViewMixin, QWidget):
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
         self._vm_data.psoSimulationFinished.connect(self._on_pso_simulation_finished)
+        self._vm_data.exportFinished.connect(self._on_export_finished)
+        self._vm_data.importFinished.connect(self._on_import_finished)
+        self._vm_data.reportFinished.connect(self._on_report_finished)
 
         self._connect_object_signals(self._get_vm_bindings())
 
@@ -191,6 +198,18 @@ class DataManagementView(ViewMixin, QWidget):
     def _on_pso_simulation_finished(self) -> None:
         """Update the PSO simulation finished UI elements."""
         self._enable_report_section(True)
+
+    def _on_export_finished(self):
+        self._banner.label.setText(self.tr("Export completed successfully"))
+        self._banner.show_banner(5000)
+
+    def _on_import_finished(self):
+        self._banner.label.setText(self.tr("Import completed successfully"))
+        self._banner.show_banner(5000)
+
+    def _on_report_finished(self):
+        self._banner.label.setText(self.tr("Report generated successfully"))
+        self._banner.show_banner(5000)
 
     # ============================================================
     # UI event handlers

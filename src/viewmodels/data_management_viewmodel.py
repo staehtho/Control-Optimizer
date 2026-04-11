@@ -38,6 +38,8 @@ class DataManagementViewModel(BaseViewModel):
     includeBodePlotChanged = Signal()
     includeTransferFunctionsChanged = Signal()
     reportFinished = Signal()
+    exportFinished = Signal()
+    importFinished = Signal()
 
     def __init__(
             self,
@@ -188,10 +190,12 @@ class DataManagementViewModel(BaseViewModel):
     @Slot(str)
     def save_project(self, path: str | Path) -> None:
         self._engine.save_project(path)
+        self.exportFinished.emit()
 
     @Slot(str)
     def load_project(self, path: str | Path) -> None:
         self._engine.load_project(path)
+        self.importFinished.emit()
 
     # ============================================================
     # Internal Helper

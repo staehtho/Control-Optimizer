@@ -102,17 +102,17 @@
         <translation type="vanished">n Messstörung</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="200"/>
+        <location filename="../views/translations/enum_translations.py" line="202"/>
         <source>Reference</source>
         <translation>Führung</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="202"/>
+        <location filename="../views/translations/enum_translations.py" line="204"/>
         <source>Input Disturbance</source>
         <translation>Eingangsstörung</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="204"/>
+        <location filename="../views/translations/enum_translations.py" line="206"/>
         <source>Measurement Disturbance</source>
         <translation>Messstörung</translation>
     </message>
@@ -229,7 +229,7 @@
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="171"/>
-        <location filename="../views/translations/enum_translations.py" line="192"/>
+        <location filename="../views/translations/enum_translations.py" line="194"/>
         <source>Plant</source>
         <translation>Regelstrecke</translation>
     </message>
@@ -260,36 +260,41 @@
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="183"/>
+        <source>Data Management</source>
+        <translation>Datenverwaltung</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="185"/>
         <source>Settings</source>
         <translation>Einstellungen</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="194"/>
+        <location filename="../views/translations/enum_translations.py" line="196"/>
         <source>Function</source>
         <translation>Funktion</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="206"/>
+        <location filename="../views/translations/enum_translations.py" line="208"/>
         <source>G_plant</source>
         <translation>G Regelstrecke</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="208"/>
+        <location filename="../views/translations/enum_translations.py" line="210"/>
         <source>C_controller</source>
         <translation>C Regler</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="210"/>
+        <location filename="../views/translations/enum_translations.py" line="212"/>
         <source>L_open_loop</source>
         <translation>L offene Kette</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="212"/>
+        <location filename="../views/translations/enum_translations.py" line="214"/>
         <source>T_closed_loop</source>
         <translation>T geschlossene Kette</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="214"/>
+        <location filename="../views/translations/enum_translations.py" line="216"/>
         <source>S_sensitivity</source>
         <translation>S Sensitivität</translation>
     </message>
@@ -298,27 +303,27 @@
         <translation type="vanished">T komplementär Sensitivität</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="223"/>
+        <location filename="../views/translations/enum_translations.py" line="225"/>
         <source>RK4</source>
         <translation>RK4</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="232"/>
+        <location filename="../views/translations/enum_translations.py" line="234"/>
         <source>English</source>
         <translation>Englisch</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="234"/>
+        <location filename="../views/translations/enum_translations.py" line="236"/>
         <source>German</source>
         <translation>Deutsch</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="243"/>
+        <location filename="../views/translations/enum_translations.py" line="245"/>
         <source>Light</source>
         <translation>Hell</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="245"/>
+        <location filename="../views/translations/enum_translations.py" line="247"/>
         <source>Dark</source>
         <translation>Dunkel</translation>
     </message>
@@ -331,7 +336,7 @@
         <translation type="vanished">Systemantwort</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="198"/>
+        <location filename="../views/translations/enum_translations.py" line="200"/>
         <source>Control Signal</source>
         <translation>Stellgrösse</translation>
     </message>
@@ -340,7 +345,7 @@
         <translation type="vanished">Anregungsfunktion</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="196"/>
+        <location filename="../views/translations/enum_translations.py" line="198"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
@@ -500,74 +505,89 @@ Ist die Abtastrate unbekannt, kann das Feld leer gelassen werden, um einen empfo
 <context>
     <name>DataManagementView</name>
     <message>
-        <location filename="../views/data_management_view.py" line="83"/>
+        <location filename="../views/data_management_view.py" line="87"/>
         <source>JSON Files (*.json)</source>
         <translation>JSON‑Dateien (*.json)</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="103"/>
+        <location filename="../views/data_management_view.py" line="107"/>
         <source>PDF Files (*.pdf)</source>
         <translation>PDF-Dateien (*.pdf)</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="136"/>
+        <location filename="../views/data_management_view.py" line="143"/>
         <source>Data Management</source>
         <translation>Datenverwaltung</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="137"/>
+        <location filename="../views/data_management_view.py" line="144"/>
         <source>Import and Export App Data</source>
         <translation>App‑Daten importieren und exportieren</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="138"/>
+        <location filename="../views/data_management_view.py" line="145"/>
         <source>Create Report</source>
         <translation>Bericht erstellen</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="144"/>
+        <location filename="../views/data_management_view.py" line="151"/>
         <source>Report Configuration</source>
         <translation>Bericht Koniguration</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="147"/>
+        <location filename="../views/data_management_view.py" line="154"/>
         <source>Plant Configuration</source>
         <translation>Regelstrecke Konfiguration</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="148"/>
+        <location filename="../views/data_management_view.py" line="155"/>
         <source>Excitation Function Configuration</source>
         <translation>Anregungsfunktion Konfiguration</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="149"/>
+        <location filename="../views/data_management_view.py" line="156"/>
         <source>Controller Configuration</source>
         <translation>Regler Konfiguration</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="150"/>
+        <location filename="../views/data_management_view.py" line="157"/>
         <source>PSO Configuration</source>
         <translation>PSO Konfiguration</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="151"/>
+        <location filename="../views/data_management_view.py" line="158"/>
         <source>Block Diagram</source>
         <translation>Blockschaltbild</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="152"/>
+        <location filename="../views/data_management_view.py" line="159"/>
         <source>Time Domain Plot</source>
         <translation>Zeitbereich Plot</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="153"/>
+        <location filename="../views/data_management_view.py" line="160"/>
         <source>Bode Plot</source>
         <translation>Bode Plot</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="154"/>
+        <location filename="../views/data_management_view.py" line="161"/>
         <source>Transfer Functions</source>
         <translation>Übertragungsfunktionen</translation>
+    </message>
+    <message>
+        <location filename="../views/data_management_view.py" line="203"/>
+        <source>Export completed successfully</source>
+        <translation>Export erfolgreich abgeschlossen</translation>
+    </message>
+    <message>
+        <location filename="../views/data_management_view.py" line="207"/>
+        <source>Import completed successfully</source>
+        <translation>Import erfolgreich abgeschlossen</translation>
+    </message>
+    <message>
+        <location filename="../views/data_management_view.py" line="211"/>
+        <source>Report generated successfully</source>
+        <translation>Bericht erfolgreich erstellt</translation>
     </message>
 </context>
 <context>
