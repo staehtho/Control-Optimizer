@@ -169,7 +169,7 @@ class DataManagementField(FieldType):
     IMPORT = "import"
     REPORT = "report"
     REPORT_PLANT = "report_plant"
-    REPORT_EXCITATION_FUNCTION = "report_excitaion_function"
+    REPORT_EXCITATION_FUNCTION = "report_excitation_function"
     REPORT_CONTROLLER = "report_controller"
     REPORT_PSO = "report_pso"
     REPORT_PSO_RESULT = "report_pso_result"

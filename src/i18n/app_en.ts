@@ -496,29 +496,74 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
 <context>
     <name>DataManagementView</name>
     <message>
-        <location filename="../views/data_management_view.py" line="78"/>
+        <location filename="../views/data_management_view.py" line="83"/>
         <source>JSON Files (*.json)</source>
         <translation>JSON Files (*.json)</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="98"/>
+        <location filename="../views/data_management_view.py" line="103"/>
         <source>PDF Files (*.pdf)</source>
         <translation>PDF Files (*.pdf)</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="127"/>
+        <location filename="../views/data_management_view.py" line="136"/>
         <source>Data Management</source>
         <translation>Data Management</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="128"/>
+        <location filename="../views/data_management_view.py" line="137"/>
         <source>Import and Export App Data</source>
         <translation>Import and Export App Data</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="129"/>
+        <location filename="../views/data_management_view.py" line="138"/>
         <source>Create Report</source>
         <translation>Create Report</translation>
+    </message>
+    <message>
+        <location filename="../views/data_management_view.py" line="144"/>
+        <source>Report Configuration</source>
+        <translation>Report Configuration</translation>
+    </message>
+    <message>
+        <location filename="../views/data_management_view.py" line="147"/>
+        <source>Plant Configuration</source>
+        <translation>Plant Configuration</translation>
+    </message>
+    <message>
+        <location filename="../views/data_management_view.py" line="148"/>
+        <source>Excitation Function Configuration</source>
+        <translation>Excitation Function Configuration</translation>
+    </message>
+    <message>
+        <location filename="../views/data_management_view.py" line="149"/>
+        <source>Controller Configuration</source>
+        <translation>Controller Configuration</translation>
+    </message>
+    <message>
+        <location filename="../views/data_management_view.py" line="150"/>
+        <source>PSO Configuration</source>
+        <translation>PSO Configuration</translation>
+    </message>
+    <message>
+        <location filename="../views/data_management_view.py" line="151"/>
+        <source>Block Diagram</source>
+        <translation>Block Diagram</translation>
+    </message>
+    <message>
+        <location filename="../views/data_management_view.py" line="152"/>
+        <source>Time Domain Plot</source>
+        <translation>Time Domain Plot</translation>
+    </message>
+    <message>
+        <location filename="../views/data_management_view.py" line="153"/>
+        <source>Bode Plot</source>
+        <translation>Bode Plot</translation>
+    </message>
+    <message>
+        <location filename="../views/data_management_view.py" line="154"/>
+        <source>Transfer Functions</source>
+        <translation>Transfer Functions</translation>
     </message>
 </context>
 <context>

@@ -27,6 +27,7 @@ FREQUENCY_DOMAIN = "frequency_domain"
 
 
 class DataManagementViewModel(BaseViewModel):
+    psoSimulationFinished = Signal()
     includePlantChanged = Signal()
     includeExcitationFunctionChanged = Signal()
     includeControllerConfigurationChanged = Signal()
@@ -56,7 +57,11 @@ class DataManagementViewModel(BaseViewModel):
         self._pending_svg_request: dict[str, str] | None = None
         self._report_path: Path = OUTPUT_DIR / "report.pdf"
 
+        self._connect_signals()
+
+    def _connect_signals(self) -> None:
         self._vm_evaluator.svgExportFinished.connect(self._on_svg_export_finished)
+        self._vm_evaluator.psoSimulationFinished.connect(self._on_pso_simulation_finished)
 
     # ============================================================
     # Property
@@ -116,10 +121,9 @@ class DataManagementViewModel(BaseViewModel):
     )
 
     # ============================================================
-    # Report
+    # Pso finished
     # ============================================================
-    @Slot(str)
-    def generate_report(self, path: str | Path) -> None:
+    def _on_pso_simulation_finished(self) -> None:
         snapshot = self._vm_evaluator.get_pso_snapshot()
         if snapshot is None:
             return
@@ -128,12 +132,20 @@ class DataManagementViewModel(BaseViewModel):
         if result is None:
             return
 
+        self._pending_snapshot = snapshot
+        self._pending_result = result
+
+        self.psoSimulationFinished.emit()
+
+    # ============================================================
+    # Report
+    # ============================================================
+    @Slot(str)
+    def generate_report(self, path: str | Path) -> None:
         self._report_path = Path(path)
         if self._report_path.suffix.lower() != ".pdf":
             self._report_path = self._report_path.with_suffix(".pdf")
 
-        self._pending_snapshot = snapshot
-        self._pending_result = result
         self._pending_svg_request = {
             BLOCK_DIAGRAM: str(OUTPUT_DIR / OutputFiles.block_diagram),
             TIME_DOMAIN: str(OUTPUT_DIR / OutputFiles.time_domain_plot),
