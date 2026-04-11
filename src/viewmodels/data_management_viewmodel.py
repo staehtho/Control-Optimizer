@@ -38,6 +38,7 @@ class DataManagementViewModel(BaseViewModel):
     includeBodePlotChanged = Signal()
     includeTransferFunctionsChanged = Signal()
     reportFinished = Signal()
+    reportFailed = Signal(str)
     exportFinished = Signal()
     importFinished = Signal()
 
@@ -125,6 +126,7 @@ class DataManagementViewModel(BaseViewModel):
     # ============================================================
     # Pso finished
     # ============================================================
+    @Slot()
     def _on_pso_simulation_finished(self) -> None:
         snapshot = self._vm_evaluator.get_pso_snapshot()
         if snapshot is None:
@@ -154,6 +156,7 @@ class DataManagementViewModel(BaseViewModel):
             FREQUENCY_DOMAIN: str(OUTPUT_DIR / OutputFiles.bode_plot),
         }
         if self._pending_svg_request is None:
+            self.reportFailed.emit(self.tr("Failed to start report generation"))
             return
         self._vm_evaluator.request_save_svg(self._pending_svg_request)
 
@@ -161,6 +164,7 @@ class DataManagementViewModel(BaseViewModel):
     def _on_svg_export_finished(self) -> None:
 
         if self._pending_snapshot is None or self._pending_result is None:
+            self.reportFailed.emit(self.tr("Report generation failed due to missing data"))
             return
 
         self.logger.debug("Collecting report data...")

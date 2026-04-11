@@ -501,79 +501,83 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
 <context>
     <name>DataManagementView</name>
     <message>
-        <location filename="../views/data_management_view.py" line="87"/>
+        <location filename="../views/data_management_view.py" line="90"/>
         <source>JSON Files (*.json)</source>
         <translation>JSON Files (*.json)</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="107"/>
+        <location filename="../views/data_management_view.py" line="110"/>
         <source>PDF Files (*.pdf)</source>
         <translation>PDF Files (*.pdf)</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="143"/>
+        <location filename="../views/data_management_view.py" line="147"/>
         <source>Data Management</source>
         <translation>Data Management</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="144"/>
+        <location filename="../views/data_management_view.py" line="148"/>
         <source>Import and Export App Data</source>
         <translation>Import and Export App Data</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="145"/>
+        <location filename="../views/data_management_view.py" line="149"/>
         <source>Create Report</source>
         <translation>Create Report</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="151"/>
+        <location filename="../views/data_management_view.py" line="155"/>
         <source>Report Configuration</source>
         <translation>Report Configuration</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="154"/>
+        <location filename="../views/data_management_view.py" line="158"/>
         <source>Plant Configuration</source>
         <translation>Plant Configuration</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="155"/>
+        <location filename="../views/data_management_view.py" line="159"/>
         <source>Excitation Function Configuration</source>
         <translation>Excitation Function Configuration</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="156"/>
+        <location filename="../views/data_management_view.py" line="160"/>
         <source>Controller Configuration</source>
         <translation>Controller Configuration</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="157"/>
+        <location filename="../views/data_management_view.py" line="161"/>
         <source>PSO Configuration</source>
         <translation>PSO Configuration</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="158"/>
+        <location filename="../views/data_management_view.py" line="162"/>
         <source>Block Diagram</source>
         <translation>Block Diagram</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="159"/>
+        <location filename="../views/data_management_view.py" line="163"/>
         <source>Time Domain Plot</source>
         <translation>Time Domain Plot</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="160"/>
+        <location filename="../views/data_management_view.py" line="164"/>
         <source>Bode Plot</source>
         <translation>Bode Plot</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="161"/>
+        <location filename="../views/data_management_view.py" line="165"/>
         <source>Transfer Functions</source>
         <translation>Transfer Functions</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="203"/>
+        <location filename="../views/data_management_view.py" line="211"/>
         <source>Export completed successfully</source>
         <translation>Export completed successfully</translation>
+    </message>
+    <message>
+        <source>Report generation failed: </source>
+        <translation type="vanished">Report generation failed: </translation>
     </message>
     <message>
         <location filename="../views/data_management_view.py" line="207"/>
@@ -581,9 +585,22 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <translation>Import completed successfully</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="211"/>
+        <location filename="../views/data_management_view.py" line="215"/>
         <source>Report generated successfully</source>
         <translation>Report generated successfully</translation>
+    </message>
+</context>
+<context>
+    <name>DataManagementViewModel</name>
+    <message>
+        <location filename="../viewmodels/data_management_viewmodel.py" line="159"/>
+        <source>Failed to start report generation</source>
+        <translation>Failed to start report generation</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/data_management_viewmodel.py" line="167"/>
+        <source>Report generation failed due to missing data</source>
+        <translation>Report generation failed due to missing data</translation>
     </message>
 </context>
 <context>
@@ -1764,12 +1781,12 @@ Tf   = %(tf).3f</translation>
         <translation>Export</translation>
     </message>
     <message>
-        <location filename="../views/widgets/path_widget/save_path_widget.py" line="49"/>
+        <location filename="../views/widgets/path_widget/save_path_widget.py" line="50"/>
         <source>File Exists</source>
         <translation>File Exists</translation>
     </message>
     <message>
-        <location filename="../views/widgets/path_widget/save_path_widget.py" line="50"/>
+        <location filename="../views/widgets/path_widget/save_path_widget.py" line="51"/>
         <source>The file already exists. Do you want to overwrite it?</source>
         <translation>The file already exists. Do you want to overwrite it?</translation>
     </message>
@@ -1779,7 +1796,7 @@ Tf   = %(tf).3f</translation>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="../views/widgets/path_widget/save_path_widget.py" line="54"/>
+        <location filename="../views/widgets/path_widget/save_path_widget.py" line="56"/>
         <source>Cancel</source>
         <translation>Cancel</translation>
     </message>

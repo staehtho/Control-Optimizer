@@ -3,21 +3,17 @@ from PySide6.QtCore import QTimer, Qt, QPropertyAnimation, QEasingCurve
 from PySide6.QtGui import QColor, QPalette
 
 
-class InfoBanner(QWidget):
-    def __init__(self, text: str, parent: QWidget = None):
+class BaseBanner(QWidget):
+    def __init__(self, text: str = "", parent: QWidget = None):
         super().__init__(parent)
 
-        self.setAutoFillBackground(True)
-        pal = self.palette()
-        pal.setColor(QPalette.ColorRole.Window, QColor("#2d8cff"))  # blue banner
-        pal.setColor(QPalette.ColorRole.WindowText, Qt.GlobalColor.white)
-        self.setPalette(pal)
+        self.setObjectName("Banner")  # important for CSS targeting
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(15, 10, 15, 10)
 
         self.label = QLabel(text)
-        self.label.setStyleSheet("font-weight: bold;")
+        self.label.setObjectName("BannerLabel")
         layout.addWidget(self.label)
 
         self.setFixedHeight(40)
@@ -32,7 +28,10 @@ class InfoBanner(QWidget):
         self.setWindowOpacity(0.0)
         self.setVisible(True)
 
-        self._anim.stop()
+        # Create a fresh animation every time
+        self._anim = QPropertyAnimation(self, b"windowOpacity")
+        self._anim.setDuration(400)
+        self._anim.setEasingCurve(QEasingCurve.Type.InOutQuad)
         self._anim.setStartValue(0.0)
         self._anim.setEndValue(1.0)
         self._anim.start()
@@ -40,7 +39,9 @@ class InfoBanner(QWidget):
         QTimer.singleShot(duration_ms, self.hide_banner)
 
     def hide_banner(self):
-        self._anim.stop()
+        self._anim = QPropertyAnimation(self, b"windowOpacity")
+        self._anim.setDuration(400)
+        self._anim.setEasingCurve(QEasingCurve.Type.InOutQuad)
         self._anim.setStartValue(1.0)
         self._anim.setEndValue(0.0)
         self._anim.start()

@@ -239,3 +239,19 @@ QToolButton[id^="navBtn_"]:disabled {
     opacity: 0.6;           /* slightly transparent */
     cursor: not-allowed;    /* indicates unclickable */
 }
+
+#Banner[bannerType="info"] {
+    background-color: #2f80ed;   /* blue */
+    color: #ffffff;
+    border-radius: 8px;
+}
+
+#Banner[bannerType="error"] {
+    background-color: #d9534f;   /* red */
+    color: #ffffff;
+    border-radius: 8px;
+}
+
+#BannerLabel {
+    font-weight: 600;
+}
