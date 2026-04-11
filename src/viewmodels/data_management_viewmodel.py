@@ -179,8 +179,6 @@ class DataManagementViewModel(BaseViewModel):
         report = DynamicReport(str(self._report_path), self._model_data, report_data)
         report.build_report()
 
-        self._pending_snapshot = None
-        self._pending_result = None
         self._pending_svg_request = None
         self.reportFinished.emit()
 
