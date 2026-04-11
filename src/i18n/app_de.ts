@@ -15,12 +15,12 @@
 <context>
     <name>BasePathWidget</name>
     <message>
-        <location filename="../views/widgets/path_widget/base_path_widget.py" line="42"/>
+        <location filename="../views/widgets/path_widget/base_path_widget.py" line="38"/>
         <source>Browse…</source>
         <translation>Durchsuchen…</translation>
     </message>
     <message>
-        <location filename="../views/widgets/path_widget/base_path_widget.py" line="48"/>
+        <location filename="../views/widgets/path_widget/base_path_widget.py" line="44"/>
         <source>All Files (*)</source>
         <translation>Alle Dateien (*)</translation>
     </message>
@@ -500,27 +500,27 @@ Ist die Abtastrate unbekannt, kann das Feld leer gelassen werden, um einen empfo
 <context>
     <name>DataManagementView</name>
     <message>
-        <location filename="../views/data_management_view.py" line="65"/>
+        <location filename="../views/data_management_view.py" line="78"/>
         <source>JSON Files (*.json)</source>
         <translation>JSON‑Dateien (*.json)</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="83"/>
+        <location filename="../views/data_management_view.py" line="98"/>
         <source>PDF Files (*.pdf)</source>
         <translation>PDF-Dateien (*.pdf)</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="112"/>
+        <location filename="../views/data_management_view.py" line="127"/>
         <source>Data Management</source>
         <translation>Datenverwaltung</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="113"/>
+        <location filename="../views/data_management_view.py" line="128"/>
         <source>Import and Export App Data</source>
         <translation>App‑Daten importieren und exportieren</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="114"/>
+        <location filename="../views/data_management_view.py" line="129"/>
         <source>Create Report</source>
         <translation>Bericht erstellen</translation>
     </message>

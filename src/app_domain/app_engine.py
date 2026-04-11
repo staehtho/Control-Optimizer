@@ -67,7 +67,7 @@ class AppEngine:
         self._vm_pso: PsoConfigurationViewModel | None = None
         self._vm_evaluator: EvaluationViewModel | None = None
         self._vm_simulation: SimulationViewModel | None = None
-        self._vm_report: DataManagementViewModel | None = None
+        self._vm_data: DataManagementViewModel | None = None
 
         # ------------------------------
         # Keyed ViewModel caches
@@ -184,10 +184,10 @@ class AppEngine:
 
         return self._ensure("_vm_simulation", factory)
 
-    def ensure_report_viewmodel(self) -> DataManagementViewModel:
+    def ensure_data_viewmodel(self) -> DataManagementViewModel:
         from viewmodels import DataManagementViewModel
         return self._ensure(
-            "_vm_report",
+            "_vm_data",
             lambda: DataManagementViewModel(
                 self,
                 self.ensure_evaluator_viewmodel(),

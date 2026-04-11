@@ -166,9 +166,9 @@ def create_view_factories(engine, ui_context):
             parent=parent
         )
 
-    def _create_report_view(parent=None):
+    def _create_data_view(parent=None):
         from views.data_management_view import DataManagementView
-        return DataManagementView(ui_context, engine.ensure_report_viewmodel(), parent=parent)
+        return DataManagementView(ui_context, engine.ensure_data_viewmodel(), parent=parent)
 
     def _create_settings_view(parent=None):
         from views.settings_view import SettingsView
@@ -181,7 +181,7 @@ def create_view_factories(engine, ui_context):
         NavLabels.PSO_PARAMETER: _create_pso_configuration_view,
         NavLabels.EVALUATION: _create_evaluation_view,
         NavLabels.SIMULATION: _create_simulation_view,
-        NavLabels.REPORT: _create_report_view,
+        NavLabels.DATA_MANAGEMENT: _create_data_view,
         NavLabels.SETTINGS: _create_settings_view,
     }
 
@@ -239,7 +239,7 @@ def run_app():
     QTimer.singleShot(750, lambda: engine.run_warmup(2))
 
     from app_types import NavLabels
-    view = view_factories[NavLabels.REPORT]()
+    view = view_factories[NavLabels.DATA_MANAGEMENT]()
     view.show()
 
     sys.exit(app.exec())
