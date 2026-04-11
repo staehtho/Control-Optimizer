@@ -1744,6 +1744,26 @@ Tf   = %(tf).3f</translation>
         <translation>Export</translation>
     </message>
     <message>
+        <location filename="../views/widgets/path_widget/save_path_widget.py" line="49"/>
+        <source>File Exists</source>
+        <translation>File Exists</translation>
+    </message>
+    <message>
+        <location filename="../views/widgets/path_widget/save_path_widget.py" line="50"/>
+        <source>The file already exists. Do you want to overwrite it?</source>
+        <translation>The file already exists. Do you want to overwrite it?</translation>
+    </message>
+    <message>
+        <location filename="../views/widgets/path_widget/save_path_widget.py" line="53"/>
+        <source>OK</source>
+        <translation>OK</translation>
+    </message>
+    <message>
+        <location filename="../views/widgets/path_widget/save_path_widget.py" line="54"/>
+        <source>Cancel</source>
+        <translation>Cancel</translation>
+    </message>
+    <message>
         <source>All Files (*)</source>
         <translation type="vanished">All Files (*)</translation>
     </message>
