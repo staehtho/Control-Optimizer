@@ -81,6 +81,7 @@ QTabWidget::pane {
 }
 QTabBar::tab {
     background: #1f2937;
+    color: #e2e8f0;
     border: 1px solid #334155;
     border-bottom: none;
     border-top-left-radius: 8px;
@@ -88,8 +89,17 @@ QTabBar::tab {
     padding: 8px 14px;
     margin-right: 2px;
 }
+
+/* ACTIVE TAB — like QPushButton */
 QTabBar::tab:selected {
-    background: #111827;
+    background: #2563eb;        /* primary blue */
+    color: #ffffff;             /* white text */
+    border: 1px solid #2563eb;
+}
+
+/* Hover for inactive tabs */
+QTabBar::tab:hover:!selected {
+    background: #273449;
 }
 QScrollArea {
     border: none;

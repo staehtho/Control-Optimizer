@@ -14,5 +14,5 @@
 # TODO: schieberegler farbe in light mode -> fixed
 # TODO: Plots in App zu gross wenn in fullscreen
 # TODO: Einheit von slewrate du/dt in Evaluationsfenster. Evt auch Fenstergrösse anzeigen?
-# TODO: Transfer function in plant: die reiterkarten sind farblich verwirrend
+# TODO: Transfer function in plant: die reiterkarten sind farblich verwirrend -> fixed
 # TODO: Controller Type in controller wirkt etwas komisch
