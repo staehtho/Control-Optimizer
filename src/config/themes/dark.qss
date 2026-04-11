@@ -279,3 +279,14 @@ QPushButton#DialogButton:hover {
 QPushButton#DialogButton:pressed {
     background: #1e40af;
 }
+
+#ToggleSwitch {
+    qproperty-trackColor: #334155;
+    qproperty-thumbColor: #e2e8f0;
+    qproperty-textColor: #e2e8f0;
+}
+
+#ToggleSwitch[checked="true"] {
+    qproperty-trackColor: #2563eb;
+    qproperty-thumbColor: #ffffff;
+}

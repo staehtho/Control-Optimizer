@@ -1,7 +1,8 @@
 from enum import Enum
-
-from PySide6.QtCore import Property, QPropertyAnimation, QEasingCurve, QRectF, QSize, Qt
-from PySide6.QtGui import QColor, QFontMetrics, QPainter, QPalette
+from PySide6.QtCore import (
+    Property, QPropertyAnimation, QEasingCurve, QRectF, QSize, Qt, Signal, Slot
+)
+from PySide6.QtGui import QColor, QFontMetrics, QPainter
 from PySide6.QtWidgets import QAbstractButton
 
 
@@ -9,30 +10,75 @@ class TextPosition(Enum):
     Left = 0
     Right = 1
 
+
 class ToggleSwitch(QAbstractButton):
-    """Custom switch with a sliding thumb."""
+    """A QSS‑themeable toggle switch with animated thumb."""
 
-    def __init__(self, text: str = "", text_position: TextPosition = TextPosition.Right, parent=None) -> None:
+    trackColorChanged = Signal()
+    thumbColorChanged = Signal()
+    textColorChanged = Signal()
+
+    def __init__(self, text: str = "", text_position: TextPosition = TextPosition.Right, parent=None):
         super().__init__(parent)
-        self.setText(text)
 
-        self._text_position = text_position  # "left" or "right"
-
+        self.setObjectName("ToggleSwitch")
         self.setCheckable(True)
-        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setCursor(Qt.PointingHandCursor)
+
+        self._text_position = text_position
         self._offset = 1.0 if self.isChecked() else 0.0
 
+        # Default fallback colors (valid QColor objects)
+        self._trackColor = QColor("#4b5563")
+        self._thumbColor = QColor("#ffffff")
+        self._textColor = QColor("#e2e8f0")
+
+        # Animation
         self._animation = QPropertyAnimation(self, b"offset", self)
         self._animation.setDuration(140)
-        self._animation.setEasingCurve(QEasingCurve.Type.InOutCubic)
+        self._animation.setEasingCurve(QEasingCurve.InOutCubic)
+
         self.toggled.connect(self._animate_toggle)
 
-    def set_text_position(self, position: TextPosition) -> None:
-        if position not in ("left", "right"):
-            raise ValueError("text_position must be 'left' or 'right'")
-        self._text_position = position
-        self.update()
+    # -----------------------------
+    # Q_PROPERTY definitions
+    # -----------------------------
+    def getTrackColor(self):
+        return self._trackColor
 
+    def setTrackColor(self, v):
+        if isinstance(v, QColor):
+            self._trackColor = v
+            self.update()
+            self.trackColorChanged.emit()
+
+    trackColor = Property(QColor, getTrackColor, setTrackColor, notify=trackColorChanged)
+
+    def getThumbColor(self):
+        return self._thumbColor
+
+    def setThumbColor(self, v):
+        if isinstance(v, QColor):
+            self._thumbColor = v
+            self.update()
+            self.thumbColorChanged.emit()
+
+    thumbColor = Property(QColor, getThumbColor, setThumbColor, notify=thumbColorChanged)
+
+    def getTextColor(self):
+        return self._textColor
+
+    def setTextColor(self, v):
+        if isinstance(v, QColor):
+            self._textColor = v
+            self.update()
+            self.textColorChanged.emit()
+
+    textColor = Property(QColor, getTextColor, setTextColor, notify=textColorChanged)
+
+    # -----------------------------
+    # Layout
+    # -----------------------------
     def sizeHint(self) -> QSize:
         track_w = 36
         track_h = 20
@@ -46,9 +92,12 @@ class ToggleSwitch(QAbstractButton):
 
         return QSize(track_w, track_h)
 
-    def paintEvent(self, event) -> None:
+    # -----------------------------
+    # Painting
+    # -----------------------------
+    def paintEvent(self, event):
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        painter.setRenderHint(QPainter.Antialiasing)
 
         rect = self.rect()
         track_w = 36
@@ -59,7 +108,7 @@ class ToggleSwitch(QAbstractButton):
         fm = QFontMetrics(self.font())
         text_w = fm.horizontalAdvance(self.text()) if self.text() else 0
 
-        # Decide track position based on text placement
+        # Track position
         if self.text() and self._text_position == TextPosition.Left:
             track_x = text_w + spacing
             text_x = 0
@@ -70,70 +119,41 @@ class ToggleSwitch(QAbstractButton):
         y = (rect.height() - track_h) / 2
         track_rect = QRectF(track_x, y, track_w, track_h)
 
-        palette = self.palette()
-        if self.isChecked():
-            track_color = palette.color(QPalette.ColorRole.Highlight)
-        else:
-            track_color = palette.color(QPalette.ColorRole.Mid)
-            track_color = QColor(track_color)
-            if track_color.lightness() > 180:
-                track_color = palette.color(QPalette.ColorRole.MidDark)
-        if not self.isEnabled():
-            track_color = QColor(track_color)
-            track_color.setAlpha(120)
-
-        border_color = palette.color(QPalette.ColorRole.Dark if not self.isChecked() else QPalette.ColorRole.Highlight)
-        if not self.isEnabled():
-            border_color = QColor(border_color)
-            border_color.setAlpha(120)
-        painter.setPen(border_color)
-        painter.setBrush(track_color)
+        # Draw track
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(self._trackColor)
         painter.drawRoundedRect(track_rect, radius, radius)
 
+        # Thumb
         margin = 2
         thumb_d = track_h - 2 * margin
         max_x = track_w - 2 * margin - thumb_d
         thumb_x = track_rect.x() + margin + self._offset * max_x
         thumb_rect = QRectF(thumb_x, track_rect.y() + margin, thumb_d, thumb_d)
 
-        if self.isChecked():
-            thumb_color = QColor(255, 255, 255)
-        else:
-            thumb_color = palette.color(QPalette.ColorRole.Light)
-        if not self.isEnabled():
-            thumb_color = QColor(thumb_color)
-            thumb_color.setAlpha(140)
-
-        painter.setBrush(thumb_color)
+        painter.setBrush(self._thumbColor)
         painter.drawEllipse(thumb_rect)
 
+        # Text
         if self.text():
-            text_color = palette.color(QPalette.ColorRole.WindowText)
-            if not self.isEnabled():
-                text_color = QColor(text_color)
-                text_color.setAlpha(140)
+            painter.setPen(self._textColor)
+            text_rect = QRectF(text_x, 0, rect.width() - text_x, rect.height())
+            painter.drawText(text_rect, Qt.AlignVCenter | Qt.AlignLeft, self.text())
 
-            painter.setPen(text_color)
+    # -----------------------------
+    # Animation
+    # -----------------------------
+    def _animate_toggle(self, checked: bool):
+        self.setProperty("checked", checked)
+        self.style().unpolish(self)
+        self.style().polish(self)
 
-            text_rect = QRectF(
-                text_x,
-                0,
-                rect.width() - text_x,
-                rect.height()
-            )
-
-            painter.drawText(
-                text_rect,
-                Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft,
-                self.text()
-            )
-
-    def _animate_toggle(self, checked: bool) -> None:
         self._animation.stop()
         self._animation.setStartValue(self._offset)
         self._animation.setEndValue(1.0 if checked else 0.0)
         self._animation.start()
 
+    @Slot(bool)
     def set_checked_no_anim(self, checked: bool) -> None:
         """Force state without running the toggle animation."""
         self._animation.stop()
@@ -144,10 +164,13 @@ class ToggleSwitch(QAbstractButton):
         finally:
             self.blockSignals(was_blocked)
 
-    def get_offset(self) -> float:
+    # -----------------------------
+    # Offset property
+    # -----------------------------
+    def get_offset(self):
         return self._offset
 
-    def set_offset(self, value: float) -> None:
+    def set_offset(self, value: float):
         self._offset = float(value)
         self.update()
 

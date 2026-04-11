@@ -11,7 +11,7 @@
 # TODO: evt hyperparameter von PSO in systemsettings integrieren?
 # TODO: Wo ist die automatische Simulationszeit in App
 # TODO: Minimalwert Ti auf 0.001?
-# TODO: schieberegler farbe in light mode
+# TODO: schieberegler farbe in light mode -> fixed
 # TODO: Plots in App zu gross wenn in fullscreen
 # TODO: Einheit von slewrate du/dt in Evaluationsfenster. Evt auch Fenstergrösse anzeigen?
 # TODO: Transfer function in plant: die reiterkarten sind farblich verwirrend
