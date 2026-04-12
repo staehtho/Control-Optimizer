@@ -114,12 +114,12 @@ def section_controller_configuration(report: BaseReport, data: DynamicReportCont
     report.add_itemize([
         QCoreApplication.translate(
             "Report",
-            "Controller minimum output: %(min_output)s"
-        ) % {"min_output": _format_value(data.constraint_min)},
-        QCoreApplication.translate(
-            "Report",
             "Controller maximum output: %(max_output)s"
         ) % {"max_output": _format_value(data.constraint_max)},
+        QCoreApplication.translate(
+            "Report",
+            "Controller minimum output: %(min_output)s"
+        ) % {"min_output": _format_value(data.constraint_min)},
     ])
 
     report.add_subheading(QCoreApplication.translate("Report", "Anti Windup"))

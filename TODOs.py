@@ -13,7 +13,6 @@
 # TODO: Plots in App zu gross wenn in fullscreen -> alles in die linke obere Ecke rechts frei
 # TODO: Controller Type in controller wirkt etwas komisch -> neue Section Controller Type und in dieser PID
 
-# TODO: Rheinfolge constraint max und min
 # TODO: PSOResult: Anstelle von @ -> at oder bei
 # TODO: TimeDomain Legend: Plant, y ClosedLoop r Referenc oder r / l und u Control Signal
 # TODO: BodePlot es ist schon in rad/s einfach Beschriftung anpassen
