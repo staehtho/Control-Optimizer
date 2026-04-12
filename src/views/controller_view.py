@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from viewmodels import ControllerViewModel
     from views.widgets import SectionFrame
 
+# TODO: block diagram like the closed loop in pso, now it is to saml
 
 class OptionalDoubleValidator(QDoubleValidator):
     def validate(self, input_text: str, pos: int):
@@ -26,8 +27,8 @@ class OptionalDoubleValidator(QDoubleValidator):
 
 FIELDS: list[FieldConfig | SectionConfig] = [
     SectionConfig(ControllerField.CONSTRAINT, [
-        FieldConfig(ControllerField.CONSTRAINT_MIN, QLineEdit),
         FieldConfig(ControllerField.CONSTRAINT_MAX, QLineEdit),
+        FieldConfig(ControllerField.CONSTRAINT_MIN, QLineEdit),
     ]),
 
     SectionConfig(ControllerField.ANTI_WINDUP, [
