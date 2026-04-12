@@ -15,12 +15,11 @@
 <context>
     <name>BasePathWidget</name>
     <message>
-        <location filename="../views/widgets/path_widget/base_path_widget.py" line="38"/>
         <source>Browse…</source>
-        <translation>Durchsuchen…</translation>
+        <translation type="vanished">Durchsuchen…</translation>
     </message>
     <message>
-        <location filename="../views/widgets/path_widget/base_path_widget.py" line="44"/>
+        <location filename="../views/widgets/path_widget/base_path_widget.py" line="39"/>
         <source>All Files (*)</source>
         <translation>Alle Dateien (*)</translation>
     </message>
@@ -1795,24 +1794,30 @@ Tf   = %(tf).3f</translation>
         <translation>Exportieren</translation>
     </message>
     <message>
-        <location filename="../views/widgets/path_widget/save_path_widget.py" line="50"/>
+        <location filename="../views/widgets/path_widget/save_path_widget.py" line="44"/>
+        <source>File In Use</source>
+        <translation>Datei in Verwendung</translation>
+    </message>
+    <message>
+        <location filename="../views/widgets/path_widget/save_path_widget.py" line="45"/>
+        <source>The file is currently open in another program. Please close it first.</source>
+        <translation>Die Datei ist derzeit in einem anderen Programm geöffnet. Bitte schliessen Sie sie zuerst.</translation>
+    </message>
+    <message>
         <source>File Exists</source>
-        <translation>Datei vorhanden</translation>
+        <translation type="vanished">Datei vorhanden</translation>
     </message>
     <message>
-        <location filename="../views/widgets/path_widget/save_path_widget.py" line="51"/>
         <source>The file already exists. Do you want to overwrite it?</source>
-        <translation>Die Datei ist bereits vorhanden. Möchten Sie sie überschreiben?</translation>
+        <translation type="vanished">Die Datei ist bereits vorhanden. Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
-        <location filename="../views/widgets/path_widget/save_path_widget.py" line="53"/>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="vanished">OK</translation>
     </message>
     <message>
-        <location filename="../views/widgets/path_widget/save_path_widget.py" line="56"/>
         <source>Cancel</source>
-        <translation>Abbrechen</translation>
+        <translation type="vanished">Abbrechen</translation>
     </message>
     <message>
         <source>All Files (*)</source>

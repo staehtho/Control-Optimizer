@@ -13,8 +13,6 @@
 # TODO: Plots in App zu gross wenn in fullscreen -> alles in die linke obere Ecke rechts frei
 # TODO: Controller Type in controller wirkt etwas komisch -> neue Section Controller Type und in dieser PID
 
-# TODO: Report generierung: es ist keine Warnung vorhanden, das der Report schon existiert, und wenn er offen is kann er nicht erstellt werden und nicht .json!!!
-# TODO: Export und Import: Brows durch Import / Export ersetzen nach speichern im Dialog wird exportiert oder importiert
 # TODO: Report: Funktion aufführen
 # TODO: Rheinfolge constraint max und min
 # TODO: PSOResult: Anstelle von @ -> at oder bei

@@ -15,12 +15,11 @@
 <context>
     <name>BasePathWidget</name>
     <message>
-        <location filename="../views/widgets/path_widget/base_path_widget.py" line="38"/>
         <source>Browse…</source>
-        <translation>Browse…</translation>
+        <translation type="vanished">Browse…</translation>
     </message>
     <message>
-        <location filename="../views/widgets/path_widget/base_path_widget.py" line="44"/>
+        <location filename="../views/widgets/path_widget/base_path_widget.py" line="39"/>
         <source>All Files (*)</source>
         <translation>All Files (*)</translation>
     </message>
@@ -1794,24 +1793,30 @@ Tf   = %(tf).3f</translation>
         <translation>Export</translation>
     </message>
     <message>
-        <location filename="../views/widgets/path_widget/save_path_widget.py" line="50"/>
+        <location filename="../views/widgets/path_widget/save_path_widget.py" line="44"/>
+        <source>File In Use</source>
+        <translation>File In Use</translation>
+    </message>
+    <message>
+        <location filename="../views/widgets/path_widget/save_path_widget.py" line="45"/>
+        <source>The file is currently open in another program. Please close it first.</source>
+        <translation>The file is currently open in another program. Please close it first.</translation>
+    </message>
+    <message>
         <source>File Exists</source>
-        <translation>File Exists</translation>
+        <translation type="vanished">File Exists</translation>
     </message>
     <message>
-        <location filename="../views/widgets/path_widget/save_path_widget.py" line="51"/>
         <source>The file already exists. Do you want to overwrite it?</source>
-        <translation>The file already exists. Do you want to overwrite it?</translation>
+        <translation type="vanished">The file already exists. Do you want to overwrite it?</translation>
     </message>
     <message>
-        <location filename="../views/widgets/path_widget/save_path_widget.py" line="53"/>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="vanished">OK</translation>
     </message>
     <message>
-        <location filename="../views/widgets/path_widget/save_path_widget.py" line="56"/>
         <source>Cancel</source>
-        <translation>Cancel</translation>
+        <translation type="vanished">Cancel</translation>
     </message>
     <message>
         <source>All Files (*)</source>

@@ -23,20 +23,15 @@ class BasePathWidget(QWidget):
         self.path_edit.setReadOnly(True)
         self.path_edit.mousePressEvent = lambda event: self.choose_path()
 
-        self.browse_btn = QPushButton()
-        self.action_btn = QPushButton()  # Save or Import depending on subclass
+        self.action_btn = QPushButton()
 
         row = QHBoxLayout(self)
         row.addWidget(self.path_edit, 5)
-        row.addWidget(self.browse_btn, 1)
         row.addWidget(self.action_btn, 1)
 
-        self.browse_btn.clicked.connect(self.choose_path)
-        self.action_btn.clicked.connect(self._emit_action)
+        self.action_btn.clicked.connect(self.choose_path)
 
     def retranslate(self):
-        self.browse_btn.setText(self.tr("Browse…"))
-
         # Filter translation
         if self.file_filter_raw:
             self.file_filter = self.tr(self.file_filter_raw)
@@ -45,7 +40,4 @@ class BasePathWidget(QWidget):
 
     # --- Methods subclasses MUST override ---
     def choose_path(self):
-        raise NotImplementedError
-
-    def _emit_action(self):
         raise NotImplementedError

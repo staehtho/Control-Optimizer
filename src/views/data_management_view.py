@@ -106,7 +106,7 @@ class DataManagementView(ViewMixin, QWidget):
 
         layout.addLayout(self._create_grid(FIELDS, 2))
 
-        default_filename = f"control_optimizer_report_{datetime.now().strftime('%Y-%m-%d')}.json"
+        default_filename = f"control_optimizer_report_{datetime.now().strftime('%Y-%m-%d')}.pdf"
         file_filter = self.tr("PDF Files (*.pdf)")
 
         save_report_widget = SavePathWidget(default_filename, file_filter=file_filter, parent=self)
