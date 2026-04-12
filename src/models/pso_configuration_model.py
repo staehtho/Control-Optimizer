@@ -12,7 +12,7 @@ class PsoConfigurationModel:
 
     kp_min: float = 0.0
     kp_max: float = 10.0
-    ti_min: float = 1.0
+    ti_min: float = 0.001
     ti_max: float = 10.0
     td_min: float = 0.0
     td_max: float = 10.0
