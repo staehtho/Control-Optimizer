@@ -97,7 +97,7 @@ PSO_RESULT_TEMPLATE: dict[PsoResultField, Any] = {
 
     PsoResultField.SLEW_RATE: QT_TRANSLATE_NOOP(
         "EvaluationView",
-        "Slew rate: %(value).3f"
+        "Slew Rate Limit du/dt: %(value).3f"
     ),
 
     PsoResultField.GAIN_MARGIN: QT_TRANSLATE_NOOP(
