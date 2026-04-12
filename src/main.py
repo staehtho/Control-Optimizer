@@ -7,6 +7,8 @@ from PySide6.QtCore import QTimer
 from PySide6.QtGui import QPixmap, Qt
 from PySide6.QtWidgets import QApplication, QSplashScreen
 
+from resources.resources import SRC_DIR, OUTPUT_DIR
+
 # TODO: TabIndex
 
 # TODO: Evaluation: TF with L and N
@@ -35,8 +37,7 @@ def show_splash():
     return splash
 
 
-def setup_logging(src_dir):
-    from pathlib import Path
+def setup_logging(src_dir, log_level):
     log_dir = Path(src_dir) / "logs"
     log_file = log_dir / "app.log"
 
@@ -47,7 +48,7 @@ def setup_logging(src_dir):
 
     logging.basicConfig(
         filename=log_file,
-        level=logging.DEBUG,
+        level=log_level,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S"
     )
@@ -216,8 +217,7 @@ def run_app():
     splash_message = show_splash_message_setup(app, splash)
     splash_message("Loading resources...")
 
-    from resources.resources import SRC_DIR, OUTPUT_DIR
-    setup_logging(SRC_DIR)
+    setup_logging(SRC_DIR, logging.DEBUG)
     setup_output_directory(OUTPUT_DIR)
 
     splash_message("Initializing engine...")
@@ -237,7 +237,7 @@ def run_app():
     main_view.show()
     splash.finish(main_view)
 
-    QTimer.singleShot(750, lambda: engine.run_warmup(2))
+    QTimer.singleShot(750, lambda: engine.run_warmup(1))
 
     sys.exit(app.exec())
 
