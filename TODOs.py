@@ -10,4 +10,5 @@
 # TODO: evt hyperparameter von PSO in systemsettings integrieren? -> gute Idee, wenn ja nur mit ToolTip
 # TODO: Wo ist die automatische Simulationszeit in App -> ok ich verstehe wo (PSO Parameters -> Endtime) somit kann die
 #   Endzeit und Start zeit automatisch bestummen werden -> Startzeit dann auf 0s -> Aufwand abschätzen
-# TODO: Plots in App zu gross wenn in fullscreen -> alles in die linke obere Ecke rechts frei
+
+# TODO: Report: Latex formula formatieren

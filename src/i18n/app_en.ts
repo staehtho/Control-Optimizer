@@ -1315,29 +1315,29 @@ Example: 1, 0.5, 2 → 1*s^2 + 0.5*s + 2</translation>
 <context>
     <name>PlotWidget</name>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="241"/>
+        <location filename="../views/widgets/plot_widget.py" line="257"/>
         <source>plot.grid</source>
         <translation>Grid</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="242"/>
+        <location filename="../views/widgets/plot_widget.py" line="258"/>
         <source>plot.start</source>
         <translation>Start time</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="243"/>
+        <location filename="../views/widgets/plot_widget.py" line="259"/>
         <source>plot.end</source>
         <translation>End time</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="244"/>
+        <location filename="../views/widgets/plot_widget.py" line="260"/>
         <source>plot.start.tooltip</source>
         <translation>Lower x-axis limit (x_min).
 Defines where the time axis begins.
 Unit: seconds (s).</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="245"/>
+        <location filename="../views/widgets/plot_widget.py" line="261"/>
         <source>plot.end.tooltip</source>
         <translation>Upper x-axis limit (x_max).
 Defines where the time axis ends.
@@ -1345,7 +1345,7 @@ Unit: seconds (s).
 Must be greater than the start time.</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="247"/>
+        <location filename="../views/widgets/plot_widget.py" line="263"/>
         <source>plot.legend</source>
         <translation>Legend</translation>
     </message>
