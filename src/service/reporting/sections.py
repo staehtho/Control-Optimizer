@@ -282,7 +282,7 @@ def section_pso_result(report: BaseReport, data_config: DynamicReportPsoConfigur
         ])
     table_data.extend([
         [
-            QCoreApplication.translate("Report", "Maximum Slew Rate"),
+            QCoreApplication.translate("Report", "Slew Rate Limit du/dt"),
             _format_value(data.slew_rate_max)
         ],
     ])
