@@ -276,8 +276,12 @@
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="285"/>
+        <source>Slew Rate Limit du/dt</source>
+        <translation>Stellratenbegrenzung du/dt</translation>
+    </message>
+    <message>
         <source>Maximum Slew Rate</source>
-        <translation>Maximale Slew‑Rate</translation>
+        <translation type="vanished">Maximale Slew‑Rate</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="291"/>
