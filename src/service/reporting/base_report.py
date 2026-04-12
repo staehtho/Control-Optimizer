@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+
 from reportlab.graphics.shapes import Drawing
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus import (
@@ -8,6 +10,7 @@ from reportlab.platypus import (
     TableStyle,
     ListFlowable,
     ListItem,
+    KeepTogether
 )
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
@@ -38,6 +41,8 @@ class BaseReport:
         self.filename = filename
         self.pagesize = pagesize
         self.margin = margin
+        self.story = []
+        self._current_section = None
 
         # Load default styles
         self.styles = getSampleStyleSheet()
@@ -73,8 +78,6 @@ class BaseReport:
             leading=26,
             spaceAfter=20,
         ))
-
-        self.story = []
 
         self.doc = SimpleDocTemplate(
             filename,
@@ -142,18 +145,29 @@ class BaseReport:
     # ============================================================
     # Content helpers
     # ============================================================
+    @contextmanager
+    def section(self):
+        """Context manager that groups all added flowables into a KeepTogether block."""
+        self._current_section = []
+        try:
+            yield
+        finally:
+            if self._current_section is not None:
+                self.story.append(KeepTogether(self._current_section))
+                self.story.append(Spacer(1, 12))
+            self._current_section = None
 
     def add_title(self, text: str) -> None:
-        self.story.append(Paragraph(text, self.styles["ModernTitle"]))
-        self.story.append(Spacer(1, 20))
+        self._append(Paragraph(text, self.styles["ModernTitle"]))
+        self._append(Spacer(1, 20))
 
     def add_heading(self, text: str) -> None:
-        self.story.append(Paragraph(text, self.styles["ModernHeading2"]))
-        self.story.append(Spacer(1, 6))
+        self._append(Paragraph(text, self.styles["ModernHeading2"]))
+        self._append(Spacer(1, 6))
 
     def add_subheading(self, text: str) -> None:
-        self.story.append(Paragraph(text, self.styles["ModernHeading3"]))
-        self.story.append(Spacer(1, 4))
+        self._append(Paragraph(text, self.styles["ModernHeading3"]))
+        self._append(Spacer(1, 4))
 
     def add_paragraph(self, text: str, color: str = "black", bold: bool = False) -> None:
         """Add a paragraph with optional color and bold style."""
@@ -168,13 +182,13 @@ class BaseReport:
             fontName="Helvetica-Bold" if bold else base.fontName,
         )
 
-        self.story.append(Paragraph(text, style))
-        self.story.append(Spacer(1, 6))
+        self._append(Paragraph(text, style))
+        self._append(Spacer(1, 6))
 
     def add_modern_paragraph(self, text: str) -> None:
         """Use modern style for plain text only."""
-        self.story.append(Paragraph(text, self.styles["ModernBody"]))
-        self.story.append(Spacer(1, 6))
+        self._append(Paragraph(text, self.styles["ModernBody"]))
+        self._append(Spacer(1, 6))
 
     def add_itemize(self, items: list[str]) -> None:
         list_items = [
@@ -186,8 +200,8 @@ class BaseReport:
             bulletType="bullet",
             leftIndent=12,
         )
-        self.story.append(bullet_list)
-        self.story.append(Spacer(1, 8))
+        self._append(bullet_list)
+        self._append(Spacer(1, 8))
 
     def add_table(self, header: list, data: list, width: int = 300) -> None:
         # Convert all cells (IMPORTANT for LaTeX!)
@@ -220,8 +234,8 @@ class BaseReport:
             ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
         ]))
 
-        self.story.append(table)
-        self.story.append(Spacer(1, 15))
+        self._append(table)
+        self._append(Spacer(1, 15))
 
     def add_svg(self, svg_path: str, *, width=None, height=None, align="CENTER"):
         drawing = svg2rlg(svg_path)
@@ -245,9 +259,9 @@ class BaseReport:
         drawing.height *= scale
         drawing.hAlign = align
 
-        self.story.append(Spacer(1, 15))
-        self.story.append(drawing)
-        self.story.append(Spacer(1, 15))
+        self._append(Spacer(1, 15))
+        self._append(drawing)
+        self._append(Spacer(1, 15))
 
     def add_latex(self, latex: str, *, width=None, height=None, align="CENTER"):
         drawing = latex_to_drawing(latex)
@@ -270,9 +284,9 @@ class BaseReport:
         drawing.scale(scale, scale)
         drawing.hAlign = align
 
-        self.story.append(Spacer(1, 10))
-        self.story.append(drawing)
-        self.story.append(Spacer(1, 10))
+        self._append(Spacer(1, 10))
+        self._append(drawing)
+        self._append(Spacer(1, 10))
 
     def build(self) -> None:
         self.doc.build(
@@ -284,6 +298,12 @@ class BaseReport:
     # ============================================================
     # Internal helpers
     # ============================================================
+    def _append(self, flowable):
+        if self._current_section is not None:
+            self._current_section.append(flowable)
+        else:
+            self.story.append(flowable)
+
     def _resolve_color(self, value):
         """Translate a string like 'red' into a ReportLab color."""
 

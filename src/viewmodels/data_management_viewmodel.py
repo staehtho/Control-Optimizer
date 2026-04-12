@@ -209,7 +209,7 @@ class DataManagementViewModel(BaseViewModel):
     @staticmethod
     def _get_plant_data(snapshot: PsoSimulationSnapshot) -> DynamicReportPlant:
         return DynamicReportPlant(
-            formula=snapshot.plant_tf,
+            formula=r"G(s) = " + snapshot.plant_tf,
         )
 
     @staticmethod
