@@ -1,9 +1,10 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import QObject, QT_TRANSLATE_NOOP
+from PySide6.QtCore import QT_TRANSLATE_NOOP
 import numpy as np
 from matplotlib.ticker import LogLocator
+from pytestqt.qtbot import QWidget
 
 from app_types import BodePlotData
 from .plot_widget import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration
@@ -31,7 +32,7 @@ class BodePlotWidget(PlotWidget):
     # Initialization
     # ============================================================
 
-    def __init__(self, ui_context: UiContext, vm: PlotViewModel, parent: QObject = None):
+    def __init__(self, ui_context: UiContext, vm: PlotViewModel, parent: QWidget = None):
         """Initialize the BodePlotWidget.
 
         Args:
@@ -44,12 +45,12 @@ class BodePlotWidget(PlotWidget):
         subplot_cfgs = {
             1: SubplotConfiguration(
                 title=str(QT_TRANSLATE_NOOP("BodePlotWidget", "Margin")),
-                x_label=str(QT_TRANSLATE_NOOP("BodePlotWidget", "freq /Hz")),
+                x_label=str(QT_TRANSLATE_NOOP("BodePlotWidget", "Frequency /rad/s")),
                 position=1
             ),
             2: SubplotConfiguration(
                 title=str(QT_TRANSLATE_NOOP("BodePlotWidget", "Phase")),
-                x_label=str(QT_TRANSLATE_NOOP("BodePlotWidget", "freq /Hz")),
+                x_label=str(QT_TRANSLATE_NOOP("BodePlotWidget", "Frequency /rad/s")),
                 position=2
             ),
         }
@@ -57,7 +58,6 @@ class BodePlotWidget(PlotWidget):
         # Global configuration for the PlotWidget base class
         plt_cfg = PlotWidgetConfiguration(
             context="BodePlotWidget",
-            title=str(QT_TRANSLATE_NOOP("BodePlotWidget", "Bode Plot")),
             subplot=(2, 1),
             subplot_configuration=subplot_cfgs,
         )

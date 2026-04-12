@@ -36,7 +36,7 @@ class SubplotConfiguration:
 class PlotWidgetConfiguration:
     """Configuration for the overall plot widget."""
     context: str
-    title: str
+    title: str = ""
     x_label: str = ""
     y_label: str = ""
     subplot: tuple[int, int] = (1, 1)

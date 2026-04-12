@@ -270,7 +270,6 @@ class EvaluationView(ViewMixin, QWidget):
 
         cl_plot_cfg = PlotWidgetConfiguration(
             context="EvaluationView",
-            title=str(QT_TRANSLATE_NOOP("EvaluationView", "Closed Loop")),
             subplot=(2, 1),
             subplot_configuration=subplot_cfgs,
         )

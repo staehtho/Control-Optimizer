@@ -50,25 +50,28 @@
 <context>
     <name>BodePlotWidget</name>
     <message>
-        <location filename="../views/widgets/bode_plot_widget.py" line="47"/>
-        <location filename="../views/widgets/bode_plot_widget.py" line="52"/>
         <source>freq /Hz</source>
-        <translation>freq /Hz</translation>
+        <translation type="vanished">freq /Hz</translation>
     </message>
     <message>
-        <location filename="../views/widgets/bode_plot_widget.py" line="46"/>
+        <location filename="../views/widgets/bode_plot_widget.py" line="47"/>
         <source>Margin</source>
         <translation>Margin</translation>
     </message>
     <message>
-        <location filename="../views/widgets/bode_plot_widget.py" line="51"/>
+        <location filename="../views/widgets/bode_plot_widget.py" line="48"/>
+        <location filename="../views/widgets/bode_plot_widget.py" line="53"/>
+        <source>Frequency /rad/s</source>
+        <translation>Frequency /rad/s</translation>
+    </message>
+    <message>
+        <location filename="../views/widgets/bode_plot_widget.py" line="52"/>
         <source>Phase</source>
         <translation>Phase</translation>
     </message>
     <message>
-        <location filename="../views/widgets/bode_plot_widget.py" line="60"/>
         <source>Bode Plot</source>
-        <translation>Bode Plot</translation>
+        <translation type="vanished">Bode Plot</translation>
     </message>
 </context>
 <context>
@@ -796,81 +799,80 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="273"/>
-        <location filename="../views/evaluation_view.py" line="382"/>
-        <location filename="../views/evaluation_view.py" line="401"/>
+        <location filename="../views/evaluation_view.py" line="381"/>
+        <location filename="../views/evaluation_view.py" line="400"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="379"/>
+        <location filename="../views/evaluation_view.py" line="378"/>
         <source>Evaluation</source>
         <translation>Evaluation</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="381"/>
+        <location filename="../views/evaluation_view.py" line="380"/>
         <source>PSO Result</source>
         <translation>PSO Result</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="385"/>
-        <location filename="../views/evaluation_view.py" line="395"/>
+        <location filename="../views/evaluation_view.py" line="384"/>
+        <location filename="../views/evaluation_view.py" line="394"/>
         <source>Time Domain</source>
         <translation>Time Domain</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="386"/>
-        <location filename="../views/evaluation_view.py" line="396"/>
+        <location filename="../views/evaluation_view.py" line="385"/>
+        <location filename="../views/evaluation_view.py" line="395"/>
         <source>Frequency Domain</source>
         <translation>Frequency Domain</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="387"/>
+        <location filename="../views/evaluation_view.py" line="386"/>
         <source>Block Diagram</source>
         <translation>Block Diagram</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="388"/>
+        <location filename="../views/evaluation_view.py" line="387"/>
         <source>Transfer Functions</source>
         <translation>Transfer Functions</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="391"/>
+        <location filename="../views/evaluation_view.py" line="390"/>
         <source>PSO run time</source>
         <translation>PSO run time</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="393"/>
+        <location filename="../views/evaluation_view.py" line="392"/>
         <source>Filter Time Constant</source>
         <translation>Filter Time Constant</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="394"/>
+        <location filename="../views/evaluation_view.py" line="393"/>
         <source>Performance Index</source>
         <translation>Performance Index</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="398"/>
+        <location filename="../views/evaluation_view.py" line="397"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="399"/>
+        <location filename="../views/evaluation_view.py" line="398"/>
         <source>Controller</source>
         <translation>Controller</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="400"/>
+        <location filename="../views/evaluation_view.py" line="399"/>
         <source>Open Loop</source>
         <translation>Open Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="402"/>
+        <location filename="../views/evaluation_view.py" line="401"/>
         <source>Sensitivity</source>
         <translation>Sensitivity</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="408"/>
+        <location filename="../views/evaluation_view.py" line="407"/>
         <source>Not feasible</source>
         <translation>Not feasible</translation>
     </message>
@@ -879,7 +881,7 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <translation type="vanished">PSO runt time</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="392"/>
+        <location filename="../views/evaluation_view.py" line="391"/>
         <source>Controller Parameters</source>
         <translation>Controller Parameters</translation>
     </message>
@@ -996,28 +998,27 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
 <context>
     <name>FunctionView</name>
     <message>
-        <location filename="../views/function_view.py" line="104"/>
-        <location filename="../views/function_view.py" line="143"/>
+        <location filename="../views/function_view.py" line="142"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="105"/>
+        <location filename="../views/function_view.py" line="104"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="106"/>
+        <location filename="../views/function_view.py" line="105"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="144"/>
+        <location filename="../views/function_view.py" line="143"/>
         <source>Function</source>
         <translation>Function</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="145"/>
+        <location filename="../views/function_view.py" line="144"/>
         <source>Function Plot</source>
         <translation>Function Plot</translation>
     </message>
@@ -1095,69 +1096,68 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
 <context>
     <name>PlantView</name>
     <message>
-        <location filename="../views/plant_view.py" line="292"/>
+        <location filename="../views/plant_view.py" line="291"/>
         <source>plant.num</source>
         <translation>Numerator</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="293"/>
+        <location filename="../views/plant_view.py" line="292"/>
         <source>plant.den</source>
         <translation>Denumerator</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="240"/>
-        <location filename="../views/plant_view.py" line="286"/>
+        <location filename="../views/plant_view.py" line="285"/>
         <source>Step Response</source>
         <translation>Step Response</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="241"/>
+        <location filename="../views/plant_view.py" line="240"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="242"/>
+        <location filename="../views/plant_view.py" line="241"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="284"/>
+        <location filename="../views/plant_view.py" line="283"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="285"/>
+        <location filename="../views/plant_view.py" line="284"/>
         <source>Transfer function</source>
         <translation>Transfer function</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="289"/>
+        <location filename="../views/plant_view.py" line="288"/>
         <source>Polynomial</source>
         <translation>Polynomial</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="290"/>
+        <location filename="../views/plant_view.py" line="289"/>
         <source>Pole-Zeros</source>
         <translation>Pole-Zeros</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="294"/>
+        <location filename="../views/plant_view.py" line="293"/>
         <source>plant.zero</source>
         <translation>Zeros</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="295"/>
+        <location filename="../views/plant_view.py" line="294"/>
         <source>plant.pole</source>
         <translation>Poles</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="297"/>
-        <location filename="../views/plant_view.py" line="299"/>
+        <location filename="../views/plant_view.py" line="296"/>
+        <location filename="../views/plant_view.py" line="298"/>
         <source>e.g. 1  → 1</source>
         <translation>e.g. 1  → 1</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="298"/>
+        <location filename="../views/plant_view.py" line="297"/>
         <source>e.g. 1, 2, 1  → 1s² + 2s + 1</source>
         <translation>e.g. 1, 2, 1  → 1s² + 2s + 1</translation>
     </message>
@@ -1166,7 +1166,7 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <translation type="vanished">e.g. 1, 0, 0  → 1s² + 0s + 0</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="300"/>
+        <location filename="../views/plant_view.py" line="299"/>
         <source>e.g. (s + 1)^2  → (s + 1)²</source>
         <translation>e.g. (s + 1)^2  → (s + 1)²</translation>
     </message>
@@ -1175,7 +1175,7 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <translation type="vanished">e.g. 1, 0, 0  → 1*s² + 0*s + 0</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="302"/>
+        <location filename="../views/plant_view.py" line="301"/>
         <source>Enter coefficients separated by commas, spaces, or semicolons.
         Use &apos;.&apos; as the decimal point.
         The first number corresponds to the highest power of s.
@@ -1186,7 +1186,7 @@ The first number corresponds to the highest power of s.
 Example: 1, 0.5, 2 → 1*s² + 0.5*s + 2</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="309"/>
+        <location filename="../views/plant_view.py" line="308"/>
         <source>Enter a polynomial expression in s (factors or expanded form).
         Use parentheses for factors. Multiplication can be implicit.
         Use &apos;^&apos; for powers.
@@ -1966,18 +1966,17 @@ Tf   = %(tf).3f</translation>
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/simulation_view.py" line="126"/>
-        <location filename="../views/simulation_view.py" line="176"/>
+        <location filename="../views/simulation_view.py" line="175"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/simulation_view.py" line="174"/>
+        <location filename="../views/simulation_view.py" line="173"/>
         <source>Simulation</source>
         <translation>Simulation</translation>
     </message>
     <message>
-        <location filename="../views/simulation_view.py" line="175"/>
+        <location filename="../views/simulation_view.py" line="174"/>
         <source>Excitation Function</source>
         <translation>Excitation Function</translation>
     </message>

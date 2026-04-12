@@ -101,7 +101,6 @@ class FunctionView(ViewMixin, QWidget):
 
         self._plot_cfg = PlotWidgetConfiguration(
             context="FunctionView",
-            title=str(QT_TRANSLATE_NOOP("FunctionView", "Excitation Function")),
             x_label=str(QT_TRANSLATE_NOOP("FunctionView", "Time [s]")),
             y_label=str(QT_TRANSLATE_NOOP("FunctionView", "Output")),
         )

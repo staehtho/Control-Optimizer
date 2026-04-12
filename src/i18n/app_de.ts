@@ -50,25 +50,28 @@
 <context>
     <name>BodePlotWidget</name>
     <message>
-        <location filename="../views/widgets/bode_plot_widget.py" line="47"/>
-        <location filename="../views/widgets/bode_plot_widget.py" line="52"/>
         <source>freq /Hz</source>
-        <translation>Frequenz /Hz</translation>
+        <translation type="vanished">Frequenz /Hz</translation>
     </message>
     <message>
-        <location filename="../views/widgets/bode_plot_widget.py" line="46"/>
+        <location filename="../views/widgets/bode_plot_widget.py" line="47"/>
         <source>Margin</source>
         <translation>Amplitude</translation>
     </message>
     <message>
-        <location filename="../views/widgets/bode_plot_widget.py" line="51"/>
+        <location filename="../views/widgets/bode_plot_widget.py" line="48"/>
+        <location filename="../views/widgets/bode_plot_widget.py" line="53"/>
+        <source>Frequency /rad/s</source>
+        <translation>Frequenz /rad/s</translation>
+    </message>
+    <message>
+        <location filename="../views/widgets/bode_plot_widget.py" line="52"/>
         <source>Phase</source>
         <translation>Phase</translation>
     </message>
     <message>
-        <location filename="../views/widgets/bode_plot_widget.py" line="60"/>
         <source>Bode Plot</source>
-        <translation>Bode Plot</translation>
+        <translation type="vanished">Bode Plot</translation>
     </message>
 </context>
 <context>
@@ -800,81 +803,80 @@ Ist die Abtastrate unbekannt, kann das Feld leer gelassen werden, um einen empfo
         <translation>Ausgang</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="273"/>
-        <location filename="../views/evaluation_view.py" line="382"/>
-        <location filename="../views/evaluation_view.py" line="401"/>
+        <location filename="../views/evaluation_view.py" line="381"/>
+        <location filename="../views/evaluation_view.py" line="400"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="379"/>
+        <location filename="../views/evaluation_view.py" line="378"/>
         <source>Evaluation</source>
         <translation>Auswertung</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="381"/>
+        <location filename="../views/evaluation_view.py" line="380"/>
         <source>PSO Result</source>
         <translation>PSO Ergebnis</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="385"/>
-        <location filename="../views/evaluation_view.py" line="395"/>
+        <location filename="../views/evaluation_view.py" line="384"/>
+        <location filename="../views/evaluation_view.py" line="394"/>
         <source>Time Domain</source>
         <translation>Zeitbereich</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="386"/>
-        <location filename="../views/evaluation_view.py" line="396"/>
+        <location filename="../views/evaluation_view.py" line="385"/>
+        <location filename="../views/evaluation_view.py" line="395"/>
         <source>Frequency Domain</source>
         <translation>Frequenzbereich</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="387"/>
+        <location filename="../views/evaluation_view.py" line="386"/>
         <source>Block Diagram</source>
         <translation>Blockschaltbild</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="388"/>
+        <location filename="../views/evaluation_view.py" line="387"/>
         <source>Transfer Functions</source>
         <translation>Übertragungsfunktionen</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="391"/>
+        <location filename="../views/evaluation_view.py" line="390"/>
         <source>PSO run time</source>
         <translation>PSO Laufzeit</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="393"/>
+        <location filename="../views/evaluation_view.py" line="392"/>
         <source>Filter Time Constant</source>
         <translation>Filterzeitkonstante</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="394"/>
+        <location filename="../views/evaluation_view.py" line="393"/>
         <source>Performance Index</source>
         <translation>Gütekriterium</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="398"/>
+        <location filename="../views/evaluation_view.py" line="397"/>
         <source>Plant</source>
         <translation>Regelstrecke</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="399"/>
+        <location filename="../views/evaluation_view.py" line="398"/>
         <source>Controller</source>
         <translation>Regler</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="400"/>
+        <location filename="../views/evaluation_view.py" line="399"/>
         <source>Open Loop</source>
         <translation>Offene Kette</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="402"/>
+        <location filename="../views/evaluation_view.py" line="401"/>
         <source>Sensitivity</source>
         <translation>Sensitivität</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="408"/>
+        <location filename="../views/evaluation_view.py" line="407"/>
         <source>Not feasible</source>
         <translation>Nicht zulässig</translation>
     </message>
@@ -883,7 +885,7 @@ Ist die Abtastrate unbekannt, kann das Feld leer gelassen werden, um einen empfo
         <translation type="vanished">PSO Laufzeit</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="392"/>
+        <location filename="../views/evaluation_view.py" line="391"/>
         <source>Controller Parameters</source>
         <translation>Reglerparameter</translation>
     </message>
@@ -1000,28 +1002,27 @@ Ist die Abtastrate unbekannt, kann das Feld leer gelassen werden, um einen empfo
 <context>
     <name>FunctionView</name>
     <message>
-        <location filename="../views/function_view.py" line="104"/>
-        <location filename="../views/function_view.py" line="143"/>
+        <location filename="../views/function_view.py" line="142"/>
         <source>Excitation Function</source>
         <translation>Anregungsfunktion</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="105"/>
+        <location filename="../views/function_view.py" line="104"/>
         <source>Time [s]</source>
         <translation>Zeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="106"/>
+        <location filename="../views/function_view.py" line="105"/>
         <source>Output</source>
         <translation>Ausgang</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="144"/>
+        <location filename="../views/function_view.py" line="143"/>
         <source>Function</source>
         <translation>Funktion</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="145"/>
+        <location filename="../views/function_view.py" line="144"/>
         <source>Function Plot</source>
         <translation>Plot der Funktion</translation>
     </message>
@@ -1099,69 +1100,68 @@ Ist die Abtastrate unbekannt, kann das Feld leer gelassen werden, um einen empfo
 <context>
     <name>PlantView</name>
     <message>
-        <location filename="../views/plant_view.py" line="292"/>
+        <location filename="../views/plant_view.py" line="291"/>
         <source>plant.num</source>
         <translation>Nenner</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="293"/>
+        <location filename="../views/plant_view.py" line="292"/>
         <source>plant.den</source>
         <translation>Zähler</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="240"/>
-        <location filename="../views/plant_view.py" line="286"/>
+        <location filename="../views/plant_view.py" line="285"/>
         <source>Step Response</source>
         <translation>Sprungantwort</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="241"/>
+        <location filename="../views/plant_view.py" line="240"/>
         <source>Time [s]</source>
         <translation>Zeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="242"/>
+        <location filename="../views/plant_view.py" line="241"/>
         <source>Output</source>
         <translation>Ausgang</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="284"/>
+        <location filename="../views/plant_view.py" line="283"/>
         <source>Plant</source>
         <translation>Regelstrecke</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="285"/>
+        <location filename="../views/plant_view.py" line="284"/>
         <source>Transfer function</source>
         <translation>Transferfunction</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="289"/>
+        <location filename="../views/plant_view.py" line="288"/>
         <source>Polynomial</source>
         <translation>Polynom</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="290"/>
+        <location filename="../views/plant_view.py" line="289"/>
         <source>Pole-Zeros</source>
         <translation>Pol-Nullstellen</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="294"/>
+        <location filename="../views/plant_view.py" line="293"/>
         <source>plant.zero</source>
         <translation>Nullstellen</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="295"/>
+        <location filename="../views/plant_view.py" line="294"/>
         <source>plant.pole</source>
         <translation>Polstellen</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="297"/>
-        <location filename="../views/plant_view.py" line="299"/>
+        <location filename="../views/plant_view.py" line="296"/>
+        <location filename="../views/plant_view.py" line="298"/>
         <source>e.g. 1  → 1</source>
         <translation>z.B. 1  → 1</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="298"/>
+        <location filename="../views/plant_view.py" line="297"/>
         <source>e.g. 1, 2, 1  → 1s² + 2s + 1</source>
         <translation>z.B. 1, 2, 1  → 1s² + 2s + 1</translation>
     </message>
@@ -1170,7 +1170,7 @@ Ist die Abtastrate unbekannt, kann das Feld leer gelassen werden, um einen empfo
         <translation type="vanished">z.B. 1, 0, 0  → 1s² + 0s + 0</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="300"/>
+        <location filename="../views/plant_view.py" line="299"/>
         <source>e.g. (s + 1)^2  → (s + 1)²</source>
         <translation>z.B. (s + 1)^2  → (s + 1)²</translation>
     </message>
@@ -1179,7 +1179,7 @@ Ist die Abtastrate unbekannt, kann das Feld leer gelassen werden, um einen empfo
         <translation type="vanished">z.B. 1, 0, 0  → 1*s² + 0*s + 0</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="302"/>
+        <location filename="../views/plant_view.py" line="301"/>
         <source>Enter coefficients separated by commas, spaces, or semicolons.
         Use &apos;.&apos; as the decimal point.
         The first number corresponds to the highest power of s.
@@ -1190,7 +1190,7 @@ Die erste Zahl entspricht der höchsten Potenz von s.
 Beispiel: 1, 0,5, 2 → 1*s² + 0,5*s + 2</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="309"/>
+        <location filename="../views/plant_view.py" line="308"/>
         <source>Enter a polynomial expression in s (factors or expanded form).
         Use parentheses for factors. Multiplication can be implicit.
         Use &apos;^&apos; for powers.
@@ -1967,18 +1967,17 @@ Tf   = %(tf).3f</translation>
         <translation>Ausgang</translation>
     </message>
     <message>
-        <location filename="../views/simulation_view.py" line="126"/>
-        <location filename="../views/simulation_view.py" line="176"/>
+        <location filename="../views/simulation_view.py" line="175"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/simulation_view.py" line="174"/>
+        <location filename="../views/simulation_view.py" line="173"/>
         <source>Simulation</source>
         <translation>Simulation</translation>
     </message>
     <message>
-        <location filename="../views/simulation_view.py" line="175"/>
+        <location filename="../views/simulation_view.py" line="174"/>
         <source>Excitation Function</source>
         <translation>Anregungsfunktion</translation>
     </message>

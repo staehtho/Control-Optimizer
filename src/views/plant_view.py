@@ -237,7 +237,6 @@ class PlantView(ViewMixin, QWidget):
         frame, frame_layout = self._create_card(parent=self)
         plot_cfg = PlotWidgetConfiguration(
             context="PlantView",
-            title=str(QT_TRANSLATE_NOOP("PlantView", "Step Response")),
             x_label=str(QT_TRANSLATE_NOOP("PlantView", "Time [s]")),
             y_label=str(QT_TRANSLATE_NOOP("PlantView", "Output")),
             show_x_min=False
