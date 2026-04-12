@@ -49,9 +49,17 @@
         <translation>Excitation Function</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="80"/>
         <source>The excitation input is:</source>
-        <translation>The excitation input is:</translation>
+        <translation type="vanished">The excitation input is:</translation>
+    </message>
+    <message>
+        <source>The excitation function is a %(function)s function:</source>
+        <translation type="vanished">The excitation function is a %(function)s function:</translation>
+    </message>
+    <message>
+        <location filename="../service/reporting/sections.py" line="80"/>
+        <source>The excitation function is a %(function)s:</source>
+        <translation>The excitation function is a %(function)s:</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="88"/>

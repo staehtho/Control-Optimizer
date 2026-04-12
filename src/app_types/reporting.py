@@ -26,6 +26,7 @@ class DynamicReportPlant:
 
 @dataclass(frozen=True)
 class DynamicReportExcitationFunction:
+    formula_desc: str
     formula: str
     parameters: dict[str, float]
 

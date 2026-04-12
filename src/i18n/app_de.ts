@@ -596,12 +596,12 @@ Ist die Abtastrate unbekannt, kann das Feld leer gelassen werden, um einen empfo
 <context>
     <name>DataManagementViewModel</name>
     <message>
-        <location filename="../viewmodels/data_management_viewmodel.py" line="159"/>
+        <location filename="../viewmodels/data_management_viewmodel.py" line="161"/>
         <source>Failed to start report generation</source>
         <translation>Berichtserstellung konnte nicht gestartet werden</translation>
     </message>
     <message>
-        <location filename="../viewmodels/data_management_viewmodel.py" line="167"/>
+        <location filename="../viewmodels/data_management_viewmodel.py" line="169"/>
         <source>Report generation failed due to missing data</source>
         <translation>Berichtserstellung aufgrund fehlender Daten fehlgeschlagen</translation>
     </message>
@@ -1794,12 +1794,12 @@ Tf   = %(tf).3f</translation>
         <translation>Exportieren</translation>
     </message>
     <message>
-        <location filename="../views/widgets/path_widget/save_path_widget.py" line="44"/>
+        <location filename="../views/widgets/path_widget/save_path_widget.py" line="43"/>
         <source>File In Use</source>
         <translation>Datei in Verwendung</translation>
     </message>
     <message>
-        <location filename="../views/widgets/path_widget/save_path_widget.py" line="45"/>
+        <location filename="../views/widgets/path_widget/save_path_widget.py" line="44"/>
         <source>The file is currently open in another program. Please close it first.</source>
         <translation>Die Datei ist derzeit in einem anderen Programm geöffnet. Bitte schliessen Sie sie zuerst.</translation>
     </message>

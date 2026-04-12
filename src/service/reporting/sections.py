@@ -79,8 +79,8 @@ def section_excitation_function(report: BaseReport, data: DynamicReportExcitatio
     report.add_paragraph(
         QCoreApplication.translate(
             "Report",
-            "The excitation input is:"
-        )
+            "The excitation function is a %(function)s:"
+        ) % {"function": data.formula_desc}
 
     )
     report.add_latex(data.formula, height=50)

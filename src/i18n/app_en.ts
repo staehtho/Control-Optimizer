@@ -592,12 +592,12 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
 <context>
     <name>DataManagementViewModel</name>
     <message>
-        <location filename="../viewmodels/data_management_viewmodel.py" line="159"/>
+        <location filename="../viewmodels/data_management_viewmodel.py" line="161"/>
         <source>Failed to start report generation</source>
         <translation>Failed to start report generation</translation>
     </message>
     <message>
-        <location filename="../viewmodels/data_management_viewmodel.py" line="167"/>
+        <location filename="../viewmodels/data_management_viewmodel.py" line="169"/>
         <source>Report generation failed due to missing data</source>
         <translation>Report generation failed due to missing data</translation>
     </message>
@@ -1793,12 +1793,12 @@ Tf   = %(tf).3f</translation>
         <translation>Export</translation>
     </message>
     <message>
-        <location filename="../views/widgets/path_widget/save_path_widget.py" line="44"/>
+        <location filename="../views/widgets/path_widget/save_path_widget.py" line="43"/>
         <source>File In Use</source>
         <translation>File In Use</translation>
     </message>
     <message>
-        <location filename="../views/widgets/path_widget/save_path_widget.py" line="45"/>
+        <location filename="../views/widgets/path_widget/save_path_widget.py" line="44"/>
         <source>The file is currently open in another program. Please close it first.</source>
         <translation>The file is currently open in another program. Please close it first.</translation>
     </message>

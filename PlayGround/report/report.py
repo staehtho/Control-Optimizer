@@ -14,6 +14,7 @@ plant_data = DynamicReportPlant(
 )
 
 excitation_function_data = DynamicReportExcitationFunction(
+    formula_desc="Step",
     formula=r"u(t) = \lambda \cdot \sigma(t - t_0)",
     parameters={
         r"\lambda": 1.0,

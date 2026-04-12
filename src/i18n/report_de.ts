@@ -49,9 +49,17 @@
         <translation>Anregungsfunktion</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="80"/>
         <source>The excitation input is:</source>
-        <translation>Die Anregung ist definiert als:</translation>
+        <translation type="vanished">Die Anregung ist definiert als:</translation>
+    </message>
+    <message>
+        <source>The excitation function is a %(function)s function:</source>
+        <translation type="vanished">Die Anregungsfunktion ist eine %(function)s-Funktion:</translation>
+    </message>
+    <message>
+        <location filename="../service/reporting/sections.py" line="80"/>
+        <source>The excitation function is a %(function)s:</source>
+        <translation>Die Anregungsfunktion ist eine %(function)s:</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="88"/>
