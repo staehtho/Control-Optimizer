@@ -102,12 +102,12 @@ PSO_RESULT_TEMPLATE: dict[PsoResultField, Any] = {
 
     PsoResultField.GAIN_MARGIN: QT_TRANSLATE_NOOP(
         "EvaluationView",
-        "Gain margin: %(value).3f dB @ %(omega).3f rad/s"
+        "Gain margin: %(value).3f dB at %(omega).3f rad/s"
     ),
 
     PsoResultField.PHASE_MARGIN: QT_TRANSLATE_NOOP(
         "EvaluationView",
-        "Phase margin: %(value).3f° @ %(omega).3f rad/s"
+        "Phase margin: %(value).3f° at %(omega).3f rad/s"
     ),
 
     PsoResultField.STABILITY_MARGIN: QT_TRANSLATE_NOOP(

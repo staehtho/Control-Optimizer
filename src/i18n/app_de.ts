@@ -697,14 +697,22 @@ Ist die Abtastrate unbekannt, kann das Feld leer gelassen werden, um einen empfo
         <translation>Stellratenbegrenzung du/dt: %(value).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="103"/>
         <source>Gain margin: %(value).3f dB @ %(omega).3f rad/s</source>
-        <translation>Amplitudenreserve: %(value).3f dB @ %(omega).3f rad/s</translation>
+        <translation type="vanished">Amplitudenreserve: %(value).3f dB @ %(omega).3f rad/s</translation>
+    </message>
+    <message>
+        <source>Phase margin: %(value).3f° @ %(omega).3f rad/s</source>
+        <translation type="vanished">Phasenreserve: %(value).3f° @ %(omega).3f rad/s</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="103"/>
+        <source>Gain margin: %(value).3f dB at %(omega).3f rad/s</source>
+        <translation>Amplitudenreserve: %(value).3f dB bei %(omega).3f rad/s</translation>
     </message>
     <message>
         <location filename="../views/evaluation_view.py" line="108"/>
-        <source>Phase margin: %(value).3f° @ %(omega).3f rad/s</source>
-        <translation>Phasenreserve: %(value).3f° @ %(omega).3f rad/s</translation>
+        <source>Phase margin: %(value).3f° at %(omega).3f rad/s</source>
+        <translation>Phasenreserve: %(value).3f° bei %(omega).3f rad/s</translation>
     </message>
     <message>
         <location filename="../views/evaluation_view.py" line="113"/>

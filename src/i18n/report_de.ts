@@ -102,12 +102,12 @@
         <translation>Begrenzungen</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="115"/>
+        <location filename="../service/reporting/sections.py" line="119"/>
         <source>Controller minimum output: %(min_output)s</source>
         <translation>Minimaler Reglerausgang: %(min_output)s</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="119"/>
+        <location filename="../service/reporting/sections.py" line="115"/>
         <source>Controller maximum output: %(max_output)s</source>
         <translation>Maximaler Reglerausgang: %(max_output)s</translation>
     </message>
@@ -302,62 +302,67 @@
         <translation>Frequenzbereichskennwerte</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="308"/>
+        <location filename="../service/reporting/sections.py" line="307"/>
+        <source>at</source>
+        <translation>bei</translation>
+    </message>
+    <message>
+        <location filename="../service/reporting/sections.py" line="311"/>
         <source>Gain margin</source>
         <translation>Verstärkungsreserve</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="312"/>
+        <location filename="../service/reporting/sections.py" line="315"/>
         <source>Phase margin</source>
         <translation>Phasenreserve</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="316"/>
+        <location filename="../service/reporting/sections.py" line="319"/>
         <source>Stability margin</source>
         <translation>Stabilitätsreserve</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="324"/>
+        <location filename="../service/reporting/sections.py" line="327"/>
         <source>Block Diagram</source>
         <translation>Blockdiagramm</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="329"/>
+        <location filename="../service/reporting/sections.py" line="332"/>
         <source>Plot Time Domain</source>
         <translation>Zeitbereichsdiagramm</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="334"/>
+        <location filename="../service/reporting/sections.py" line="337"/>
         <source>Bode Plot</source>
         <translation>Bode‑Diagramm</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="339"/>
+        <location filename="../service/reporting/sections.py" line="342"/>
         <source>Transfer Functions</source>
         <translation>Übertragungsfunktionen</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="342"/>
+        <location filename="../service/reporting/sections.py" line="345"/>
         <source>Plant</source>
         <translation>Strecke</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="343"/>
+        <location filename="../service/reporting/sections.py" line="346"/>
         <source>Controller</source>
         <translation>Regler</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="344"/>
+        <location filename="../service/reporting/sections.py" line="347"/>
         <source>Open Loop</source>
         <translation>Offener Kreis</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="345"/>
+        <location filename="../service/reporting/sections.py" line="348"/>
         <source>Closed Loop</source>
         <translation>Geschlossener Kreis</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="346"/>
+        <location filename="../service/reporting/sections.py" line="349"/>
         <source>Sensitivity</source>
         <translation>Empfindlichkeit</translation>
     </message>

@@ -136,9 +136,9 @@ def section_controller_configuration(report: BaseReport, data: DynamicReportCont
         "Report",
         "%(anti_windup)s method%(ka_part)s."
     ) % {
-                          "anti_windup": base,
-                          "ka_part": ka_part,
-                      }
+        "anti_windup": base,
+        "ka_part": ka_part,
+    }
 
     report.add_paragraph(str_anti_windup)
 
@@ -303,14 +303,17 @@ def section_pso_result(report: BaseReport, data_config: DynamicReportPsoConfigur
         QCoreApplication.translate("Report", "Metric"),
         QCoreApplication.translate("Report", "Value"),
     ]
+
+    at_label = QCoreApplication.translate("Report", "at")
+    
     table_data = [
         [
             QCoreApplication.translate("Report", "Gain margin"),
-            f"{_format_value(data.gain_margin)} dB @ {_format_value(data.omega_180, True)} rad/s"
+            f"{_format_value(data.gain_margin)} dB {at_label} {_format_value(data.omega_180, True)} rad/s"
         ],
         [
             QCoreApplication.translate("Report", "Phase margin"),
-            f"{_format_value(data.phase_margin)}° @ {_format_value(data.omega_c, True)} rad/s"
+            f"{_format_value(data.phase_margin)}° {at_label} {_format_value(data.omega_c, True)} rad/s"
         ],
         [
             QCoreApplication.translate("Report", "Stability margin"),

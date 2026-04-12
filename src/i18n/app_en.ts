@@ -693,14 +693,22 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <translation>Slew Rate Limit du/dt: %(value).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="103"/>
         <source>Gain margin: %(value).3f dB @ %(omega).3f rad/s</source>
-        <translation>Gain margin: %(value).3f dB @ %(omega).3f rad/s</translation>
+        <translation type="vanished">Gain margin: %(value).3f dB @ %(omega).3f rad/s</translation>
+    </message>
+    <message>
+        <source>Phase margin: %(value).3f° @ %(omega).3f rad/s</source>
+        <translation type="vanished">Phase margin: %(value).3f° @ %(omega).3f rad/s</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="103"/>
+        <source>Gain margin: %(value).3f dB at %(omega).3f rad/s</source>
+        <translation>Gain margin: %(value).3f dB at %(omega).3f rad/s</translation>
     </message>
     <message>
         <location filename="../views/evaluation_view.py" line="108"/>
-        <source>Phase margin: %(value).3f° @ %(omega).3f rad/s</source>
-        <translation>Phase margin: %(value).3f° @ %(omega).3f rad/s</translation>
+        <source>Phase margin: %(value).3f° at %(omega).3f rad/s</source>
+        <translation>Phase margin: %(value).3f° at %(omega).3f rad/s</translation>
     </message>
     <message>
         <location filename="../views/evaluation_view.py" line="113"/>

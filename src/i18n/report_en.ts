@@ -102,12 +102,12 @@
         <translation>Constraints</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="115"/>
+        <location filename="../service/reporting/sections.py" line="119"/>
         <source>Controller minimum output: %(min_output)s</source>
         <translation>Controller minimum output: %(min_output)s</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="119"/>
+        <location filename="../service/reporting/sections.py" line="115"/>
         <source>Controller maximum output: %(max_output)s</source>
         <translation>Controller maximum output: %(max_output)s</translation>
     </message>
@@ -302,62 +302,67 @@
         <translation>Frequency Domain Characteristics</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="308"/>
+        <location filename="../service/reporting/sections.py" line="307"/>
+        <source>at</source>
+        <translation>at</translation>
+    </message>
+    <message>
+        <location filename="../service/reporting/sections.py" line="311"/>
         <source>Gain margin</source>
         <translation>Gain margin</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="312"/>
+        <location filename="../service/reporting/sections.py" line="315"/>
         <source>Phase margin</source>
         <translation>Phase margin</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="316"/>
+        <location filename="../service/reporting/sections.py" line="319"/>
         <source>Stability margin</source>
         <translation>Stability margin</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="324"/>
+        <location filename="../service/reporting/sections.py" line="327"/>
         <source>Block Diagram</source>
         <translation>Block Diagram</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="329"/>
+        <location filename="../service/reporting/sections.py" line="332"/>
         <source>Plot Time Domain</source>
         <translation>Plot Time Domain</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="334"/>
+        <location filename="../service/reporting/sections.py" line="337"/>
         <source>Bode Plot</source>
         <translation>Bode Plot</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="339"/>
+        <location filename="../service/reporting/sections.py" line="342"/>
         <source>Transfer Functions</source>
         <translation>Transfer Functions</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="342"/>
+        <location filename="../service/reporting/sections.py" line="345"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="343"/>
+        <location filename="../service/reporting/sections.py" line="346"/>
         <source>Controller</source>
         <translation>Controller</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="344"/>
+        <location filename="../service/reporting/sections.py" line="347"/>
         <source>Open Loop</source>
         <translation>Open Loop</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="345"/>
+        <location filename="../service/reporting/sections.py" line="348"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="346"/>
+        <location filename="../service/reporting/sections.py" line="349"/>
         <source>Sensitivity</source>
         <translation>Sensitivity</translation>
     </message>
