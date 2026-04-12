@@ -188,21 +188,14 @@ class PsoFunc:
       - ``calculate_overshoot`` enables overshoot as a diagnostic metric.
       - ``use_overshoot_control`` applies the measured overshoot as an
         additional feasibility constraint.
-      - Allowed overshoot is measured relative to the step height.
-      - allowed_overshoot_pct = 0 means strict no-overshoot.
-      - Positive and negative steps are handled with one signed formula.
 
     Optional time-domain maximum slew-rate handling:
       - ``calculate_max_du_dt`` enables ``max_du_dt`` as a diagnostic metric.
       - ``use_max_du_dt_constraint`` applies the measured metric as an
         additional feasibility constraint.
-      - The metric is measured on the saturated actuator signal ``u_sat``.
       - ``max_du_dt`` is the maximum absolute control-rate estimate over a
         sliding window of ``m`` simulation steps:
         ``max(|u[k] - u[k-m]| / (m * dt))``.
-      - The window length ``m`` is configured via ``du_dt_window_steps``.
-      - A larger window smooths short-lived spikes but also makes the metric
-        less sensitive to very fast oscillations.
 
     Constraints (policies):
       - PM is minimum only: PM >= PM_min_deg
@@ -211,10 +204,6 @@ class PsoFunc:
         If GM missing => GM=+inf => OK (violation 0).
       - Ms is maximum in dB: Ms <= Ms_max_db
       - Non-finite frequency responses are treated as infeasible (guarded by freq_metrics).
-
-    NOTE (02.03.2026):
-      - Adaptive 2-pass frequency sweep removed.
-      - Single configurable frequency grid is always used.
     """
 
     def __init__(
