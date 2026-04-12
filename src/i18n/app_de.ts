@@ -101,19 +101,16 @@
         <translation type="vanished">n Messstörung</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="202"/>
         <source>Reference</source>
-        <translation>Führung</translation>
+        <translation type="vanished">Führung</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="204"/>
         <source>Input Disturbance</source>
-        <translation>Eingangsstörung</translation>
+        <translation type="vanished">Eingangsstörung</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="206"/>
         <source>Measurement Disturbance</source>
-        <translation>Messstörung</translation>
+        <translation type="vanished">Messstörung</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="118"/>
@@ -123,17 +120,17 @@
     <message>
         <location filename="../views/translations/enum_translations.py" line="105"/>
         <source>Reference r</source>
-        <translation>Führung r</translation>
+        <translation>r Führung</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="107"/>
         <source>Input Disturbance l</source>
-        <translation>Eingangsstörung l</translation>
+        <translation>l Eingangsstörung</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="109"/>
         <source>Measurement Disturbance n</source>
-        <translation>Messstörung n</translation>
+        <translation>n Messstörung</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="120"/>
@@ -228,7 +225,6 @@
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="171"/>
-        <location filename="../views/translations/enum_translations.py" line="194"/>
         <source>Plant</source>
         <translation>Regelstrecke</translation>
     </message>
@@ -268,9 +264,43 @@
         <translation>Einstellungen</translation>
     </message>
     <message>
+        <location filename="../views/translations/enum_translations.py" line="194"/>
+        <source>plant</source>
+        <translation>Regelstrecke</translation>
+    </message>
+    <message>
         <location filename="../views/translations/enum_translations.py" line="196"/>
-        <source>Function</source>
+        <source>function</source>
         <translation>Funktion</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="198"/>
+        <source>y_closed_loop</source>
+        <translation>y geschlossene Kette</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="200"/>
+        <source>u_control_signal</source>
+        <translation>u Stellgrösse</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="202"/>
+        <source>r_reference</source>
+        <translation>r Führung</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="204"/>
+        <source>l_input_disturbance</source>
+        <translation>l Eingangsstörung</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="206"/>
+        <source>n_measurement_disturbance</source>
+        <translation>n Messstörung</translation>
+    </message>
+    <message>
+        <source>Function</source>
+        <translation type="vanished">Funktion</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="208"/>
@@ -335,18 +365,16 @@
         <translation type="vanished">Systemantwort</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="200"/>
         <source>Control Signal</source>
-        <translation>Stellgrösse</translation>
+        <translation type="vanished">Stellgrösse</translation>
     </message>
     <message>
         <source>Excitation Target</source>
         <translation type="vanished">Anregungsfunktion</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="198"/>
         <source>Closed Loop</source>
-        <translation>Closed Loop</translation>
+        <translation type="vanished">Closed Loop</translation>
     </message>
     <message>
         <source>Time [s]</source>

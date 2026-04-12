@@ -101,19 +101,16 @@
         <translation type="vanished">n Measurement Disturbance</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="202"/>
         <source>Reference</source>
-        <translation>Reference</translation>
+        <translation type="vanished">Reference</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="204"/>
         <source>Input Disturbance</source>
-        <translation>Input Disturbance</translation>
+        <translation type="vanished">Input Disturbance</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="206"/>
         <source>Measurement Disturbance</source>
-        <translation>Measurement Disturbance</translation>
+        <translation type="vanished">Measurement Disturbance</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="118"/>
@@ -123,17 +120,17 @@
     <message>
         <location filename="../views/translations/enum_translations.py" line="105"/>
         <source>Reference r</source>
-        <translation>Reference r</translation>
+        <translation>r Reference</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="107"/>
         <source>Input Disturbance l</source>
-        <translation>Input Disturbance l</translation>
+        <translation>l Input Disturbance</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="109"/>
         <source>Measurement Disturbance n</source>
-        <translation>Measurement Disturbance n</translation>
+        <translation>n Measurement Disturbance</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="120"/>
@@ -228,7 +225,6 @@
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="171"/>
-        <location filename="../views/translations/enum_translations.py" line="194"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
@@ -268,14 +264,48 @@
         <translation>Settings</translation>
     </message>
     <message>
+        <location filename="../views/translations/enum_translations.py" line="194"/>
+        <source>plant</source>
+        <translation>plant</translation>
+    </message>
+    <message>
         <location filename="../views/translations/enum_translations.py" line="196"/>
+        <source>function</source>
+        <translation>function</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="198"/>
+        <source>y_closed_loop</source>
+        <translation>y closed loop</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="200"/>
+        <source>u_control_signal</source>
+        <translation>u control signal</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="202"/>
+        <source>r_reference</source>
+        <translation>r reference</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="204"/>
+        <source>l_input_disturbance</source>
+        <translation>l input disturbance</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="206"/>
+        <source>n_measurement_disturbance</source>
+        <translation>n measurement disturbance</translation>
+    </message>
+    <message>
         <source>Function</source>
-        <translation>Function</translation>
+        <translation type="vanished">Function</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="208"/>
         <source>G_plant</source>
-        <translation>G Plant</translation>
+        <translation>G plant</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="210"/>
@@ -335,18 +365,16 @@
         <translation type="vanished">Response</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="200"/>
         <source>Control Signal</source>
-        <translation>Control Signal</translation>
+        <translation type="vanished">Control Signal</translation>
     </message>
     <message>
         <source>Excitation Target</source>
         <translation type="vanished">Excitation Function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="198"/>
         <source>Closed Loop</source>
-        <translation>Closed Loop</translation>
+        <translation type="vanished">Closed Loop</translation>
     </message>
     <message>
         <source>Time [s]</source>
