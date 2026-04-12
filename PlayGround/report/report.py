@@ -49,6 +49,7 @@ pso_configuration_data = DynamicReportPsoConfiguration(
 )
 
 pso_result_data = DynamicReportPsoResult(
+    is_feasible=False,
     simulation_time=10.5,
     kp=10,
     ti=5,

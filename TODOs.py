@@ -7,8 +7,6 @@
 # TODO: Auflösung im Frequenzbereich diskutieren
 
 
-# TODO: Verhalten, wenn keine feasible Lösung gefunden werden kann  -> neuer Frame in PSOResult an erster stelle -> Rot Error:...
-#   auch in Report an erster Stelle
 # TODO: evt hyperparameter von PSO in systemsettings integrieren? -> gute Idee, wenn ja nur mit ToolTip
 # TODO: Wo ist die automatische Simulationszeit in App -> ok ich verstehe wo (PSO Parameters -> Endtime) somit kann die
 #   Endzeit und Start zeit automatisch bestummen werden -> Startzeit dann auf 0s -> Aufwand abschätzen

@@ -63,6 +63,7 @@ class DynamicReportPsoConfiguration:
 
 @dataclass(frozen=True)
 class DynamicReportPsoResult:
+    is_feasible: bool
     simulation_time: float
     kp: float
     ti: float

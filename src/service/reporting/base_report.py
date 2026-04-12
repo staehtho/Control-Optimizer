@@ -11,13 +11,14 @@ from reportlab.platypus import (
 )
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
+from reportlab.lib.colors import HexColor
 from svglib.svglib import svg2rlg
 
 from utils import latex_to_drawing
 
-ACCENT = colors.HexColor("#2A6FDB")
-ACCENT_LIGHT = colors.HexColor("#E8F0FF")
-TEXT_DARK = colors.HexColor("#222222")
+ACCENT = HexColor("#2A6FDB")
+ACCENT_LIGHT = HexColor("#E8F0FF")
+TEXT_DARK = HexColor("#222222")
 
 
 def _convert_cell(cell):
@@ -154,9 +155,20 @@ class BaseReport:
         self.story.append(Paragraph(text, self.styles["ModernHeading3"]))
         self.story.append(Spacer(1, 4))
 
-    def add_paragraph(self, text: str) -> None:
-        """Use original BodyText for LaTeX compatibility."""
-        self.story.append(Paragraph(text, self.styles["BodyText"]))
+    def add_paragraph(self, text: str, color: str = "black", bold: bool = False) -> None:
+        """Add a paragraph with optional color and bold style."""
+
+        resolved_color = self._resolve_color(color)
+        base = self.styles["BodyText"]
+
+        style = ParagraphStyle(
+            name="BodyTextColoredBold",
+            parent=base,
+            textColor=resolved_color,
+            fontName="Helvetica-Bold" if bold else base.fontName,
+        )
+
+        self.story.append(Paragraph(text, style))
         self.story.append(Spacer(1, 6))
 
     def add_modern_paragraph(self, text: str) -> None:
@@ -268,3 +280,44 @@ class BaseReport:
             onFirstPage=self._on_page,
             onLaterPages=self._on_page,
         )
+
+    # ============================================================
+    # Internal helpers
+    # ============================================================
+    def _resolve_color(self, value):
+        """Translate a string like 'red' into a ReportLab color."""
+
+        if value is None:
+            return self.styles["BodyText"].textColor
+
+        # If already a ReportLab color, return as-is
+        if hasattr(value, 'red') and hasattr(value, 'green') and hasattr(value, 'blue'):
+            return value
+
+        # Named colors mapping
+        color_map = {
+            "red": colors.red,
+            "blue": colors.blue,
+            "green": colors.green,
+            "black": colors.black,
+            "white": colors.white,
+            "gray": colors.grey,
+            "grey": colors.grey,
+            "accent": ACCENT,
+            "accent_light": ACCENT_LIGHT,
+            "text_dark": TEXT_DARK,
+        }
+
+        # Normalize key
+        key = str(value).strip().lower()
+
+        # Named color
+        if key in color_map:
+            return color_map[key]
+
+        # Hex color (#rrggbb)
+        if key.startswith("#") and len(key) == 7:
+            return HexColor(key)
+
+        # Fallback
+        return self.styles["BodyText"].textColor

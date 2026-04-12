@@ -32,6 +32,16 @@ def _format_value(value: Any, exp_allowed: bool = False) -> str:
 
 
 def section_result_summary(report: BaseReport, data: DynamicReportPsoResult) -> None:
+    if not data.is_feasible:
+        report.add_paragraph(
+            QCoreApplication.translate(
+                "Report",
+                "Not feasible"  # TODO: better Text
+            ),
+            color="red",
+            bold=True,
+        )
+
     report.add_paragraph(
         QCoreApplication.translate(
             "Report",

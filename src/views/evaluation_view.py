@@ -215,6 +215,12 @@ class EvaluationView(ViewMixin, QWidget):
         frame: SectionFrame
         frame, frame_layout = self._create_card(parent=self)
 
+        self._feasible_widget = QLabel(self)
+        self._feasible_widget.setObjectName("FeasibleStatus")
+        self._feasible_widget.hide()
+
+        frame_layout.addWidget(self._feasible_widget)
+
         grid_layout = self._create_grid(FIELDS["result"])
 
         frame_layout.addLayout(grid_layout)
@@ -399,6 +405,7 @@ class EvaluationView(ViewMixin, QWidget):
         for key in labels.keys():
             self.labels[key].setText(labels[key])
 
+        self._feasible_widget.setText(self.tr("Not feasible"))  # TODO: better Text evtl. with ToolTip?
         self._update_pso_result_values()
 
     # ============================================================
@@ -593,6 +600,9 @@ class EvaluationView(ViewMixin, QWidget):
             for key in PSO_RESULT_TEMPLATE.keys():
                 self.field_widgets.get(key).setText("-")
             return
+
+        # feasible
+        self._feasible_widget.setVisible(not result.is_feasible)
 
         limited_key = ""
         show_limited = False

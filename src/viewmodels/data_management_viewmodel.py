@@ -257,6 +257,7 @@ class DataManagementViewModel(BaseViewModel):
             tf_limitation = "simulation"
 
         return DynamicReportPsoResult(
+            is_feasible=result.is_feasible,
             simulation_time=result.simulation_time,
             kp=result.kp,
             ti=result.ti,

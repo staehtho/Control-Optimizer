@@ -402,3 +402,17 @@ QPushButton#DialogButton:pressed {
     qproperty-trackColor: #2563eb;
     qproperty-thumbColor: #ffffff;
 }
+
+/* ============================================================
+   FEASIBLE STATUS INDICATOR — DARK THEME
+   ============================================================ */
+#FeasibleStatus {
+background-color: #dc2626;
+/* red */
+color: #ffffff;
+border-radius: 6px;
+padding: 4px 10px;
+font-weight: 600;
+min-height: 22px;
+max-height: 22px;
+}
