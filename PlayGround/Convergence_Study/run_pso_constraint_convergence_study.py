@@ -102,18 +102,18 @@ class ConstraintConfig:
 
 
 CONSTRAINT_CONFIGS: list[ConstraintConfig] = [
-    ConstraintConfig("pm_easy", "pm", "easy", 5.0, "deg", True, 5.0, 0.0, None, False, 0.0, False, 0.0),
-    ConstraintConfig("pm_medium", "pm", "medium", 11.0, "deg", True, 11.0, 0.0, None, False, 0.0, False, 0.0),
-    ConstraintConfig("pm_hard", "pm", "hard", 39.0, "deg", True, 39.0, 0.0, None, False, 0.0, False, 0.0),
-    ConstraintConfig("ms_easy", "ms", "easy", 20.2, "dB", True, 0.0, 0.0, 20.2, False, 0.0, False, 0.0),
-    ConstraintConfig("ms_medium", "ms", "medium", 14.25, "dB", True, 0.0, 0.0, 14.25, False, 0.0, False, 0.0),
-    ConstraintConfig("ms_hard", "ms", "hard", 4.5, "dB", True, 0.0, 0.0, 4.5, False, 0.0, False, 0.0),
-    ConstraintConfig("overshoot_easy", "overshoot", "easy", 82.0, "%", False, 0.0, 0.0, None, True, 82.0, False, 0.0),
-    ConstraintConfig("overshoot_medium", "overshoot", "medium", 62.8, "%", False, 0.0, 0.0, None, True, 62.8, False, 0.0),
-    ConstraintConfig("overshoot_hard", "overshoot", "hard", 18.8, "%", False, 0.0, 0.0, None, True, 18.8, False, 0.0),
-    ConstraintConfig("du_dt_easy", "du_dt", "easy", 400.0, "1/s", False, 0.0, 0.0, None, False, 0.0, True, 400.0),
-    ConstraintConfig("du_dt_medium", "du_dt", "medium", 140, "1/s", False, 0.0, 0.0, None, False, 0.0, True, 140),
-    ConstraintConfig("du_dt_hard", "du_dt", "hard", 11, "1/s", False, 0.0, 0.0, None, False, 0.0, True, 11),
+    ConstraintConfig("pm_easy", "pm", "easy", 11.7, "deg", True, 11.7, 0.0, None, False, 0.0, False, 0.0),
+    ConstraintConfig("pm_medium", "pm", "medium", 25.9, "deg", True, 25.9, 0.0, None, False, 0.0, False, 0.0),
+    ConstraintConfig("pm_hard", "pm", "hard", 46.2, "deg", True, 46.2, 0.0, None, False, 0.0, False, 0.0),
+    ConstraintConfig("ms_easy", "ms", "easy", 13.7, "dB", True, 0.0, 0.0, 13.7, False, 0.0, False, 0.0),
+    ConstraintConfig("ms_medium", "ms", "medium", 7.5, "dB", True, 0.0, 0.0, 7.5, False, 0.0, False, 0.0),
+    ConstraintConfig("ms_hard", "ms", "hard", 3.1, "dB", True, 0.0, 0.0, 3.1, False, 0.0, False, 0.0),
+    ConstraintConfig("overshoot_easy", "overshoot", "easy", 64.9, "%", False, 0.0, 0.0, None, True, 64.9, False, 0.0),
+    ConstraintConfig("overshoot_medium", "overshoot", "medium", 31.6, "%", False, 0.0, 0.0, None, True, 31.6, False, 0.0),
+    ConstraintConfig("overshoot_hard", "overshoot", "hard", 5.0, "%", False, 0.0, 0.0, None, True, 5.0, False, 0.0),
+    ConstraintConfig("du_dt_easy", "du_dt", "easy", 159.4, "1/s", False, 0.0, 0.0, None, False, 0.0, True, 159.4),
+    ConstraintConfig("du_dt_medium", "du_dt", "medium", 41.0, "1/s", False, 0.0, 0.0, None, False, 0.0, True, 41.0),
+    ConstraintConfig("du_dt_hard", "du_dt", "hard", 7.5, "1/s", False, 0.0, 0.0, None, False, 0.0, True, 7.5),
 ]
 
 

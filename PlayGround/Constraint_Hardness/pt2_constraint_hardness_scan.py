@@ -41,9 +41,9 @@ PT2_PRESETS: dict[str, dict[str, list[float]]] = {
     },
 }
 
-PLANT_PRESET = "oscillatory"
+PLANT_PRESET = "oscillatory_d01"
 
-CONTROL_CONSTRAINT = (-5.0, 5.0)
+CONTROL_CONSTRAINT = (-100.0, 100.0)
 PID_BOUNDS = {
     "kp": (0.0, 10.0),
     "ti": (0.05, 10.0),
@@ -69,9 +69,9 @@ FREQ_GRID = {
 }
 
 TARGET_FEASIBLE_RATIOS = {
-    "easy": 0.90,
-    "medium": 0.50,
-    "hard": 0.10,
+    "easy": 0.50,
+    "medium": 0.20,
+    "hard": 0.05,
 }
 
 SAMPLING_CONFIG = {
@@ -97,6 +97,14 @@ class SweepPoint:
     order_value: float
     label: str
     params: dict[str, float | bool | None]
+
+
+SCAN_CONFIG = {
+    "pm": {"start": 0.0, "stop": 60.0, "count": 20},
+    "ms": {"start": 24.0, "stop": 0.0, "count": 20},
+    "overshoot": {"start": 90.0, "stop": 5.0, "count": 20},
+    "du_dt": {"start": 500.0, "stop": 1.0, "count": 20},
+}
 
 
 def build_step_signal():
@@ -160,7 +168,12 @@ def build_pso_func(sweep_point: SweepPoint, swarm_size: int) -> PsoFunc:
 
 
 def pm_sweep_points() -> list[SweepPoint]:
-    values = np.linspace(5.0, 45.0, 21, dtype=np.float64)
+    values = np.linspace(
+        SCAN_CONFIG["pm"]["start"],
+        SCAN_CONFIG["pm"]["stop"],
+        int(SCAN_CONFIG["pm"]["count"]),
+        dtype=np.float64,
+    )
     points: list[SweepPoint] = []
 
     for value in values:
@@ -183,32 +196,13 @@ def pm_sweep_points() -> list[SweepPoint]:
     return points
 
 
-def gm_sweep_points() -> list[SweepPoint]:
-    values = np.linspace(0.0, 30.0, 21, dtype=np.float64)
-    points: list[SweepPoint] = []
-
-    for value in values:
-        points.append(
-            SweepPoint(
-                family="gm",
-                order_value=float(value),
-                label=f"gm>={value:.1f} dB",
-                params={
-                    "use_freq_metrics": True,
-                    "pm_min_deg": 0.0,
-                    "gm_min_db": float(value),
-                    "ms_max_db": None,
-                    "use_overshoot_control": False,
-                    "use_max_du_dt_constraint": False,
-                },
-            )
-        )
-
-    return points
-
-
 def ms_sweep_points() -> list[SweepPoint]:
-    values = np.linspace(24.0, 3.0, 29, dtype=np.float64)
+    values = np.linspace(
+        SCAN_CONFIG["ms"]["start"],
+        SCAN_CONFIG["ms"]["stop"],
+        int(SCAN_CONFIG["ms"]["count"]),
+        dtype=np.float64,
+    )
     points: list[SweepPoint] = []
 
     for value in values:
@@ -232,11 +226,11 @@ def ms_sweep_points() -> list[SweepPoint]:
 
 
 def overshoot_sweep_points() -> list[SweepPoint]:
-    values = np.concatenate(
-        (
-            np.array([120.0, 110.0, 100.0, 95.0, 90.0, 88.0, 86.0, 84.0, 82.0, 80.0], dtype=np.float64),
-            np.geomspace(80.0, 0.5, 22, dtype=np.float64)[1:],
-        )
+    values = np.linspace(
+        SCAN_CONFIG["overshoot"]["start"],
+        SCAN_CONFIG["overshoot"]["stop"],
+        int(SCAN_CONFIG["overshoot"]["count"]),
+        dtype=np.float64,
     )
     points: list[SweepPoint] = []
 
@@ -263,11 +257,11 @@ def overshoot_sweep_points() -> list[SweepPoint]:
 
 
 def du_dt_sweep_points() -> list[SweepPoint]:
-    values = np.concatenate(
-        (
-            np.array([600.0, 500.0, 450.0, 400.0, 350.0, 300.0, 250.0, 200.0], dtype=np.float64),
-            np.geomspace(200.0, 0.05, 24, dtype=np.float64)[1:],
-        )
+    values = np.linspace(
+        SCAN_CONFIG["du_dt"]["start"],
+        SCAN_CONFIG["du_dt"]["stop"],
+        int(SCAN_CONFIG["du_dt"]["count"]),
+        dtype=np.float64,
     )
     points: list[SweepPoint] = []
 
@@ -297,7 +291,6 @@ def du_dt_sweep_points() -> list[SweepPoint]:
 def build_all_sweep_points() -> list[SweepPoint]:
     return (
         pm_sweep_points()
-        + gm_sweep_points()
         + ms_sweep_points()
         + overshoot_sweep_points()
         + du_dt_sweep_points()
@@ -386,7 +379,7 @@ def evaluate_sweep_point(sweep_point: SweepPoint) -> dict[str, float | str | int
 
 def choose_target_rows(rows: list[dict[str, float | str | int]]) -> list[dict[str, float | str | int]]:
     selected: list[dict[str, float | str | int]] = []
-    for family in ("pm", "gm", "ms", "overshoot", "du_dt"):
+    for family in ("pm", "ms", "overshoot", "du_dt"):
         family_rows = [row for row in rows if row["family"] == family]
         for hardness_label, target_ratio in TARGET_FEASIBLE_RATIOS.items():
             best_row = min(
@@ -430,12 +423,6 @@ def build_plot_ready_rows(
             "family_label": "Phasenreserve PM",
             "threshold_column": "pm_min_deg",
             "threshold_unit": "deg",
-            "constraint_type": "minimum",
-        },
-        "gm": {
-            "family_label": "Amplitudenreserve GM",
-            "threshold_column": "gm_min_db",
-            "threshold_unit": "dB",
             "constraint_type": "minimum",
         },
         "ms": {
@@ -565,11 +552,31 @@ def _format_threshold_label(value: float, unit: str) -> str:
     return f"{value:.3g}"
 
 
+def _format_threshold_label_clean(value: float, unit: str) -> str:
+    if unit == "deg":
+        return f"{value:.0f}°"
+    if unit == "dB":
+        if abs(value - round(value)) < 1e-9:
+            return f"{value:.0f} dB"
+        return f"{value:.2f} dB"
+    if unit == "%":
+        if abs(value - round(value)) < 1e-9:
+            return f"{value:.0f} %"
+        return f"{value:.1f} %"
+    if value >= 100.0:
+        return f"{value:.0f}"
+    if value >= 10.0:
+        return f"{value:.2f}"
+    if value >= 1.0:
+        return f"{value:.3g}"
+    return f"{value:.3g}"
+
+
 def build_categorical_ready_rows(
     plot_rows: list[dict[str, float | str | int]],
 ) -> list[dict[str, float | str | int]]:
     categorical_rows: list[dict[str, float | str | int]] = []
-    families = ["pm", "gm", "ms", "overshoot", "du_dt"]
+    families = ["pm", "ms", "overshoot", "du_dt"]
     gap = 2
     x_cursor = 0
 
@@ -614,6 +621,107 @@ def build_categorical_ready_rows(
     return categorical_rows
 
 
+def build_multi_axis_ready_rows(
+    plot_rows: list[dict[str, float | str | int]],
+) -> list[dict[str, float | str | int]]:
+    multi_axis_rows: list[dict[str, float | str | int]] = []
+    families = ["pm", "ms", "overshoot", "du_dt"]
+
+    for family in families:
+        family_rows = [row for row in plot_rows if str(row["family"]) == family]
+        if not family_rows:
+            continue
+
+        family_rows = sorted(
+            family_rows,
+            key=lambda row: float(row["threshold_value"]),
+            reverse=(str(family_rows[0]["constraint_type"]) == "maximum"),
+        )
+
+        for local_idx, row in enumerate(family_rows):
+            threshold_value = float(row["threshold_value"])
+            threshold_unit = str(row["threshold_unit"])
+            multi_axis_rows.append(
+                {
+                    "family": str(row["family"]),
+                    "family_label": str(row["family_label"]),
+                    "x_position": local_idx,
+                    "threshold_value": threshold_value,
+                    "threshold_unit": threshold_unit,
+                    "x_label": _format_threshold_label(threshold_value, threshold_unit),
+                    "mean_feasible_ratio": float(row["mean_feasible_ratio"]),
+                    "mean_feasible_percent": float(row["mean_feasible_percent"]),
+                    "std_feasible_ratio": float(row["std_feasible_ratio"]),
+                    "std_feasible_percent": float(row["std_feasible_percent"]),
+                    "selected_hardness": str(row["selected_hardness"]),
+                    "label": str(row["label"]),
+                }
+            )
+
+    return multi_axis_rows
+
+
+def build_stacked_label_ready_rows(
+    plot_rows: list[dict[str, float | str | int]],
+) -> list[dict[str, float | str | int]]:
+    families = ["pm", "ms", "overshoot", "du_dt"]
+    family_rows_map: dict[str, list[dict[str, float | str | int]]] = {}
+
+    for family in families:
+        family_rows = [row for row in plot_rows if str(row["family"]) == family]
+        family_rows = sorted(
+            family_rows,
+            key=lambda row: float(row["threshold_value"]),
+            reverse=(str(family_rows[0]["constraint_type"]) == "maximum"),
+        )
+        family_rows_map[family] = family_rows
+
+    point_count = min(len(rows) for rows in family_rows_map.values())
+    stacked_rows: list[dict[str, float | str | int]] = []
+
+    for idx in range(point_count):
+        pm_row = family_rows_map["pm"][idx]
+        ms_row = family_rows_map["ms"][idx]
+        overshoot_row = family_rows_map["overshoot"][idx]
+        du_dt_row = family_rows_map["du_dt"][idx]
+
+        x_label = "\n".join(
+            [
+                f"PM { _format_threshold_label_clean(float(pm_row['threshold_value']), str(pm_row['threshold_unit'])) }",
+                f"Ms { _format_threshold_label_clean(float(ms_row['threshold_value']), str(ms_row['threshold_unit'])) }",
+                f'ÜS { _format_threshold_label_clean(float(overshoot_row["threshold_value"]), str(overshoot_row["threshold_unit"])) }',
+                f'du/dt { _format_threshold_label_clean(float(du_dt_row["threshold_value"]), str(du_dt_row["threshold_unit"])) }',
+            ]
+        )
+
+        stacked_rows.append(
+            {
+                "x_position": idx,
+                "x_label": x_label,
+                "pm_threshold_value": float(pm_row["threshold_value"]),
+                "pm_label": _format_threshold_label_clean(float(pm_row["threshold_value"]), str(pm_row["threshold_unit"])),
+                "pm_mean_feasible_ratio": float(pm_row["mean_feasible_ratio"]),
+                "pm_std_feasible_ratio": float(pm_row["std_feasible_ratio"]),
+                "ms_threshold_value": float(ms_row["threshold_value"]),
+                "ms_label": _format_threshold_label_clean(float(ms_row["threshold_value"]), str(ms_row["threshold_unit"])),
+                "ms_mean_feasible_ratio": float(ms_row["mean_feasible_ratio"]),
+                "ms_std_feasible_ratio": float(ms_row["std_feasible_ratio"]),
+                "overshoot_threshold_value": float(overshoot_row["threshold_value"]),
+                "overshoot_label": _format_threshold_label_clean(
+                    float(overshoot_row["threshold_value"]), str(overshoot_row["threshold_unit"])
+                ),
+                "overshoot_mean_feasible_ratio": float(overshoot_row["mean_feasible_ratio"]),
+                "overshoot_std_feasible_ratio": float(overshoot_row["std_feasible_ratio"]),
+                "du_dt_threshold_value": float(du_dt_row["threshold_value"]),
+                "du_dt_label": _format_threshold_label_clean(float(du_dt_row["threshold_value"]), str(du_dt_row["threshold_unit"])),
+                "du_dt_mean_feasible_ratio": float(du_dt_row["mean_feasible_ratio"]),
+                "du_dt_std_feasible_ratio": float(du_dt_row["std_feasible_ratio"]),
+            }
+        )
+
+    return stacked_rows
+
+
 def try_create_combined_plot(
     plot_rows: list[dict[str, float | str | int]],
     out_dir: Path,
@@ -624,8 +732,8 @@ def try_create_combined_plot(
         print("matplotlib not available, skipping combined plot.")
         return
 
-    families = ["pm", "gm", "ms", "overshoot", "du_dt"]
-    fig, axes = plt.subplots(3, 2, figsize=(13, 11), sharey=True)
+    families = ["pm", "ms", "overshoot", "du_dt"]
+    fig, axes = plt.subplots(2, 2, figsize=(13, 8.2), sharey=True)
     axes_list = list(axes.flat)
 
     for idx, family in enumerate(families):
@@ -661,7 +769,6 @@ def try_create_combined_plot(
                 label=hardness,
             )
 
-    axes_list[-1].axis("off")
     handles, labels = axes_list[0].get_legend_handles_labels()
     if handles:
         fig.legend(handles, labels, loc="lower center", ncol=3, frameon=False)
@@ -682,10 +789,9 @@ def try_create_overlay_plot(
         print("matplotlib not available, skipping overlay plot.")
         return
 
-    families = ["pm", "gm", "ms", "overshoot", "du_dt"]
+    families = ["pm", "ms", "overshoot", "du_dt"]
     colors = {
         "pm": "#1f77b4",
-        "gm": "#7f7f7f",
         "ms": "#d62728",
         "overshoot": "#2ca02c",
         "du_dt": "#ff7f0e",
@@ -752,10 +858,9 @@ def try_create_categorical_overlay_plot(
         print("matplotlib not available, skipping categorical overlay plot.")
         return
 
-    families = ["pm", "gm", "ms", "overshoot", "du_dt"]
+    families = ["pm", "ms", "overshoot", "du_dt"]
     colors = {
         "pm": "#1f77b4",
-        "gm": "#7f7f7f",
         "ms": "#d62728",
         "overshoot": "#2ca02c",
         "du_dt": "#ff7f0e",
@@ -830,6 +935,164 @@ def try_create_categorical_overlay_plot(
     plt.close(fig)
 
 
+def try_create_multi_axis_overlay_plot(
+    multi_axis_rows: list[dict[str, float | str | int]],
+    out_dir: Path,
+) -> None:
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        print("matplotlib not available, skipping multi-axis overlay plot.")
+        return
+
+    families = ["pm", "ms", "overshoot", "du_dt"]
+    colors = {
+        "pm": "#1f77b4",
+        "ms": "#d62728",
+        "overshoot": "#2ca02c",
+        "du_dt": "#ff7f0e",
+    }
+
+    fig, ax = plt.subplots(figsize=(14, 8.6))
+
+    max_points = max(
+        len([row for row in multi_axis_rows if str(row["family"]) == family]) for family in families
+    )
+    x_positions = np.arange(max_points, dtype=np.float64)
+
+    for family in families:
+        family_rows = [row for row in multi_axis_rows if str(row["family"]) == family]
+        if not family_rows:
+            continue
+
+        x = np.array([float(row["x_position"]) for row in family_rows], dtype=np.float64)
+        y = np.array([float(row["mean_feasible_ratio"]) for row in family_rows], dtype=np.float64)
+        yerr = np.array([float(row["std_feasible_ratio"]) for row in family_rows], dtype=np.float64)
+
+        ax.errorbar(
+            x,
+            y,
+            yerr=yerr,
+            fmt="-o",
+            linewidth=1.6,
+            markersize=3.8,
+            capsize=2.5,
+            color=colors[family],
+            label=str(family_rows[0]["family_label"]),
+        )
+
+        for row in family_rows:
+            if not str(row["selected_hardness"]):
+                continue
+            ax.scatter(
+                [float(row["x_position"])],
+                [float(row["mean_feasible_ratio"])],
+                s=48,
+                color=colors[family],
+                zorder=5,
+            )
+
+    for hardness_name, target_ratio in TARGET_FEASIBLE_RATIOS.items():
+        ax.axhline(target_ratio, linestyle="--", linewidth=0.9, color="gray", alpha=0.7)
+
+    ax.set_xlim(-0.2, max_points - 0.8)
+    ax.set_ylim(-0.02, 1.02)
+    ax.set_ylabel("Feasible-Anteil")
+    ax.set_title(f"{PLANT_PRESET} | Overlay mit vier x-Achsen")
+    ax.grid(True, axis="y", alpha=0.3)
+    ax.tick_params(axis="x", bottom=False, labelbottom=False)
+    ax.legend(frameon=False, loc="upper right")
+
+    axis_offsets = [0, 26, 52, 78]
+    for idx, family in enumerate(families):
+        family_rows = [row for row in multi_axis_rows if str(row["family"]) == family]
+        if not family_rows:
+            continue
+
+        axis = ax.twiny()
+        axis.set_xlim(ax.get_xlim())
+        axis.xaxis.set_ticks_position("bottom")
+        axis.xaxis.set_label_position("bottom")
+        axis.spines["top"].set_visible(False)
+        axis.spines["bottom"].set_position(("outward", axis_offsets[idx]))
+        axis.spines["bottom"].set_color(colors[family])
+        axis.tick_params(axis="x", colors=colors[family], labelsize=7, pad=1, length=3)
+        axis.set_xticks(x_positions)
+        axis.set_xticklabels([str(row["x_label"]) for row in family_rows], rotation=55, ha="right")
+        axis.set_xlabel(
+            f"{family_rows[0]['family_label']} [{family_rows[0]['threshold_unit']}]",
+            color=colors[family],
+            labelpad=8,
+        )
+
+    fig.tight_layout(rect=(0, 0.18, 1, 1))
+    fig.savefig(out_dir / "constraint_hardness_overlay_multi_x.png", dpi=180)
+    plt.close(fig)
+
+
+def try_create_stacked_label_overlay_plot(
+    stacked_rows: list[dict[str, float | str | int]],
+    out_dir: Path,
+) -> None:
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        print("matplotlib not available, skipping stacked-label overlay plot.")
+        return
+
+    colors = {
+        "pm": "#1f77b4",
+        "ms": "#d62728",
+        "overshoot": "#2ca02c",
+        "du_dt": "#ff7f0e",
+    }
+    labels = {
+        "pm": "Phasenreserve PM",
+        "ms": r"Stabilität $M_s$",
+        "overshoot": "Maximales Überschwingen",
+        "du_dt": r"Maximale Stellrate $\mathrm{d}u/\mathrm{d}t$",
+    }
+
+    x = np.array([float(row["x_position"]) for row in stacked_rows], dtype=np.float64)
+    fig, ax = plt.subplots(figsize=(15.5, 7.8))
+
+    for family in ("pm", "ms", "overshoot", "du_dt"):
+        y = np.array([float(row[f"{family}_mean_feasible_ratio"]) for row in stacked_rows], dtype=np.float64)
+        yerr = np.array([float(row[f"{family}_std_feasible_ratio"]) for row in stacked_rows], dtype=np.float64)
+        ax.errorbar(
+            x,
+            y,
+            yerr=yerr,
+            fmt="-o",
+            linewidth=1.6,
+            markersize=3.8,
+            capsize=2.5,
+            color=colors[family],
+            label=labels[family],
+        )
+
+    for hardness_name, target_ratio in TARGET_FEASIBLE_RATIOS.items():
+        ax.axhline(target_ratio, linestyle="--", linewidth=0.9, color="gray", alpha=0.7)
+
+    tick_indices = np.linspace(0, len(stacked_rows) - 1, 4, dtype=int)
+    tick_indices = np.unique(tick_indices)
+    tick_positions = x[tick_indices]
+    tick_labels = [str(stacked_rows[idx]["x_label"]) for idx in tick_indices]
+
+    ax.set_xlim(-0.4, float(len(stacked_rows)) - 0.6)
+    ax.set_ylim(-0.02, 1.02)
+    ax.set_ylabel("Anteil zulässiger Initialpartikel", fontsize=13)
+    ax.set_xlabel("Schwellenwerte je Stützstelle", fontsize=13, labelpad=8)
+    ax.grid(True, axis="y", alpha=0.3)
+    ax.set_xticks(tick_positions)
+    ax.set_xticklabels(tick_labels, fontsize=8)
+    ax.legend(frameon=False, loc="upper right")
+
+    fig.tight_layout(rect=(0, 0.16, 1, 1))
+    fig.savefig(out_dir / "constraint_hardness_overlay_stacked_labels.png", dpi=180)
+    plt.close(fig)
+
+
 def try_create_plot(rows: list[dict[str, float | str | int]], out_dir: Path) -> None:
     try:
         import matplotlib.pyplot as plt
@@ -837,7 +1100,7 @@ def try_create_plot(rows: list[dict[str, float | str | int]], out_dir: Path) -> 
         print("matplotlib not available, skipping plots.")
         return
 
-    for family in ("pm", "gm", "ms", "overshoot", "du_dt"):
+    for family in ("pm", "ms", "overshoot", "du_dt"):
         family_rows = sorted(
             (row for row in rows if row["family"] == family),
             key=lambda row: float(row["order_value"]),
@@ -881,7 +1144,7 @@ def print_summary(
     print(f"PID bounds: {PID_BOUNDS}")
     print()
     print("Observed feasible-ratio span per family:")
-    for family in ("pm", "gm", "ms", "overshoot", "du_dt"):
+    for family in ("pm", "ms", "overshoot", "du_dt"):
         family_rows = [row for row in sweep_rows if row["family"] == family]
         if not family_rows:
             continue
@@ -900,7 +1163,7 @@ def print_summary(
 
 
 def main(output_subdir: str | None = None) -> None:
-    result_dir_name = PLANT_PRESET if output_subdir is None else str(output_subdir)
+    result_dir_name = f"{PLANT_PRESET}_u100" if output_subdir is None else str(output_subdir)
     out_dir = Path(__file__).resolve().parent / "results" / result_dir_name
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -924,16 +1187,22 @@ def main(output_subdir: str | None = None) -> None:
     plot_rows = build_plot_ready_rows(rows, summary_rows)
     overlay_rows = build_overlay_ready_rows(plot_rows)
     categorical_rows = build_categorical_ready_rows(plot_rows)
+    multi_axis_rows = build_multi_axis_ready_rows(plot_rows)
+    stacked_rows = build_stacked_label_ready_rows(plot_rows)
 
     write_csv(out_dir / "pt2_constraint_hardness_sweep.csv", rows)
     write_csv(out_dir / "pt2_constraint_hardness_summary.csv", summary_rows)
     write_csv(out_dir / "pt2_constraint_hardness_plot_ready.csv", plot_rows)
     write_csv(out_dir / "pt2_constraint_hardness_overlay_ready.csv", overlay_rows)
     write_csv(out_dir / "pt2_constraint_hardness_categorical_ready.csv", categorical_rows)
+    write_csv(out_dir / "pt2_constraint_hardness_multi_axis_ready.csv", multi_axis_rows)
+    write_csv(out_dir / "pt2_constraint_hardness_stacked_label_ready.csv", stacked_rows)
     try_create_plot(rows, out_dir)
     try_create_combined_plot(plot_rows, out_dir)
     try_create_overlay_plot(overlay_rows, out_dir)
     try_create_categorical_overlay_plot(categorical_rows, out_dir)
+    try_create_multi_axis_overlay_plot(multi_axis_rows, out_dir)
+    try_create_stacked_label_overlay_plot(stacked_rows, out_dir)
     print_summary(summary_rows, rows)
 
     print()
@@ -942,6 +1211,8 @@ def main(output_subdir: str | None = None) -> None:
     print(f"Wrote plot data to:  {out_dir / 'pt2_constraint_hardness_plot_ready.csv'}")
     print(f"Wrote overlay data to: {out_dir / 'pt2_constraint_hardness_overlay_ready.csv'}")
     print(f"Wrote categorical plot data to: {out_dir / 'pt2_constraint_hardness_categorical_ready.csv'}")
+    print(f"Wrote multi-axis plot data to: {out_dir / 'pt2_constraint_hardness_multi_axis_ready.csv'}")
+    print(f"Wrote stacked-label plot data to: {out_dir / 'pt2_constraint_hardness_stacked_label_ready.csv'}")
 
 
 if __name__ == "__main__":
