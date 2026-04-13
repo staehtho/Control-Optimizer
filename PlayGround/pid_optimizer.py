@@ -87,7 +87,7 @@ def main():
     td_max = config["pso"]["bounds"]["td_max"]'''
 
     plant_num = [1]
-    plant_den = [1, 0.1, 1]
+    plant_den = [1, 0.2, 1]
 
     use_freq_metrics = False
     pm_min_deg = 55
@@ -98,15 +98,15 @@ def main():
     allowed_overshoot_pct = 20
     # Compute the overshoot metric even when the
     # feasibility constraint stays disabled.
-    calculate_overshoot = False
+    calculate_overshoot = True
 
     # Maximum absolute control-rate estimate over a window of m steps:
     # max(|u[k] - u[k-m]| / (m * dt))
     # Keep disabled until a project-specific limit has been calibrated.
-    use_max_du_dt_constraint = True
+    use_max_du_dt_constraint = False
     # Compute the diagnostic metric for the best candidate even when the
     # feasibility constraint stays disabled.
-    calculate_max_du_dt = False
+    calculate_max_du_dt = True
     allowed_max_du_dt = 350
     du_dt_window_steps = 10
 
@@ -130,7 +130,7 @@ def main():
 
     kp_min = 0
     kp_max = 10
-    ti_min = 0.1
+    ti_min = 0.01
     ti_max = 10
     td_min = 0
     td_max = 10
