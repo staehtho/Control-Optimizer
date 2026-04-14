@@ -29,6 +29,13 @@ if TYPE_CHECKING:
 
 
 class NavigationSignals(QObject):
+    """Signals used by views that support step navigation.
+
+    Attributes:
+        nextRequested (Signal): Emitted when the user requests the next step.
+        previousRequested (Signal): Emitted when the user requests the previous step.
+    """
+
     nextRequested = Signal()
     previousRequested = Signal()
 
@@ -37,13 +44,10 @@ class NavigationSignals(QObject):
 
 
 class ViewMixin:
-    """Mixin for Qt views, intended to be combined with QWidget/QMainWindow/QDialog.
+    """Mixin for Qt views that supports localization, theming, and lifecycle hooks.
 
-    Responsibilities:
-    - Bind to LanguageViewModel for UI translations
-    - Provide a logger for debugging
-    - Structured lifecycle: UI creation, signals, ViewModel bindings
-    - Abstract methods enforce that concrete Views implement required functionality
+    Views that inherit this mixin must implement UI initialization, signal
+    connection, ViewModel binding, translation, and initial value application.
     """
 
     # ============================================================
@@ -51,7 +55,12 @@ class ViewMixin:
     # ============================================================
 
     def __init__(self, ui_context: UiContext):
-        """Initialize the view mixin and run the view lifecycle."""
+        """Initialize the view mixin and run the view lifecycle.
+
+        Args:
+            ui_context (UiContext): Shared UI context containing theme,
+                language, and settings ViewModels.
+        """
         self._ui_context = ui_context
         self.nav_signals = NavigationSignals(self._as_widget())
 
@@ -92,7 +101,7 @@ class ViewMixin:
         # -----------------------------
         # Step 1: Initialize UI components (widgets, layouts, etc.)
         self._init_ui()
-        self.apply_theme()
+        self._apply_theme()
         self.logger.debug("UI initialized")
 
         # Step 2: Connect UI signals (buttons, inputs, etc.)
@@ -116,7 +125,11 @@ class ViewMixin:
         self.logger.debug("Initialization complete")
 
     def _as_widget(self) -> Optional[QWidget]:
-        """Return self as QWidget if applicable, otherwise None."""
+        """Return self as a QWidget when available.
+
+        Returns:
+            Optional[QWidget]: The object cast as QWidget if possible, otherwise None.
+        """
         return self if isinstance(self, QWidget) else None
 
     # ============================================================
@@ -124,23 +137,33 @@ class ViewMixin:
     # ============================================================
 
     def _init_ui(self) -> None:
-        """Create and configure UI elements (widgets, layouts, etc.)."""
+        """Create and configure UI elements.
+
+        Implementations should create widgets, layouts, and other visual
+        components required by the view.
+        """
         ...
 
     def _connect_signals(self) -> None:
-        """Connect UI signals (buttons, input fields, etc.) to handlers."""
+        """Connect UI signals to view handlers.
+
+        This includes button clicks, input changes, and other widget events.
+        """
         ...
 
     def _bind_vm(self) -> None:
-        """Bind ViewModel signals to View updates (model -> view)."""
+        """Bind ViewModel signals to view update methods.
+
+        This method is responsible for connecting the model-to-view data flow.
+        """
         ...
 
     def _retranslate(self) -> None:
-        """Update all UI texts after a language change."""
+        """Update all UI text values after a language change."""
         self._retranslate_nav_buttons()
 
     def _apply_init_value(self) -> None:
-        """Apply initial values to all UI elements."""
+        """Apply initial values to widgets and controls."""
         ...
 
     # ============================================================
@@ -280,8 +303,12 @@ class ViewMixin:
     # Theme Handling
     # ============================================================
 
-    def apply_theme(self) -> None:
-        """Apply the current theme to the view and application properties."""
+    def _apply_theme(self) -> None:
+        """Apply the current theme to the view and application.
+
+        This method updates the view stylesheet and sets application-level
+        theme properties used by child widgets and styles.
+        """
         widget = self._as_widget()
         if widget is None:
             return
@@ -305,19 +332,31 @@ class ViewMixin:
         self._on_theme_applied()
 
     def _on_theme_applied(self) -> None:
-        """Hook for subclasses that need non-QSS theme updates."""
+        """Hook for subclasses that need non-QSS theme updates.
+
+        Subclasses can override this method to apply additional styling or
+        widget updates that cannot be expressed via stylesheet alone.
+        """
         ...
 
     def _on_theme_changed(self, *_args) -> None:
-        """Apply the theme when the theme ViewModel changes."""
-        self.apply_theme()
+        """Respond to theme changes from the theme ViewModel."""
+        self._apply_theme()
 
     # ============================================================
     # Icon Utilities
     # ============================================================
 
     def _load_icon(self, svg_path: str | Path, size: int = 24) -> QIcon:
-        """Load an SVG icon and recolor it using the current theme."""
+        """Load and recolor an SVG icon according to the current theme.
+
+        Args:
+            svg_path (str | Path): Path to the SVG icon file.
+            size (int): Desired icon size in pixels.
+
+        Returns:
+            QIcon: The themed icon instance.
+        """
         return icon_helpers.load_icon(self._vm_theme.get_svg_color_map(), svg_path, size)
 
     # ============================================================
