@@ -2016,12 +2016,12 @@ Tf   = %(tf).3f</translation>
 <context>
     <name>ViewMixin</name>
     <message>
-        <location filename="../views/view_mixin.py" line="340"/>
+        <location filename="../views/view_mixin.py" line="379"/>
         <source>Previous</source>
         <translation>Previous</translation>
     </message>
     <message>
-        <location filename="../views/view_mixin.py" line="341"/>
+        <location filename="../views/view_mixin.py" line="380"/>
         <source>Next</source>
         <translation>Next</translation>
     </message>

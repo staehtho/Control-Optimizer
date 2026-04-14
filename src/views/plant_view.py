@@ -29,12 +29,12 @@ class PlantView(ViewMixin, QWidget):
     # ============================================================
 
     def __init__(
-        self,
+            self,
             ui_context: UiContext,
-        vm_plant: PlantViewModel,
-        vm_plot: PlotViewModel,
+            vm_plant: PlantViewModel,
+            vm_plot: PlotViewModel,
             parent: QWidget = None,
-    ):
+    ) -> None:
         QWidget.__init__(self, parent)
 
         # Reference to the ViewModel

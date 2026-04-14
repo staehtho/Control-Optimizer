@@ -49,7 +49,6 @@ class SettingsView(ViewMixin, QWidget):
     def __init__(self, ui_context: UiContext, parent: QWidget = None):
         QWidget.__init__(self, parent)
 
-        self._vm_theme = ui_context.vm_theme
         self._vm_settings = ui_context.settings
 
         ViewMixin.__init__(self, ui_context)
