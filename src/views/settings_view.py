@@ -115,7 +115,7 @@ class SettingsView(ViewMixin, QWidget):
     # ============================================================
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
-        ...
+        self._connect_object_signals(self._get_vm_bindings())
 
     # ============================================================
     # Translation
@@ -259,5 +259,39 @@ class SettingsView(ViewMixin, QWidget):
                 widget=self.field_widgets[k_pso_particles],
                 kwargs={"value_type": int},
                 main_event_handler=self._on_widget_changed
+            ),
+        ]
+
+    def _get_vm_bindings(self) -> list[ConnectSignalConfig]:
+        def _wrapper(key: SettingsField, signal_name: str, attr: str) -> ConnectSignalConfig:
+            return ConnectSignalConfig(
+                key=key,
+                signal_name=signal_name,
+                attr_name=attr,
+                widget=self._vm_settings,
+                kwargs={"field": self.field_widgets[key]},
+                main_event_handler=self._on_vm_changed
+            )
+
+        return [
+            _wrapper(
+                SettingsField.SOLVER_TYPE,
+                "solverChanged",
+                "solver"
+            ),
+            _wrapper(
+                SettingsField.SOLVER_TIME_STEP,
+                "timeStepChanged",
+                "time_step"
+            ),
+            _wrapper(
+                SettingsField.PSO_ITERATIONS,
+                "psoIterationsChanged",
+                "pso_iterations"
+            ),
+            _wrapper(
+                SettingsField.PSO_PARTICLES,
+                "psoParticleChanged",
+                "pso_particle"
             ),
         ]
