@@ -1081,12 +1081,13 @@ def try_create_stacked_label_overlay_plot(
 
     ax.set_xlim(-0.4, float(len(stacked_rows)) - 0.6)
     ax.set_ylim(-0.02, 1.02)
-    ax.set_ylabel("Anteil zulässiger Initialpartikel", fontsize=13)
-    ax.set_xlabel("Schwellenwerte je Stützstelle", fontsize=13, labelpad=8)
+    ax.set_ylabel("Anteil zulässiger Initialpartikel", fontsize=16)
+    ax.set_xlabel("Schwellenwerte je Stützstelle", fontsize=16, labelpad=8)
     ax.grid(True, axis="y", alpha=0.3)
     ax.set_xticks(tick_positions)
-    ax.set_xticklabels(tick_labels, fontsize=8)
-    ax.legend(frameon=False, loc="upper right")
+    ax.set_xticklabels(tick_labels, fontsize=11)
+    ax.tick_params(axis="y", labelsize=12)
+    ax.legend(frameon=False, loc="upper right", fontsize=13)
 
     fig.tight_layout(rect=(0, 0.16, 1, 1))
     fig.savefig(out_dir / "constraint_hardness_overlay_stacked_labels.png", dpi=180)

@@ -101,6 +101,23 @@ class ConstraintConfig:
     du_dt_window_steps: int = 10
 
 
+REFERENCE_CONFIG = ConstraintConfig(
+    "reference_unconstrained",
+    "reference",
+    "unconstrained",
+    0.0,
+    "-",
+    False,
+    0.0,
+    0.0,
+    None,
+    False,
+    0.0,
+    False,
+    0.0,
+)
+
+
 CONSTRAINT_CONFIGS: list[ConstraintConfig] = [
     ConstraintConfig("pm_easy", "pm", "easy", 11.7, "deg", True, 11.7, 0.0, None, False, 0.0, False, 0.0),
     ConstraintConfig("pm_medium", "pm", "medium", 25.9, "deg", True, 25.9, 0.0, None, False, 0.0, False, 0.0),
@@ -115,6 +132,8 @@ CONSTRAINT_CONFIGS: list[ConstraintConfig] = [
     ConstraintConfig("du_dt_medium", "du_dt", "medium", 41.0, "1/s", False, 0.0, 0.0, None, False, 0.0, True, 41.0),
     ConstraintConfig("du_dt_hard", "du_dt", "hard", 7.5, "1/s", False, 0.0, 0.0, None, False, 0.0, True, 7.5),
 ]
+
+ALL_CONFIGS: list[ConstraintConfig] = [REFERENCE_CONFIG, *CONSTRAINT_CONFIGS]
 
 
 def build_step_signal() -> tuple[Callable[[np.ndarray], np.ndarray], ...]:
@@ -199,9 +218,13 @@ def append_csv_row(path: Path, fieldnames: list[str], row: dict[str, object]) ->
         writer.writerow(row)
 
 
-def build_manifest_rows(num_runs: int, base_seed: int) -> list[dict[str, object]]:
+def build_manifest_rows(
+    num_runs: int,
+    base_seed: int,
+    configs: list[ConstraintConfig],
+) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
-    for config in CONSTRAINT_CONFIGS:
+    for config in configs:
         rows.append(
             {
                 "config_id": config.config_id,
@@ -383,7 +406,7 @@ def run_single_configuration(
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
-            "Run the PSO convergence study for all 12 constraint configurations "
+            "Run the PSO convergence study for the configured constraint cases "
             "and store run-level plus iteration-level data."
         )
     )
@@ -402,13 +425,34 @@ def main() -> None:
     parser.add_argument(
         "--output-dir",
         type=str,
-        default=str(Path(__file__).resolve().parent / "results" / "pt2_d01_u100_convergence_runs"),
+        default=str(
+            Path(__file__).resolve().parent
+            / "results"
+            / "pt2_d01_u100_convergence_runs_with_reference"
+        ),
         help="Directory for the generated CSV files.",
+    )
+    parser.add_argument(
+        "--config-id",
+        action="append",
+        dest="config_ids",
+        help=(
+            "Optional config_id filter. Can be passed multiple times, e.g. "
+            "--config-id reference_unconstrained"
+        ),
     )
     args = parser.parse_args()
 
     output_dir = Path(args.output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    selected_configs = ALL_CONFIGS
+    if args.config_ids:
+        requested = set(args.config_ids)
+        selected_configs = [config for config in ALL_CONFIGS if config.config_id in requested]
+        missing = sorted(requested - {config.config_id for config in selected_configs})
+        if missing:
+            raise ValueError(f"Unknown config_id values: {', '.join(missing)}")
 
     manifest_path = output_dir / "config_manifest.csv"
     run_summary_path = output_dir / "run_summary.csv"
@@ -472,17 +516,21 @@ def main() -> None:
     write_csv_header(run_summary_path, run_summary_fields)
     write_csv_header(iteration_trace_path, iteration_fields)
 
-    for row in build_manifest_rows(num_runs=args.num_runs, base_seed=args.base_seed):
+    for row in build_manifest_rows(
+        num_runs=args.num_runs,
+        base_seed=args.base_seed,
+        configs=selected_configs,
+    ):
         append_csv_row(manifest_path, manifest_fields, row)
 
     print("Starting PSO convergence study...")
     print(f"Output directory: {output_dir}")
-    print(f"Configurations: {len(CONSTRAINT_CONFIGS)}")
+    print(f"Configurations: {len(selected_configs)}")
     print(f"Runs per configuration: {args.num_runs}")
 
-    for config_index, config in enumerate(CONSTRAINT_CONFIGS):
+    for config_index, config in enumerate(selected_configs):
         print(
-            f"[{config_index + 1:02d}/{len(CONSTRAINT_CONFIGS):02d}] "
+            f"[{config_index + 1:02d}/{len(selected_configs):02d}] "
             f"{config.config_id} | family={config.family} | hardness={config.hardness}"
         )
         run_single_configuration(
