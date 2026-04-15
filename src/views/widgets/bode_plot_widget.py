@@ -11,7 +11,7 @@ from .plot_widget import PlotWidget, PlotWidgetConfiguration, SubplotConfigurati
 
 if TYPE_CHECKING:
     from app_domain.ui_context import UiContext
-    from viewmodels import PlotViewModel
+    from viewmodels import BodePlotViewModel
 
 class BodePlotWidget(PlotWidget):
     """Widget for displaying a Bode plot.
@@ -20,7 +20,7 @@ class BodePlotWidget(PlotWidget):
         1. Margin plot (gain in dB)
         2. Phase plot (in degrees)
 
-    The data series passed from the PlotViewModel must contain:
+    The data series passed from the BodePlotViewModel must contain:
         - omega: frequency values
         - margin: gain values (in dB)
         - phase: phase values (in degrees)
@@ -32,12 +32,12 @@ class BodePlotWidget(PlotWidget):
     # Initialization
     # ============================================================
 
-    def __init__(self, ui_context: UiContext, vm: PlotViewModel, parent: QWidget = None):
+    def __init__(self, ui_context: UiContext, vm: BodePlotViewModel, parent: QWidget = None):
         """Initialize the BodePlotWidget.
 
         Args:
             ui_context: Shared UI context used across the application.
-            vm: PlotViewModel providing the plot series.
+            vm: BodePlotViewModel providing the plot series.
             parent: Optional Qt parent object.
         """
 

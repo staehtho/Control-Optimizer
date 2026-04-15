@@ -172,7 +172,7 @@ class PsoConfigurationViewModel(BaseViewModel):
         typ=float,
     )
 
-    slew_window_size: float = LoggedProperty(
+    slew_window_size: int = LoggedProperty(
         path="_model_pso.slew_window_size",
         signal="slewWindowSizeChanged",
         typ=int
