@@ -7,6 +7,8 @@ from PySide6.QtCore import QTimer
 from PySide6.QtGui import QPixmap, Qt
 from PySide6.QtWidgets import QApplication, QSplashScreen
 
+from resources.resources import SRC_DIR, OUTPUT_DIR
+
 # TODO: TabIndex
 
 # TODO: Evaluation: TF with L and N
@@ -15,28 +17,24 @@ def create_app():
     return QApplication(sys.argv)
 
 
-def show_splash_message_setup(app: QApplication, splash: QSplashScreen) -> Callable:
-    def show_message(message: str):
-        splash.showMessage(
-            message,
-            Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom,
-            Qt.GlobalColor.white
-        )
-        app.processEvents()
-
-    return show_message
-
-
 def show_splash():
     path = Path(__file__).parent / "resources" / "icons" / "control_optimizer.svg"
-    pixmap = QPixmap(path)
+
+    pixmap = QPixmap(str(path))
+
+    # Scale the pixmap
+    pixmap = pixmap.scaled(
+        256, 256,
+        Qt.AspectRatioMode.KeepAspectRatio,
+        Qt.TransformationMode.SmoothTransformation
+    )
+
     splash = QSplashScreen(pixmap)
     splash.show()
     return splash
 
 
-def setup_logging(src_dir):
-    from pathlib import Path
+def setup_logging(src_dir, log_level):
     log_dir = Path(src_dir) / "logs"
     log_file = log_dir / "app.log"
 
@@ -47,7 +45,7 @@ def setup_logging(src_dir):
 
     logging.basicConfig(
         filename=log_file,
-        level=logging.DEBUG,
+        level=log_level,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S"
     )
@@ -213,31 +211,24 @@ def create_main_view(engine, ui_context, view_factories):
 def run_app():
     app = create_app()
     splash = show_splash()
-    splash_message = show_splash_message_setup(app, splash)
-    splash_message("Loading resources...")
 
-    from resources.resources import SRC_DIR, OUTPUT_DIR
-    setup_logging(SRC_DIR)
+    setup_logging(SRC_DIR, logging.DEBUG)
     setup_output_directory(OUTPUT_DIR)
 
-    splash_message("Initializing engine...")
     engine = create_engine()
     connect_shutdown(app, engine)
 
-    splash_message("Initializing context...")
     ui_context = engine.ui_context
 
-    splash_message("Creating view factories...")
     view_factories = create_view_factories(engine, ui_context)
     main_view = create_main_view(engine, ui_context, view_factories)
 
-    splash_message("Loading views...")
     main_view.preload_views()
 
     main_view.show()
     splash.finish(main_view)
 
-    QTimer.singleShot(750, lambda: engine.run_warmup(2))
+    QTimer.singleShot(750, lambda: engine.run_warmup(1))
 
     sys.exit(app.exec())
 

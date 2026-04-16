@@ -108,7 +108,7 @@ def compute_effective_tf_report(
             limited=False,
             limited_by_simulation=False,
             limited_by_sampling=False,
-            min_sampling_rate_hz=0.0,
+            min_sampling_rate_hz=np.nan,
         )
 
     tf_raw = td / n_factor

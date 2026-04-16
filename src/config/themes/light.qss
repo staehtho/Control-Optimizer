@@ -1,36 +1,61 @@
+/* ============================================================
+   GLOBAL WIDGET DEFAULTS
+   ============================================================ */
 QWidget {
     color: #17212b;
     font-size: 13px;
 }
+
 QWidget#viewRoot {
     background: #f4f7fb;
 }
+
+QLabel {
+    background: transparent;
+}
+
+
+/* ============================================================
+   CARDS & FRAMES
+   ============================================================ */
 QFrame {
     background: transparent;
     border: 1px solid transparent;
 }
+
 QFrame#card {
     background: #ffffff;
     border: 1px solid #dce3ee;
     border-radius: 14px;
     padding: 8px;
 }
+
+
+/* ============================================================
+   TITLES & HEADINGS
+   ============================================================ */
 QLabel#viewTitle {
     color: #0f1d2d;
     font-size: 32px;
     font-weight: 700;
     padding: 4px 2px 8px 2px;
 }
+
 QLabel#sectionTitle {
     color: #1f2d3a;
     font-size: 24px;
     font-weight: 600;
     padding-bottom: 4px;
 }
-QLabel {
-    background: transparent;
-}
-QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox {
+
+
+/* ============================================================
+   INPUT FIELDS (LineEdit, ComboBox, SpinBoxes)
+   ============================================================ */
+QLineEdit,
+QComboBox,
+QSpinBox,
+QDoubleSpinBox {
     background: #ffffff;
     border: 1px solid #c9d4e5;
     border-radius: 8px;
@@ -38,9 +63,11 @@ QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox {
     padding: 4px 8px;
     selection-background-color: #2f80ed;
 }
+
 QComboBox {
     color: #17212b;
 }
+
 QComboBox::drop-down {
     border-left: 1px solid #dce3ee;
     background: #f4f7fb;
@@ -48,6 +75,7 @@ QComboBox::drop-down {
     border-top-right-radius: 8px;
     border-bottom-right-radius: 8px;
 }
+
 QComboBox QAbstractItemView {
     background: #ffffff;
     color: #17212b;
@@ -55,6 +83,11 @@ QComboBox QAbstractItemView {
     selection-background-color: #2f80ed;
     selection-color: #ffffff;
 }
+
+
+/* ============================================================
+   PUSH BUTTONS
+   ============================================================ */
 QPushButton {
     background: #2f80ed;
     color: #ffffff;
@@ -64,23 +97,33 @@ QPushButton {
     padding: 6px 12px;
     font-weight: 600;
 }
+
 QPushButton:hover {
     background: #1d6cd7;
 }
+
 QPushButton:checked {
     background: #0d57ba;
 }
+
 QPushButton:disabled {
     background: #a8bddb;
     color: #e8eef8;
 }
+
+
+/* ============================================================
+   TABS (QTabWidget / QTabBar)
+   ============================================================ */
 QTabWidget::pane {
     border: 1px solid #dce3ee;
     border-radius: 10px;
     background: #ffffff;
 }
+
 QTabBar::tab {
     background: #eaf0f8;
+    color: #17212b;
     border: 1px solid #dce3ee;
     border-bottom: none;
     border-top-left-radius: 8px;
@@ -88,53 +131,88 @@ QTabBar::tab {
     padding: 8px 14px;
     margin-right: 2px;
 }
+
+/* Active tab — strong highlight */
 QTabBar::tab:selected {
-    background: #ffffff;
+    background: #2f80ed;
+    color: #ffffff;
+    border: 1px solid #2f80ed;
 }
+
+/* Hover for inactive tabs */
+QTabBar::tab:hover:!selected {
+    background: #dce7f7;
+}
+
+
+/* ============================================================
+   SCROLL AREAS & SCROLLBARS
+   ============================================================ */
 QScrollArea {
     border: none;
     background: transparent;
 }
+
+/* Vertical scrollbar */
 QScrollBar:vertical {
     background: #edf2f9;
     width: 12px;
     margin: 2px;
     border-radius: 6px;
 }
+
 QScrollBar::handle:vertical {
     background: #b7c7df;
     min-height: 28px;
     border-radius: 6px;
 }
+
 QScrollBar::handle:vertical:hover {
     background: #93abd0;
 }
-QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
     height: 0px;
 }
-QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical {
     background: transparent;
 }
+
+/* Horizontal scrollbar */
 QScrollBar:horizontal {
     background: #edf2f9;
     height: 12px;
     margin: 2px;
     border-radius: 6px;
 }
+
 QScrollBar::handle:horizontal {
     background: #b7c7df;
     min-width: 28px;
     border-radius: 6px;
 }
+
 QScrollBar::handle:horizontal:hover {
     background: #93abd0;
 }
-QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
     width: 0px;
 }
-QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+
+QScrollBar::add-page:horizontal,
+QScrollBar::sub-page:horizontal {
     background: transparent;
 }
+
+
+/* ============================================================
+   PROGRESS BAR
+   ============================================================ */
 QProgressBar {
     background: #eaf0f8;
     border: 1px solid #dce3ee;
@@ -142,10 +220,16 @@ QProgressBar {
     min-height: 20px;
     text-align: center;
 }
+
 QProgressBar::chunk {
     border-radius: 7px;
     background: #2f80ed;
 }
+
+
+/* ============================================================
+   TOOLBARS & TOOLBUTTONS
+   ============================================================ */
 QToolBar {
     background: #ffffff;
     border: 1px solid #dce3ee;
@@ -153,6 +237,7 @@ QToolBar {
     spacing: 6px;
     padding: 4px;
 }
+
 QToolButton {
     background: #f4f7fb;
     color: #17212b;
@@ -160,18 +245,27 @@ QToolButton {
     border-radius: 6px;
     padding: 4px 8px;
 }
+
 QToolButton:hover {
     background: #eaf0f8;
 }
+
 QToolButton:pressed {
     background: #dce7f7;
 }
+
 QToolBar QLineEdit {
     min-height: 26px;
 }
+
+
+/* ============================================================
+   CHECKBOXES
+   ============================================================ */
 QCheckBox {
     spacing: 6px;
 }
+
 QCheckBox::indicator {
     width: 16px;
     height: 16px;
@@ -179,15 +273,21 @@ QCheckBox::indicator {
     border-radius: 4px;
     background: #ffffff;
 }
+
 QCheckBox::indicator:checked {
     background: #2f80ed;
     border-color: #2f80ed;
 }
+
 QCheckBox::indicator:unchecked:hover {
     background: #f4f7fb;
     border-color: #9fb2cf;
 }
-/* Toggle button */
+
+
+/* ============================================================
+   TOGGLE BUTTON (Sidebar collapse)
+   ============================================================ */
 QToolButton#toggleBtn {
     background: #f4f7fb;
     color: #17212b;
@@ -208,10 +308,13 @@ QToolButton#toggleBtn:pressed {
     background: #dce7f7;
 }
 
-/* Navigation buttons */
+
+/* ============================================================
+   NAVIGATION BUTTONS
+   ============================================================ */
 QToolButton[id^="navBtn_"] {
     background: transparent;
-    color: #17212b; /* enabled & inactive text */
+    color: #17212b;
     border: none;
     border-radius: 6px;
     padding-left: 6px;
@@ -219,35 +322,36 @@ QToolButton[id^="navBtn_"] {
     max-height: 30px;
 }
 
-/* Hover for enabled buttons only */
 QToolButton[id^="navBtn_"]:hover:enabled {
     background: #eaf0f8;
 }
 
-/* Active page (enabled) */
 QToolButton[id^="navBtn_"]:checked:enabled {
     background: #2f80ed;
     color: #ffffff;
 }
 
-/* Disabled state – very distinct */
 QToolButton[id^="navBtn_"]:disabled {
-    background: #dce3ee;    /* light grey */
-    color: #9fb2cf;         /* muted text */
+background: #dce3ee;
+color: #9fb2cf;
     border: 1px solid #c9d4e5;
-    font-style: italic;     /* optional: signals inaccessible */
-    opacity: 0.6;           /* slightly transparent */
-    cursor: not-allowed;    /* indicates unclickable */
+font-style: italic;
+opacity: 0.6;
+cursor: not-allowed;
 }
 
+
+/* ============================================================
+   BANNERS (Info & Error)
+   ============================================================ */
 #Banner[bannerType="info"] {
-    background-color: #2f80ed;   /* blue */
+background-color: #2f80ed;
     color: #ffffff;
     border-radius: 8px;
 }
 
 #Banner[bannerType="error"] {
-    background-color: #d9534f;   /* red */
+background-color: #d9534f;
     color: #ffffff;
     border-radius: 8px;
 }
@@ -256,6 +360,10 @@ QToolButton[id^="navBtn_"]:disabled {
     font-weight: 600;
 }
 
+
+/* ============================================================
+   CUSTOM MODAL DIALOG (OverwriteDialog)
+   ============================================================ */
 QMessageBox#OverwriteDialog {
     background-color: #ffffff;
     color: #17212b;
@@ -280,6 +388,10 @@ QPushButton#DialogButton:pressed {
     background: #0d57ba;
 }
 
+
+/* ============================================================
+   CUSTOM TOGGLE SWITCH (QSS‑driven)
+   ============================================================ */
 #ToggleSwitch {
     qproperty-trackColor: #c9d4e5;
     qproperty-thumbColor: #ffffff;
@@ -290,3 +402,18 @@ QPushButton#DialogButton:pressed {
     qproperty-trackColor: #2f80ed;
     qproperty-thumbColor: #ffffff;
 }
+
+/* ============================================================
+   FEASIBLE STATUS INDICATOR — LIGHT THEME
+   ============================================================ */
+#FeasibleStatus {
+background-color: #d9534f;
+/* red */
+color: #ffffff;
+border-radius: 6px;
+padding: 4px 10px;
+font-weight: 600;
+min-height: 22px;
+max-height: 22px;
+}
+

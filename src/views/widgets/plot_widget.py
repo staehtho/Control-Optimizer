@@ -5,7 +5,7 @@ from functools import partial
 from dataclasses import dataclass, field
 import math
 
-from PySide6.QtWidgets import QWidget, QLabel, QCheckBox, QLineEdit, QSizePolicy, QGridLayout
+from PySide6.QtWidgets import QWidget, QLabel, QCheckBox, QLineEdit, QSizePolicy, QGridLayout, QVBoxLayout, QHBoxLayout
 from PySide6.QtCore import QCoreApplication, QSize, Qt
 from PySide6.QtGui import QDoubleValidator, QColor, QPainter, QPixmap, QIcon
 from matplotlib.figure import Figure
@@ -36,7 +36,7 @@ class SubplotConfiguration:
 class PlotWidgetConfiguration:
     """Configuration for the overall plot widget."""
     context: str
-    title: str
+    title: str = ""
     x_label: str = ""
     y_label: str = ""
     subplot: tuple[int, int] = (1, 1)
@@ -44,7 +44,8 @@ class PlotWidgetConfiguration:
     show_x_min: bool = True
     show_x_max: bool = True
     # Width / height ratio for a fixed-size canvas. Set None to allow free resizing.
-    fixed_aspect_ratio: float | None = 500 / 350
+    fixed_aspect_ratio: float | None = 3 / 1
+    max_width: int = 1250
 
 
 class PlotWidget(ViewMixin, QWidget):
@@ -60,9 +61,13 @@ class PlotWidget(ViewMixin, QWidget):
     # Initialization
     # ============================================================
 
-    def __init__(self, ui_context: UiContext, vm: PlotViewModel,
-                 plot_configuration: PlotWidgetConfiguration,
-                 parent: QWidget = None):
+    def __init__(
+            self,
+            ui_context: UiContext,
+            vm: PlotViewModel,
+            plot_configuration: PlotWidgetConfiguration,
+            parent: QWidget = None
+    ) -> None:
         QWidget.__init__(self, parent)
 
         self._vm = vm
@@ -82,33 +87,11 @@ class PlotWidget(ViewMixin, QWidget):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(8)
 
-        # Header row (start/end x values, grid toggle)
-        header_layout = self._create_header()
-        main_layout.addLayout(header_layout, 0)
+        main_layout.addLayout(self._create_header(), 0)
+        main_layout.addLayout(self._create_canvas_layout(), 1)
 
-        # Matplotlib figure and canvas
-        self._figure = Figure(constrained_layout=True)
-        if self._cfg.fixed_aspect_ratio:
-            self._canvas = _AspectCanvas(self._figure, self._cfg.fixed_aspect_ratio)
-        else:
-            self._canvas = FigureCanvas(self._figure)
-
-        self._toolbar = NavigationToolbar(self._canvas, self)
-        self._toolbar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        if self._cfg.fixed_aspect_ratio:
-            policy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
-            policy.setHeightForWidth(True)
-            self._canvas.setSizePolicy(policy)
-            min_width = 500
-            min_height = int(round(min_width / self._cfg.fixed_aspect_ratio))
-            self._canvas.setMinimumSize(min_width, max(1, min_height))
-        else:
-            self._canvas.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-            self._canvas.setMinimumSize(500, 350)
+        # Apply icons
         self._apply_toolbar_icons()
-
-        main_layout.addWidget(self._toolbar, 0)
-        main_layout.addWidget(self._canvas, 1)
 
         self.setLayout(main_layout)
 
@@ -146,7 +129,9 @@ class PlotWidget(ViewMixin, QWidget):
         # Series row (checkboxes for data visibility)
         frame: SectionFrame
         frame, frame_layout = self._create_card(parent=self)
-        self._series_layout = QGridLayout()
+        self._series_layout = QHBoxLayout()
+        self._series_layout.setContentsMargins(0, 0, 0, 0)
+        self._series_layout.setSpacing(12)  # optional: Abstand zwischen Checkboxen
         frame_layout.addLayout(self._series_layout)
         layout.addWidget(frame, 0, 2, row + 2, 1, alignment=Qt.AlignmentFlag.AlignLeft)
 
@@ -155,6 +140,37 @@ class PlotWidget(ViewMixin, QWidget):
         # add a stretch column at the end to avoid extra spacing
         layout.setColumnStretch(2, 1)
         layout.setRowStretch(row + 1, 1)
+
+        return layout
+
+    def _create_canvas_layout(self) -> QVBoxLayout:
+        """Create the canvas layout."""
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(4)
+
+        # Matplotlib figure and canvas
+        self._figure = Figure(constrained_layout=True)
+        if self._cfg.fixed_aspect_ratio:
+            self._canvas = _AspectCanvas(self._figure, self._cfg.fixed_aspect_ratio)
+        else:
+            self._canvas = FigureCanvas(self._figure)
+
+        # Toolbar
+        self._toolbar = NavigationToolbar(self._canvas, self)
+        self._toolbar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+
+        # Ensure toolbar and canvas share the same width
+        self._canvas.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self._toolbar.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+
+        # Apply max width constraint
+        self._canvas.setMaximumWidth(self._cfg.max_width)
+        self._toolbar.setMaximumWidth(self._cfg.max_width)
+
+        # Add to left column
+        layout.addWidget(self._toolbar)
+        layout.addWidget(self._canvas)
 
         return layout
 
@@ -283,6 +299,7 @@ class PlotWidget(ViewMixin, QWidget):
             self._figure.suptitle(QCoreApplication.translate(context, self._cfg.title))
             self._canvas.draw_idle()
             return
+
         active_positions = self._get_active_subplot_positions(sorted_series)
         subplot = self._cfg.subplot
         rows, cols = subplot
@@ -415,7 +432,7 @@ class PlotWidget(ViewMixin, QWidget):
                 checkbox.setChecked(series.show)
 
             self._series_layout.removeWidget(checkbox)
-            self._series_layout.addWidget(checkbox, insert_index // 3, insert_index % 3)
+            self._series_layout.addWidget(checkbox)
             insert_index += 1
             existing_keys.discard(series.key)
 

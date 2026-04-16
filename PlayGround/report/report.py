@@ -14,6 +14,7 @@ plant_data = DynamicReportPlant(
 )
 
 excitation_function_data = DynamicReportExcitationFunction(
+    formula_desc="Step",
     formula=r"u(t) = \lambda \cdot \sigma(t - t_0)",
     parameters={
         r"\lambda": 1.0,
@@ -49,6 +50,7 @@ pso_configuration_data = DynamicReportPsoConfiguration(
 )
 
 pso_result_data = DynamicReportPsoResult(
+    is_feasible=False,
     simulation_time=10.5,
     kp=10,
     ti=5,

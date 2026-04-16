@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from viewmodels import ControllerViewModel
     from views.widgets import SectionFrame
 
+# TODO: block diagram like the closed loop in pso, now it is to saml
 
 class OptionalDoubleValidator(QDoubleValidator):
     def validate(self, input_text: str, pos: int):
@@ -26,8 +27,8 @@ class OptionalDoubleValidator(QDoubleValidator):
 
 FIELDS: list[FieldConfig | SectionConfig] = [
     SectionConfig(ControllerField.CONSTRAINT, [
-        FieldConfig(ControllerField.CONSTRAINT_MIN, QLineEdit),
         FieldConfig(ControllerField.CONSTRAINT_MAX, QLineEdit),
+        FieldConfig(ControllerField.CONSTRAINT_MIN, QLineEdit),
     ]),
 
     SectionConfig(ControllerField.ANTI_WINDUP, [
@@ -40,7 +41,9 @@ FIELDS: list[FieldConfig | SectionConfig] = [
         FieldConfig(ControllerField.SAMPLING_RATE, QLineEdit, validator=OptionalDoubleValidator(0.0, 1e9, 6)),
     ]),
 
-    FieldConfig(ControllerField.CONTROLLER_TYPE, QLabel),
+    SectionConfig(ControllerField.CONTROLLER_TYPE, [
+        FieldConfig(ControllerField.TYPE, QLabel),
+    ])
 ]
 
 
@@ -132,7 +135,6 @@ class ControllerView(ViewMixin, QWidget):
         self._frm_controller.setText(self.tr("Parameters"))
 
         labels = {
-            ControllerField.CONTROLLER_TYPE: self.tr("Controller Type"),
             ControllerField.ANTI_WINDUP: self.tr("Anti Windup"),
             ControllerField.ANTI_WINDUP_METHODE: self.tr("Methode"),
             ControllerField.CONSTRAINT: self.tr("Constraint"),
@@ -142,6 +144,8 @@ class ControllerView(ViewMixin, QWidget):
             ControllerField.FILTER_TIME_CONSTANT: self.tr("Filter Time Constant Tf"),
             ControllerField.TUNING_FACTOR: self.tr("N"),
             ControllerField.SAMPLING_RATE: self.tr("Sampling Rate [Hz]"),
+            ControllerField.CONTROLLER_TYPE: self.tr("Controller Type"),
+            ControllerField.TYPE: self.tr("Type"),
         }
 
         for key in labels.keys():
@@ -182,7 +186,7 @@ class ControllerView(ViewMixin, QWidget):
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
         init_value = {
-            ControllerField.CONTROLLER_TYPE: self._vm_controller.controller_type,
+            ControllerField.TYPE: self._vm_controller.controller_type,
             ControllerField.FACTOR_KA: self._vm_controller.ka,
             ControllerField.CONSTRAINT_MIN: self._vm_controller.constraint_min,
             ControllerField.CONSTRAINT_MAX: self._vm_controller.constraint_max,

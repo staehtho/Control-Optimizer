@@ -123,7 +123,6 @@ class SimulationView(ViewMixin, QWidget):
 
         cl_plot_cfg = PlotWidgetConfiguration(
             context="SimulationView",
-            title=str(QT_TRANSLATE_NOOP("SimulationView", "Closed Loop")),
             subplot=(2, 1),
             subplot_configuration=subplot_cfgs,
         )

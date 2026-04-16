@@ -67,7 +67,8 @@ class ControllerField(FieldType):
     CONSTRAINT_MIN = "const_min"
     CONSTRAINT_MAX = "const_max"
 
-    CONTROLLER_TYPE = "type"
+    CONTROLLER_TYPE = "controller_type"
+    TYPE = "type"
 
     ANTI_WINDUP = "anti_wind"
     ANTI_WINDUP_METHODE = "anti_windup_method"

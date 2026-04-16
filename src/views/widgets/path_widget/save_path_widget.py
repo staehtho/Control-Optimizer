@@ -1,5 +1,5 @@
 from typing import Optional
-from PySide6.QtWidgets import QFileDialog, QWidget, QMessageBox, QPushButton
+from PySide6.QtWidgets import QFileDialog, QWidget, QMessageBox
 from PySide6.QtCore import Signal
 from pathlib import Path
 
@@ -32,41 +32,30 @@ class SavePathWidget(BasePathWidget):
             self.file_filter
         )
 
-        if file_path:
-            self.path_edit.setText(file_path)
-            self.pathSelected.emit(file_path)
-
-    def _emit_action(self):
-        path = self.path_edit.text().strip()
-        if not path:
+        if not file_path:
             return
 
-        target = Path(path)
+        if file_path:
+            if self.is_file_in_use(file_path):
+                msg = QMessageBox(self)
+                msg.setObjectName("OverwriteDialog")
+                msg.setIcon(QMessageBox.Icon.Warning)
+                msg.setWindowTitle(self.tr("File In Use"))
+                msg.setText(self.tr("The file is currently open in another program. Please close it first."))
 
-        if target.exists():
-            msg = QMessageBox(self)
-            msg.setObjectName("OverwriteDialog")
-            msg.setIcon(QMessageBox.Icon.Warning)
-            msg.setWindowTitle(self.tr("File Exists"))
-            msg.setText(self.tr("The file already exists. Do you want to overwrite it?"))
+                msg.exec()
+                return
 
-            btn_ok = QPushButton(self.tr("OK"))
-            btn_ok.setObjectName("DialogButton")
+        self.path_edit.setText(file_path)
+        self.pathSelected.emit(file_path)
 
-            btn_cancel = QPushButton(self.tr("Cancel"))
-            btn_cancel.setObjectName("DialogButton")
+        # auto‑export
+        self.exportRequested.emit(file_path)
 
-            msg.addButton(btn_ok, QMessageBox.ButtonRole.AcceptRole)
-            msg.addButton(btn_cancel, QMessageBox.ButtonRole.RejectRole)
-
-            w = max(btn_ok.sizeHint().width(), btn_cancel.sizeHint().width())
-            btn_ok.setFixedWidth(w)
-            btn_cancel.setFixedWidth(w)
-
-            result = msg.exec()
-
-            if msg.clickedButton() != btn_ok:
-                return  # user canceled
-
-        # User confirmed or file does not exist
-        self.exportRequested.emit(path)
+    @staticmethod
+    def is_file_in_use(path: str) -> bool:
+        try:
+            with open(path, "a"):
+                return False
+        except OSError:
+            return True

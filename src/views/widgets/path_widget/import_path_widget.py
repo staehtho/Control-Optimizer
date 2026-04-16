@@ -26,11 +26,11 @@ class ImportPathWidget(BasePathWidget):
             self.file_filter
         )
 
-        if file_path:
-            self.path_edit.setText(file_path)
-            self.pathSelected.emit(file_path)
+        if not file_path:
+            return
 
-    def _emit_action(self):
-        path = self.path_edit.text().strip()
-        if path:
-            self.importRequested.emit(path)
+        self.path_edit.setText(file_path)
+        self.pathSelected.emit(file_path)
+
+        # auto‑import
+        self.importRequested.emit(file_path)

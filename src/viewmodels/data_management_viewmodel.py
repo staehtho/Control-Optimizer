@@ -11,11 +11,13 @@ from app_types import (
     DynamicReportBlockDiagram, DynamicReportTimeDomainPlot, DynamicReportBodePlot, DynamicReportTransferFunctions,
     PsoResult
 )
+from app_domain.functions import resolve_function_type
 from resources.resources import OUTPUT_DIR, OutputFiles
 from service.reporting import DynamicReport
 from utils import LoggedProperty
 from .evaluation_viewmodel import EvaluationViewModel
 from .base_viewmodel import BaseViewModel
+from views.translations import Translation
 
 if TYPE_CHECKING:
     from app_domain import AppEngine
@@ -207,12 +209,16 @@ class DataManagementViewModel(BaseViewModel):
     @staticmethod
     def _get_plant_data(snapshot: PsoSimulationSnapshot) -> DynamicReportPlant:
         return DynamicReportPlant(
-            formula=snapshot.plant_tf,
+            formula=r"G(s) = " + snapshot.plant_tf,
         )
 
     @staticmethod
     def _get_excitation_function_data(snapshot: PsoSimulationSnapshot) -> DynamicReportExcitationFunction:
+        enum_tr = Translation()
+        formula_desc = enum_tr(resolve_function_type(snapshot.excitation_function))
+
         return DynamicReportExcitationFunction(
+            formula_desc=formula_desc,
             formula=snapshot.excitation_function.get_formula(),
             parameters=snapshot.excitation_function.get_param()
         )
@@ -257,6 +263,7 @@ class DataManagementViewModel(BaseViewModel):
             tf_limitation = "simulation"
 
         return DynamicReportPsoResult(
+            is_feasible=result.is_feasible,
             simulation_time=result.simulation_time,
             kp=result.kp,
             ti=result.ti,

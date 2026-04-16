@@ -7,12 +7,8 @@
 # TODO: Auflösung im Frequenzbereich diskutieren
 
 
-# TODO: Verhalten, wenn keine feasible Lösung gefunden werden kann
-# TODO: evt hyperparameter von PSO in systemsettings integrieren?
-# TODO: Wo ist die automatische Simulationszeit in App
-# TODO: Minimalwert Ti auf 0.001?
-# TODO: schieberegler farbe in light mode -> fixed
-# TODO: Plots in App zu gross wenn in fullscreen
-# TODO: Einheit von slewrate du/dt in Evaluationsfenster. Evt auch Fenstergrösse anzeigen?
-# TODO: Transfer function in plant: die reiterkarten sind farblich verwirrend
-# TODO: Controller Type in controller wirkt etwas komisch
+# TODO: evt hyperparameter von PSO in systemsettings integrieren? -> gute Idee, wenn ja nur mit ToolTip
+# TODO: Wo ist die automatische Simulationszeit in App -> ok ich verstehe wo (PSO Parameters -> Endtime) somit kann die
+#   Endzeit und Start zeit automatisch bestummen werden -> Startzeit dann auf 0s -> Aufwand abschätzen
+
+# TODO: Report: Latex formula formatieren

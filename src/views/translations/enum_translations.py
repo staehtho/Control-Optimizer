@@ -191,19 +191,19 @@ class Translation:
         """Return translated label for PlotLabels enum."""
         match value:
             case PlotLabels.PLANT:
-                return QCoreApplication.translate("ControlEnums", "Plant")
+                return QCoreApplication.translate("ControlEnums", "plant")
             case PlotLabels.FUNCTION:
-                return QCoreApplication.translate("ControlEnums", "Function")
+                return QCoreApplication.translate("ControlEnums", "function")
             case PlotLabels.CLOSED_LOOP:
-                return QCoreApplication.translate("ControlEnums", "Closed Loop")
+                return QCoreApplication.translate("ControlEnums", "y_closed_loop")
             case PlotLabels.CONTROL_SIGNAL:
-                return QCoreApplication.translate("ControlEnums", "Control Signal")
+                return QCoreApplication.translate("ControlEnums", "u_control_signal")
             case PlotLabels.REFERENCE:
-                return QCoreApplication.translate("ControlEnums", "Reference")
+                return QCoreApplication.translate("ControlEnums", "r_reference")
             case PlotLabels.INPUT_DISTURBANCE:
-                return QCoreApplication.translate("ControlEnums", "Input Disturbance")
+                return QCoreApplication.translate("ControlEnums", "l_input_disturbance")
             case PlotLabels.MEASUREMENT_DISTURBANCE:
-                return QCoreApplication.translate("ControlEnums", "Measurement Disturbance")
+                return QCoreApplication.translate("ControlEnums", "n_measurement_disturbance")
             case PlotLabels.G:
                 return QCoreApplication.translate("ControlEnums", "G_plant")
             case PlotLabels.C:

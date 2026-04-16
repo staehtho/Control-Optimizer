@@ -97,17 +97,17 @@ PSO_RESULT_TEMPLATE: dict[PsoResultField, Any] = {
 
     PsoResultField.SLEW_RATE: QT_TRANSLATE_NOOP(
         "EvaluationView",
-        "Slew rate: %(value).3f"
+        "Slew Rate Limit du/dt: %(value).3f"
     ),
 
     PsoResultField.GAIN_MARGIN: QT_TRANSLATE_NOOP(
         "EvaluationView",
-        "Gain margin: %(value).3f dB @ %(omega).3f rad/s"
+        "Gain margin: %(value).3f dB at %(omega).3f rad/s"
     ),
 
     PsoResultField.PHASE_MARGIN: QT_TRANSLATE_NOOP(
         "EvaluationView",
-        "Phase margin: %(value).3f° @ %(omega).3f rad/s"
+        "Phase margin: %(value).3f° at %(omega).3f rad/s"
     ),
 
     PsoResultField.STABILITY_MARGIN: QT_TRANSLATE_NOOP(
@@ -215,6 +215,12 @@ class EvaluationView(ViewMixin, QWidget):
         frame: SectionFrame
         frame, frame_layout = self._create_card(parent=self)
 
+        self._feasible_widget = QLabel(self)
+        self._feasible_widget.setObjectName("FeasibleStatus")
+        self._feasible_widget.hide()
+
+        frame_layout.addWidget(self._feasible_widget)
+
         grid_layout = self._create_grid(FIELDS["result"])
 
         frame_layout.addLayout(grid_layout)
@@ -264,7 +270,6 @@ class EvaluationView(ViewMixin, QWidget):
 
         cl_plot_cfg = PlotWidgetConfiguration(
             context="EvaluationView",
-            title=str(QT_TRANSLATE_NOOP("EvaluationView", "Closed Loop")),
             subplot=(2, 1),
             subplot_configuration=subplot_cfgs,
         )
@@ -399,6 +404,7 @@ class EvaluationView(ViewMixin, QWidget):
         for key in labels.keys():
             self.labels[key].setText(labels[key])
 
+        self._feasible_widget.setText(self.tr("Not feasible"))  # TODO: better Text evtl. with ToolTip?
         self._update_pso_result_values()
 
     # ============================================================
@@ -593,6 +599,9 @@ class EvaluationView(ViewMixin, QWidget):
             for key in PSO_RESULT_TEMPLATE.keys():
                 self.field_widgets.get(key).setText("-")
             return
+
+        # feasible
+        self._feasible_widget.setVisible(not result.is_feasible)
 
         limited_key = ""
         show_limited = False
