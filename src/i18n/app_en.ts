@@ -1872,47 +1872,47 @@ Tf   = %(tf).3f</translation>
 <context>
     <name>SettingsView</name>
     <message>
-        <location filename="../views/settings_view.py" line="125"/>
+        <location filename="../views/settings_view.py" line="124"/>
         <source>Settings</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="128"/>
+        <location filename="../views/settings_view.py" line="127"/>
         <source>Language</source>
         <translation>Language</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="129"/>
+        <location filename="../views/settings_view.py" line="128"/>
         <source>Theme</source>
         <translation>Theme</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="130"/>
+        <location filename="../views/settings_view.py" line="129"/>
         <source>Solver</source>
         <translation>Solver</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="131"/>
+        <location filename="../views/settings_view.py" line="130"/>
         <source>Type</source>
         <translation>Type</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="132"/>
+        <location filename="../views/settings_view.py" line="131"/>
         <source>Time Step</source>
         <translation>Time Step</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="133"/>
+        <location filename="../views/settings_view.py" line="132"/>
         <source>PSO</source>
         <translation>PSO</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="134"/>
+        <location filename="../views/settings_view.py" line="133"/>
         <source>Iterations</source>
         <translation>Iterations</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="135"/>
+        <location filename="../views/settings_view.py" line="134"/>
         <source>Particles</source>
         <translation>Particles</translation>
     </message>
@@ -2016,12 +2016,12 @@ Tf   = %(tf).3f</translation>
 <context>
     <name>ViewMixin</name>
     <message>
-        <location filename="../views/view_mixin.py" line="340"/>
+        <location filename="../views/view_mixin.py" line="379"/>
         <source>Previous</source>
         <translation>Previous</translation>
     </message>
     <message>
-        <location filename="../views/view_mixin.py" line="341"/>
+        <location filename="../views/view_mixin.py" line="380"/>
         <source>Next</source>
         <translation>Next</translation>
     </message>

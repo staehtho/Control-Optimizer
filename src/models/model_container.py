@@ -173,7 +173,7 @@ class ModelContainer:
 
         settings = state.get("settings", {})
         if settings:
-            solver = settings.get("solver")
+            solver = settings.get("solver", "")
             if solver is not None:
                 self.model_settings.set_solver(MySolver[solver])
             if "time_step" in settings:
