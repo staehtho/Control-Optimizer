@@ -1,17 +1,14 @@
 import logging
+import os
 import sys
 from pathlib import Path
-from typing import Callable
 
 from PySide6.QtCore import QTimer
-from PySide6.QtGui import QPixmap, Qt
+from PySide6.QtGui import QPixmap, Qt, QIcon
 from PySide6.QtWidgets import QApplication, QSplashScreen
 
-from resources.resources import SRC_DIR, OUTPUT_DIR
+from resources.resources import SRC_DIR, OUTPUT_DIR, RESOURCES_DIR
 
-# TODO: TabIndex
-
-# TODO: Evaluation: TF with L and N
 
 def create_app():
     return QApplication(sys.argv)
@@ -208,9 +205,20 @@ def create_main_view(engine, ui_context, view_factories):
     )
 
 
+def resource_path(relative):
+    if hasattr(sys, "_MEIPASS"):
+        return os.path.join(sys._MEIPASS, relative)
+    return SRC_DIR / relative
+
+
 def run_app():
     app = create_app()
     splash = show_splash()
+
+    # set the icon for Windows
+    icon_path = resource_path("resources/icons/app.ico")
+
+    app.setWindowIcon(QIcon(str(icon_path)))
 
     setup_logging(SRC_DIR, logging.DEBUG)
     setup_output_directory(OUTPUT_DIR)
