@@ -171,8 +171,8 @@ class SimulationView(ViewMixin, QWidget):
         super()._retranslate()
 
         self._lbl_title.setText(self.tr("Simulation"))
-        self._frm_function.setText(self.tr("Excitation Function"))
-        self._frm_response.setText(self.tr("Closed Loop"))
+        self._frm_function.setText(self.tr("Excitation Function Definition"))
+        self._frm_response.setText(self.tr("System Analysis and Visualization"))
 
         # translate pages
         for text, i in zip(ExcitationTarget, range(self._function_tab.count())):

@@ -49,14 +49,6 @@
         <translation>Excitation Function</translation>
     </message>
     <message>
-        <source>The excitation input is:</source>
-        <translation type="vanished">The excitation input is:</translation>
-    </message>
-    <message>
-        <source>The excitation function is a %(function)s function:</source>
-        <translation type="vanished">The excitation function is a %(function)s function:</translation>
-    </message>
-    <message>
         <location filename="../service/reporting/sections.py" line="81"/>
         <source>The excitation function is a %(function)s:</source>
         <translation>The excitation function is a %(function)s:</translation>
@@ -291,10 +283,6 @@
         <location filename="../service/reporting/sections.py" line="308"/>
         <source>Slew Rate Limit du/dt</source>
         <translation>Slew Rate Limit du/dt</translation>
-    </message>
-    <message>
-        <source>Maximum Slew Rate</source>
-        <translation type="vanished">Maximum Slew Rate</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="315"/>

@@ -140,8 +140,8 @@ class FunctionView(ViewMixin, QWidget):
         super()._retranslate()
 
         self._lbl_title.setText(self.tr("Excitation Function"))
-        self._frm_function.setText(self.tr("Function"))
-        self._frm_plot.setText(self.tr("Function Plot"))
+        self._frm_function.setText(self.tr("Excitation Function Definition"))
+        self._frm_plot.setText(self.tr("Excitation Function Plot"))
 
     # ============================================================
     # Apply initial values

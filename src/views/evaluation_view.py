@@ -378,7 +378,7 @@ class EvaluationView(ViewMixin, QWidget):
         self._lbl_title.setText(self.tr("Evaluation"))
 
         self._frm_result.setText(self.tr("PSO Result"))
-        self._frm_plot.setText(self.tr("Closed Loop"))
+        self._frm_plot.setText(self.tr("System Analysis and Visualization"))
 
         # translate pages
         self._plot_tab.setTabText(0, self.tr("Time Domain"))

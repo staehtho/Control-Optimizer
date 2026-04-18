@@ -2,57 +2,39 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US">
 <context>
-    <name></name>
-    <message>
-        <source>Previous</source>
-        <translation type="vanished">Previous</translation>
-    </message>
-    <message>
-        <source>Next</source>
-        <translation type="vanished">Next</translation>
-    </message>
-</context>
-<context>
     <name>BasePathWidget</name>
-    <message>
-        <source>Browse…</source>
-        <translation type="vanished">Browse…</translation>
-    </message>
     <message>
         <location filename="../views/widgets/path_widget/base_path_widget.py" line="39"/>
         <source>All Files (*)</source>
+        <translatorcomment>v</translatorcomment>
         <translation>All Files (*)</translation>
     </message>
 </context>
 <context>
     <name>BodePlotViewModel</name>
     <message>
-        <location filename="../viewmodels/bode_plot_viewmodel.py" line="22"/>
+        <location filename="../viewmodels/bode_plot_viewmodel.py" line="20"/>
         <source>Invalid value: omega min ({x_min}) must be smaller than omega max ({x_max}).</source>
         <translation>Invalid value: omega min ({x_min}) must be smaller than omega max ({x_max}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/bode_plot_viewmodel.py" line="31"/>
+        <location filename="../viewmodels/bode_plot_viewmodel.py" line="27"/>
         <source>Invalid value: omega min ({value} must be greater than 0)</source>
         <translation>Invalid value: omega min ({value} must be greater than 0)</translation>
     </message>
     <message>
-        <location filename="../viewmodels/bode_plot_viewmodel.py" line="53"/>
+        <location filename="../viewmodels/bode_plot_viewmodel.py" line="47"/>
         <source>Invalid value: omega max ({x_max}) must be greater than omega min ({x_min}).</source>
         <translation>Invalid value: omega max ({x_max}) must be greater than omega min ({x_min}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/bode_plot_viewmodel.py" line="62"/>
+        <location filename="../viewmodels/bode_plot_viewmodel.py" line="54"/>
         <source>Invalid value: omega max ({value} must be greater than 0)</source>
         <translation>Invalid value: omega max ({value} must be greater than 0)</translation>
     </message>
 </context>
 <context>
     <name>BodePlotWidget</name>
-    <message>
-        <source>freq /Hz</source>
-        <translation type="vanished">freq /Hz</translation>
-    </message>
     <message>
         <location filename="../views/widgets/bode_plot_widget.py" line="47"/>
         <source>Margin</source>
@@ -68,10 +50,6 @@
         <location filename="../views/widgets/bode_plot_widget.py" line="52"/>
         <source>Phase</source>
         <translation>Phase</translation>
-    </message>
-    <message>
-        <source>Bode Plot</source>
-        <translation type="vanished">Bode Plot</translation>
     </message>
 </context>
 <context>
@@ -90,30 +68,6 @@
         <location filename="../views/translations/enum_translations.py" line="96"/>
         <source>Backcalculation</source>
         <translation>Backcalculation</translation>
-    </message>
-    <message>
-        <source>r Reference</source>
-        <translation type="vanished">r Reference</translation>
-    </message>
-    <message>
-        <source>l Input Disturbance</source>
-        <translation type="vanished">l Input Disturbance</translation>
-    </message>
-    <message>
-        <source>n Measurement Disturbance</source>
-        <translation type="vanished">n Measurement Disturbance</translation>
-    </message>
-    <message>
-        <source>Reference</source>
-        <translation type="vanished">Reference</translation>
-    </message>
-    <message>
-        <source>Input Disturbance</source>
-        <translation type="vanished">Input Disturbance</translation>
-    </message>
-    <message>
-        <source>Measurement Disturbance</source>
-        <translation type="vanished">Measurement Disturbance</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="118"/>
@@ -174,22 +128,6 @@
         <location filename="../views/translations/enum_translations.py" line="148"/>
         <source>Null</source>
         <translation>No function</translation>
-    </message>
-    <message>
-        <source>step</source>
-        <translation type="vanished">Step function</translation>
-    </message>
-    <message>
-        <source>sine</source>
-        <translation type="vanished">Sine function</translation>
-    </message>
-    <message>
-        <source>cosine</source>
-        <translation type="vanished">Cosine function</translation>
-    </message>
-    <message>
-        <source>rectangle</source>
-        <translation type="vanished">Rectangular function</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="150"/>
@@ -302,10 +240,6 @@
         <translation>n measurement disturbance</translation>
     </message>
     <message>
-        <source>Function</source>
-        <translation type="vanished">Function</translation>
-    </message>
-    <message>
         <location filename="../views/translations/enum_translations.py" line="208"/>
         <source>G_plant</source>
         <translation>G plant</translation>
@@ -331,10 +265,6 @@
         <translation>S sensitivity</translation>
     </message>
     <message>
-        <source>T_complement_sensitivity</source>
-        <translation type="vanished">T complement sensitivity</translation>
-    </message>
-    <message>
         <location filename="../views/translations/enum_translations.py" line="225"/>
         <source>RK4</source>
         <translation>RK4</translation>
@@ -358,34 +288,6 @@
         <location filename="../views/translations/enum_translations.py" line="247"/>
         <source>Dark</source>
         <translation>Dark</translation>
-    </message>
-    <message>
-        <source>Plant Step Response</source>
-        <translation type="vanished">Plant Step Response</translation>
-    </message>
-    <message>
-        <source>Response</source>
-        <translation type="vanished">Response</translation>
-    </message>
-    <message>
-        <source>Control Signal</source>
-        <translation type="vanished">Control Signal</translation>
-    </message>
-    <message>
-        <source>Excitation Target</source>
-        <translation type="vanished">Excitation Function</translation>
-    </message>
-    <message>
-        <source>Closed Loop</source>
-        <translation type="vanished">Closed Loop</translation>
-    </message>
-    <message>
-        <source>Time [s]</source>
-        <translation type="vanished">Time [s]</translation>
-    </message>
-    <message>
-        <source>Output</source>
-        <translation type="vanished">Output</translation>
     </message>
 </context>
 <context>
@@ -443,7 +345,7 @@
     <message>
         <location filename="../views/controller_view.py" line="146"/>
         <source>Sampling Rate [Hz]</source>
-        <translation>Sampling Rate [Hz]</translation>
+        <translation>Sampling rate [Hz]</translation>
     </message>
     <message>
         <location filename="../views/controller_view.py" line="148"/>
@@ -472,63 +374,20 @@ the simulation time step to ensure stable and proper behavior.
 If the sampling rate is unknown, leave this field empty to receive a recommended value.</translation>
     </message>
     <message>
-        <source>Filter Time Constant</source>
-        <translation type="vanished">Filter Time Constant</translation>
-    </message>
-    <message>
         <location filename="../views/controller_view.py" line="145"/>
         <source>N</source>
         <translation>N</translation>
-    </message>
-    <message>
-        <source>Sampling Rate</source>
-        <translation type="vanished">Sampling Rate</translation>
-    </message>
-</context>
-<context>
-    <name>ControllerViewMixin</name>
-    <message>
-        <source>Controller</source>
-        <translation type="vanished">Controller</translation>
-    </message>
-    <message>
-        <source>Parameters</source>
-        <translation type="vanished">Parameters</translation>
-    </message>
-    <message>
-        <source>Anti Windup</source>
-        <translation type="vanished">Anti Windup</translation>
-    </message>
-    <message>
-        <source>Constraint</source>
-        <translation type="vanished">Constraint</translation>
-    </message>
-    <message>
-        <source>Minimum</source>
-        <translation type="vanished">Minimum</translation>
-    </message>
-    <message>
-        <source>Maximum</source>
-        <translation type="vanished">Maximum</translation>
     </message>
 </context>
 <context>
     <name>ControllerViewModel</name>
     <message>
-        <source>Invalid value: min ({value}) must be smaller than max ({constraint_max}).</source>
-        <translation type="vanished">Invalid value: min ({value}) must be smaller than max ({constraint_max}).</translation>
-    </message>
-    <message>
-        <source>Invalid value: max ({value}) must be greater than min ({constraint_min}).</source>
-        <translation type="vanished">Invalid value: max ({value}) must be greater than min ({constraint_min}).</translation>
-    </message>
-    <message>
-        <location filename="../viewmodels/controller_viewmodel.py" line="64"/>
+        <location filename="../viewmodels/controller_viewmodel.py" line="62"/>
         <source>Invalid value: min ({value}) must be smaller than max ({max}).</source>
         <translation>Invalid value: min ({value}) must be smaller than max ({max}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/controller_viewmodel.py" line="83"/>
+        <location filename="../viewmodels/controller_viewmodel.py" line="79"/>
         <source>Invalid value: max ({value}) must be greater than min ({min}).</source>
         <translation>Invalid value: max ({value}) must be greater than min ({min}).</translation>
     </message>
@@ -568,51 +427,47 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
     <message>
         <location filename="../views/data_management_view.py" line="158"/>
         <source>Plant Configuration</source>
-        <translation>Plant Configuration</translation>
+        <translation>Plant configuration</translation>
     </message>
     <message>
         <location filename="../views/data_management_view.py" line="159"/>
         <source>Excitation Function Configuration</source>
-        <translation>Excitation Function Configuration</translation>
+        <translation>Excitation function configuration</translation>
     </message>
     <message>
         <location filename="../views/data_management_view.py" line="160"/>
         <source>Controller Configuration</source>
-        <translation>Controller Configuration</translation>
+        <translation>Controller configuration</translation>
     </message>
     <message>
         <location filename="../views/data_management_view.py" line="161"/>
         <source>PSO Configuration</source>
-        <translation>PSO Configuration</translation>
+        <translation>PSO configuration</translation>
     </message>
     <message>
         <location filename="../views/data_management_view.py" line="162"/>
         <source>Block Diagram</source>
-        <translation>Block Diagram</translation>
+        <translation>Block diagram</translation>
     </message>
     <message>
         <location filename="../views/data_management_view.py" line="163"/>
         <source>Time Domain Plot</source>
-        <translation>Time Domain Plot</translation>
+        <translation>Time domain plot</translation>
     </message>
     <message>
         <location filename="../views/data_management_view.py" line="164"/>
         <source>Bode Plot</source>
-        <translation>Bode Plot</translation>
+        <translation>Bode plot</translation>
     </message>
     <message>
         <location filename="../views/data_management_view.py" line="165"/>
         <source>Transfer Functions</source>
-        <translation>Transfer Functions</translation>
+        <translation>Transfer functions</translation>
     </message>
     <message>
         <location filename="../views/data_management_view.py" line="211"/>
         <source>Export completed successfully</source>
         <translation>Export completed successfully</translation>
-    </message>
-    <message>
-        <source>Report generation failed: </source>
-        <translation type="vanished">Report generation failed: </translation>
     </message>
     <message>
         <location filename="../views/data_management_view.py" line="207"/>
@@ -641,69 +496,9 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
 <context>
     <name>EvaluationView</name>
     <message>
-        <source>Simulation Time [s]</source>
-        <translation type="vanished">Simulation Time [s]</translation>
-    </message>
-    <message>
-        <source>Kp</source>
-        <translation type="vanished">Kp</translation>
-    </message>
-    <message>
-        <source>Ti</source>
-        <translation type="vanished">Ti</translation>
-    </message>
-    <message>
-        <source>Td</source>
-        <translation type="vanished">Td</translation>
-    </message>
-    <message>
-        <source>Tf</source>
-        <translation type="vanished">Tf</translation>
-    </message>
-    <message>
-        <source>PSO finished after %(time).3f seconds.</source>
-        <translation type="vanished">PSO finished after %(time).3f seconds.</translation>
-    </message>
-    <message>
-        <source>Kp = %(kp).3f</source>
-        <translation type="vanished">Kp = %(kp).3f</translation>
-    </message>
-    <message>
-        <source>Ti = %(kp).3f</source>
-        <translation type="vanished">Ti = %(kp).3f</translation>
-    </message>
-    <message>
-        <source>Td = %(kp).3f</source>
-        <translation type="vanished">Td = %(kp).3f</translation>
-    </message>
-    <message>
-        <source>Tf = %(kp).3f</source>
-        <translation type="vanished">Tf = %(kp).3f</translation>
-    </message>
-    <message>
-        <source>PSO finished after %(time).1f seconds.</source>
-        <translation type="vanished">PSO finished after %(time).1f seconds.</translation>
-    </message>
-    <message>
-        <source>Ti = %(ti).3f</source>
-        <translation type="vanished">Ti = %(ti).3f</translation>
-    </message>
-    <message>
-        <source>Td = %(td).3f</source>
-        <translation type="vanished">Td = %(td).3f</translation>
-    </message>
-    <message>
-        <source>Tf = %(tf).3f</source>
-        <translation type="vanished">Tf = %(tf).3f</translation>
-    </message>
-    <message>
         <location filename="../views/evaluation_view.py" line="83"/>
         <source>PSO finished after %(time).3f s.</source>
         <translation>PSO finished after %(time).3f s.</translation>
-    </message>
-    <message>
-        <source>%(error_criterion) = %(value).3f</source>
-        <translation type="vanished">%(error_criterion) = %(value).3f</translation>
     </message>
     <message>
         <location filename="../views/evaluation_view.py" line="88"/>
@@ -716,25 +511,9 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <translation>Overshoot: %(value).3f %%</translation>
     </message>
     <message>
-        <source>Slew rate: %(value).3f</source>
-        <translation type="vanished">Slew rate: %(value).3f</translation>
-    </message>
-    <message>
-        <source>Maximum du/dt: %(value).3f</source>
-        <translation type="vanished">Maximum du/dt: %(value).3f</translation>
-    </message>
-    <message>
         <location filename="../views/evaluation_view.py" line="98"/>
         <source>Slew Rate Limit du/dt: %(value).3f</source>
-        <translation>Slew Rate Limit du/dt: %(value).3f</translation>
-    </message>
-    <message>
-        <source>Gain margin: %(value).3f dB @ %(omega).3f rad/s</source>
-        <translation type="vanished">Gain margin: %(value).3f dB @ %(omega).3f rad/s</translation>
-    </message>
-    <message>
-        <source>Phase margin: %(value).3f° @ %(omega).3f rad/s</source>
-        <translation type="vanished">Phase margin: %(value).3f° @ %(omega).3f rad/s</translation>
+        <translation>Slew rate limit du/dt: %(value).3f</translation>
     </message>
     <message>
         <location filename="../views/evaluation_view.py" line="103"/>
@@ -805,6 +584,10 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
     </message>
     <message>
         <location filename="../views/evaluation_view.py" line="381"/>
+        <source>System Analysis and Visualization</source>
+        <translation>System Analysis and Visualization</translation>
+    </message>
+    <message>
         <location filename="../views/evaluation_view.py" line="400"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
@@ -844,7 +627,7 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
     <message>
         <location filename="../views/evaluation_view.py" line="390"/>
         <source>PSO run time</source>
-        <translation>PSO run time</translation>
+        <translation>PSO Run Time</translation>
     </message>
     <message>
         <location filename="../views/evaluation_view.py" line="392"/>
@@ -882,122 +665,9 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <translation>Not feasible</translation>
     </message>
     <message>
-        <source>PSO runt time</source>
-        <translation type="vanished">PSO runt time</translation>
-    </message>
-    <message>
         <location filename="../views/evaluation_view.py" line="391"/>
         <source>Controller Parameters</source>
         <translation>Controller Parameters</translation>
-    </message>
-</context>
-<context>
-    <name>EvaluationViewMixin</name>
-    <message>
-        <source>Closed Loop</source>
-        <translation type="vanished">Closed Loop</translation>
-    </message>
-    <message>
-        <source>Time [s]</source>
-        <translation type="vanished">Time [s]</translation>
-    </message>
-    <message>
-        <source>Simulation Time [s]</source>
-        <translation type="vanished">Simulation Time [s]</translation>
-    </message>
-    <message>
-        <source>Kp</source>
-        <translation type="vanished">Kp</translation>
-    </message>
-    <message>
-        <source>Ti</source>
-        <translation type="vanished">Ti</translation>
-    </message>
-    <message>
-        <source>Td</source>
-        <translation type="vanished">Td</translation>
-    </message>
-    <message>
-        <source>Tf</source>
-        <translation type="vanished">Tf</translation>
-    </message>
-    <message>
-        <source>Output</source>
-        <translation type="vanished">Output</translation>
-    </message>
-    <message>
-        <source>Evaluation</source>
-        <translation type="vanished">Evaluation</translation>
-    </message>
-    <message>
-        <source>PSO Result</source>
-        <translation type="vanished">PSO Result</translation>
-    </message>
-    <message>
-        <source>Time Domain</source>
-        <translation type="vanished">Time Domain</translation>
-    </message>
-    <message>
-        <source>Frequency Domain</source>
-        <translation type="vanished">Frequency Domain</translation>
-    </message>
-    <message>
-        <source>Block Diagram</source>
-        <translation type="vanished">Block Diagram</translation>
-    </message>
-    <message>
-        <source>Excitation Function</source>
-        <translation type="vanished">Excitation Function</translation>
-    </message>
-    <message>
-        <source>Closed Loop Response</source>
-        <translation type="vanished">Closed Loop Response</translation>
-    </message>
-</context>
-<context>
-    <name>Function</name>
-    <message>
-        <source>Cosine function</source>
-        <translation type="vanished">Cosine function</translation>
-    </message>
-    <message>
-        <source>Sine function</source>
-        <translation type="vanished">Sine function</translation>
-    </message>
-    <message>
-        <source>Step function</source>
-        <translation type="vanished">Step function</translation>
-    </message>
-    <message>
-        <source>Time [s]</source>
-        <translation type="vanished">Time [s]</translation>
-    </message>
-    <message>
-        <source>Output</source>
-        <translation type="vanished">Output</translation>
-    </message>
-</context>
-<context>
-    <name>FunctionModel</name>
-    <message>
-        <source>Unit step function</source>
-        <translation type="vanished">Unit step function</translation>
-    </message>
-    <message>
-        <source>Sine function</source>
-        <translation type="vanished">Sine function</translation>
-    </message>
-    <message>
-        <source>Cosine function</source>
-        <translation type="vanished">Cosine function</translation>
-    </message>
-    <message>
-        <source>Time [s]</source>
-        <translation type="vanished">Time [s]</translation>
-    </message>
-    <message>
-        <source>Output</source>
-        <translation type="vanished">Output</translation>
     </message>
 </context>
 <context>
@@ -1019,36 +689,13 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
     </message>
     <message>
         <location filename="../views/function_view.py" line="143"/>
-        <source>Function</source>
-        <translation>Function</translation>
+        <source>Excitation Function Definition</source>
+        <translation>Excitation Function Definition</translation>
     </message>
     <message>
         <location filename="../views/function_view.py" line="144"/>
-        <source>Function Plot</source>
-        <translation>Function Plot</translation>
-    </message>
-</context>
-<context>
-    <name>FunctionViewMixin</name>
-    <message>
-        <source>Excitation Function</source>
-        <translation type="vanished">Excitation Function</translation>
-    </message>
-    <message>
-        <source>Time [s]</source>
-        <translation type="vanished">Time [s]</translation>
-    </message>
-    <message>
-        <source>Output</source>
-        <translation type="vanished">Output</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation type="vanished">Function</translation>
-    </message>
-    <message>
-        <source>Function Plot</source>
-        <translation type="vanished">Function Plot</translation>
+        <source>Excitation Function Plot</source>
+        <translation>Excitation Function Plot</translation>
     </message>
 </context>
 <context>
@@ -1078,24 +725,6 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <location filename="../views/main_view.py" line="96"/>
         <source>Control Optimizer</source>
         <translation>Control Optimizer</translation>
-    </message>
-</context>
-<context>
-    <name>MainViewMixin</name>
-    <message>
-        <source>Control Optimizer</source>
-        <translation type="vanished">Control Optimizer</translation>
-    </message>
-</context>
-<context>
-    <name>NavigationWidget</name>
-    <message>
-        <source>Navigation</source>
-        <translation type="vanished">Navigation</translation>
-    </message>
-    <message>
-        <source>Choose the section to configure or inspect.</source>
-        <translation type="vanished">Choose the section to configure or inspect.</translation>
     </message>
 </context>
 <context>
@@ -1133,7 +762,7 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
     <message>
         <location filename="../views/plant_view.py" line="284"/>
         <source>Transfer function</source>
-        <translation>Transfer function</translation>
+        <translation>Transfer Function</translation>
     </message>
     <message>
         <location filename="../views/plant_view.py" line="288"/>
@@ -1167,17 +796,9 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <translation>e.g. 1, 2, 1  → 1s² + 2s + 1</translation>
     </message>
     <message>
-        <source>e.g. 1, 0, 0  → 1s² + 0s + 0</source>
-        <translation type="vanished">e.g. 1, 0, 0  → 1s² + 0s + 0</translation>
-    </message>
-    <message>
         <location filename="../views/plant_view.py" line="299"/>
         <source>e.g. (s + 1)^2  → (s + 1)²</source>
         <translation>e.g. (s + 1)^2  → (s + 1)²</translation>
-    </message>
-    <message>
-        <source>e.g. 1, 0, 0  → 1*s^2 + 0*s + 0</source>
-        <translation type="vanished">e.g. 1, 0, 0  → 1*s² + 0*s + 0</translation>
     </message>
     <message>
         <location filename="../views/plant_view.py" line="301"/>
@@ -1200,69 +821,6 @@ Example: 1, 0.5, 2 → 1*s² + 0.5*s + 2</translation>
 Use parentheses for factors. Multiplication can be implicit.
 Use &apos;^&apos; for powers.
 Example: (s+1)(s+2) or s^2 + 3*s + 2</translation>
-    </message>
-    <message>
-        <source>tooltip_num_den</source>
-        <translation type="vanished">Enter coefficients separated by commas, spaces, or semicolons.
-Use &apos;.&apos; as the decimal point.
-The first number corresponds to the highest power of s.
-Example: 1, 0.5, 2 → 1*s² + 0.5*s + 2</translation>
-    </message>
-</context>
-<context>
-    <name>PlantViewMixin</name>
-    <message>
-        <source>plant.num</source>
-        <translation type="vanished">Numerator</translation>
-    </message>
-    <message>
-        <source>plant.den</source>
-        <translation type="vanished">Denumerator</translation>
-    </message>
-    <message>
-        <source>Time [s]</source>
-        <translation type="vanished">Time [s]</translation>
-    </message>
-    <message>
-        <source>Output</source>
-        <translation type="vanished">Output</translation>
-    </message>
-    <message>
-        <source>Plant</source>
-        <translation type="vanished">Plant</translation>
-    </message>
-    <message>
-        <source>Transfer function</source>
-        <translation type="vanished">Transfer function</translation>
-    </message>
-    <message>
-        <source>Step Response</source>
-        <translation type="vanished">Step Response</translation>
-    </message>
-    <message>
-        <source>e.g. 1  → 1</source>
-        <translation type="vanished">e.g. 1  → 1</translation>
-    </message>
-    <message>
-        <source>e.g. 1, 0, 0  → 1*s^2 + 0*s + 0</source>
-        <translation type="vanished">e.g. 1, 0, 0  → 1*s² + 0*s + 0</translation>
-    </message>
-    <message>
-        <source>tooltip_num_den</source>
-        <translation type="vanished">Enter coefficients separated by commas, spaces, or semicolons.
-Use &apos;.&apos; as the decimal point.
-The first number corresponds to the highest power of s.
-Example: 1, 0.5, 2 → 1*s² + 0.5*s + 2</translation>
-    </message>
-    <message>
-        <source>Enter coefficients separated by commas, spaces, or semicolons.
-Use &apos;.&apos; as the decimal point.
-The first number corresponds to the highest power of s.
-Example: 1, 0.5, 2 → 1*s^2 + 0.5*s + 2</source>
-        <translation type="vanished">Enter coefficients separated by commas, spaces, or semicolons.
-Use &apos;.&apos; as the decimal point.
-The first number corresponds to the highest power of s.
-Example: 1, 0.5, 2 → 1*s^2 + 0.5*s + 2</translation>
     </message>
 </context>
 <context>
@@ -1294,7 +852,7 @@ Example: 1, 0.5, 2 → 1*s^2 + 0.5*s + 2</translation>
         <translation>Invalid denominator: first coefficient must be non-zero.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="418"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="416"/>
         <source>Invalid transfer function: denominator order must be greater than or equal to numerator order.</source>
         <translation>Invalid transfer function: denominator order must be greater than or equal to numerator order.</translation>
     </message>
@@ -1302,12 +860,12 @@ Example: 1, 0.5, 2 → 1*s^2 + 0.5*s + 2</translation>
 <context>
     <name>PlotViewModel</name>
     <message>
-        <location filename="../viewmodels/plot_viewmodel.py" line="52"/>
+        <location filename="../viewmodels/plot_viewmodel.py" line="50"/>
         <source>Invalid value: start ({x_min}) must be smaller than end ({x_max}).</source>
         <translation>Invalid value: start ({x_min}) must be smaller than end ({x_max}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plot_viewmodel.py" line="75"/>
+        <location filename="../viewmodels/plot_viewmodel.py" line="71"/>
         <source>Invalid value: end ({x_max}) must be greater than start ({x_min}).</source>
         <translation>Invalid value: end ({x_max}) must be greater than start ({x_min}).</translation>
     </message>
@@ -1331,31 +889,28 @@ Example: 1, 0.5, 2 → 1*s^2 + 0.5*s + 2</translation>
     </message>
     <message>
         <location filename="../views/widgets/plot_widget.py" line="260"/>
-        <source>plot.start.tooltip</source>
+        <source>Lower x-axis limit (x_min).
+        Defines where the time axis begins.
+        Unit: seconds (s).</source>
         <translation>Lower x-axis limit (x_min).
 Defines where the time axis begins.
 Unit: seconds (s).</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="261"/>
-        <source>plot.end.tooltip</source>
+        <location filename="../views/widgets/plot_widget.py" line="263"/>
+        <source>Upper x-axis limit (x_max).
+        Defines where the time axis ends.
+        Unit: seconds (s).
+        Must be greater than the start time.</source>
         <translation>Upper x-axis limit (x_max).
 Defines where the time axis ends.
 Unit: seconds (s).
 Must be greater than the start time.</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="263"/>
+        <location filename="../views/widgets/plot_widget.py" line="268"/>
         <source>plot.legend</source>
         <translation>Legend</translation>
-    </message>
-    <message>
-        <source>Invalid value: start ({x_min}) must be smaller than end ({x_max}).</source>
-        <translation type="vanished">Invalid value: start ({x_min}) must be smaller than end ({x_max}).</translation>
-    </message>
-    <message>
-        <source>Invalid value: end ({x_max}) must be greater than start ({x_min}).</source>
-        <translation type="vanished">Invalid value: end ({x_max}) must be greater than start ({x_min}).</translation>
     </message>
 </context>
 <context>
@@ -1381,10 +936,6 @@ Must be greater than the start time.</translation>
         <translation>Excitation Function</translation>
     </message>
     <message>
-        <source>Controller Optimization Parameters</source>
-        <translation type="vanished">Controller Optimization Parameters</translation>
-    </message>
-    <message>
         <location filename="../views/pso_configuration_view.py" line="243"/>
         <source>PSO Simulation</source>
         <translation>PSO Simulation</translation>
@@ -1395,49 +946,29 @@ Must be greater than the start time.</translation>
         <translation>Simulation Time</translation>
     </message>
     <message>
-        <source>Start Time</source>
-        <translation type="vanished">Start Time</translation>
-    </message>
-    <message>
-        <source>End Time</source>
-        <translation type="vanished">End Time</translation>
-    </message>
-    <message>
         <location filename="../views/pso_configuration_view.py" line="254"/>
         <source>Error Criterion</source>
-        <translation>Error Criterion</translation>
-    </message>
-    <message>
-        <source>Overshoot Control</source>
-        <translation type="vanished">Overshoot Control</translation>
+        <translation>Error criterion</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="250"/>
         <source>Start Time [s]</source>
-        <translation>Start Time [s]</translation>
+        <translation>Start time [s]</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="251"/>
         <source>End Time [s]</source>
-        <translation>End Time [s]</translation>
-    </message>
-    <message>
-        <source>Overshoot Control [%]</source>
-        <translation type="vanished">Overshoot Control [%]</translation>
-    </message>
-    <message>
-        <source>Specifies the maximum allowed overshoot as a percentage.This setting is only available for excitation type %(excitation_target)s and function type %(function_type)s.</source>
-        <translation type="vanished">Specifies the maximum allowed overshoot as a percentage.This setting is only available for excitation type %(excitation_target)s and function type %(function_type)s.</translation>
+        <translation>End time [s]</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="255"/>
         <source>Max Overshoot [%]</source>
-        <translation>Max Overshoot [%]</translation>
+        <translation>Max overshoot [%]</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="256"/>
         <source>Slew Rate Limit</source>
-        <translation>Slew Rate Limit</translation>
+        <translation>Slew rate limit</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="257"/>
@@ -1447,27 +978,12 @@ Must be greater than the start time.</translation>
     <message>
         <location filename="../views/pso_configuration_view.py" line="258"/>
         <source>Window Size</source>
-        <translation>Window Size</translation>
+        <translation>Window size</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="259"/>
         <source>Frequency Domain</source>
         <translation>Frequency Domain</translation>
-    </message>
-    <message>
-        <location filename="../views/pso_configuration_view.py" line="260"/>
-        <source>Gain Margin [dB]</source>
-        <translation>Gain Margin [dB]</translation>
-    </message>
-    <message>
-        <location filename="../views/pso_configuration_view.py" line="261"/>
-        <source>Phase Margin [°]</source>
-        <translation>Phase Margin [°]</translation>
-    </message>
-    <message>
-        <location filename="../views/pso_configuration_view.py" line="262"/>
-        <source>Sensitivity [dB]</source>
-        <translation>Sensitivity [dB]</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="263"/>
@@ -1490,21 +1006,9 @@ Must be greater than the start time.</translation>
         <translation>Td Bounds</translation>
     </message>
     <message>
-        <source>Gain Margin</source>
-        <translation type="vanished">Gain Margin</translation>
-    </message>
-    <message>
-        <source>Phase Margin</source>
-        <translation type="vanished">Phase Margin</translation>
-    </message>
-    <message>
-        <source>Sensitivity</source>
-        <translation type="vanished">Sensitivity</translation>
-    </message>
-    <message>
         <location filename="../views/pso_configuration_view.py" line="274"/>
         <source>Interrupt</source>
-        <translation>Interrupt</translation>
+        <translation>Interrupt PSO Simulation</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="291"/>
@@ -1558,11 +1062,7 @@ Limits how strongly the closed loop system responds to disturbances and model un
     <message>
         <location filename="../views/pso_configuration_view.py" line="248"/>
         <source>Excitation Target</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation type="vanished">Function</translation>
+        <translation>Excitation target</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="252"/>
@@ -1575,8 +1075,19 @@ Limits how strongly the closed loop system responds to disturbances and model un
         <translation>Time Domain</translation>
     </message>
     <message>
-        <source>PSO Bounds: Kp</source>
-        <translation type="vanished">PSO Bounds: Kp</translation>
+        <location filename="../views/pso_configuration_view.py" line="260"/>
+        <source>Gain margin [dB]</source>
+        <translation>Gain margin [dB]</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="261"/>
+        <source>Phase margin [°]</source>
+        <translation>Phase margin [°]</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="262"/>
+        <source>Stability margin [dB]</source>
+        <translation>Stability margin [dB]</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="265"/>
@@ -1593,241 +1104,40 @@ Limits how strongly the closed loop system responds to disturbances and model un
         <translation>Maximum</translation>
     </message>
     <message>
-        <source>PSO Bounds: Ti</source>
-        <translation type="vanished">PSO Bounds: Ti</translation>
-    </message>
-    <message>
-        <source>PSO Bounds: Td</source>
-        <translation type="vanished">PSO Bounds: Td</translation>
-    </message>
-    <message>
         <location filename="../views/pso_configuration_view.py" line="273"/>
         <source>Start PSO Simulation</source>
         <translation>Start PSO Simulation</translation>
     </message>
 </context>
 <context>
-    <name>PsoConfigurationViewMixin</name>
-    <message>
-        <source>PSO Bounds</source>
-        <translation type="vanished">PSO Bounds</translation>
-    </message>
-    <message>
-        <source>PSO Parameter</source>
-        <translation type="vanished">PSO Parameter</translation>
-    </message>
-    <message>
-        <source>Excitation Function</source>
-        <translation type="vanished">Excitation Function</translation>
-    </message>
-    <message>
-        <source>PSO Simulation</source>
-        <translation type="vanished">PSO Simulation</translation>
-    </message>
-    <message>
-        <source>Simulation Time</source>
-        <translation type="vanished">Simulation Time</translation>
-    </message>
-    <message>
-        <source>Start Time</source>
-        <translation type="vanished">Start Time</translation>
-    </message>
-    <message>
-        <source>End Time</source>
-        <translation type="vanished">End Time</translation>
-    </message>
-    <message>
-        <source>Excitation Target</source>
-        <translation type="vanished">Excitation Target</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation type="vanished">Function</translation>
-    </message>
-    <message>
-        <source>Function Formula</source>
-        <translation type="vanished">Function Formula</translation>
-    </message>
-    <message>
-        <source>Time Domain</source>
-        <translation type="vanished">Time Domain</translation>
-    </message>
-    <message>
-        <source>PSO Bounds: Kp</source>
-        <translation type="vanished">PSO Bounds: Kp</translation>
-    </message>
-    <message>
-        <source>PSO Bounds: Ti</source>
-        <translation type="vanished">PSO Bounds: Ti</translation>
-    </message>
-    <message>
-        <source>PSO Bounds: Td</source>
-        <translation type="vanished">PSO Bounds: Td</translation>
-    </message>
-    <message>
-        <source>Start PSO Simulation</source>
-        <translation type="vanished">Start PSO Simulation</translation>
-    </message>
-    <message>
-        <source>PSO Result:
-Time = %(time).2f s
-Kp   = %(kp).3f
-Ti   = %(ti).3f
-Td   = %(td).3f
-Tf   = %(tf).3f</source>
-        <translation type="vanished">PSO Result:
-Time = %(time).2f s
-Kp   = %(kp).3f
-Ti   = %(ti).3f
-Td   = %(td).3f
-Tf   = %(tf).3f</translation>
-    </message>
-    <message>
-        <source>Anti-Windup Strategy</source>
-        <translation type="vanished">Anti-Windup Strategy</translation>
-    </message>
-    <message>
-        <source>Performance Index</source>
-        <translation type="vanished">Performance Index</translation>
-    </message>
-    <message>
-        <source>Constraint</source>
-        <translation type="vanished">Constraint</translation>
-    </message>
-    <message>
-        <source>Minimum</source>
-        <translation type="vanished">Minimum</translation>
-    </message>
-    <message>
-        <source>Maximum</source>
-        <translation type="vanished">Maximum</translation>
-    </message>
-    <message>
-        <source>Kp</source>
-        <translation type="vanished">Kp</translation>
-    </message>
-    <message>
-        <source>Ti</source>
-        <translation type="vanished">Ti</translation>
-    </message>
-    <message>
-        <source>Td</source>
-        <translation type="vanished">Td</translation>
-    </message>
-    <message>
-        <source>Reference</source>
-        <translation type="vanished">Reference</translation>
-    </message>
-    <message>
-        <source>Input Disturbance</source>
-        <translation type="vanished">Input Disturbance</translation>
-    </message>
-    <message>
-        <source>Measurement Disturbance</source>
-        <translation type="vanished">Measurement Disturbance</translation>
-    </message>
-    <message>
-        <source>Clamping</source>
-        <translation type="vanished">Clamping</translation>
-    </message>
-    <message>
-        <source>Conditional</source>
-        <translation type="vanished">Conditional</translation>
-    </message>
-    <message>
-        <source>ITAE</source>
-        <translation type="vanished">ITAE</translation>
-    </message>
-    <message>
-        <source>IAE</source>
-        <translation type="vanished">IAE</translation>
-    </message>
-    <message>
-        <source>ITSE</source>
-        <translation type="vanished">ITSE</translation>
-    </message>
-    <message>
-        <source>ISE</source>
-        <translation type="vanished">ISE</translation>
-    </message>
-    <message>
-        <source>Plant</source>
-        <translation type="vanished">Plant</translation>
-    </message>
-    <message>
-        <source>Controller Optimization Parameters</source>
-        <translation type="vanished">Controller Optimization Parameters</translation>
-    </message>
-    <message>
-        <source>title.plant</source>
-        <translation type="vanished">Plant</translation>
-    </message>
-    <message>
-        <source>title.control</source>
-        <translation type="vanished">Controller Optimization Parameters</translation>
-    </message>
-    <message>
-        <source>control.x_min</source>
-        <translation type="vanished">Start time</translation>
-    </message>
-    <message>
-        <source>control.x_max</source>
-        <translation type="vanished">End time</translation>
-    </message>
-    <message>
-        <source>control.anti_windup</source>
-        <translation type="vanished">Anti windup</translation>
-    </message>
-    <message>
-        <source>control.excitation_target</source>
-        <translation type="vanished">Excitationtarget</translation>
-    </message>
-    <message>
-        <source>control.performance_index</source>
-        <translation type="vanished">Performance index</translation>
-    </message>
-    <message>
-        <source>control.constraint_min</source>
-        <translation type="vanished">Constraint min</translation>
-    </message>
-    <message>
-        <source>control.constraint_max</source>
-        <translation type="vanished">Constraint max</translation>
-    </message>
-</context>
-<context>
     <name>PsoConfigurationViewModel</name>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="84"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="82"/>
         <source>Invalid value: start time ({t0}) must be smaller than end time ({t1}).</source>
         <translation>Invalid value: start time ({t0}) must be smaller than end time ({t1}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="107"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="103"/>
         <source>Invalid value: end time ({t1}) must be greater than start time ({t0}).</source>
         <translation>Invalid value: end time ({t1}) must be greater than start time ({t0}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="239"/>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="285"/>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="331"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="233"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="275"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="317"/>
         <source>Invalid value: min ({value}) must be smaller than max ({max}).</source>
         <translation>Invalid value: min ({value}) must be smaller than max ({max}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="259"/>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="308"/>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="351"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="251"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="296"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="335"/>
         <source>Invalid value: max ({value}) must be greater than min ({min}).</source>
         <translation>Invalid value: max ({value}) must be greater than min ({min}).</translation>
     </message>
 </context>
 <context>
     <name>SavePathWidget</name>
-    <message>
-        <source>Browse…</source>
-        <translation type="vanished">Browse…</translation>
-    </message>
     <message>
         <location filename="../views/widgets/path_widget/save_path_widget.py" line="18"/>
         <source>Export</source>
@@ -1842,26 +1152,6 @@ Tf   = %(tf).3f</translation>
         <location filename="../views/widgets/path_widget/save_path_widget.py" line="44"/>
         <source>The file is currently open in another program. Please close it first.</source>
         <translation>The file is currently open in another program. Please close it first.</translation>
-    </message>
-    <message>
-        <source>File Exists</source>
-        <translation type="vanished">File Exists</translation>
-    </message>
-    <message>
-        <source>The file already exists. Do you want to overwrite it?</source>
-        <translation type="vanished">The file already exists. Do you want to overwrite it?</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation type="vanished">OK</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">Cancel</translation>
-    </message>
-    <message>
-        <source>All Files (*)</source>
-        <translation type="vanished">All Files (*)</translation>
     </message>
     <message>
         <location filename="../views/widgets/path_widget/save_path_widget.py" line="30"/>
@@ -1899,7 +1189,7 @@ Tf   = %(tf).3f</translation>
     <message>
         <location filename="../views/settings_view.py" line="131"/>
         <source>Time Step</source>
-        <translation>Time Step</translation>
+        <translation>Time step</translation>
     </message>
     <message>
         <location filename="../views/settings_view.py" line="132"/>
@@ -1918,45 +1208,6 @@ Tf   = %(tf).3f</translation>
     </message>
 </context>
 <context>
-    <name>SettingsViewMixin</name>
-    <message>
-        <source>Settings</source>
-        <translation type="vanished">Settings</translation>
-    </message>
-    <message>
-        <source>Language</source>
-        <translation type="vanished">Language</translation>
-    </message>
-    <message>
-        <source>Theme</source>
-        <translation type="vanished">Theme</translation>
-    </message>
-    <message>
-        <source>Solver</source>
-        <translation type="vanished">Solver</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="vanished">Type</translation>
-    </message>
-    <message>
-        <source>Time Step</source>
-        <translation type="vanished">Time Step</translation>
-    </message>
-    <message>
-        <source>PSO</source>
-        <translation type="vanished">PSO</translation>
-    </message>
-    <message>
-        <source>Iterations</source>
-        <translation type="vanished">Iterations</translation>
-    </message>
-    <message>
-        <source>Particles</source>
-        <translation type="vanished">Particles</translation>
-    </message>
-</context>
-<context>
     <name>SimulationView</name>
     <message>
         <location filename="../views/simulation_view.py" line="113"/>
@@ -1971,46 +1222,19 @@ Tf   = %(tf).3f</translation>
         <translation>Output</translation>
     </message>
     <message>
+        <location filename="../views/simulation_view.py" line="174"/>
+        <source>Excitation Function Definition</source>
+        <translation>Excitation Function Definition</translation>
+    </message>
+    <message>
         <location filename="../views/simulation_view.py" line="175"/>
-        <source>Closed Loop</source>
-        <translation>Closed Loop</translation>
+        <source>System Analysis and Visualization</source>
+        <translation>System Analysis and Visualization</translation>
     </message>
     <message>
         <location filename="../views/simulation_view.py" line="173"/>
         <source>Simulation</source>
         <translation>Simulation</translation>
-    </message>
-    <message>
-        <location filename="../views/simulation_view.py" line="174"/>
-        <source>Excitation Function</source>
-        <translation>Excitation Function</translation>
-    </message>
-</context>
-<context>
-    <name>SimulationViewMixin</name>
-    <message>
-        <source>Evaluation</source>
-        <translation type="vanished">Evaluation</translation>
-    </message>
-    <message>
-        <source>Time [s]</source>
-        <translation type="vanished">Time [s]</translation>
-    </message>
-    <message>
-        <source>Output</source>
-        <translation type="vanished">Output</translation>
-    </message>
-    <message>
-        <source>Closed Loop</source>
-        <translation type="vanished">Closed Loop</translation>
-    </message>
-    <message>
-        <source>Simulation</source>
-        <translation type="vanished">Simulation</translation>
-    </message>
-    <message>
-        <source>Excitation Function</source>
-        <translation type="vanished">Excitation Function</translation>
     </message>
 </context>
 <context>
@@ -2024,21 +1248,6 @@ Tf   = %(tf).3f</translation>
         <location filename="../views/view_mixin.py" line="380"/>
         <source>Next</source>
         <translation>Next</translation>
-    </message>
-</context>
-<context>
-    <name>plant.view</name>
-    <message>
-        <source>Step Response</source>
-        <translation type="vanished">Step Response</translation>
-    </message>
-    <message>
-        <source>Time [s]</source>
-        <translation type="vanished">Time [s]</translation>
-    </message>
-    <message>
-        <source>Output</source>
-        <translation type="vanished">Output</translation>
     </message>
 </context>
 </TS>

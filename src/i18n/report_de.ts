@@ -26,7 +26,7 @@
     <message>
         <location filename="../service/reporting/sections.py" line="46"/>
         <source>PSO simulation finished after %(time)s seconds.</source>
-        <translation>PSO‑Simulation nach %(time)s Sekunden abgeschlossen.</translation>
+        <translation>PSO-Simulation nach %(time)s Sekunden abgeschlossen.</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="54"/>
@@ -41,20 +41,12 @@
     <message>
         <location filename="../service/reporting/sections.py" line="70"/>
         <source>The plant is defined by the transfer function:</source>
-        <translation>Die Strecke wird durch die folgende Übertragungsfunktion beschrieben:</translation>
+        <translation>Die Regelstrecke wird durch die folgende Übertragungsfunktion beschrieben:</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="79"/>
         <source>Excitation Function</source>
         <translation>Anregungsfunktion</translation>
-    </message>
-    <message>
-        <source>The excitation input is:</source>
-        <translation type="vanished">Die Anregung ist definiert als:</translation>
-    </message>
-    <message>
-        <source>The excitation function is a %(function)s function:</source>
-        <translation type="vanished">Die Anregungsfunktion ist eine %(function)s-Funktion:</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="81"/>
@@ -94,7 +86,7 @@
     <message>
         <location filename="../service/reporting/sections.py" line="110"/>
         <source>%(type)s controller</source>
-        <translation>%(type)s‑Regler</translation>
+        <translation>%(type)s-Regler</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="117"/>
@@ -114,7 +106,7 @@
     <message>
         <location filename="../service/reporting/sections.py" line="130"/>
         <source>Anti Windup</source>
-        <translation>Anti‑Windup</translation>
+        <translation>Anti-Windup</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="134"/>
@@ -124,7 +116,7 @@
     <message>
         <location filename="../service/reporting/sections.py" line="140"/>
         <source>%(anti_windup)s method%(ka_part)s.</source>
-        <translation>%(anti_windup)s‑Methode%(ka_part)s.</translation>
+        <translation>%(anti_windup)s-Methode%(ka_part)s.</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="151"/>
@@ -144,7 +136,7 @@
     <message>
         <location filename="../service/reporting/sections.py" line="171"/>
         <source>PSO Configuration</source>
-        <translation>PSO‑Konfiguration</translation>
+        <translation>PSO-Konfiguration</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="174"/>
@@ -184,12 +176,12 @@
     <message>
         <location filename="../service/reporting/sections.py" line="204"/>
         <source>Slew rate limitation maximum du/dt: %(max_du_dt)s with window size: %(window_size)s</source>
-        <translation>Slew‑Rate‑Begrenzung: max. du/dt = %(max_du_dt)s mit Fenstergröße %(window_size)s</translation>
+        <translation>Stellratenbegrenzung: max. du/dt = %(max_du_dt)s mit Fenstergröße %(window_size)s</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="212"/>
         <source>Slew rate limitation is disabled.</source>
-        <translation>Slew‑Rate‑Begrenzung deaktiviert.</translation>
+        <translation>Stellratenbegrenzung deaktiviert.</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="216"/>
@@ -229,7 +221,7 @@
     <message>
         <location filename="../service/reporting/sections.py" line="239"/>
         <source>PSO Parameter Bounds</source>
-        <translation>PSO‑Parametergrenzen</translation>
+        <translation>PSO-Parametergrenzen</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="242"/>
@@ -244,7 +236,7 @@
     <message>
         <location filename="../service/reporting/sections.py" line="253"/>
         <source>PSO Result</source>
-        <translation>PSO‑Ergebnis</translation>
+        <translation>PSO-Ergebnis</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="256"/>
@@ -293,10 +285,6 @@
         <translation>Stellratenbegrenzung du/dt</translation>
     </message>
     <message>
-        <source>Maximum Slew Rate</source>
-        <translation type="vanished">Maximale Slew‑Rate</translation>
-    </message>
-    <message>
         <location filename="../service/reporting/sections.py" line="315"/>
         <source>Frequency Domain Characteristics</source>
         <translation>Frequenzbereichskennwerte</translation>
@@ -334,7 +322,7 @@
     <message>
         <location filename="../service/reporting/sections.py" line="354"/>
         <source>Bode Plot</source>
-        <translation>Bode‑Diagramm</translation>
+        <translation>Bode-Diagramm</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="360"/>
@@ -344,7 +332,7 @@
     <message>
         <location filename="../service/reporting/sections.py" line="363"/>
         <source>Plant</source>
-        <translation>Strecke</translation>
+        <translation>Regelstrecke</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="364"/>
