@@ -723,7 +723,7 @@ Wenn die Abtastrate unbekannt ist, dieses Feld leer lassen, um einen empfohlenen
     <message>
         <location filename="../views/main_view.py" line="96"/>
         <source>Control Optimizer</source>
-        <translation>Regelungsoptimierer</translation>
+        <translation>Control Optimizer</translation>
     </message>
 </context>
 <context>

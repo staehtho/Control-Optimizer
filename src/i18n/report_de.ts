@@ -6,7 +6,7 @@
     <message>
         <location filename="../service/reporting/dynamic_report.py" line="35"/>
         <source>Control Optimizer</source>
-        <translation>Regelungsoptimierer</translation>
+        <translation>Control Optimizer</translation>
     </message>
     <message>
         <location filename="../service/reporting/dynamic_report.py" line="36"/>
@@ -16,7 +16,7 @@
     <message>
         <location filename="../service/reporting/dynamic_report.py" line="39"/>
         <source>Control Optimizer Report</source>
-        <translation>Regelungsoptimierer Bericht</translation>
+        <translation>Control Optimizer Bericht</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="37"/>
