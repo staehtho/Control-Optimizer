@@ -583,89 +583,89 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="381"/>
+        <location filename="../views/evaluation_view.py" line="365"/>
         <source>System Analysis and Visualization</source>
         <translation>System Analysis and Visualization</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="400"/>
+        <location filename="../views/evaluation_view.py" line="384"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="378"/>
+        <location filename="../views/evaluation_view.py" line="362"/>
         <source>Evaluation</source>
         <translation>Evaluation</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="380"/>
+        <location filename="../views/evaluation_view.py" line="364"/>
         <source>PSO Result</source>
         <translation>PSO Result</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="384"/>
-        <location filename="../views/evaluation_view.py" line="394"/>
+        <location filename="../views/evaluation_view.py" line="368"/>
+        <location filename="../views/evaluation_view.py" line="378"/>
         <source>Time Domain</source>
         <translation>Time Domain</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="385"/>
-        <location filename="../views/evaluation_view.py" line="395"/>
+        <location filename="../views/evaluation_view.py" line="369"/>
+        <location filename="../views/evaluation_view.py" line="379"/>
         <source>Frequency Domain</source>
         <translation>Frequency Domain</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="386"/>
+        <location filename="../views/evaluation_view.py" line="370"/>
         <source>Block Diagram</source>
         <translation>Block Diagram</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="387"/>
+        <location filename="../views/evaluation_view.py" line="371"/>
         <source>Transfer Functions</source>
         <translation>Transfer Functions</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="390"/>
+        <location filename="../views/evaluation_view.py" line="374"/>
         <source>PSO run time</source>
         <translation>PSO Run Time</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="392"/>
+        <location filename="../views/evaluation_view.py" line="376"/>
         <source>Filter Time Constant</source>
         <translation>Filter Time Constant</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="393"/>
+        <location filename="../views/evaluation_view.py" line="377"/>
         <source>Performance Index</source>
         <translation>Performance Index</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="397"/>
+        <location filename="../views/evaluation_view.py" line="381"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="398"/>
+        <location filename="../views/evaluation_view.py" line="382"/>
         <source>Controller</source>
         <translation>Controller</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="399"/>
+        <location filename="../views/evaluation_view.py" line="383"/>
         <source>Open Loop</source>
         <translation>Open Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="401"/>
+        <location filename="../views/evaluation_view.py" line="385"/>
         <source>Sensitivity</source>
         <translation>Sensitivity</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="407"/>
+        <location filename="../views/evaluation_view.py" line="391"/>
         <source>Not feasible</source>
         <translation>Not feasible</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="391"/>
+        <location filename="../views/evaluation_view.py" line="375"/>
         <source>Controller Parameters</source>
         <translation>Controller Parameters</translation>
     </message>
@@ -873,22 +873,22 @@ Example: (s+1)(s+2) or s^2 + 3*s + 2</translation>
 <context>
     <name>PlotWidget</name>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="257"/>
+        <location filename="../views/widgets/plot_widget.py" line="258"/>
         <source>plot.grid</source>
         <translation>Grid</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="258"/>
+        <location filename="../views/widgets/plot_widget.py" line="259"/>
         <source>plot.start</source>
         <translation>Start time</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="259"/>
+        <location filename="../views/widgets/plot_widget.py" line="260"/>
         <source>plot.end</source>
         <translation>End time</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="260"/>
+        <location filename="../views/widgets/plot_widget.py" line="261"/>
         <source>Lower x-axis limit (x_min).
         Defines where the time axis begins.
         Unit: seconds (s).</source>
@@ -897,7 +897,7 @@ Defines where the time axis begins.
 Unit: seconds (s).</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="263"/>
+        <location filename="../views/widgets/plot_widget.py" line="264"/>
         <source>Upper x-axis limit (x_max).
         Defines where the time axis ends.
         Unit: seconds (s).
@@ -908,7 +908,7 @@ Unit: seconds (s).
 Must be greater than the start time.</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="268"/>
+        <location filename="../views/widgets/plot_widget.py" line="269"/>
         <source>plot.legend</source>
         <translation>Legend</translation>
     </message>
@@ -1055,7 +1055,7 @@ Ensures adequate stability by limiting the allowable additional phase lag before
 Limits how strongly the closed loop system responds to disturbances and model uncertainties.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="431"/>
+        <location filename="../views/pso_configuration_view.py" line="432"/>
         <source>Interrupted</source>
         <translation>Interrupted</translation>
     </message>

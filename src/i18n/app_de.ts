@@ -582,89 +582,89 @@ Wenn die Abtastrate unbekannt ist, dieses Feld leer lassen, um einen empfohlenen
         <translation>Ausgang</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="381"/>
+        <location filename="../views/evaluation_view.py" line="365"/>
         <source>System Analysis and Visualization</source>
         <translation>Systemanalyse und Visualisierung</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="400"/>
+        <location filename="../views/evaluation_view.py" line="384"/>
         <source>Closed Loop</source>
         <translation>Geschlossener Regelkreis</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="378"/>
+        <location filename="../views/evaluation_view.py" line="362"/>
         <source>Evaluation</source>
         <translation>Auswertung</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="380"/>
+        <location filename="../views/evaluation_view.py" line="364"/>
         <source>PSO Result</source>
         <translation>PSO‑Resultat</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="384"/>
-        <location filename="../views/evaluation_view.py" line="394"/>
+        <location filename="../views/evaluation_view.py" line="368"/>
+        <location filename="../views/evaluation_view.py" line="378"/>
         <source>Time Domain</source>
         <translation>Zeitbereich</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="385"/>
-        <location filename="../views/evaluation_view.py" line="395"/>
+        <location filename="../views/evaluation_view.py" line="369"/>
+        <location filename="../views/evaluation_view.py" line="379"/>
         <source>Frequency Domain</source>
         <translation>Frequenzbereich</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="386"/>
+        <location filename="../views/evaluation_view.py" line="370"/>
         <source>Block Diagram</source>
         <translation>Blockdiagramm</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="387"/>
+        <location filename="../views/evaluation_view.py" line="371"/>
         <source>Transfer Functions</source>
         <translation>Übertragungsfunktionen</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="390"/>
+        <location filename="../views/evaluation_view.py" line="374"/>
         <source>PSO run time</source>
         <translation>PSO‑Laufzeit</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="392"/>
+        <location filename="../views/evaluation_view.py" line="376"/>
         <source>Filter Time Constant</source>
         <translation>Filterzeitkonstante</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="393"/>
+        <location filename="../views/evaluation_view.py" line="377"/>
         <source>Performance Index</source>
         <translation>Gütefunktion</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="397"/>
+        <location filename="../views/evaluation_view.py" line="381"/>
         <source>Plant</source>
         <translation>Regelstrecke</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="398"/>
+        <location filename="../views/evaluation_view.py" line="382"/>
         <source>Controller</source>
         <translation>Regler</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="399"/>
+        <location filename="../views/evaluation_view.py" line="383"/>
         <source>Open Loop</source>
         <translation>Offene Kette</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="401"/>
+        <location filename="../views/evaluation_view.py" line="385"/>
         <source>Sensitivity</source>
         <translation>Sensitivität</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="407"/>
+        <location filename="../views/evaluation_view.py" line="391"/>
         <source>Not feasible</source>
         <translation>Nicht zulässig</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="391"/>
+        <location filename="../views/evaluation_view.py" line="375"/>
         <source>Controller Parameters</source>
         <translation>Reglerparameter</translation>
     </message>
@@ -872,22 +872,22 @@ Beispiel: (s+1)(s+2) oder s^2 + 3*s + 2</translation>
 <context>
     <name>PlotWidget</name>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="257"/>
+        <location filename="../views/widgets/plot_widget.py" line="258"/>
         <source>plot.grid</source>
         <translation>Gitter</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="258"/>
+        <location filename="../views/widgets/plot_widget.py" line="259"/>
         <source>plot.start</source>
         <translation>Startzeit</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="259"/>
+        <location filename="../views/widgets/plot_widget.py" line="260"/>
         <source>plot.end</source>
         <translation>Endzeit</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="260"/>
+        <location filename="../views/widgets/plot_widget.py" line="261"/>
         <source>Lower x-axis limit (x_min).
         Defines where the time axis begins.
         Unit: seconds (s).</source>
@@ -896,7 +896,7 @@ Definiert den Beginn der Zeitachse.
 Einheit: Sekunden (s).</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="263"/>
+        <location filename="../views/widgets/plot_widget.py" line="264"/>
         <source>Upper x-axis limit (x_max).
         Defines where the time axis ends.
         Unit: seconds (s).
@@ -907,7 +907,7 @@ Einheit: Sekunden (s).
 Muss grösser als die Startzeit sein.</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="268"/>
+        <location filename="../views/widgets/plot_widget.py" line="269"/>
         <source>plot.legend</source>
         <translation>Legende</translation>
     </message>
@@ -1054,7 +1054,7 @@ Stellt ausreichende Stabilität sicher, indem der zulässige zusätzliche Phasen
 Begrenzt, wie stark das geschlossene System auf Störungen und Modellunsicherheiten reagiert.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="431"/>
+        <location filename="../views/pso_configuration_view.py" line="432"/>
         <source>Interrupted</source>
         <translation>Unterbrochen</translation>
     </message>
