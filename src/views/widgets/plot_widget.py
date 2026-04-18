@@ -4,6 +4,7 @@ from pathlib import Path
 from functools import partial
 from dataclasses import dataclass, field
 import math
+import warnings
 
 from PySide6.QtWidgets import QWidget, QLabel, QCheckBox, QLineEdit, QSizePolicy, QGridLayout, QVBoxLayout, QHBoxLayout
 from PySide6.QtCore import QCoreApplication, QSize, Qt
@@ -257,8 +258,13 @@ class PlotWidget(ViewMixin, QWidget):
         self._chk_grid.setText(self.tr("plot.grid"))
         self.labels.get(PlotField.X_MIN).setText(self.tr("plot.start"))
         self.labels.get(PlotField.X_MAX).setText(self.tr("plot.end"))
-        self.field_widgets.get(PlotField.X_MIN).setToolTip(self.tr("plot.start.tooltip"))
-        self.field_widgets.get(PlotField.X_MAX).setToolTip(self.tr("plot.end.tooltip"))
+        self.field_widgets.get(PlotField.X_MIN).setToolTip(self.tr("""Lower x-axis limit (x_min).
+        Defines where the time axis begins.
+        Unit: seconds (s)."""))
+        self.field_widgets.get(PlotField.X_MAX).setToolTip(self.tr("""Upper x-axis limit (x_max).
+        Defines where the time axis ends.
+        Unit: seconds (s).
+        Must be greater than the start time."""))
 
         self._series_frame.setText(self.tr("plot.legend"))
 
@@ -455,7 +461,8 @@ class PlotWidget(ViewMixin, QWidget):
 
     def resizeEvent(self, event) -> None:
         """Redraw canvas on widget resize."""
-        self._canvas.draw_idle()
+        if self._has_valid_canvas_geometry():
+            self._canvas.draw_idle()
         super().resizeEvent(event)
 
     def save_svg(self, path: str | Path) -> None:
@@ -463,7 +470,37 @@ class PlotWidget(ViewMixin, QWidget):
         target = Path(path)
         if target.suffix.lower() != ".svg":
             target = target.with_suffix(".svg")
-        self._figure.savefig(target, format="svg", bbox_inches="tight")
+        original_size = tuple(self._figure.get_size_inches())
+        original_layout_engine = self._figure.get_layout_engine()
+
+        try:
+            self._prepare_figure_for_export()
+            self._canvas.draw()
+
+            with warnings.catch_warnings():
+                warnings.simplefilter("error", RuntimeWarning)
+                self._figure.savefig(target, format="svg", bbox_inches="tight")
+        except RuntimeWarning:
+            self.logger.warning(
+                "Tight SVG export failed with current figure geometry; retrying with fallback bounds."
+            )
+            self._figure.set_layout_engine(None)
+            self._figure.savefig(target, format="svg")
+        finally:
+            self._figure.set_layout_engine(original_layout_engine)
+            self._figure.set_size_inches(*original_size, forward=False)
+
+    def _has_valid_canvas_geometry(self) -> bool:
+        return self._canvas.width() > 1 and self._canvas.height() > 1
+
+    def _prepare_figure_for_export(self) -> None:
+        width_px = min(self._cfg.max_width, 1000)
+        height_px = width_px // 3 * 2
+
+        dpi = self._figure.dpi or 100.0
+        width_in = max(width_px / dpi, 1e-3)
+        height_in = max(height_px / dpi, 1e-3)
+        self._figure.set_size_inches(width_in, height_in, forward=False)
 
     # ============================================================
     # Theme handling
