@@ -15,18 +15,14 @@ class BodePlotViewModel(PlotViewModel):
     # -------------------
     def _verify_x_min(self, value: float):
         result = self._validate_relation(
-            value=value,
-            other=self._x_max,
-            relation="<",
+            valid=value < self._x_max,
             message=self.tr(
                 "Invalid value: omega min ({x_min}) must be smaller than omega max ({x_max})."
             ).format(x_min=f"{value:.1e}", x_max=f"{self._x_max:.1e}")
         )
 
         result_0 = self._validate_relation(
-            value=value,
-            other=0.0,
-            relation=">",
+            valid=value > 0.0,
             message=self.tr(
                 "Invalid value: omega min ({value} must be greater than 0)"
             ).format(value=f"{value:.1e}")
@@ -46,18 +42,14 @@ class BodePlotViewModel(PlotViewModel):
     # -------------------
     def _verify_x_max(self, value: float):
         result = self._validate_relation(
-            value=value,
-            other=self._x_min,
-            relation=">",
+            valid=value > self._x_min,
             message=self.tr(
                 "Invalid value: omega max ({x_max}) must be greater than omega min ({x_min})."
             ).format(x_min=self._x_min, x_max=value)
         )
 
         result_0 = self._validate_relation(
-            value=value,
-            other=0.0,
-            relation=">",
+            valid=value > 0.0,
             message=self.tr(
                 "Invalid value: omega max ({value} must be greater than 0)"
             ).format(value=f"{value:.1e}")

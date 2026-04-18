@@ -96,39 +96,20 @@ class BaseViewModel(QObject):
         return field not in self._updating_fields
 
     @staticmethod
-    def _validate_relation(*, value: float, other: float, relation: str, message: str) -> ValidationResult:
+    def _validate_relation(*, valid: bool, message: str) -> ValidationResult:
         """
-        Validate a numeric relation between two values.
+        Convert a validation condition into a ValidationResult.
 
-        This helper is used to implement consistent validation logic for
-        properties that depend on a relational constraint (e.g. min/max).
-
-        Supported relations:
-        - "<"
-        - ">"
-        - "<="
-        - ">="
+        This helper keeps validation result creation consistent while the
+        concrete comparison stays at the call site.
 
         Args:
-            value: The value being validated.
-            other: The reference value used for comparison.
-            relation: The relational operator to apply.
+            valid: Result of the validation check.
             message: Error message returned if validation fails.
 
         Returns:
             ValidationResult indicating whether the constraint is satisfied.
         """
-
-        if relation == "<":
-            valid = value < other
-        elif relation == ">":
-            valid = value > other
-        elif relation == "<=":
-            valid = value <= other
-        elif relation == ">=":
-            valid = value >= other
-        else:
-            raise NotImplementedError(f"Relation '{relation}' is not supported.")
 
         if not valid:
             return ValidationResult(False, message)

@@ -45,9 +45,7 @@ class PlotViewModel(BaseViewModel):
     def _verify_x_min(self, value: float):
 
         result = self._validate_relation(
-            value=value,
-            other=self._x_max,
-            relation="<",
+            valid=value < self._x_max,
             message=self.tr(
                 "Invalid value: start ({x_min}) must be smaller than end ({x_max})."
             ).format(x_min=value, x_max=self._x_max)
@@ -68,9 +66,7 @@ class PlotViewModel(BaseViewModel):
     def _verify_x_max(self, value: float):
 
         result = self._validate_relation(
-            value=value,
-            other=self._x_min,
-            relation=">",
+            valid=value > self._x_min,
             message=self.tr(
                 "Invalid value: end ({x_max}) must be greater than start ({x_min})."
             ).format(x_min=self._x_min, x_max=value)

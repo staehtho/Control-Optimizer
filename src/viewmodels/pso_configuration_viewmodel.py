@@ -77,9 +77,7 @@ class PsoConfigurationViewModel(BaseViewModel):
     def _verify_t0(self, value: float):
 
         result = self._validate_relation(
-            value=value,
-            other=self._model_pso.t1,
-            relation="<",
+            valid=value < self._model_pso.t1,
             message=self.tr(
                 "Invalid value: start time ({t0}) must be smaller than end time ({t1})."
             ).format(t0=value, t1=self._model_pso.t1)
@@ -100,9 +98,7 @@ class PsoConfigurationViewModel(BaseViewModel):
     def _verify_t1(self, value: float):
 
         result = self._validate_relation(
-            value=value,
-            other=self._model_pso.t0,
-            relation=">",
+            valid=value > self._model_pso.t0,
             message=self.tr(
                 "Invalid value: end time ({t1}) must be greater than start time ({t0})."
             ).format(t1=value, t0=self._model_pso.t0)
@@ -232,9 +228,7 @@ class PsoConfigurationViewModel(BaseViewModel):
     def _verify_kp_min(self, value: float):
 
         result = self._validate_relation(
-            value=value,
-            other=self._model_pso.kp_max,
-            relation="<",
+            valid=value < self._model_pso.kp_max,
             message=self.tr(
                 "Invalid value: min ({value}) must be smaller than max ({max})."
             ).format(value=value, max=self._model_pso.kp_max)
@@ -252,9 +246,7 @@ class PsoConfigurationViewModel(BaseViewModel):
     def _verify_kp_max(self, value: float):
 
         result = self._validate_relation(
-            value=value,
-            other=self._model_pso.kp_min,
-            relation=">",
+            valid=value > self._model_pso.kp_min,
             message=self.tr(
                 "Invalid value: max ({value}) must be greater than min ({min})."
             ).format(value=value, min=self._model_pso.kp_min)
@@ -278,9 +270,7 @@ class PsoConfigurationViewModel(BaseViewModel):
             value = 1e-9
 
         result = self._validate_relation(
-            value=value,
-            other=self._model_pso.ti_max,
-            relation="<",
+            valid=value < self._model_pso.ti_max,
             message=self.tr(
                 "Invalid value: min ({value}) must be smaller than max ({max})."
             ).format(value=value, max=self._model_pso.ti_max)
@@ -301,9 +291,7 @@ class PsoConfigurationViewModel(BaseViewModel):
     def _verify_ti_max(self, value: float) -> bool:
 
         result = self._validate_relation(
-            value=value,
-            other=self._model_pso.ti_min,
-            relation=">",
+            valid=value > self._model_pso.ti_min,
             message=self.tr(
                 "Invalid value: max ({value}) must be greater than min ({min})."
             ).format(value=value, min=self._model_pso.ti_min)
@@ -324,9 +312,7 @@ class PsoConfigurationViewModel(BaseViewModel):
     def _verify_td_min(self, value: float) -> bool:
 
         result = self._validate_relation(
-            value=value,
-            other=self._model_pso.td_max,
-            relation="<",
+            valid=value < self._model_pso.td_max,
             message=self.tr(
                 "Invalid value: min ({value}) must be smaller than max ({max})."
             ).format(value=value, max=self._model_pso.td_max)
@@ -344,9 +330,7 @@ class PsoConfigurationViewModel(BaseViewModel):
     def _verify_td_max(self, value: float) -> bool:
 
         result = self._validate_relation(
-            value=value,
-            other=self._model_pso.td_min,
-            relation=">",
+            valid=value > self._model_pso.td_min,
             message=self.tr(
                 "Invalid value: max ({value}) must be greater than min ({min})."
             ).format(value=value, min=self._model_pso.td_min)

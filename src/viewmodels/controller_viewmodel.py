@@ -57,9 +57,7 @@ class ControllerViewModel(BaseViewModel):
     # ============================================================
     def _verify_constraint_min(self, value: float):
         result = self._validate_relation(
-            value=value,
-            other=self._model_controller.constraint_max,
-            relation="<",
+            valid=value < self._model_controller.constraint_max,
             message=self.tr(
                 "Invalid value: min ({value}) must be smaller than max ({max})."
             ).format(value=value, max=self._model_controller.constraint_max)
@@ -76,9 +74,7 @@ class ControllerViewModel(BaseViewModel):
 
     def _verify_constraint_max(self, value: float):
         result = self._validate_relation(
-            value=value,
-            other=self._model_controller.constraint_min,
-            relation=">",
+            valid=value > self._model_controller.constraint_min,
             message=self.tr(
                 "Invalid value: max ({value}) must be greater than min ({min})."
             ).format(value=value, min=self._model_controller.constraint_min)

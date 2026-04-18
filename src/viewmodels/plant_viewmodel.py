@@ -411,9 +411,7 @@ class PlantViewModel(BaseViewModel):
         return self._verify(
             field,
             self._validate_relation(
-                value=len(num),
-                other=len(den),
-                relation="<=",
+                valid=len(num) <= len(den),
                 message=self.tr(
                     "Invalid transfer function: denominator order must be greater than or equal to numerator order."
                 ),
