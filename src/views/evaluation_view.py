@@ -319,23 +319,7 @@ class EvaluationView(ViewMixin, QWidget):
         grid_layout = self._create_grid(FIELDS["tf"])
         widget.setLayout(grid_layout)
 
-        tf = self._vm_evaluator.get_transfer_functions()
-
-        tf: dict[EvaluationField, str] = {
-            EvaluationField.TF_PLANT: tf.plant,
-            EvaluationField.TF_CONTROLLER: tf.controller,
-            EvaluationField.TF_OPEN_LOOP: tf.open_loop,
-            EvaluationField.TF_CLOSED_LOOP: tf.closed_loop,
-            EvaluationField.TF_SENSITIVITY: tf.sensitivity,
-        }
-
-        for key, value in tf.items():
-            w: FormulaWidget
-            w = self.field_widgets.get(key)
-
-            w.set_formula(value)
-            w.set_font_size(self._formula_font_size_scale)
-            w.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self._set_formula_transfer_functions()
 
         layout.addWidget(widget)
 
@@ -429,6 +413,8 @@ class EvaluationView(ViewMixin, QWidget):
         icon = self._load_icon(Icons.evaluation, self._title_icon_size)
         self._label_icon.setPixmap(icon.pixmap(self._title_icon_size, self._title_icon_size))
         self._load_block_diagram()
+
+        self._set_formula_transfer_functions()
 
     # ============================================================
     # ViewModel change handlers
@@ -651,3 +637,23 @@ class EvaluationView(ViewMixin, QWidget):
             (snapshot.controller_constraint_min, snapshot.controller_constraint_max),
             self._vm_theme.get_svg_color_map() if use_color_mape else None,
         )
+
+    def _set_formula_transfer_functions(self) -> None:
+
+        tf = self._vm_evaluator.get_transfer_functions()
+
+        tf: dict[EvaluationField, str] = {
+            EvaluationField.TF_PLANT: tf.plant,
+            EvaluationField.TF_CONTROLLER: tf.controller,
+            EvaluationField.TF_OPEN_LOOP: tf.open_loop,
+            EvaluationField.TF_CLOSED_LOOP: tf.closed_loop,
+            EvaluationField.TF_SENSITIVITY: tf.sensitivity,
+        }
+
+        for key, value in tf.items():
+            w: FormulaWidget
+            w = self.field_widgets.get(key)
+
+            w.set_formula(value)
+            w.set_font_size(self._formula_font_size_scale)
+            w.setAlignment(Qt.AlignmentFlag.AlignLeft)

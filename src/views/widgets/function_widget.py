@@ -196,6 +196,8 @@ class FunctionWidget(ViewMixin, QWidget):
         for formula, label in self._lbl_function_params.items():
             label.set_formula(f"{formula}:")
 
+        self._update_formula()
+
     # ============================================================
     # ViewModel change handlers
     # ============================================================

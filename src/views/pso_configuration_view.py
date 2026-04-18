@@ -388,6 +388,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
 
         self._set_formula_tf()
         self._set_formula_function()
+        self._load_closed_loop_block_diagram()
 
     # ============================================================
     # ViewModel change handlers
