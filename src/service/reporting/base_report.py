@@ -281,10 +281,14 @@ class BaseReport:
         else:
             scale = 1.0
 
+        # double the size if it is a fraction
+        if r"\frac" in latex:
+            scale *= 2
+
         drawing.scale(scale, scale)
         drawing.hAlign = align
 
-        self._append(Spacer(1, 10))
+        self._append(Spacer(1, 15))
         self._append(drawing)
         self._append(Spacer(1, 10))
 

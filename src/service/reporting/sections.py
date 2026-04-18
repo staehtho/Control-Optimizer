@@ -72,7 +72,7 @@ def section_plant(report: BaseReport, data: DynamicReportPlant) -> None:
                 "The plant is defined by the transfer function:"
             )
         )
-        report.add_latex(data.formula, height=50)
+        report.add_latex(data.formula, height=25)
 
 def section_excitation_function(report: BaseReport, data: DynamicReportExcitationFunction) -> None:
     with report.section():
@@ -84,7 +84,7 @@ def section_excitation_function(report: BaseReport, data: DynamicReportExcitatio
             ) % {"function": data.formula_desc}
 
         )
-        report.add_latex(data.formula, height=50)
+        report.add_latex(data.formula, height=25)
         report.add_paragraph(
             QCoreApplication.translate(
                 "Report",
@@ -369,4 +369,4 @@ def section_transfer_function(report: BaseReport, data: DynamicReportTransferFun
 
         for subheading, formula in tf_data:
             report.add_subheading(subheading)
-            report.add_latex(formula, height=50)
+            report.add_latex(formula, height=25)
