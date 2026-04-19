@@ -319,7 +319,7 @@
     <message>
         <location filename="../views/controller_view.py" line="140"/>
         <source>Constraint</source>
-        <translation>Begrenzung</translation>
+        <translation>Stellgrössenbegrenzung</translation>
     </message>
     <message>
         <location filename="../views/controller_view.py" line="141"/>

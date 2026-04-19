@@ -91,7 +91,7 @@
     <message>
         <location filename="../service/reporting/sections.py" line="117"/>
         <source>Constraints</source>
-        <translation>Begrenzungen</translation>
+        <translation>Stellgrössenbegrenzungen</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="123"/>
