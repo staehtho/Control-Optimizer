@@ -2,7 +2,8 @@ import json
 import logging
 from pathlib import Path
 
-from PySide6.QtCore import QSettings, QByteArray
+from PySide6.QtCore import QSettings, QByteArray, Qt
+from PySide6.QtGui import QGuiApplication
 
 from app_domain.controlsys import MySolver
 
@@ -78,8 +79,10 @@ class SettingsModel:
         return dict(self._theme_cfg)
 
     def get_theme(self) -> str:
-        """Returns the currently selected UI theme, defaults to 'dark'."""
-        return str(self._settings.value("ui/theme", "dark", type=str))
+        """Returns the selected UI theme or the current system theme if unset."""
+        if self._settings.contains("ui/theme"):
+            return str(self._settings.value("ui/theme", type=str))
+        return self._get_system_theme()
 
     def set_theme(self, theme: str) -> None:
         """Sets the UI theme and logs the change."""
@@ -315,3 +318,11 @@ class SettingsModel:
             raise FileNotFoundError(f"No .qss theme files found in {self._themes_base_dir}")
 
         return themes
+
+    @staticmethod
+    def _get_system_theme() -> str:
+        """Maps the current system color scheme to an available app theme."""
+        app = QGuiApplication.instance()
+        if app is not None and app.styleHints().colorScheme() == Qt.ColorScheme.Light:
+            return "light"
+        return "dark"
