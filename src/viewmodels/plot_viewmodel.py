@@ -5,7 +5,7 @@ from pathlib import Path
 from PySide6.QtCore import QObject, Signal, Slot
 
 from app_types import PlotData, PlotField, PlotLabels
-from resources.resources import OUTPUT_DIR
+from resources.resources import TEMP_DIR
 from utils import LoggedProperty
 from .base_viewmodel import BaseViewModel
 
@@ -139,7 +139,7 @@ class PlotViewModel(BaseViewModel):
     def request_save_svg(self, file_name: str) -> None:
         candidate = Path(file_name)
         if candidate.name == file_name:
-            path = Path(OUTPUT_DIR) / file_name
+            path = Path(TEMP_DIR) / file_name
         else:
             path = candidate
         if path.suffix.lower() != ".svg":

@@ -7,7 +7,7 @@ from PySide6.QtCore import QTimer
 from PySide6.QtGui import QPixmap, Qt, QIcon
 from PySide6.QtWidgets import QApplication, QSplashScreen
 
-from resources.resources import SRC_DIR, OUTPUT_DIR, RESOURCES_DIR
+from resources.resources import SRC_DIR, TEMP_DIR, LOG_DIR
 
 
 def create_app():
@@ -31,8 +31,7 @@ def show_splash():
     return splash
 
 
-def setup_logging(src_dir, log_level):
-    log_dir = Path(src_dir) / "logs"
+def setup_logging(log_dir, log_level):
     log_file = log_dir / "app.log"
 
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -220,8 +219,8 @@ def run_app():
 
     app.setWindowIcon(QIcon(str(icon_path)))
 
-    setup_logging(SRC_DIR, logging.DEBUG)
-    setup_output_directory(OUTPUT_DIR)
+    setup_logging(LOG_DIR, logging.DEBUG)
+    setup_output_directory(TEMP_DIR)
 
     engine = create_engine()
     connect_shutdown(app, engine)

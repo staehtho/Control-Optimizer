@@ -1,12 +1,87 @@
+import os
+import sys
 from pathlib import Path
 from dataclasses import dataclass
 
-SRC_DIR = Path(__file__).parent.parent
+
+# ============================================================
+# Helper: detect if running as PyInstaller EXE
+# ============================================================
+
+def is_frozen():
+    return hasattr(sys, "_MEIPASS")
+
+
+# ============================================================
+# Base directories
+# ============================================================
+
+# Development mode → project root
+DEV_SRC_DIR = Path(__file__).parent.parent
+
+# Frozen mode → PyInstaller _MEIPASS root
+if is_frozen():
+    SRC_DIR = Path(sys._MEIPASS)
+else:
+    SRC_DIR = DEV_SRC_DIR
+
 RESOURCES_DIR = SRC_DIR / "resources"
+
+
+# ============================================================
+# User-writable directories (only used when frozen)
+# ============================================================
+
+def get_user_data_dir():
+    base = Path(os.getenv("LOCALAPPDATA")) / "Control_Optimizer"
+    base.mkdir(parents=True, exist_ok=True)
+    return base
+
+
+def get_temp_dir():
+    if is_frozen():
+        d = get_user_data_dir() / "temp"
+    else:
+        d = RESOURCES_DIR / "temp"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
+def get_log_dir():
+    if is_frozen():
+        d = get_user_data_dir() / "logs"
+    else:
+        d = SRC_DIR / "logs"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
+def get_settings_dir():
+    if is_frozen():
+        d = get_user_data_dir() / "settings"
+    else:
+        d = SRC_DIR / "settings"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+
+# ============================================================
+# Public paths used by the rest of the app
+# ============================================================
+
+TEMP_DIR = get_temp_dir()
+LOG_DIR = get_log_dir()
+
+CONFIG_DIR = SRC_DIR / "config"
+THEMES_DIR = CONFIG_DIR / "themes"
+I18N_DIR = SRC_DIR / "i18n"
+SETTINGS_DIR = get_settings_dir()
+
 
 # ============================================================
 # Block Diagram
 # ============================================================
+
 BLOCK_DIAGRAM_DIR = RESOURCES_DIR / "block_diagram"
 
 
@@ -29,6 +104,7 @@ class BlockDiagram:
 # ============================================================
 # Icons
 # ============================================================
+
 ICONS_DIR = RESOURCES_DIR / "icons"
 
 
@@ -49,10 +125,8 @@ class Icons:
 
 
 # ============================================================
-# Output
+# Output files
 # ============================================================
-OUTPUT_DIR = RESOURCES_DIR / "output"
-
 
 @dataclass(frozen=True)
 class OutputFiles:

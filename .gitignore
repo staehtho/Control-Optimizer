@@ -144,7 +144,7 @@ ENV/
 env.bak/
 venv.bak/
 /.idea/
-src/resources/output
+src/resources/temp
 
 # Spyder project settings
 .spyderproject

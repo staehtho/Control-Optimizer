@@ -12,7 +12,7 @@ from app_types import (
     PsoResult
 )
 from app_domain.functions import resolve_function_type
-from resources.resources import OUTPUT_DIR, OutputFiles
+from resources.resources import TEMP_DIR, OutputFiles
 from service.reporting import DynamicReport
 from utils import LoggedProperty
 from .evaluation_viewmodel import EvaluationViewModel
@@ -60,7 +60,7 @@ class DataManagementViewModel(BaseViewModel):
         self._pending_snapshot: PsoSimulationSnapshot | None = None
         self._pending_result: PsoResult | None = None
         self._pending_svg_request: dict[str, str] | None = None
-        self._report_path: Path = OUTPUT_DIR / "report.pdf"
+        self._report_path: Path = TEMP_DIR / "report.pdf"
 
         self._connect_signals()
 
@@ -153,9 +153,9 @@ class DataManagementViewModel(BaseViewModel):
             self._report_path = self._report_path.with_suffix(".pdf")
 
         self._pending_svg_request = {
-            BLOCK_DIAGRAM: str(OUTPUT_DIR / OutputFiles.block_diagram),
-            TIME_DOMAIN: str(OUTPUT_DIR / OutputFiles.time_domain_plot),
-            FREQUENCY_DOMAIN: str(OUTPUT_DIR / OutputFiles.bode_plot),
+            BLOCK_DIAGRAM: str(TEMP_DIR / OutputFiles.block_diagram),
+            TIME_DOMAIN: str(TEMP_DIR / OutputFiles.time_domain_plot),
+            FREQUENCY_DOMAIN: str(TEMP_DIR / OutputFiles.bode_plot),
         }
         if self._pending_svg_request is None:
             self.reportFailed.emit(self.tr("Failed to start report generation"))
@@ -284,19 +284,19 @@ class DataManagementViewModel(BaseViewModel):
     @staticmethod
     def _get_block_diagram_data() -> DynamicReportBlockDiagram:
         return DynamicReportBlockDiagram(
-            block_diagram_svg=OUTPUT_DIR / OutputFiles.block_diagram
+            block_diagram_svg=TEMP_DIR / OutputFiles.block_diagram
         )
 
     @staticmethod
     def _get_time_domain_plot_data() -> DynamicReportTimeDomainPlot:
         return DynamicReportTimeDomainPlot(
-            plot_svg=OUTPUT_DIR / OutputFiles.time_domain_plot
+            plot_svg=TEMP_DIR / OutputFiles.time_domain_plot
         )
 
     @staticmethod
     def _get_bode_plot_data() -> DynamicReportBodePlot:
         return DynamicReportBodePlot(
-            plot_svg=OUTPUT_DIR / OutputFiles.bode_plot
+            plot_svg=TEMP_DIR / OutputFiles.bode_plot
         )
 
     def _get_transfer_function_data(self) -> DynamicReportTransferFunctions:

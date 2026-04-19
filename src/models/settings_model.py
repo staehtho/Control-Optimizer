@@ -6,6 +6,7 @@ from PySide6.QtCore import QSettings, QByteArray, Qt
 from PySide6.QtGui import QGuiApplication
 
 from app_domain.controlsys import MySolver
+from resources.resources import SETTINGS_DIR, CONFIG_DIR, THEMES_DIR, I18N_DIR
 
 
 class SettingsModel:
@@ -21,15 +22,15 @@ class SettingsModel:
         self._logger = logging.getLogger(f"Model.{self.__class__.__name__}")
 
         # Store base directory for config files
-        self._config_base_dir = Path(__file__).parent.parent / "config"
+        self._config_base_dir = CONFIG_DIR
         self._logger.debug(f"Config base dir: {self._config_base_dir}")
 
         # Store base directory for i18n translation files
-        self._i18n_base_dir = self._config_base_dir.parent / "i18n"
+        self._i18n_base_dir = I18N_DIR
         self._logger.debug(f"i18n base dir: {self._i18n_base_dir}")
 
         # Store base directory for theme stylesheet files
-        self._themes_base_dir = self._config_base_dir / "themes"
+        self._themes_base_dir = THEMES_DIR
         self._logger.debug(f"Themes base dir: {self._themes_base_dir}")
 
         # File name for the QSettings INI file
@@ -37,7 +38,7 @@ class SettingsModel:
 
         # Initialize QSettings with the INI file path
         self._settings = QSettings(
-            str(self._config_base_dir / settings_file),
+            str(SETTINGS_DIR / settings_file),
             QSettings.Format.IniFormat
         )
 
