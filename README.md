@@ -14,7 +14,7 @@ The application provides an interactive workflow for:
 
 ---
 
-# 🌍 Internationalization (i18n)
+## 🌍 Internationalization (i18n)
 
 The project includes a PowerShell-based i18n build pipeline for managing translations using **PySide6**.
 
@@ -22,7 +22,7 @@ Languages are configured in: `src/config/languages.json`.
 To add a new language, add its language code to the `languages` array in that JSON file. To remove a language, delete
 its code from the same array.
 
-## 📌 Overview
+### 📌 Overview
 
 The script:
 
@@ -34,7 +34,7 @@ The script:
 
 ---
 
-## ▶️ Usage
+### ▶️ Usage
 
 From the project root:
 
@@ -46,22 +46,22 @@ cd src
 
 ---
 
-# 📁 Source Structure
+## 📁 Source Structure
 
 The application source code lives in `src/` and is organized around a PySide6 MVVM-style architecture.
 
-## Entry Point
+### Entry Point
 
 - `src/main.py`: application bootstrap, splash screen, logging setup, temp/output directory initialization, `AppEngine`
   creation, and main window startup.
 
-## Core Application Composition
+### Core Application Composition
 
 - `src/app_domain/app_engine.py`: central composition root. It creates the `SimulationService`, owns the
   `ModelContainer`, lazily builds ViewModels, and handles warmup, project save/load, and shutdown.
 - `src/app_domain/ui_context.py`: shared UI context used across views for settings, theme, and language access.
 
-## Domain Logic
+### Domain Logic
 
 - `src/app_domain/controlsys/`: control-system logic such as plants, closed-loop behavior, PID handling, metrics, enums,
   and PSO-oriented optimization helpers.
@@ -71,7 +71,7 @@ The application source code lives in `src/` and is organized around a PySide6 MV
   noise functions.
 - `src/app_domain/PSO/`: particle swarm optimization primitives.
 
-## State and Shared Types
+### State and Shared Types
 
 - `src/models/`: application models for plant, controller, PSO configuration, simulation state, settings, and data
   management.
@@ -79,13 +79,13 @@ The application source code lives in `src/` and is organized around a PySide6 MV
 - `src/app_types/`: typed data structures, enums, plotting payloads, navigation items, reporting payloads, and
   validation results shared across layers.
 
-## Services and Infrastructure
+### Services and Infrastructure
 
 - `src/service/`: orchestration services, including simulation and report generation.
 - `src/service/reporting/`: report builders and report sections for generated output.
 - `src/infrastructure/`: worker classes that run heavier computations outside the UI thread.
 
-## Presentation Layer
+### Presentation Layer
 
 - `src/viewmodels/`: ViewModels that connect UI widgets to models and services.
 - `src/views/`: top-level screens such as plant setup, excitation function, controller setup, PSO configuration,
@@ -94,7 +94,7 @@ The application source code lives in `src/` and is organized around a PySide6 MV
 - `src/views/view_helpers/`: helper utilities for layout, icons, widget binding, and validation.
 - `src/views/translations/`: UI-facing translation helpers for enums and labels.
 
-## Configuration and Assets
+### Configuration and Assets
 
 - `src/config/`: runtime configuration such as available languages and QSS themes.
 - `src/resources/`: static assets including icons, SVG block-diagram parts, and resource helpers.
@@ -102,7 +102,7 @@ The application source code lives in `src/` and is organized around a PySide6 MV
 - `src/settings/settings.ini`: persisted local application settings.
 - `src/logs/`: runtime log output.
 
-# ▶️ Typical Runtime Flow
+## ▶️ Typical Runtime Flow
 
 1. `main.py` creates the Qt application and initializes logging and temporary output paths.
 2. `AppEngine` wires models, services, and lazy ViewModel factories together.
@@ -111,9 +111,18 @@ The application source code lives in `src/` and is organized around a PySide6 MV
    layer.
 5. Results are pushed back into plots, evaluation screens, simulation views, and reporting/data-management features.
 
-# 📦 Summary
+## 📦 Summary
 
 Control-Optimizer provides a structured, extensible environment for control-system modeling, simulation, and
 optimization.
 Its MVVM architecture, modular domain logic, and integrated i18n pipeline make it suitable for both research and
 production-grade control engineering workflows.
+
+## 👥 Authors
+
+- Florin Büchi
+- Thomas Stähli
+  
+ ## 🙏 Acknowledgments
+
+This project was developed under the supervision of Prof. Dr. Roland Büchi.
