@@ -5,7 +5,7 @@ from PySide6.QtWidgets import QWidget, QComboBox, QLineEdit, QFrame, QLabel, QGr
 from PySide6.QtGui import QIntValidator
 
 from app_domain.controlsys import MySolver
-from app_types import SettingsField, LanguageType, ThemeType, FieldConfig, SectionConfig, ConnectSignalConfig
+from app_types import SettingsField, LanguageType, ThemeType, FieldConfig, SectionConfig, ConnectSignalConfig, NavLabels
 from views.view_mixin import ViewMixin
 from resources.resources import Icons
 
@@ -121,7 +121,7 @@ class SettingsView(ViewMixin, QWidget):
     # ============================================================
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
-        self._lbl_title.setText(self.tr("Settings"))
+        self._lbl_title.setText(self._enum_translation(NavLabels.SETTINGS))
 
         labels = {
             SettingsField.LANGUAGE: self.tr("Language"),

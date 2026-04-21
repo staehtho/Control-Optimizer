@@ -7,9 +7,9 @@ from PySide6.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QScrollAr
 from typing import Callable
 from numpy import ndarray
 
-from app_types import PlotData, PlantField, PlotLabels, ConnectSignalConfig
+from app_types import PlotData, PlantField, PlotLabels, ConnectSignalConfig, NavLabels
 from views import ViewMixin
-from views.plot_style import PLOT_STYLE
+from resources.plot_style import PLOT_STYLE
 from views.widgets import PlotWidget, PlotWidgetConfiguration, FormulaWidget
 from resources.resources import Icons
 
@@ -280,7 +280,7 @@ class PlantView(ViewMixin, QWidget):
         """Update all UI texts after a language change."""
         super()._retranslate()
 
-        self._lbl_title.setText(self.tr("Plant"))
+        self._lbl_title.setText(self._enum_translation(NavLabels.PLANT))
         self._frm_tf.setText(self.tr("Transfer function"))
         self._frm_plot.setText(self.tr("Step Response"))
 

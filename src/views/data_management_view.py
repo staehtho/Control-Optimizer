@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 from PySide6.QtWidgets import QWidget, QLabel, QHBoxLayout, QCheckBox, QGraphicsOpacityEffect
 
-from app_types import DataManagementField, FieldConfig, SectionConfig, ConnectSignalConfig
+from app_types import DataManagementField, FieldConfig, SectionConfig, ConnectSignalConfig, NavLabels
 from resources.resources import Icons
 from views.widgets.banner import InfoBanner, ErrorBanner
 from views.widgets.path_widget import SavePathWidget, ImportPathWidget
@@ -144,7 +144,7 @@ class DataManagementView(ViewMixin, QWidget):
     # ============================================================
     def _retranslate(self) -> None:
         """Update all UI texts after a language change."""
-        self._lbl_title.setText(self.tr("Data Management"))
+        self._lbl_title.setText(self._enum_translation(NavLabels.DATA_MANAGEMENT))
         self._frm_export_import.setText(self.tr("Import and Export App Data"))
         self._frm_report.setText(self.tr("Create Report"))
 

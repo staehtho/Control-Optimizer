@@ -6,9 +6,9 @@ from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QSizePolicy, QHBoxLayo
 from numpy import ndarray
 
 from app_domain.functions import FunctionTypes, resolve_function_type
-from app_types import PlotData, PlotLabels
+from app_types import PlotData, PlotLabels, NavLabels
 from views import ViewMixin
-from views.plot_style import PLOT_STYLE
+from resources.plot_style import PLOT_STYLE
 from resources.resources import Icons
 from views.widgets import PlotWidget, PlotWidgetConfiguration, FunctionWidget
 
@@ -139,7 +139,7 @@ class FunctionView(ViewMixin, QWidget):
         """Update all UI texts after a language change."""
         super()._retranslate()
 
-        self._lbl_title.setText(self.tr("Excitation Function"))
+        self._lbl_title.setText(self._enum_translation(NavLabels.EXCITATION_FUNCTION))
         self._frm_function.setText(self.tr("Excitation Function Definition"))
         self._frm_plot.setText(self.tr("Excitation Function Plot"))
 

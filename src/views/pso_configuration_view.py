@@ -9,7 +9,7 @@ from PySide6.QtGui import QDoubleValidator, QIntValidator
 
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
 from app_domain.functions import FunctionTypes
-from app_types import PsoField, FieldConfig, SectionConfig, ConnectSignalConfig, get_performance_tooltip
+from app_types import PsoField, FieldConfig, SectionConfig, ConnectSignalConfig, get_performance_tooltip, NavLabels
 from views.view_mixin import ViewMixin
 from views.widgets import FormulaWidget, AspectRatioSvgWidget, ToggleSwitch, ToggleableSectionFrame
 from resources.resources import Icons
@@ -238,7 +238,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
         """Update all UI texts after a language change."""
         super()._retranslate()
 
-        self._lbl_title.setText(self.tr("PSO Parameter"))
+        self._lbl_title.setText(self._enum_translation(NavLabels.PSO_PARAMETER))
         self._frm_block_diagram.setText(self.tr("Closed Loop Block Diagram"))
         self._frm_run_pso.setText(self.tr("PSO Simulation"))
 

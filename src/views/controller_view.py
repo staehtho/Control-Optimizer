@@ -5,7 +5,7 @@ from PySide6.QtGui import QDoubleValidator, QValidator
 from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit, QHBoxLayout, QGraphicsOpacityEffect
 
 from app_domain.controlsys import AntiWindup
-from app_types import ControllerField, FieldConfig, SectionConfig, ConnectSignalConfig
+from app_types import ControllerField, FieldConfig, SectionConfig, ConnectSignalConfig, NavLabels
 from .view_mixin import ViewMixin
 from views.widgets import AspectRatioSvgWidget
 from resources.resources import Icons
@@ -131,7 +131,7 @@ class ControllerView(ViewMixin, QWidget):
         """Update all UI texts after a language change."""
         super()._retranslate()
 
-        self._lbl_title.setText(self.tr("Controller"))
+        self._lbl_title.setText(self._enum_translation(NavLabels.CONTROLLER))
         self._frm_controller.setText(self.tr("Parameters"))
 
         labels = {

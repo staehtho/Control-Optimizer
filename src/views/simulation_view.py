@@ -7,9 +7,9 @@ from PySide6.QtCore import QT_TRANSLATE_NOOP
 
 from app_domain.functions import resolve_function_type, FunctionTypes
 from app_domain.controlsys import ExcitationTarget
-from app_types import PlotData, PlotLabels
+from app_types import PlotData, PlotLabels, NavLabels
 from views.view_mixin import ViewMixin
-from views.plot_style import PLOT_STYLE
+from resources.plot_style import PLOT_STYLE
 from resources.resources import Icons
 from views.widgets import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, FunctionWidget
 
@@ -170,7 +170,7 @@ class SimulationView(ViewMixin, QWidget):
         """Update all UI texts after a language change."""
         super()._retranslate()
 
-        self._lbl_title.setText(self.tr("Simulation"))
+        self._lbl_title.setText(self._enum_translation(NavLabels.SIMULATION))
         self._frm_function.setText(self.tr("Excitation Function Definition"))
         self._frm_response.setText(self.tr("System Analysis and Visualization"))
 

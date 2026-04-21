@@ -8,12 +8,12 @@ from PySide6.QtCore import QT_TRANSLATE_NOOP, Qt
 from numpy import ndarray
 
 from app_types import (
-    EvaluationField, SectionConfig, FieldConfig, PlotData, BodePlotData, PlotLabels, PsoResultField
+    EvaluationField, SectionConfig, FieldConfig, PlotData, BodePlotData, PlotLabels, PsoResultField, NavLabels
 )
 from resources.blockdiagram import load_closed_loop_diagram
 from utils import save_svg
 from views import ViewMixin
-from views.plot_style import PLOT_STYLE
+from resources.plot_style import PLOT_STYLE
 from views.widgets import (
     PlotWidget, PlotWidgetConfiguration, SubplotConfiguration, BodePlotWidget, AspectRatioSvgWidget, FormulaWidget
 )
@@ -359,7 +359,7 @@ class EvaluationView(ViewMixin, QWidget):
         """Update all UI texts after a language change."""
         super()._retranslate()
 
-        self._lbl_title.setText(self.tr("Evaluation"))
+        self._lbl_title.setText(self._enum_translation(NavLabels.EVALUATION))
 
         self._frm_result.setText(self.tr("PSO Result"))
         self._frm_plot.setText(self.tr("System Analysis and Visualization"))
