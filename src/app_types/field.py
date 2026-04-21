@@ -201,6 +201,7 @@ class SettingsField(FieldType):
     PSO_STALL_WINDOWS_REQUIRED = "pso_stall_windows_required"
     PSO_SPACE_FACTOR = "pso_space_factor"
     PSO_CONVERGENCE_FACTOR = "pso_convergence_factor"
+    PSO_RESET_SETTINGS = "pso_reset_settings"
 
     SOLVER = "solver"
     SOLVER_TYPE = "solver_type"

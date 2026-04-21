@@ -1172,104 +1172,109 @@ Begrenzt, wie stark das geschlossene System auf Störungen und Modellunsicherhei
         <translation type="vanished">Einstellungen</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="195"/>
+        <location filename="../views/settings_view.py" line="183"/>
         <source>Language</source>
         <translation>Sprache</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="196"/>
+        <location filename="../views/settings_view.py" line="184"/>
         <source>Theme</source>
         <translation>Design</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="197"/>
+        <location filename="../views/settings_view.py" line="185"/>
         <source>Solver</source>
         <translation>Solver</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="198"/>
+        <location filename="../views/settings_view.py" line="186"/>
         <source>Type</source>
         <translation>Typ</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="199"/>
+        <location filename="../views/settings_view.py" line="187"/>
         <source>Time Step</source>
         <translation>Zeitintervall</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="201"/>
+        <location filename="../views/settings_view.py" line="189"/>
         <source>Particle Swarm Optimization</source>
         <translation>Particle Swarm Optimization</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="202"/>
+        <location filename="../views/settings_view.py" line="190"/>
         <source>Repeat Runs</source>
         <translation>Wiederholungen</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="203"/>
+        <location filename="../views/settings_view.py" line="191"/>
         <source>Number of Particles</source>
         <translation>Partikelanzahl</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="204"/>
+        <location filename="../views/settings_view.py" line="192"/>
         <source>Randomness Factor</source>
         <translation>Zufallsfaktor</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="205"/>
+        <location filename="../views/settings_view.py" line="193"/>
         <source>Cognitive Factor (u1)</source>
         <translation>Kognitiver Faktor (u1)</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="206"/>
+        <location filename="../views/settings_view.py" line="194"/>
         <source>Social Factor (u2)</source>
         <translation>Sozialer Faktor (u2)</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="207"/>
+        <location filename="../views/settings_view.py" line="195"/>
         <source>Initial Range (Min)</source>
         <translation>Startwertbereich (Minimum)</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="208"/>
+        <location filename="../views/settings_view.py" line="196"/>
         <source>Initial Range (Max)</source>
         <translation>Startwertbereich (Maximum)</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="209"/>
+        <location filename="../views/settings_view.py" line="197"/>
         <source>Initial Swarm Span</source>
         <translation>Initiale Schwarmspanne</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="210"/>
+        <location filename="../views/settings_view.py" line="198"/>
         <source>Min. Neighbors Fraction</source>
         <translation>Min. Nachbarschaftsanteil</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="211"/>
+        <location filename="../views/settings_view.py" line="199"/>
         <source>Max Stall</source>
         <translation>Max. Stillstand</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="212"/>
+        <location filename="../views/settings_view.py" line="200"/>
         <source>Max Iterations</source>
         <translation>Max. Iterationen</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="213"/>
+        <location filename="../views/settings_view.py" line="201"/>
         <source>Required Stall Windows</source>
         <translation>Stillstandsfenster erforderlich</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="214"/>
+        <location filename="../views/settings_view.py" line="202"/>
         <source>Search Space Factor</source>
         <translation>Suchraumfaktor</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="215"/>
+        <location filename="../views/settings_view.py" line="203"/>
         <source>Convergence Factor</source>
         <translation>Konvergenzfaktor</translation>
+    </message>
+    <message>
+        <location filename="../views/settings_view.py" line="209"/>
+        <source>Reset PSO Settings</source>
+        <translation>PSO-Einstellungen zurücksetzen</translation>
     </message>
     <message>
         <source>PSO</source>

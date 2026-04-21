@@ -161,6 +161,12 @@ class SettingsViewModel(BaseViewModel):
         self._settings.set_nav_collapsed(value)
 
     @Slot()
+    def reset_to_defaults(self) -> None:
+        self.logger.debug("Resetting settings to defaults")
+        self._settings.reset_pso_settings()
+        self.refresh_from_model()
+
+    @Slot()
     def refresh_from_model(self) -> None:
         self.solverChanged.emit()
         self.timeStepChanged.emit()

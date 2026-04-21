@@ -1,7 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Callable
 
-from PySide6.QtWidgets import QWidget, QComboBox, QLineEdit, QFrame, QLabel, QGridLayout, QHBoxLayout
+from PySide6.QtWidgets import QWidget, QComboBox, QLineEdit, QFrame, QLabel, QGridLayout, QHBoxLayout, QPushButton, \
+    QSizePolicy
 from PySide6.QtGui import QIntValidator, QDoubleValidator
 
 from app_domain.controlsys import MySolver
@@ -12,99 +13,94 @@ from resources.resources import Icons
 if TYPE_CHECKING:
     from app_domain import UiContext
 
+FIELDS_RIGHT: list[FieldConfig | SectionConfig] = [
+    SectionConfig(SettingsField.LANGUAGE, [
+        FieldConfig(SettingsField.LANGUAGE, QComboBox, create_label=False),
+    ]),
+    SectionConfig(SettingsField.THEME, [
+        FieldConfig(SettingsField.THEME, QComboBox, create_label=False),
+    ]),
+    SectionConfig(SettingsField.SOLVER, [
+        FieldConfig(SettingsField.SOLVER_TYPE, QComboBox),
+        FieldConfig(SettingsField.SOLVER_TIME_STEP, QLineEdit),
+    ]),
+]
 
-FIELDS: dict[str, list[FieldConfig | SectionConfig]] = {
-    "language": [
-        SectionConfig(SettingsField.LANGUAGE, [
-            FieldConfig(SettingsField.LANGUAGE, QComboBox, create_label=False),
-        ]),
-    ],
-    "theme": [
-        SectionConfig(SettingsField.THEME, [
-            FieldConfig(SettingsField.THEME, QComboBox, create_label=False),
-        ]),
-    ],
-    "solver": [
-        SectionConfig(SettingsField.SOLVER, [
-            FieldConfig(SettingsField.SOLVER_TYPE, QComboBox),
-            FieldConfig(SettingsField.SOLVER_TIME_STEP, QLineEdit),
-        ]),
-    ],
-    "pso": [
-        SectionConfig(SettingsField.PSO, [
-            FieldConfig(
-                SettingsField.PSO_REPEAT_RUNS,
-                QLineEdit,
-                validator=QIntValidator(1, 1000),
-            ),
-            FieldConfig(
-                SettingsField.PSO_SWARM_SIZE,
-                QLineEdit,
-                validator=QIntValidator(1, 10000),
-            ),
-            FieldConfig(
-                SettingsField.PSO_RANDOMNESS,
-                QLineEdit,
-                validator=QDoubleValidator(0.0, 10.0, 6),
-            ),
-            FieldConfig(
-                SettingsField.PSO_U1,
-                QLineEdit,
-                validator=QDoubleValidator(0.0, 4.0, 6),
-            ),
-            FieldConfig(
-                SettingsField.PSO_U2,
-                QLineEdit,
-                validator=QDoubleValidator(0.0, 4.0, 6),
-            ),
-            FieldConfig(
-                SettingsField.PSO_INITIAL_RANGE_START,
-                QLineEdit,
-                validator=QDoubleValidator(-1e6, 1e6, 6),
-            ),
-            FieldConfig(
-                SettingsField.PSO_INITIAL_RANGE_END,
-                QLineEdit,
-                validator=QDoubleValidator(-1e6, 1e6, 6),
-            ),
-            FieldConfig(
-                SettingsField.PSO_INITIAL_SWARM_SPAN,
-                QLineEdit,
-                validator=QIntValidator(1, 1_000_000),
-            ),
-            FieldConfig(
-                SettingsField.PSO_MIN_NEIGHBORS_FRACTION,
-                QLineEdit,
-                validator=QDoubleValidator(0.0, 1.0, 6),
-            ),
-            FieldConfig(
-                SettingsField.PSO_MAX_STALL,
-                QLineEdit,
-                validator=QIntValidator(1, 10_000),
-            ),
-            FieldConfig(
-                SettingsField.PSO_MAX_ITER,
-                QLineEdit,
-                validator=QIntValidator(1, 1_000_000),
-            ),
-            FieldConfig(
-                SettingsField.PSO_STALL_WINDOWS_REQUIRED,
-                QLineEdit,
-                validator=QIntValidator(1, 100),
-            ),
-            FieldConfig(
-                SettingsField.PSO_SPACE_FACTOR,
-                QLineEdit,
-                validator=QDoubleValidator(0.0, 1.0, 8),
-            ),
-            FieldConfig(
-                SettingsField.PSO_CONVERGENCE_FACTOR,
-                QLineEdit,
-                validator=QDoubleValidator(0.0, 1.0, 8),
-            ),
-        ]),
-    ]
-}
+FIELDS_LEFT: list[FieldConfig | SectionConfig] = [
+    SectionConfig(SettingsField.PSO, [
+        FieldConfig(
+            SettingsField.PSO_REPEAT_RUNS,
+            QLineEdit,
+            validator=QIntValidator(1, 1000),
+        ),
+        FieldConfig(
+            SettingsField.PSO_SWARM_SIZE,
+            QLineEdit,
+            validator=QIntValidator(1, 10000),
+        ),
+        FieldConfig(
+            SettingsField.PSO_RANDOMNESS,
+            QLineEdit,
+            validator=QDoubleValidator(0.0, 10.0, 6),
+        ),
+        FieldConfig(
+            SettingsField.PSO_U1,
+            QLineEdit,
+            validator=QDoubleValidator(0.0, 4.0, 6),
+        ),
+        FieldConfig(
+            SettingsField.PSO_U2,
+            QLineEdit,
+            validator=QDoubleValidator(0.0, 4.0, 6),
+        ),
+        FieldConfig(
+            SettingsField.PSO_INITIAL_RANGE_START,
+            QLineEdit,
+            validator=QDoubleValidator(-1e6, 1e6, 6),
+        ),
+        FieldConfig(
+            SettingsField.PSO_INITIAL_RANGE_END,
+            QLineEdit,
+            validator=QDoubleValidator(-1e6, 1e6, 6),
+        ),
+        FieldConfig(
+            SettingsField.PSO_INITIAL_SWARM_SPAN,
+            QLineEdit,
+            validator=QIntValidator(1, 1_000_000),
+        ),
+        FieldConfig(
+            SettingsField.PSO_MIN_NEIGHBORS_FRACTION,
+            QLineEdit,
+            validator=QDoubleValidator(0.0, 1.0, 6),
+        ),
+        FieldConfig(
+            SettingsField.PSO_MAX_STALL,
+            QLineEdit,
+            validator=QIntValidator(1, 10_000),
+        ),
+        FieldConfig(
+            SettingsField.PSO_MAX_ITER,
+            QLineEdit,
+            validator=QIntValidator(1, 1_000_000),
+        ),
+        FieldConfig(
+            SettingsField.PSO_STALL_WINDOWS_REQUIRED,
+            QLineEdit,
+            validator=QIntValidator(1, 100),
+        ),
+        FieldConfig(
+            SettingsField.PSO_SPACE_FACTOR,
+            QLineEdit,
+            validator=QDoubleValidator(0.0, 1.0, 8),
+        ),
+        FieldConfig(
+            SettingsField.PSO_CONVERGENCE_FACTOR,
+            QLineEdit,
+            validator=QDoubleValidator(0.0, 1.0, 8),
+        ),
+        FieldConfig(SettingsField.PSO_RESET_SETTINGS, QPushButton)
+    ]),
+]
 
 
 class SettingsView(ViewMixin, QWidget):
@@ -146,29 +142,16 @@ class SettingsView(ViewMixin, QWidget):
         main_layout.addLayout(title_layout)
 
         grid_layout = QGridLayout()
+        grid_layout.addLayout(self._create_grid(FIELDS_LEFT, 2), 0, 0, 4, 1)
+        grid_layout.addLayout(self._create_grid(FIELDS_RIGHT, 2), 0, 1)
+
         grid_layout.setColumnStretch(0, 1)
-        grid_layout.setColumnStretch(3, 1)
+        grid_layout.setColumnStretch(1, 1)
 
-        count = 0
-        for key in FIELDS.keys():
-            frame = self._create_frame(key)
-            grid_layout.addWidget(frame, count, 1)
-            count += 1
-
-        grid_layout.setRowStretch(count, 1)
-
-        main_layout.addLayout(grid_layout, 1)
+        main_layout.addLayout(grid_layout)
         main_layout.addStretch()
 
         self.setLayout(main_layout)
-
-    def _create_frame(self, key: str) -> QFrame:
-        """Create a settings section frame for the given key."""
-        frame = QFrame(self)
-        layout = self._create_grid(FIELDS[key], 1)
-
-        frame.setLayout(layout)
-        return frame
 
     # ============================================================
     # Signal / ViewModel Binding
@@ -176,6 +159,10 @@ class SettingsView(ViewMixin, QWidget):
     def _connect_signals(self) -> None:
         """Connect UI signals to event handlers."""
         self._connect_object_signals(self._get_widget_bindings())
+
+        self.field_widgets[SettingsField.PSO_RESET_SETTINGS].clicked.connect(
+            self._vm_settings.reset_to_defaults
+        )
 
     # ============================================================
     # ViewModel bindings (ViewModel -> UI)
@@ -217,6 +204,8 @@ class SettingsView(ViewMixin, QWidget):
 
         for key in labels.keys():
             self.labels[key].setText(labels[key])
+
+        self.field_widgets[SettingsField.PSO_RESET_SETTINGS].setText(self.tr("Reset PSO Settings"))
 
         enums = {
             SettingsField.LANGUAGE: LanguageType,

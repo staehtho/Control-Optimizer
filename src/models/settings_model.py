@@ -2,7 +2,7 @@ import json
 import logging
 from pathlib import Path
 
-from PySide6.QtCore import QSettings, QByteArray, Qt, QObject, Property
+from PySide6.QtCore import QSettings, QByteArray, Qt, QObject, Property, Slot
 from PySide6.QtGui import QGuiApplication
 
 from app_domain.controlsys import MySolver
@@ -473,3 +473,30 @@ class SettingsModel(QObject):
         if app is not None and app.styleHints().colorScheme() == Qt.ColorScheme.Light:
             return "light"
         return "dark"
+
+    @Slot()
+    def reset_pso_settings(self) -> None:
+        """Reset all PSO settings to defaults by removing stored overrides."""
+
+        pso_keys = [
+            "pso/swarm_size",
+            "pso/repeat_runs",
+            "pso/randomness",
+            "pso/u1",
+            "pso/u2",
+            "pso/initial_range_start",
+            "pso/initial_range_end",
+            "pso/initial_swarm_span",
+            "pso/min_neighbors_fraction",
+            "pso/max_stall",
+            "pso/max_iter",
+            "pso/stall_windows_required",
+            "pso/space_factor",
+            "pso/convergence_factor",
+        ]
+
+        for key in pso_keys:
+            self._logger.debug(f"Resetting PSO key: {key}")
+            self._settings.remove(key)
+
+        self._settings.sync()
