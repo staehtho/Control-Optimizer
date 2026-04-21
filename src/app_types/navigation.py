@@ -9,6 +9,7 @@ class NavLabels(Enum):
     EVALUATION = "Evaluation"
     SIMULATION = "Simulation"
     DATA_MANAGEMENT = "Data Management"
+    HELP = "Help"
     SETTINGS = "Settings"
 
 

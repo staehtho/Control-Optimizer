@@ -164,6 +164,10 @@ def create_view_factories(engine, ui_context):
         from views.data_management_view import DataManagementView
         return DataManagementView(ui_context, engine.ensure_data_viewmodel(), parent=parent)
 
+    def _create_help_view(parent=None):
+        from views.help_view import HelpView
+        return HelpView(ui_context, parent=parent)
+
     def _create_settings_view(parent=None):
         from views.settings_view import SettingsView
         return SettingsView(ui_context, parent=parent)
@@ -176,6 +180,7 @@ def create_view_factories(engine, ui_context):
         NavLabels.EVALUATION: _create_evaluation_view,
         NavLabels.SIMULATION: _create_simulation_view,
         NavLabels.DATA_MANAGEMENT: _create_data_view,
+        NavLabels.HELP: _create_help_view,
         NavLabels.SETTINGS: _create_settings_view,
     }
 
@@ -193,6 +198,7 @@ def create_main_view(engine, ui_context, view_factories):
         NavItem(NavLabels.EVALUATION, Icons.evaluation),
         NavItem(NavLabels.SIMULATION, Icons.simulation),
         NavItem(NavLabels.DATA_MANAGEMENT, Icons.data_management, bottom=True),
+        NavItem(NavLabels.HELP, Icons.help, bottom=True),
         NavItem(NavLabels.SETTINGS, Icons.settings, bottom=True),
     ]
 

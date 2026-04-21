@@ -201,91 +201,96 @@
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="185"/>
+        <source>Help</source>
+        <translation>Help</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="187"/>
         <source>Settings</source>
         <translation>Settings</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="194"/>
+        <location filename="../views/translations/enum_translations.py" line="196"/>
         <source>plant</source>
         <translation>plant</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="196"/>
+        <location filename="../views/translations/enum_translations.py" line="198"/>
         <source>function</source>
         <translation>function</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="198"/>
+        <location filename="../views/translations/enum_translations.py" line="200"/>
         <source>y_closed_loop</source>
         <translation>y closed loop</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="200"/>
+        <location filename="../views/translations/enum_translations.py" line="202"/>
         <source>u_control_signal</source>
         <translation>u control signal</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="202"/>
+        <location filename="../views/translations/enum_translations.py" line="204"/>
         <source>r_reference</source>
         <translation>r reference</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="204"/>
+        <location filename="../views/translations/enum_translations.py" line="206"/>
         <source>l_input_disturbance</source>
         <translation>l input disturbance</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="206"/>
+        <location filename="../views/translations/enum_translations.py" line="208"/>
         <source>n_measurement_disturbance</source>
         <translation>n measurement disturbance</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="208"/>
+        <location filename="../views/translations/enum_translations.py" line="210"/>
         <source>G_plant</source>
         <translation>G plant</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="210"/>
+        <location filename="../views/translations/enum_translations.py" line="212"/>
         <source>C_controller</source>
         <translation>C controller</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="212"/>
+        <location filename="../views/translations/enum_translations.py" line="214"/>
         <source>L_open_loop</source>
         <translation>L open loop</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="214"/>
+        <location filename="../views/translations/enum_translations.py" line="216"/>
         <source>T_closed_loop</source>
         <translation>T closed loop</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="216"/>
+        <location filename="../views/translations/enum_translations.py" line="218"/>
         <source>S_sensitivity</source>
         <translation>S sensitivity</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="225"/>
+        <location filename="../views/translations/enum_translations.py" line="227"/>
         <source>RK4</source>
         <translation>RK4</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="234"/>
+        <location filename="../views/translations/enum_translations.py" line="236"/>
         <source>English</source>
         <translation>English</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="236"/>
+        <location filename="../views/translations/enum_translations.py" line="238"/>
         <source>German</source>
         <translation>German</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="245"/>
+        <location filename="../views/translations/enum_translations.py" line="247"/>
         <source>Light</source>
         <translation>Light</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="247"/>
+        <location filename="../views/translations/enum_translations.py" line="249"/>
         <source>Dark</source>
         <translation>Dark</translation>
     </message>
@@ -293,9 +298,8 @@
 <context>
     <name>ControllerView</name>
     <message>
-        <location filename="../views/controller_view.py" line="134"/>
         <source>Controller</source>
-        <translation>Controller</translation>
+        <translation type="vanished">Controller</translation>
     </message>
     <message>
         <location filename="../views/controller_view.py" line="135"/>
@@ -405,9 +409,8 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <translation>PDF Files (*.pdf)</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="147"/>
         <source>Data Management</source>
-        <translation>Data Management</translation>
+        <translation type="vanished">Data Management</translation>
     </message>
     <message>
         <location filename="../views/data_management_view.py" line="148"/>
@@ -593,9 +596,8 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="362"/>
         <source>Evaluation</source>
-        <translation>Evaluation</translation>
+        <translation type="vanished">Evaluation</translation>
     </message>
     <message>
         <location filename="../views/evaluation_view.py" line="364"/>
@@ -673,9 +675,8 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
 <context>
     <name>FunctionView</name>
     <message>
-        <location filename="../views/function_view.py" line="142"/>
         <source>Excitation Function</source>
-        <translation>Excitation Function</translation>
+        <translation type="vanished">Excitation Function</translation>
     </message>
     <message>
         <location filename="../views/function_view.py" line="104"/>
@@ -704,6 +705,14 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <location filename="../views/widgets/function_widget.py" line="167"/>
         <source>Parameters</source>
         <translation>Parameters</translation>
+    </message>
+</context>
+<context>
+    <name>HelpView</name>
+    <message>
+        <location filename="../views/help_view.py" line="67"/>
+        <source>Particle Swarm Optimization (PSO)</source>
+        <translation>Particle Swarm Optimization (PSO)</translation>
     </message>
 </context>
 <context>
@@ -755,9 +764,8 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/plant_view.py" line="283"/>
         <source>Plant</source>
-        <translation>Plant</translation>
+        <translation type="vanished">Plant</translation>
     </message>
     <message>
         <location filename="../views/plant_view.py" line="284"/>
@@ -916,9 +924,8 @@ Must be greater than the start time.</translation>
 <context>
     <name>PsoConfigurationView</name>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="241"/>
         <source>PSO Parameter</source>
-        <translation>PSO Parameter</translation>
+        <translation type="vanished">PSO Parameter</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="242"/>
@@ -1162,9 +1169,8 @@ Limits how strongly the closed loop system responds to disturbances and model un
 <context>
     <name>SettingsView</name>
     <message>
-        <location filename="../views/settings_view.py" line="124"/>
         <source>Settings</source>
-        <translation>Settings</translation>
+        <translation type="vanished">Settings</translation>
     </message>
     <message>
         <location filename="../views/settings_view.py" line="127"/>
@@ -1232,9 +1238,8 @@ Limits how strongly the closed loop system responds to disturbances and model un
         <translation>System Analysis and Visualization</translation>
     </message>
     <message>
-        <location filename="../views/simulation_view.py" line="173"/>
         <source>Simulation</source>
-        <translation>Simulation</translation>
+        <translation type="vanished">Simulation</translation>
     </message>
 </context>
 <context>

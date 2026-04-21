@@ -115,6 +115,7 @@ class Icons:
     data_management: str = "data_management.svg"
     evaluation: str = "evaluation.svg"
     excitation_function: str = "excitation_function.svg"
+    help: str = "help.svg"
     menu: str = "menu.svg"
     nav_next: str = "nav_next.svg"
     nav_previous: str = "nav_previous.svg"
