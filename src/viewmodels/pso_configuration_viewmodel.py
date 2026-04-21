@@ -359,7 +359,7 @@ class PsoConfigurationViewModel(BaseViewModel):
         self._pso_result = None
         self._pso_snapshot = self._create_model_snapshot()
 
-        self._pos_iteration = self._settings.get_pso_iterations()
+        self._pos_iteration = self._settings.pso_repeat_runs
 
         self._simulation_service.run_pso_simulation(
             self._get_pos_param(), self._on_pso_simulation_finished, self._on_pso_progress
@@ -378,11 +378,11 @@ class PsoConfigurationViewModel(BaseViewModel):
             den=self._model_plant.den,
             t0=self.t0,
             t1=self.t1,
-            dt=self._settings.get_time_step(),
+            dt=self._settings.time_step,
             tuning_factor=self._model_controller.tuning_factor,
             limit_factor=5.0,
             sampling_rate=self._model_controller.sampling_rate,
-            solver=self._settings.get_solver(),
+            solver=self._settings.solver,
             anti_windup=self._model_controller.anti_windup,
             ka=self._model_controller.ka,
             constraint=(
@@ -394,7 +394,7 @@ class PsoConfigurationViewModel(BaseViewModel):
             kp=(self.kp_min, self.kp_max),
             ti=(self.ti_min, self.ti_max),
             td=(self.td_min, self.td_max),
-            swarm_size=self._settings.get_pso_particle(),
+            swarm_size=self._settings.pso_swarm_size,
             pso_iteration=self._pos_iteration,
             error_criterion=self.error_criterion,
             slew_rate_max=self._model_pso.slew_rate_max,
@@ -411,6 +411,7 @@ class PsoConfigurationViewModel(BaseViewModel):
             omega_exp_low=-5,
             omega_exp_high=5,
             omega_points=500,
+            hyperparameters=self._settings.get_pso_hyper_parameters(),
         )
 
     def _on_pso_simulation_finished(self, result: PsoResult):

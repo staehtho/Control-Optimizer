@@ -356,7 +356,7 @@ class PlantViewModel(BaseViewModel):
             return
 
         self.logger.debug(f"Computing step response for {t0} to {t1}")
-        solver = self._settings.get_solver()
+        solver = self._settings.solver
         context = PlantResponseContext(
             num=self._model_plant.num,
             den=self._model_plant.den,

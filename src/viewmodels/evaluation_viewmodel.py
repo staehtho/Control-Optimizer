@@ -139,7 +139,7 @@ class EvaluationViewModel(BaseViewModel):
             tf=self._pos_result.tf,
             t0=t0,
             t1=t1,
-            solver=self._settings.get_solver(),
+            solver=self._settings.solver,
             anti_windup=self._pso_snapshot.controller_anti_windup,
             ka=self._pso_snapshot.controller_ka,
             constraint=(
@@ -173,7 +173,7 @@ class EvaluationViewModel(BaseViewModel):
             den=list(self._pso_snapshot.plant_den),
             t0=t0,
             t1=t1,
-            solver=self._settings.get_solver(),
+            solver=self._settings.solver,
             reference=function.get_function()
         )
 

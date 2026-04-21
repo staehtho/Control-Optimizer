@@ -8,6 +8,21 @@ if TYPE_CHECKING:
 
 
 @dataclass
+class PsoHyperparameters:
+    randomness: float
+    u1: float
+    u2: float
+    initial_range: tuple[float, float]
+    initial_swarm_span: int
+    min_neighbors_fraction: float
+    max_stall: int
+    max_iter: int
+    stall_windows_required: int
+    space_factor: float
+    convergence_factor: float
+
+
+@dataclass
 class PsoSimulationParam:
     """Parameter container for PSO-based PID optimization."""
 
@@ -54,6 +69,8 @@ class PsoSimulationParam:
     omega_exp_low: int
     omega_exp_high: int
     omega_points: int
+
+    hyperparameters: PsoHyperparameters
 
 
 @dataclass

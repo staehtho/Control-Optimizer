@@ -285,7 +285,8 @@ class AppEngine:
             stability_margin_enabled=True,
             omega_exp_low=-5,
             omega_exp_high=5,
-            omega_points=500
+            omega_points=500,
+            hyperparameters=self.model_container.model_settings.get_pso_hyper_parameters()
         )
 
         self.logger.info("Starting PSO engine warmup.")

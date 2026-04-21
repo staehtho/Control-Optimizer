@@ -43,6 +43,7 @@ from .plot_data import (
 from .plot_style import PlotStyle
 
 from .pso_simulation import (
+    PsoHyperparameters,
     PsoSimulationParam,
     PsoResult
 )
@@ -93,6 +94,7 @@ __all__ = [
     "BodePlotData",
     "PlotLabels",
     "PlotStyle",
+    "PsoHyperparameters",
     "PsoSimulationParam",
     "PsoResult",
     "DynamicReportData",

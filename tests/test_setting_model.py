@@ -14,35 +14,35 @@ def test_solver_roundtrip_for_all_enum_values() -> None:
     settings = SettingsModel()
 
     for solver in MySolver:
-        settings.set_solver(solver)
-        assert settings.get_solver() == solver
+        settings.solver = solver
+        assert settings.solver == solver
 
 
 def test_time_step_roundtrip() -> None:
     settings = SettingsModel()
 
-    value = settings.get_time_step()
-    settings.set_time_step(value)
+    value = settings.time_step
+    settings.time_step = value
 
-    assert settings.get_time_step() == value
+    assert settings.time_step == value
 
 
 def test_pso_particle_roundtrip() -> None:
     settings = SettingsModel()
 
-    value = settings.get_pso_particle()
-    settings.set_pso_particle(value)
+    value = settings.pso_swarm_size
+    settings.pso_swarm_size = value
 
-    assert settings.get_pso_particle() == value
+    assert settings.pso_swarm_size == value
 
 
 def test_pso_iterations_roundtrip() -> None:
     settings = SettingsModel()
 
-    value = settings.get_pso_iterations()
-    settings.set_pso_iterations(value)
+    value = settings.pso_repeat_runs
+    settings.pso_repeat_runs = value
 
-    assert settings.get_pso_iterations() == value
+    assert settings.pso_repeat_runs == value
 
 
 def test_get_qm_file_for_en() -> None:

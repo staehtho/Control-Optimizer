@@ -2,14 +2,15 @@ import json
 import logging
 from pathlib import Path
 
-from PySide6.QtCore import QSettings, QByteArray, Qt
+from PySide6.QtCore import QSettings, QByteArray, Qt, QObject, Property
 from PySide6.QtGui import QGuiApplication
 
 from app_domain.controlsys import MySolver
+from app_types import PsoHyperparameters
 from resources.resources import SETTINGS_DIR, CONFIG_DIR, THEMES_DIR, I18N_DIR
 
 
-class SettingsModel:
+class SettingsModel(QObject):
     """Model handling application settings with persistent storage and logging.
 
     This model manages UI language, window state (geometry, maximized),
@@ -19,6 +20,7 @@ class SettingsModel:
 
     def __init__(self):
         """Initializes SettingsModel and loads configurations."""
+        super().__init__()
         self._logger = logging.getLogger(f"Model.{self.__class__.__name__}")
 
         # Store base directory for config files
@@ -36,6 +38,7 @@ class SettingsModel:
         # File name for the QSettings INI file
         settings_file = "settings.ini"
 
+        # Initialize QSettings with the INI file path
         # Initialize QSettings with the INI file path
         self._settings = QSettings(
             str(SETTINGS_DIR / settings_file),
@@ -143,7 +146,7 @@ class SettingsModel:
     # -------------------
     # Solver Property
     # -------------------
-    def get_solver(self) -> MySolver:
+    def _get_solver(self) -> MySolver:
         """Returns the currently selected numerical solver from settings.
 
         Returns:
@@ -157,7 +160,7 @@ class SettingsModel:
         # Convert string back to Enum using uppercase (Enum keys are uppercase)
         return MySolver[solver_name.upper()]
 
-    def set_solver(self, solver: MySolver) -> None:
+    def _set_solver(self, solver: MySolver) -> None:
         """Sets the current solver in QSettings and logs the change.
 
         Args:
@@ -169,17 +172,19 @@ class SettingsModel:
         # Store the solver as lowercase string in QSettings
         self._settings.setValue("solver/solver", solver.name.lower())
 
+    solver: MySolver = Property(MySolver, _get_solver, _set_solver)
+
     # -------------------
     # Time Step Property
     # -------------------
-    def get_time_step(self) -> float:
+    def _get_time_step(self) -> float:
         """Returns the current time step in seconds.
         Returns:
             float: Current time step in seconds.
         """
         return float(str(self._settings.value("solver/time_step", str(1e-4), type=str)))
 
-    def set_time_step(self, time_step: float) -> None:
+    def _set_time_step(self, time_step: float) -> None:
         """Sets the time step in seconds.
         Args:
             time_step (float): Time step in seconds.
@@ -187,41 +192,182 @@ class SettingsModel:
         self._logger.debug(f"Setting time step to '{time_step}'")
         self._settings.setValue("solver/time_step", str(time_step))
 
-    # -------------------
-    # Particle Property
-    # -------------------
-    def get_pso_particle(self) -> int:
-        """Returns the number of PSO particles.
-        Returns:
-            int: Number of PSO particles.
-        """
-        return int(str(self._settings.value("pso/particle", 40, type=int)))
-
-    def set_pso_particle(self, pso_particle: int) -> None:
-        """Sets the number of PSO particles.
-        Args:
-            pso_particle (int): Number of PSO particles.
-        """
-        self._logger.debug(f"Setting PSO particle to '{pso_particle}'")
-        self._settings.setValue("pso/particle", pso_particle)
+    time_step: float = Property(float, _get_time_step, _set_time_step)
 
     # -------------------
-    # PSO Iteration Property
+    # PSO parameters
     # -------------------
-    def get_pso_iterations(self) -> int:
-        """Returns the number of PSO iterations.
-        Returns:
-            int: Number of PSO iterations.
-        """
-        return int(str(self._settings.value("pso/iterations", 14, type=int)))
+    def _get_pso_swarm_size(self) -> int:
+        """Returns the swarm size."""
+        return int(str(self._settings.value("pso/swarm_size", 40, type=int)))
 
-    def set_pso_iterations(self, pso_iterations: int) -> None:
-        """Sets the number of PSO iterations.
-        Args:
-            pso_iterations (int): Number of PSO iterations.
-        """
-        self._logger.debug(f"Setting PSO iterations to '{pso_iterations}'")
-        self._settings.setValue("pso/iterations", pso_iterations)
+    def _set_pso_swarm_size(self, swarm_size: int) -> None:
+        """Sets the swarm size."""
+        self._logger.debug(f"Setting PSO swarm_size to '{swarm_size}'")
+        self._settings.setValue("pso/swarm_size", swarm_size)
+
+    pso_swarm_size: int = Property(int, _get_pso_swarm_size, _set_pso_swarm_size)
+
+    def _get_pso_repeat_runs(self) -> int:
+        """Returns the number of PSO runs."""
+        return int(str(self._settings.value("pso/repeat_runs", 14, type=int)))
+
+    def _set_pso_repeat_runs(self, repeat_runs: int) -> None:
+        """Sets the number of PSO runs."""
+        self._logger.debug(f"Setting PSO repeat_runs to '{repeat_runs}'")
+        self._settings.setValue("pso/repeat_runs", repeat_runs)
+
+    pso_repeat_runs: int = Property(int, _get_pso_repeat_runs, _set_pso_repeat_runs)
+
+    def _get_pso_randomness(self) -> float:
+        """Returns the PSO randomness factor."""
+        return float(str(self._settings.value("pso/randomness", 1.0, type=float)))
+
+    def _set_pso_randomness(self, randomness: float) -> None:
+        """Sets the PSO randomness factor."""
+        self._logger.debug(f"Setting PSO randomness to '{randomness}'")
+        self._settings.setValue("pso/randomness", randomness)
+
+    pso_randomness: float = Property(float, _get_pso_randomness, _set_pso_randomness)
+
+    def _get_pso_u1(self) -> float:
+        """Returns the PSO cognitive coefficient."""
+        return float(str(self._settings.value("pso/u1", 1.49, type=float)))
+
+    def _set_pso_u1(self, u1: float) -> None:
+        """Sets the PSO cognitive coefficient."""
+        self._logger.debug(f"Setting PSO u1 to '{u1}'")
+        self._settings.setValue("pso/u1", u1)
+
+    pso_u1: float = Property(float, _get_pso_u1, _set_pso_u1)
+
+    def _get_pso_u2(self) -> float:
+        """Returns the PSO social coefficient."""
+        return float(str(self._settings.value("pso/u2", 1.49, type=float)))
+
+    def _set_pso_u2(self, u2: float) -> None:
+        """Sets the PSO social coefficient."""
+        self._logger.debug(f"Setting PSO u2 to '{u2}'")
+        self._settings.setValue("pso/u2", u2)
+
+    pso_u2: float = Property(float, _get_pso_u2, _set_pso_u2)
+
+    def _get_pso_initial_range_start(self) -> float:
+        """Returns the initial PSO value range."""
+        return float(str(self._settings.value("pso/initial_range_start", 0.1, type=float)))
+
+    def _set_pso_initial_range_start(self, initial_range_start: float) -> None:
+        """Sets the initial PSO value range."""
+        self._logger.debug(f"Setting PSO initial_range to '{initial_range_start}'")
+        self._settings.setValue("pso/initial_range_start", initial_range_start)
+
+    pso_initial_range_start: float = Property(float, _get_pso_initial_range_start, _set_pso_initial_range_start)
+
+    def _get_pso_initial_range_end(self) -> float:
+        """Returns the initial PSO value range."""
+        return float(str(self._settings.value("pso/initial_range_end", 1.1, type=float)))
+
+    def _set_pso_initial_range_end(self, initial_range_end: float) -> None:
+        """Sets the initial PSO value range."""
+        self._logger.debug(f"Setting PSO initial_range to '{initial_range_end}'")
+        self._settings.setValue("pso/initial_range_end", initial_range_end)
+
+    pso_initial_range_end: float = Property(float, _get_pso_initial_range_end, _set_pso_initial_range_end)
+
+    def _get_pso_initial_swarm_span(self) -> int:
+        """Returns the initial PSO swarm span."""
+        return int(str(self._settings.value("pso/initial_swarm_span", 2000, type=int)))
+
+    def _set_pso_initial_swarm_span(self, initial_swarm_span: int) -> None:
+        """Sets the initial PSO swarm span."""
+        self._logger.debug(f"Setting PSO initial_swarm_span to '{initial_swarm_span}'")
+        self._settings.setValue("pso/initial_swarm_span", initial_swarm_span)
+
+    pso_initial_swarm_span: int = Property(int, _get_pso_initial_swarm_span, _set_pso_initial_swarm_span)
+
+    def _get_pso_min_neighbors_fraction(self) -> float:
+        """Returns the minimum PSO neighbors fraction."""
+        return float(str(self._settings.value("pso/min_neighbors_fraction", 0.25, type=float)))
+
+    def _set_pso_min_neighbors_fraction(self, min_neighbors_fraction: float) -> None:
+        """Sets the minimum PSO neighbors fraction."""
+        self._logger.debug(f"Setting PSO min_neighbors_fraction to '{min_neighbors_fraction}'")
+        self._settings.setValue("pso/min_neighbors_fraction", min_neighbors_fraction)
+
+    pso_min_neighbors_fraction: float = (
+        Property(float, _get_pso_min_neighbors_fraction, _set_pso_min_neighbors_fraction)
+    )
+
+    def _get_pso_max_stall(self) -> int:
+        """Returns the maximum PSO stall count."""
+        return int(str(self._settings.value("pso/max_stall", 15, type=int)))
+
+    def _set_pso_max_stall(self, max_stall: int) -> None:
+        """Sets the maximum PSO stall count."""
+        self._logger.debug(f"Setting PSO max_stall to '{max_stall}'")
+        self._settings.setValue("pso/max_stall", max_stall)
+
+    pso_max_stall: int = Property(int, _get_pso_max_stall, _set_pso_max_stall)
+
+    def _get_pso_max_iter(self) -> int:
+        """Returns the maximum PSO iterations."""
+        return int(str(self._settings.value("pso/max_iter", 100, type=int)))
+
+    def _set_pso_max_iter(self, max_iter: int) -> None:
+        """Sets the maximum PSO iterations."""
+        self._logger.debug(f"Setting PSO max_iter to '{max_iter}'")
+        self._settings.setValue("pso/max_iter", max_iter)
+
+    pso_max_iter: int = Property(int, _get_pso_max_iter, _set_pso_max_iter)
+
+    def _get_pso_stall_windows_required(self) -> int:
+        """Returns the required number of stall windows for PSO convergence."""
+        return int(str(self._settings.value("pso/stall_windows_required", 3, type=int)))
+
+    def _set_pso_stall_windows_required(self, stall_windows_required: int) -> None:
+        """Sets the required number of stall windows for PSO convergence."""
+        self._logger.debug(f"Setting PSO stall_windows_required to '{stall_windows_required}'")
+        self._settings.setValue("pso/stall_windows_required", stall_windows_required)
+
+    pso_stall_windows_required: int = Property(int, _get_pso_stall_windows_required, _set_pso_stall_windows_required)
+
+    def _get_pso_space_factor(self) -> float:
+        """Returns the PSO search-space factor."""
+        return float(str(self._settings.value("pso/space_factor", 0.001, type=float)))
+
+    def _set_pso_space_factor(self, space_factor: float) -> None:
+        """Sets the PSO search-space factor."""
+        self._logger.debug(f"Setting PSO space_factor to '{space_factor}'")
+        self._settings.setValue("pso/space_factor", space_factor)
+
+    pso_space_factor: float = Property(float, _get_pso_space_factor, _set_pso_space_factor)
+
+    def _get_pso_convergence_factor(self) -> float:
+        """Returns the PSO convergence factor."""
+        return float(str(self._settings.value("pso/convergence_factor", 1e-2, type=float)))
+
+    def _set_pso_convergence_factor(self, convergence_factor: float) -> None:
+        """Sets the PSO convergence factor."""
+        self._logger.debug(f"Setting PSO convergence_factor to '{convergence_factor}'")
+        self._settings.setValue("pso/convergence_factor", convergence_factor)
+
+    pso_convergence_factor: float = Property(float, _get_pso_convergence_factor, _set_pso_convergence_factor)
+
+    def get_pso_hyper_parameters(self) -> PsoHyperparameters:
+        """Returns the PSO hyperparameters."""
+        return PsoHyperparameters(
+            randomness=self.pso_randomness,
+            u1=self.pso_u1,
+            u2=self.pso_u2,
+            initial_range=(self.pso_initial_range_start, self.pso_initial_range_end),
+            initial_swarm_span=self.pso_initial_swarm_span,
+            min_neighbors_fraction=self.pso_min_neighbors_fraction,
+            max_stall=self.pso_max_stall,
+            max_iter=self.pso_max_iter,
+            stall_windows_required=self.pso_stall_windows_required,
+            space_factor=self.pso_space_factor,
+            convergence_factor=self.pso_convergence_factor,
+        )
 
     # -------------------
     # QM-File loader
@@ -266,7 +412,7 @@ class SettingsModel:
         Raises:
             FileNotFoundError: If the JSON file does not exist.
         """
-        path = Path(path)
+        path: Path = Path(path)
         if not path.is_absolute():
             path = self._config_base_dir / path
 

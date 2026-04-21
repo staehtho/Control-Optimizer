@@ -1,9 +1,10 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import QObject, Signal, Property, QByteArray, Slot
+from PySide6.QtCore import QObject, Signal, QByteArray, Slot
 
 from app_domain.controlsys import MySolver
+from utils import LoggedProperty
 from .base_viewmodel import BaseViewModel
 
 if TYPE_CHECKING:
@@ -13,56 +14,124 @@ if TYPE_CHECKING:
 class SettingsViewModel(BaseViewModel):
     solverChanged = Signal()
     timeStepChanged = Signal()
-    psoIterationsChanged = Signal()
-    psoParticleChanged = Signal()
+
+    psoSwarmSizeChanged = Signal()
+    psoRepeatRunsChanged = Signal()
+    psoRandomnessChanged = Signal()
+    psoU1Changed = Signal()
+    psoU2Changed = Signal()
+    psoInitialRangeStartChanged = Signal()
+    psoInitialRangeEndChanged = Signal()
+    psoInitialSwarmSpanChanged = Signal()
+    psoMinNeighborsFractionChanged = Signal()
+    psoMaxStallChanged = Signal()
+    psoMaxIterChanged = Signal()
+    psoStallWindowsRequiredChanged = Signal()
+    psoSpaceFactorChanged = Signal()
+    psoConvergenceFactorChanged = Signal()
 
     def __init__(self, settings: SettingsModel, parent: QObject = None):
         BaseViewModel.__init__(self, parent)
-
         self._settings = settings
 
-    def _get_solver(self) -> MySolver:
-        self.logger.debug(f"Getter 'solver' called (value={self._settings.get_solver()})")
-        return self._settings.get_solver()
+    solver: MySolver = LoggedProperty(
+        path="_settings.solver",
+        signal="solverChanged",
+        typ=MySolver,
+    )
 
-    def _set_solver(self, solver: MySolver):
-        self.logger.debug(f"Setter 'solver' called (value={solver})")
-        self._settings.set_solver(solver)
+    time_step: float = LoggedProperty(
+        path="_settings.time_step",
+        signal="timeStepChanged",
+        typ=float,
+    )
 
-    solver = Property(MySolver, _get_solver, _set_solver, notify=solverChanged)
+    pso_swarm_size: int = LoggedProperty(
+        path="_settings.pso_swarm_size",
+        signal="psoSwarmSizeChanged",
+        typ=int,
+    )
 
-    def _get_time_step(self) -> float:
-        self.logger.debug(f"Getter 'time_step' called (value={self._settings.get_time_step()})")
-        return self._settings.get_time_step()
+    pso_repeat_runs: int = LoggedProperty(
+        path="_settings.pso_repeat_runs",
+        signal="psoRepeatRunsChanged",
+        typ=int,
+    )
 
-    def _set_time_step(self, value: float):
-        self.logger.debug(f"Setter 'time_step' called (value={value})")
-        self._settings.set_time_step(value)
+    pso_randomness: float = LoggedProperty(
+        path="_settings.pso_randomness",
+        signal="psoRandomnessChanged",
+        typ=float,
+    )
 
-    time_step = Property(float, _get_time_step, _set_time_step, notify=timeStepChanged)
+    pso_u1: float = LoggedProperty(
+        path="_settings.pso_u1",
+        signal="psoU1Changed",
+        typ=float,
+    )
 
-    def _get_pso_iterations(self) -> int:
-        self.logger.debug(f"Getter 'pso_iterations' called (value={self._settings.get_pso_iterations()})")
-        return self._settings.get_pso_iterations()
+    pso_u2: float = LoggedProperty(
+        path="_settings.pso_u2",
+        signal="psoU2Changed",
+        typ=float,
+    )
 
-    def _set_pso_iterations(self, value: int):
-        self.logger.debug(f"Setter 'pso_iterations' called (value={value})")
-        self._settings.set_pso_iterations(value)
+    pso_initial_range_start: float = LoggedProperty(
+        path="_settings.pso_initial_range_start",
+        signal="psoInitialRangeStartChanged",
+        typ=float,
+    )
 
-    pso_iterations = Property(int, _get_pso_iterations, _set_pso_iterations, notify=psoIterationsChanged)
+    pso_initial_range_end: float = LoggedProperty(
+        path="_settings.pso_initial_range_end",
+        signal="psoInitialRangeEndChanged",
+        typ=float,
+    )
 
-    def _get_pso_particle(self) -> int:
-        self.logger.debug(f"Getter 'pso_particle' called (value={self._settings.get_pso_particle()})")
-        return self._settings.get_pso_particle()
+    pso_initial_swarm_span: int = LoggedProperty(
+        path="_settings.pso_initial_swarm_span",
+        signal="psoInitialSwarmSpanChanged",
+        typ=int,
+    )
 
-    def _set_pso_particle(self, value: int):
-        self.logger.debug(f"Setter 'pso_particle' called (value={value})")
-        self._settings.set_pso_particle(value)
+    pso_min_neighbors_fraction: float = LoggedProperty(
+        path="_settings.pso_min_neighbors_fraction",
+        signal="psoMinNeighborsFractionChanged",
+        typ=float,
+    )
 
-    pso_particle = Property(int, _get_pso_particle, _set_pso_particle, notify=psoParticleChanged)
+    pso_max_stall: int = LoggedProperty(
+        path="_settings.pso_max_stall",
+        signal="psoMaxStallChanged",
+        typ=int,
+    )
+
+    pso_max_iter: int = LoggedProperty(
+        path="_settings.pso_max_iter",
+        signal="psoMaxIterChanged",
+        typ=int,
+    )
+
+    pso_stall_windows_required: int = LoggedProperty(
+        path="_settings.pso_stall_windows_required",
+        signal="psoStallWindowsRequiredChanged",
+        typ=int,
+    )
+
+    pso_space_factor: float = LoggedProperty(
+        path="_settings.pso_space_factor",
+        signal="psoSpaceFactorChanged",
+        typ=float,
+    )
+
+    pso_convergence_factor: float = LoggedProperty(
+        path="_settings.pso_convergence_factor",
+        signal="psoConvergenceFactorChanged",
+        typ=float,
+    )
 
     @Slot()
-    def get_window_geometry(self) -> QByteArray:
+    def get_window_geometry(self) -> QByteArray | None:
         self.logger.debug(f"Getter 'window_geometry' called")
         return self._settings.get_window_geometry()
 
@@ -95,5 +164,18 @@ class SettingsViewModel(BaseViewModel):
     def refresh_from_model(self) -> None:
         self.solverChanged.emit()
         self.timeStepChanged.emit()
-        self.psoIterationsChanged.emit()
-        self.psoParticleChanged.emit()
+
+        self.psoSwarmSizeChanged.emit()
+        self.psoRepeatRunsChanged.emit()
+        self.psoRandomnessChanged.emit()
+        self.psoU1Changed.emit()
+        self.psoU2Changed.emit()
+        self.psoInitialRangeStartChanged.emit()
+        self.psoInitialRangeEndChanged.emit()
+        self.psoInitialSwarmSpanChanged.emit()
+        self.psoMinNeighborsFractionChanged.emit()
+        self.psoMaxStallChanged.emit()
+        self.psoMaxIterChanged.emit()
+        self.psoStallWindowsRequiredChanged.emit()
+        self.psoSpaceFactorChanged.emit()
+        self.psoConvergenceFactorChanged.emit()

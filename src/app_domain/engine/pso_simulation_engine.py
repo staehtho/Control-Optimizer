@@ -178,7 +178,8 @@ class PsoSimulationEngine:
                 objective,
                 param.swarm_size,
                 3,
-                bounds
+                bounds,
+                **param.hyperparameters.__dict__
             )
 
             result, cost = swarm.simulate_swarm()
