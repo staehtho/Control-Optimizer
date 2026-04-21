@@ -1,8 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Callable
 
-from PySide6.QtWidgets import QWidget, QComboBox, QLineEdit, QFrame, QLabel, QGridLayout, QHBoxLayout, QPushButton, \
-    QSizePolicy
+from PySide6.QtWidgets import QWidget, QComboBox, QLineEdit, QLabel, QGridLayout, QHBoxLayout, QPushButton
 from PySide6.QtGui import QIntValidator, QDoubleValidator
 
 from app_domain.controlsys import MySolver
@@ -185,19 +184,19 @@ class SettingsView(ViewMixin, QWidget):
             SettingsField.SOLVER_TYPE: self.tr("Type"),
             SettingsField.SOLVER_TIME_STEP: self.tr("Time Step"),
 
-            SettingsField.PSO: self.tr("Particle Swarm Optimization"),
-            SettingsField.PSO_REPEAT_RUNS: self.tr("Repeat Runs"),
-            SettingsField.PSO_SWARM_SIZE: self.tr("Number of Particles"),
-            SettingsField.PSO_RANDOMNESS: self.tr("Randomness Factor"),
-            SettingsField.PSO_U1: self.tr("Cognitive Factor (u1)"),
-            SettingsField.PSO_U2: self.tr("Social Factor (u2)"),
+            SettingsField.PSO: self.tr("Hyperparameters PSO"),
+            SettingsField.PSO_REPEAT_RUNS: self.tr("Repeat runs"),
+            SettingsField.PSO_SWARM_SIZE: self.tr("Swarm size"),
+            SettingsField.PSO_RANDOMNESS: self.tr("Randomness factor"),
             SettingsField.PSO_INITIAL_RANGE_START: self.tr("Initial Range (Min)"),
             SettingsField.PSO_INITIAL_RANGE_END: self.tr("Initial Range (Max)"),
+            SettingsField.PSO_U1: self.tr("Cognitive factor (u1)"),
+            SettingsField.PSO_U2: self.tr("Social factor (u2)"),
             SettingsField.PSO_INITIAL_SWARM_SPAN: self.tr("Initial Swarm Span"),
             SettingsField.PSO_MIN_NEIGHBORS_FRACTION: self.tr("Min. Neighbors Fraction"),
             SettingsField.PSO_MAX_STALL: self.tr("Max Stall"),
-            SettingsField.PSO_MAX_ITER: self.tr("Max Iterations"),
             SettingsField.PSO_STALL_WINDOWS_REQUIRED: self.tr("Required Stall Windows"),
+            SettingsField.PSO_MAX_ITER: self.tr("Max Iterations"),
             SettingsField.PSO_SPACE_FACTOR: self.tr("Search Space Factor"),
             SettingsField.PSO_CONVERGENCE_FACTOR: self.tr("Convergence Factor"),
         }

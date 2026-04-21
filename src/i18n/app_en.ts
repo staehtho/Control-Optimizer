@@ -710,9 +710,528 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
 <context>
     <name>HelpView</name>
     <message>
-        <location filename="../views/help_view.py" line="69"/>
+        <location filename="../views/help_view.py" line="94"/>
         <source>Particle Swarm Optimization (PSO)</source>
         <translation>Particle Swarm Optimization (PSO)</translation>
+    </message>
+    <message>
+        <location filename="../views/help_view.py" line="95"/>
+        <source>Import and Export of Application Data</source>
+        <translation>Import and Export of Application Data</translation>
+    </message>
+    <message>
+        <location filename="../views/help_view.py" line="96"/>
+        <source>Report Generation (Dynamic Report)</source>
+        <translation>Report Generation (Dynamic Report)</translation>
+    </message>
+    <message>
+        <location filename="../views/help_view.py" line="99"/>
+        <source>&lt;p&gt;
+Particle Swarm Optimization is a population-based optimization method inspired by the
+collective motion of natural swarms. Each particle represents a candidate solution in
+the parameter space and updates its position according to a combination of inertia,
+individual learning, and social learning. This mechanism enables an adaptive balance
+between exploration of the search space and convergence toward promising regions.
+&lt;/p&gt;
+
+&lt;p&gt;
+Candidate evaluation follows a feasibility-aware lexicographic criterion. Feasible
+solutions are always preferred over infeasible ones. Among infeasible candidates, the
+solution with the smaller total constraint violation is considered superior. Among
+feasible candidates, the solution with the lower performance value is preferred. This
+approach ensures robustness with respect to constraints while enabling precise
+fine‑tuning within the feasible region.
+&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;Hyperparameters (configurable in the settings)&lt;/b&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;b&gt;Repeat runs:&lt;/b&gt; Executes the entire PSO procedure multiple times with different
+random initializations. This increases robustness and reduces the likelihood of
+converging to local minima. The best solution across all runs is selected as the final
+result.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Swarm size:&lt;/b&gt; Specifies the number of particles in the swarm. Larger populations
+provide broader coverage of the search space but increase computational cost.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Randomness factor:&lt;/b&gt; Controls the stochastic component of the velocity update.
+Higher values promote exploration, whereas lower values support more stable convergence.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Initial range:&lt;/b&gt; Define the admissible range
+for the inertia weight. The inertia weight determines the influence of the previous
+velocity and is adaptively adjusted within this interval.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Cognitive factor (u1):&lt;/b&gt; Determines the strength of the particle’s attraction
+toward its own best-known position.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Social factor (u2):&lt;/b&gt; Determines the strength of the attraction toward the best
+position found within the dynamically selected neighborhood.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Initial swarm span:&lt;/b&gt; Specifies the initial spatial distribution of particles
+within the parameter bounds. A larger span results in a broader initialization and
+therefore stronger exploration.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Min. neighbors fraction:&lt;/b&gt; Defines the minimum fraction of the swarm considered as
+the local neighborhood. Smaller neighborhoods increase diversity, while larger
+neighborhoods accelerate convergence.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Max stall:&lt;/b&gt; Indicates how many iterations without significant improvement are
+allowed before a stall window is detected.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Required stall windows:&lt;/b&gt; Specifies how many consecutive stall windows must occur
+before the optimization process is terminated.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Max iterations:&lt;/b&gt; Sets a hard upper limit on the number of iterations performed
+during a single PSO run.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Search space factor:&lt;/b&gt; Terminates the optimization once the hypervolume spanned by
+the swarm falls below a defined fraction of the initial search space, indicating spatial
+convergence.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Convergence factor:&lt;/b&gt; Defines the minimum relative improvement required within a
+stall window for the optimization to continue.
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;li&gt;
+Together, these parameters govern the exploratory behavior, convergence dynamics, and
+overall robustness of the PSO algorithm.
+&lt;/li&gt;</source>
+        <translation>&lt;p&gt;
+Particle Swarm Optimization is a population-based optimization method inspired by the
+collective motion of natural swarms. Each particle represents a candidate solution in
+the parameter space and updates its position according to a combination of inertia,
+individual learning, and social learning. This mechanism enables an adaptive balance
+between exploration of the search space and convergence toward promising regions.
+&lt;/p&gt;
+
+&lt;p&gt;
+Candidate evaluation follows a feasibility-aware lexicographic criterion. Feasible
+solutions are always preferred over infeasible ones. Among infeasible candidates, the
+solution with the smaller total constraint violation is considered superior. Among
+feasible candidates, the solution with the lower performance value is preferred. This
+approach ensures robustness with respect to constraints while enabling precise
+fine‑tuning within the feasible region.
+&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;Hyperparameters (configurable in the settings)&lt;/b&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;b&gt;Repeat runs:&lt;/b&gt; Executes the entire PSO procedure multiple times with different
+random initializations. This increases robustness and reduces the likelihood of
+converging to local minima. The best solution across all runs is selected as the final
+result.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Swarm size:&lt;/b&gt; Specifies the number of particles in the swarm. Larger populations
+provide broader coverage of the search space but increase computational cost.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Randomness factor:&lt;/b&gt; Controls the stochastic component of the velocity update.
+Higher values promote exploration, whereas lower values support more stable convergence.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Initial range:&lt;/b&gt; Define the admissible range
+for the inertia weight. The inertia weight determines the influence of the previous
+velocity and is adaptively adjusted within this interval.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Cognitive factor (u1):&lt;/b&gt; Determines the strength of the particle’s attraction
+toward its own best-known position.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Social factor (u2):&lt;/b&gt; Determines the strength of the attraction toward the best
+position found within the dynamically selected neighborhood.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Initial swarm span:&lt;/b&gt; Specifies the initial spatial distribution of particles
+within the parameter bounds. A larger span results in a broader initialization and
+therefore stronger exploration.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Min. neighbors fraction:&lt;/b&gt; Defines the minimum fraction of the swarm considered as
+the local neighborhood. Smaller neighborhoods increase diversity, while larger
+neighborhoods accelerate convergence.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Max stall:&lt;/b&gt; Indicates how many iterations without significant improvement are
+allowed before a stall window is detected.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Required stall windows:&lt;/b&gt; Specifies how many consecutive stall windows must occur
+before the optimization process is terminated.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Max iterations:&lt;/b&gt; Sets a hard upper limit on the number of iterations performed
+during a single PSO run.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Search space factor:&lt;/b&gt; Terminates the optimization once the hypervolume spanned by
+the swarm falls below a defined fraction of the initial search space, indicating spatial
+convergence.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Convergence factor:&lt;/b&gt; Defines the minimum relative improvement required within a
+stall window for the optimization to continue.
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;li&gt;
+Together, these parameters govern the exploratory behavior, convergence dynamics, and
+overall robustness of the PSO algorithm.
+&lt;/li&gt;</translation>
+    </message>
+    <message>
+        <location filename="../views/help_view.py" line="198"/>
+        <source>&lt;p&gt;
+The Data Management module provides functionality for importing and exporting complete
+application states. This mechanism enables users to archive, transfer, or restore
+projects in a reproducible manner. All relevant configuration data are stored in a
+single JSON file, ensuring transparency and long-term accessibility.
+&lt;/p&gt;
+
+&lt;p&gt;
+During export, the application serializes the current project into a structured JSON
+representation. This file contains all essential model parameters, including the plant
+definition, excitation function settings, controller configuration, PSO configuration,
+and the solver settings defined in the Settings. The exported file therefore
+captures the full state of the optimization environment and can be used to reproduce
+results or continue work on another system.
+&lt;/p&gt;
+
+&lt;p&gt;
+During import, the application reads a previously exported JSON file and restores the
+entire project state. All parameters are reloaded into their corresponding models,
+including PSO hyperparameters and solver settings. This ensures that imported projects
+behave identically to the original environment from which they were exported.
+&lt;/p&gt;</source>
+        <translation>&lt;p&gt;
+The Data Management module provides functionality for importing and exporting complete
+application states. This mechanism enables users to archive, transfer, or restore
+projects in a reproducible manner. All relevant configuration data are stored in a
+single JSON file, ensuring transparency and long-term accessibility.
+&lt;/p&gt;
+
+&lt;p&gt;
+During export, the application serializes the current project into a structured JSON
+representation. This file contains all essential model parameters, including the plant
+definition, excitation function settings, controller configuration, PSO configuration,
+and the solver settings defined in the Settings. The exported file therefore
+captures the full state of the optimization environment and can be used to reproduce
+results or continue work on another system.
+&lt;/p&gt;
+
+&lt;p&gt;
+During import, the application reads a previously exported JSON file and restores the
+entire project state. All parameters are reloaded into their corresponding models,
+including PSO hyperparameters and solver settings. This ensures that imported projects
+behave identically to the original environment from which they were exported.
+&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <location filename="../views/help_view.py" line="223"/>
+        <source>&lt;p&gt;
+The reporting functionality enables the creation of a comprehensive dynamic report that
+summarizes all relevant aspects of a completed PSO-based controller optimization. The
+report is generated as a PDF document and integrates both numerical results and
+graphical representations of the system behaviour.
+&lt;/p&gt;
+
+&lt;p&gt;
+Each section of the report is generated dynamically based on two primary data sources:
+the &lt;i&gt;simulation snapshot&lt;/i&gt; and the &lt;i&gt;PSO result&lt;/i&gt;. The simulation snapshot
+captures the complete configuration state at the moment the PSO simulation is executed.
+It includes the plant model, the excitation function, the controller configuration, the
+PSO parameter bounds, and all constraint settings used during the optimization. In
+addition, the snapshot contains the simulation time interval, the excitation target, and
+all active time‑domain and frequency‑domain performance criteria. It therefore
+represents a precise and immutable record of the conditions under which the optimization
+was performed.
+&lt;/p&gt;
+
+&lt;p&gt;
+The PSO result complements the snapshot by providing the optimized controller
+parameters, feasibility information, recommended sampling rate, and the evaluated
+performance metrics obtained from the best particle. Together, the snapshot and the
+result form a complete description of both the optimization setup and its outcome.
+&lt;/p&gt;
+
+&lt;p&gt;
+The report is assembled from modular sections that reflect the user’s selection in the
+Data Management. Depending on the chosen configuration, the report may include the
+plant model, the excitation function, the controller configuration, the PSO
+configuration, the optimization results, and a set of diagnostic plots such as the block
+diagram, time-domain response, Bode plot, and transfer functions.
+&lt;/p&gt;</source>
+        <translation>&lt;p&gt;
+The reporting functionality enables the creation of a comprehensive dynamic report that
+summarizes all relevant aspects of a completed PSO-based controller optimization. The
+report is generated as a PDF document and integrates both numerical results and
+graphical representations of the system behaviour.
+&lt;/p&gt;
+
+&lt;p&gt;
+Each section of the report is generated dynamically based on two primary data sources:
+the &lt;i&gt;simulation snapshot&lt;/i&gt; and the &lt;i&gt;PSO result&lt;/i&gt;. The simulation snapshot
+captures the complete configuration state at the moment the PSO simulation is executed.
+It includes the plant model, the excitation function, the controller configuration, the
+PSO parameter bounds, and all constraint settings used during the optimization. In
+addition, the snapshot contains the simulation time interval, the excitation target, and
+all active time‑domain and frequency‑domain performance criteria. It therefore
+represents a precise and immutable record of the conditions under which the optimization
+was performed.
+&lt;/p&gt;
+
+&lt;p&gt;
+The PSO result complements the snapshot by providing the optimized controller
+parameters, feasibility information, recommended sampling rate, and the evaluated
+performance metrics obtained from the best particle. Together, the snapshot and the
+result form a complete description of both the optimization setup and its outcome.
+&lt;/p&gt;
+
+&lt;p&gt;
+The report is assembled from modular sections that reflect the user’s selection in the
+Data Management. Depending on the chosen configuration, the report may include the
+plant model, the excitation function, the controller configuration, the PSO
+configuration, the optimization results, and a set of diagnostic plots such as the block
+diagram, time-domain response, Bode plot, and transfer functions.
+&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>
+&lt;p&gt;
+Particle Swarm Optimization is a population-based optimization method inspired by the
+collective motion of natural swarms. Each particle represents a candidate solution in
+the parameter space and updates its position according to a combination of inertia,
+individual learning, and social learning. This mechanism enables an adaptive balance
+between exploration of the search space and convergence toward promising regions.
+&lt;/p&gt;
+
+&lt;p&gt;
+Candidate evaluation follows a feasibility-aware lexicographic criterion. Feasible
+solutions are always preferred over infeasible ones. Among infeasible candidates, the
+solution with the smaller total constraint violation is considered superior. Among
+feasible candidates, the solution with the lower performance value is preferred. This
+approach ensures robustness with respect to constraints while enabling precise
+fine‑tuning within the feasible region.
+&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;Hyperparameters (configurable in the settings)&lt;/b&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;b&gt;Repeat runs:&lt;/b&gt; Executes the entire PSO procedure multiple times with different
+random initializations. This increases robustness and reduces the likelihood of
+converging to local minima. The best solution across all runs is selected as the final
+result.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Swarm size:&lt;/b&gt; Specifies the number of particles in the swarm. Larger populations
+provide broader coverage of the search space but increase computational cost.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Randomness factor:&lt;/b&gt; Controls the stochastic component of the velocity update.
+Higher values promote exploration, whereas lower values support more stable convergence.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Initial range:&lt;/b&gt; Define the admissible range
+for the inertia weight. The inertia weight determines the influence of the previous
+velocity and is adaptively adjusted within this interval.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Cognitive factor (u1):&lt;/b&gt; Determines the strength of the particle’s attraction
+toward its own best-known position.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Social factor (u2):&lt;/b&gt; Determines the strength of the attraction toward the best
+position found within the dynamically selected neighborhood.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Initial swarm span:&lt;/b&gt; Specifies the initial spatial distribution of particles
+within the parameter bounds. A larger span results in a broader initialization and
+therefore stronger exploration.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Min. neighbors fraction:&lt;/b&gt; Defines the minimum fraction of the swarm considered as
+the local neighborhood. Smaller neighborhoods increase diversity, while larger
+neighborhoods accelerate convergence.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Max stall:&lt;/b&gt; Indicates how many iterations without significant improvement are
+allowed before a stall window is detected.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Required stall windows:&lt;/b&gt; Specifies how many consecutive stall windows must occur
+before the optimization process is terminated.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Max iterations:&lt;/b&gt; Sets a hard upper limit on the number of iterations performed
+during a single PSO run.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Search space factor:&lt;/b&gt; Terminates the optimization once the hypervolume spanned by
+the swarm falls below a defined fraction of the initial search space, indicating spatial
+convergence.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Convergence factor:&lt;/b&gt; Defines the minimum relative improvement required within a
+stall window for the optimization to continue.
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;li&gt;
+Together, these parameters govern the exploratory behavior, convergence dynamics, and
+overall robustness of the PSO algorithm. Proper tuning enables efficient and stable
+optimization across the entire parameter space.
+&lt;/li&gt;
+            </source>
+        <translation type="vanished">&lt;p&gt;
+Particle Swarm Optimization is a population-based optimization method inspired by the
+collective motion of natural swarms. Each particle represents a candidate solution in
+the parameter space and updates its position according to a combination of inertia,
+individual learning, and social learning. This mechanism enables an adaptive balance
+between exploration of the search space and convergence toward promising regions.
+&lt;/p&gt;
+
+&lt;p&gt;
+Candidate evaluation follows a feasibility-aware lexicographic criterion. Feasible
+solutions are always preferred over infeasible ones. Among infeasible candidates, the
+solution with the smaller total constraint violation is considered superior. Among
+feasible candidates, the solution with the lower performance value is preferred. This
+approach ensures robustness with respect to constraints while enabling precise
+fine‑tuning within the feasible region.
+&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;Hyperparameters (configurable in the settings)&lt;/b&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;b&gt;Repeat runs:&lt;/b&gt; Executes the entire PSO procedure multiple times with different
+random initializations. This increases robustness and reduces the likelihood of
+converging to local minima. The best solution across all runs is selected as the final
+result.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Swarm size:&lt;/b&gt; Specifies the number of particles in the swarm. Larger populations
+provide broader coverage of the search space but increase computational cost.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Randomness factor:&lt;/b&gt; Controls the stochastic component of the velocity update.
+Higher values promote exploration, whereas lower values support more stable convergence.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Initial range:&lt;/b&gt; Define the admissible range
+for the inertia weight. The inertia weight determines the influence of the previous
+velocity and is adaptively adjusted within this interval.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Cognitive factor (u1):&lt;/b&gt; Determines the strength of the particle’s attraction
+toward its own best-known position.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Social factor (u2):&lt;/b&gt; Determines the strength of the attraction toward the best
+position found within the dynamically selected neighborhood.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Initial swarm span:&lt;/b&gt; Specifies the initial spatial distribution of particles
+within the parameter bounds. A larger span results in a broader initialization and
+therefore stronger exploration.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Min. neighbors fraction:&lt;/b&gt; Defines the minimum fraction of the swarm considered as
+the local neighborhood. Smaller neighborhoods increase diversity, while larger
+neighborhoods accelerate convergence.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Max stall:&lt;/b&gt; Indicates how many iterations without significant improvement are
+allowed before a stall window is detected.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Required stall windows:&lt;/b&gt; Specifies how many consecutive stall windows must occur
+before the optimization process is terminated.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Max iterations:&lt;/b&gt; Sets a hard upper limit on the number of iterations performed
+during a single PSO run.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Search space factor:&lt;/b&gt; Terminates the optimization once the hypervolume spanned by
+the swarm falls below a defined fraction of the initial search space, indicating spatial
+convergence.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Convergence factor:&lt;/b&gt; Defines the minimum relative improvement required within a
+stall window for the optimization to continue.
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;li&gt;
+Together, these parameters govern the exploratory behavior, convergence dynamics, and
+overall robustness of the PSO algorithm. Proper tuning enables efficient and stable
+optimization across the entire parameter space.
+&lt;/li&gt;</translation>
     </message>
 </context>
 <context>
@@ -1173,82 +1692,106 @@ Limits how strongly the closed loop system responds to disturbances and model un
         <translation type="vanished">Settings</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="183"/>
+        <location filename="../views/settings_view.py" line="182"/>
         <source>Language</source>
         <translation>Language</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="184"/>
+        <location filename="../views/settings_view.py" line="183"/>
         <source>Theme</source>
         <translation>Theme</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="185"/>
+        <location filename="../views/settings_view.py" line="184"/>
         <source>Solver</source>
         <translation>Solver</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="186"/>
+        <location filename="../views/settings_view.py" line="185"/>
         <source>Type</source>
         <translation>Type</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="187"/>
+        <location filename="../views/settings_view.py" line="186"/>
         <source>Time Step</source>
         <translation>Time step</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="189"/>
         <source>Particle Swarm Optimization</source>
-        <translation>Particle Swarm Optimization</translation>
+        <translation type="vanished">Particle Swarm Optimization</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="190"/>
         <source>Repeat Runs</source>
+        <translation type="vanished">Repeat runs</translation>
+    </message>
+    <message>
+        <source>Number of Particles</source>
+        <translation type="vanished">Number of particles</translation>
+    </message>
+    <message>
+        <source>Randomness Factor</source>
+        <translation type="vanished">Randomness factor</translation>
+    </message>
+    <message>
+        <source>Cognitive Factor (u1)</source>
+        <translation type="vanished">Cognitive factor (u1)</translation>
+    </message>
+    <message>
+        <source>Social Factor (u2)</source>
+        <translation type="vanished">Social factor (u2)</translation>
+    </message>
+    <message>
+        <location filename="../views/settings_view.py" line="189"/>
+        <source>Repeat runs</source>
         <translation>Repeat runs</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="191"/>
-        <source>Number of Particles</source>
-        <translation>Number of particles</translation>
+        <location filename="../views/settings_view.py" line="190"/>
+        <source>Swarm size</source>
+        <translation>Swarm size</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="192"/>
-        <source>Randomness Factor</source>
+        <location filename="../views/settings_view.py" line="191"/>
+        <source>Randomness factor</source>
         <translation>Randomness factor</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="193"/>
-        <source>Cognitive Factor (u1)</source>
+        <location filename="../views/settings_view.py" line="194"/>
+        <source>Cognitive factor (u1)</source>
         <translation>Cognitive factor (u1)</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="194"/>
-        <source>Social Factor (u2)</source>
+        <location filename="../views/settings_view.py" line="195"/>
+        <source>Social factor (u2)</source>
         <translation>Social factor (u2)</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="195"/>
+        <location filename="../views/settings_view.py" line="192"/>
         <source>Initial Range (Min)</source>
         <translation>Initial range (min)</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="196"/>
+        <location filename="../views/settings_view.py" line="188"/>
+        <source>Hyperparameters PSO</source>
+        <translation>Hyperparameters PSO</translation>
+    </message>
+    <message>
+        <location filename="../views/settings_view.py" line="193"/>
         <source>Initial Range (Max)</source>
         <translation>Initial range (max)</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="197"/>
+        <location filename="../views/settings_view.py" line="196"/>
         <source>Initial Swarm Span</source>
         <translation>Initial swarm span</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="198"/>
+        <location filename="../views/settings_view.py" line="197"/>
         <source>Min. Neighbors Fraction</source>
         <translation>Min. neighbors fraction</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="199"/>
+        <location filename="../views/settings_view.py" line="198"/>
         <source>Max Stall</source>
         <translation>Max stall</translation>
     </message>
@@ -1258,22 +1801,22 @@ Limits how strongly the closed loop system responds to disturbances and model un
         <translation>Max iterations</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="201"/>
+        <location filename="../views/settings_view.py" line="199"/>
         <source>Required Stall Windows</source>
         <translation>Required stall windows</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="202"/>
+        <location filename="../views/settings_view.py" line="201"/>
         <source>Search Space Factor</source>
         <translation>Search space factor</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="203"/>
+        <location filename="../views/settings_view.py" line="202"/>
         <source>Convergence Factor</source>
         <translation>Convergence factor</translation>
     </message>
     <message>
-        <location filename="../views/settings_view.py" line="209"/>
+        <location filename="../views/settings_view.py" line="208"/>
         <source>Reset PSO Settings</source>
         <translation>Reset PSO Settings</translation>
     </message>
