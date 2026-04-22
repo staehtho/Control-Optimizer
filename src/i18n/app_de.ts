@@ -726,101 +726,101 @@ Wenn die Abtastrate unbekannt ist, dieses Feld leer lassen, um einen empfohlenen
     <message>
         <location filename="../views/help_view.py" line="99"/>
         <source>&lt;p&gt;
-Particle Swarm Optimization is a population-based optimization method inspired by the
-collective motion of natural swarms. Each particle represents a candidate solution in
-the parameter space and updates its position according to a combination of inertia,
-individual learning, and social learning. This mechanism enables an adaptive balance
-between exploration of the search space and convergence toward promising regions.
-&lt;/p&gt;
-
-&lt;p&gt;
-Candidate evaluation follows a feasibility-aware lexicographic criterion. Feasible
-solutions are always preferred over infeasible ones. Among infeasible candidates, the
-solution with the smaller total constraint violation is considered superior. Among
-feasible candidates, the solution with the lower performance value is preferred. This
-approach ensures robustness with respect to constraints while enabling precise
-fine‑tuning within the feasible region.
-&lt;/p&gt;
-
-&lt;p&gt;&lt;b&gt;Hyperparameters (configurable in the settings)&lt;/b&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;
-&lt;b&gt;Repeat runs:&lt;/b&gt; Executes the entire PSO procedure multiple times with different
-random initializations. This increases robustness and reduces the likelihood of
-converging to local minima. The best solution across all runs is selected as the final
-result.
-&lt;/li&gt;
-
-&lt;li&gt;
-&lt;b&gt;Swarm size:&lt;/b&gt; Specifies the number of particles in the swarm. Larger populations
-provide broader coverage of the search space but increase computational cost.
-&lt;/li&gt;
-
-&lt;li&gt;
-&lt;b&gt;Randomness factor:&lt;/b&gt; Controls the stochastic component of the velocity update.
-Higher values promote exploration, whereas lower values support more stable convergence.
-&lt;/li&gt;
-
-&lt;li&gt;
-&lt;b&gt;Initial range:&lt;/b&gt; Define the admissible range
-for the inertia weight. The inertia weight determines the influence of the previous
-velocity and is adaptively adjusted within this interval.
-&lt;/li&gt;
-
-&lt;li&gt;
-&lt;b&gt;Cognitive factor (u1):&lt;/b&gt; Determines the strength of the particle’s attraction
-toward its own best-known position.
-&lt;/li&gt;
-
-&lt;li&gt;
-&lt;b&gt;Social factor (u2):&lt;/b&gt; Determines the strength of the attraction toward the best
-position found within the dynamically selected neighborhood.
-&lt;/li&gt;
-
-&lt;li&gt;
-&lt;b&gt;Initial swarm span:&lt;/b&gt; Specifies the initial spatial distribution of particles
-within the parameter bounds. A larger span results in a broader initialization and
-therefore stronger exploration.
-&lt;/li&gt;
-
-&lt;li&gt;
-&lt;b&gt;Min. neighbors fraction:&lt;/b&gt; Defines the minimum fraction of the swarm considered as
-the local neighborhood. Smaller neighborhoods increase diversity, while larger
-neighborhoods accelerate convergence.
-&lt;/li&gt;
-
-&lt;li&gt;
-&lt;b&gt;Max stall:&lt;/b&gt; Indicates how many iterations without significant improvement are
-allowed before a stall window is detected.
-&lt;/li&gt;
-
-&lt;li&gt;
-&lt;b&gt;Required stall windows:&lt;/b&gt; Specifies how many consecutive stall windows must occur
-before the optimization process is terminated.
-&lt;/li&gt;
-
-&lt;li&gt;
-&lt;b&gt;Max iterations:&lt;/b&gt; Sets a hard upper limit on the number of iterations performed
-during a single PSO run.
-&lt;/li&gt;
-
-&lt;li&gt;
-&lt;b&gt;Search space factor:&lt;/b&gt; Terminates the optimization once the hypervolume spanned by
-the swarm falls below a defined fraction of the initial search space, indicating spatial
-convergence.
-&lt;/li&gt;
-
-&lt;li&gt;
-&lt;b&gt;Convergence factor:&lt;/b&gt; Defines the minimum relative improvement required within a
-stall window for the optimization to continue.
-&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;li&gt;
-Together, these parameters govern the exploratory behavior, convergence dynamics, and
-overall robustness of the PSO algorithm.
-&lt;/li&gt;</source>
+            Particle Swarm Optimization is a population-based optimization method inspired by the
+            collective motion of natural swarms. Each particle represents a candidate solution in
+            the parameter space and updates its position according to a combination of inertia,
+            individual learning, and social learning. This mechanism enables an adaptive balance
+            between exploration of the search space and convergence toward promising regions.
+            &lt;/p&gt;
+            
+            &lt;p&gt;
+            Candidate evaluation follows a feasibility-aware lexicographic criterion. Feasible
+            solutions are always preferred over infeasible ones. Among infeasible candidates, the
+            solution with the smaller total constraint violation is considered superior. Among
+            feasible candidates, the solution with the lower performance value is preferred. This
+            approach ensures robustness with respect to constraints while enabling precise
+            fine‑tuning within the feasible region.
+            &lt;/p&gt;
+            
+            &lt;p&gt;&lt;b&gt;Hyperparameters (configurable in the settings)&lt;/b&gt;&lt;/p&gt;
+            
+            &lt;ul&gt;
+            &lt;li&gt;
+            &lt;b&gt;Repeat runs:&lt;/b&gt; Executes the entire PSO procedure multiple times with different
+            random initializations. This increases robustness and reduces the likelihood of
+            converging to local minima. The best solution across all runs is selected as the final
+            result.
+            &lt;/li&gt;
+            
+            &lt;li&gt;
+            &lt;b&gt;Swarm size:&lt;/b&gt; Specifies the number of particles in the swarm. Larger populations
+            provide broader coverage of the search space but increase computational cost.
+            &lt;/li&gt;
+            
+            &lt;li&gt;
+            &lt;b&gt;Randomness factor:&lt;/b&gt; Controls the stochastic component of the velocity update.
+            Higher values promote exploration, whereas lower values support more stable convergence.
+            &lt;/li&gt;
+            
+            &lt;li&gt;
+            &lt;b&gt;Initial range:&lt;/b&gt; Define the admissible range
+            for the inertia weight. The inertia weight determines the influence of the previous
+            velocity and is adaptively adjusted within this interval.
+            &lt;/li&gt;
+            
+            &lt;li&gt;
+            &lt;b&gt;Cognitive factor (u1):&lt;/b&gt; Determines the strength of the particle’s attraction
+            toward its own best-known position.
+            &lt;/li&gt;
+            
+            &lt;li&gt;
+            &lt;b&gt;Social factor (u2):&lt;/b&gt; Determines the strength of the attraction toward the best
+            position found within the dynamically selected neighborhood.
+            &lt;/li&gt;
+            
+            &lt;li&gt;
+            &lt;b&gt;Initial swarm span:&lt;/b&gt; Specifies the initial spatial distribution of particles
+            within the parameter bounds. A larger span results in a broader initialization and
+            therefore stronger exploration.
+            &lt;/li&gt;
+            
+            &lt;li&gt;
+            &lt;b&gt;Min. neighbors fraction:&lt;/b&gt; Defines the minimum fraction of the swarm considered as
+            the local neighborhood. Smaller neighborhoods increase diversity, while larger
+            neighborhoods accelerate convergence.
+            &lt;/li&gt;
+            
+            &lt;li&gt;
+            &lt;b&gt;Max stall:&lt;/b&gt; Indicates how many iterations without significant improvement are
+            allowed before a stall window is detected.
+            &lt;/li&gt;
+            
+            &lt;li&gt;
+            &lt;b&gt;Required stall windows:&lt;/b&gt; Specifies how many consecutive stall windows must occur
+            before the optimization process is terminated.
+            &lt;/li&gt;
+            
+            &lt;li&gt;
+            &lt;b&gt;Max iterations:&lt;/b&gt; Sets a hard upper limit on the number of iterations performed
+            during a single PSO run.
+            &lt;/li&gt;
+            
+            &lt;li&gt;
+            &lt;b&gt;Search space factor:&lt;/b&gt; Terminates the optimization once the hypervolume spanned by
+            the swarm falls below a defined fraction of the initial search space, indicating spatial
+            convergence.
+            &lt;/li&gt;
+            
+            &lt;li&gt;
+            &lt;b&gt;Convergence factor:&lt;/b&gt; Defines the minimum relative improvement required within a
+            stall window for the optimization to continue.
+            &lt;/li&gt;
+            &lt;/ul&gt;
+            
+            &lt;li&gt;
+            Together, these parameters govern the exploratory behavior, convergence dynamics, and
+            overall robustness of the PSO algorithm.
+            &lt;/li&gt;</source>
         <translation>&lt;p&gt;
 Particle Swarm Optimization ist ein populationsbasiertes Optimierungsverfahren, das vom
 kollektiven Bewegungsverhalten natürlicher Schwärme inspiriert ist. Jedes Partikel
@@ -924,27 +924,27 @@ die Gesamtrobustheit des PSO‑Algorithmus.
     <message>
         <location filename="../views/help_view.py" line="198"/>
         <source>&lt;p&gt;
-The Data Management module provides functionality for importing and exporting complete
-application states. This mechanism enables users to archive, transfer, or restore
-projects in a reproducible manner. All relevant configuration data are stored in a
-single JSON file, ensuring transparency and long-term accessibility.
-&lt;/p&gt;
-
-&lt;p&gt;
-During export, the application serializes the current project into a structured JSON
-representation. This file contains all essential model parameters, including the plant
-definition, excitation function settings, controller configuration, PSO configuration,
-and the solver settings defined in the Settings. The exported file therefore
-captures the full state of the optimization environment and can be used to reproduce
-results or continue work on another system.
-&lt;/p&gt;
-
-&lt;p&gt;
-During import, the application reads a previously exported JSON file and restores the
-entire project state. All parameters are reloaded into their corresponding models,
-including PSO hyperparameters and solver settings. This ensures that imported projects
-behave identically to the original environment from which they were exported.
-&lt;/p&gt;</source>
+            The Data Management module provides functionality for importing and exporting complete
+            application states. This mechanism enables users to archive, transfer, or restore
+            projects in a reproducible manner. All relevant configuration data are stored in a
+            single JSON file, ensuring transparency and long-term accessibility.
+            &lt;/p&gt;
+            
+            &lt;p&gt;
+            During export, the application serializes the current project into a structured JSON
+            representation. This file contains all essential model parameters, including the plant
+            definition, excitation function settings, controller configuration, PSO configuration,
+            and the solver settings defined in the Settings. The exported file therefore
+            captures the full state of the optimization environment and can be used to reproduce
+            results or continue work on another system.
+            &lt;/p&gt;
+            
+            &lt;p&gt;
+            During import, the application reads a previously exported JSON file and restores the
+            entire project state. All parameters are reloaded into their corresponding models,
+            including PSO hyperparameters and solver settings. This ensures that imported projects
+            behave identically to the original environment from which they were exported.
+            &lt;/p&gt;</source>
         <translation>&lt;p&gt;
 Das Modul Datenverwaltung stellt Funktionen zum Importieren und Exportieren kompletter
 Applikationszustände zur Verfügung. Dieser Mechanismus ermöglicht es den
@@ -974,6 +974,324 @@ Umgebung verhalten, aus der sie exportiert wurden.
     </message>
     <message>
         <location filename="../views/help_view.py" line="223"/>
+        <source>&lt;p&gt;
+            The reporting functionality enables the creation of a comprehensive dynamic report that
+            summarizes all relevant aspects of a completed PSO-based controller optimization. The
+            report is generated as a PDF document and integrates both numerical results and
+            graphical representations of the system behaviour.
+            &lt;/p&gt;
+            
+            &lt;p&gt;
+            Each section of the report is generated dynamically based on two primary data sources:
+            the &lt;i&gt;simulation snapshot&lt;/i&gt; and the &lt;i&gt;PSO result&lt;/i&gt;. The simulation snapshot
+            captures the complete configuration state at the moment the PSO simulation is executed.
+            It includes the plant model, the excitation function, the controller configuration, the
+            PSO parameter bounds, and all constraint settings used during the optimization. In
+            addition, the snapshot contains the simulation time interval, the excitation target, and
+            all active time‑domain and frequency‑domain performance criteria. It therefore
+            represents a precise and immutable record of the conditions under which the optimization
+            was performed.
+            &lt;/p&gt;
+            
+            &lt;p&gt;
+            The PSO result complements the snapshot by providing the optimized controller
+            parameters, feasibility information, recommended sampling rate, and the evaluated
+            performance metrics obtained from the best particle. Together, the snapshot and the
+            result form a complete description of both the optimization setup and its outcome.
+            &lt;/p&gt;
+            
+            &lt;p&gt;
+            The report is assembled from modular sections that reflect the user’s selection in the
+            Data Management. Depending on the chosen configuration, the report may include the
+            plant model, the excitation function, the controller configuration, the PSO
+            configuration, the optimization results, and a set of diagnostic plots such as the block
+            diagram, time-domain response, Bode plot, and transfer functions.
+            &lt;/p&gt;</source>
+        <translation>&lt;p&gt;
+Die Bericht‑Funktionalität ermöglicht die Erstellung eines umfassenden dynamischen
+Berichts, der alle relevanten Aspekte einer abgeschlossenen, PSO‑basierten
+Regleroptimierung zusammenfasst. Der Bericht wird als PDF‑Dokument generiert und
+integriert sowohl numerische Resultate als auch grafische Darstellungen des
+Systemverhaltens.
+&lt;/p&gt;
+
+&lt;p&gt;
+Jeder Abschnitt des Berichts wird dynamisch auf Grundlage zweier zentraler
+Datenquellen erzeugt: dem &lt;i&gt;Simulation Snapshot&lt;/i&gt; und dem &lt;i&gt;PSO Result&lt;/i&gt;. Der
+Simulation Snapshot erfasst den vollständigen Konfigurationszustand zum Zeitpunkt der
+PSO‑Simulation. Er beinhaltet das Streckenmodell, die Anregungsfunktion, die
+Reglerkonfiguration, die PSO‑Parametergrenzen sowie sämtliche während der Optimierung
+verwendeten Constraint‑Einstellungen. Zusätzlich enthält der Snapshot das
+Simulationszeitintervall, das Anregungsziel sowie alle aktiven Zeitbereichs‑ und
+Frequenzbereichs‑Performancekriterien. Er stellt somit eine präzise und unveränderliche
+Dokumentation der Bedingungen dar, unter denen die Optimierung durchgeführt wurde.
+&lt;/p&gt;
+
+&lt;p&gt;
+Das PSO Result ergänzt den Snapshot, indem es die optimierten Reglerparameter,
+Informationen zur Zulässigkeit, die empfohlene Abtastrate sowie die aus dem besten
+Partikel abgeleiteten Performancekennwerte bereitstellt. Zusammen bilden Snapshot und
+Result eine vollständige Beschreibung sowohl des Optimierungssetups als auch des
+endgültigen Ergebnisses.
+&lt;/p&gt;
+
+&lt;p&gt;
+Der Bericht wird aus modularen Abschnitten zusammengesetzt, die der Auswahl der
+Anwenderin oder des Anwenders in der Datenverwaltung entsprechen. Abhängig von der
+Konfiguration kann der Bericht das Streckenmodell, die Anregungsfunktion, die
+Reglerkonfiguration, die PSO‑Konfiguration, die Optimierungsresultate sowie eine Reihe
+diagnostischer Grafiken wie Blockdiagramm, Zeitbereichsverlauf, Bode‑Plot und
+Übertragungsfunktionen enthalten.
+&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;
+Particle Swarm Optimization is a population-based optimization method inspired by the
+collective motion of natural swarms. Each particle represents a candidate solution in
+the parameter space and updates its position according to a combination of inertia,
+individual learning, and social learning. This mechanism enables an adaptive balance
+between exploration of the search space and convergence toward promising regions.
+&lt;/p&gt;
+
+&lt;p&gt;
+Candidate evaluation follows a feasibility-aware lexicographic criterion. Feasible
+solutions are always preferred over infeasible ones. Among infeasible candidates, the
+solution with the smaller total constraint violation is considered superior. Among
+feasible candidates, the solution with the lower performance value is preferred. This
+approach ensures robustness with respect to constraints while enabling precise
+fine‑tuning within the feasible region.
+&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;Hyperparameters (configurable in the settings)&lt;/b&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;b&gt;Repeat runs:&lt;/b&gt; Executes the entire PSO procedure multiple times with different
+random initializations. This increases robustness and reduces the likelihood of
+converging to local minima. The best solution across all runs is selected as the final
+result.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Swarm size:&lt;/b&gt; Specifies the number of particles in the swarm. Larger populations
+provide broader coverage of the search space but increase computational cost.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Randomness factor:&lt;/b&gt; Controls the stochastic component of the velocity update.
+Higher values promote exploration, whereas lower values support more stable convergence.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Initial range:&lt;/b&gt; Define the admissible range
+for the inertia weight. The inertia weight determines the influence of the previous
+velocity and is adaptively adjusted within this interval.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Cognitive factor (u1):&lt;/b&gt; Determines the strength of the particle’s attraction
+toward its own best-known position.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Social factor (u2):&lt;/b&gt; Determines the strength of the attraction toward the best
+position found within the dynamically selected neighborhood.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Initial swarm span:&lt;/b&gt; Specifies the initial spatial distribution of particles
+within the parameter bounds. A larger span results in a broader initialization and
+therefore stronger exploration.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Min. neighbors fraction:&lt;/b&gt; Defines the minimum fraction of the swarm considered as
+the local neighborhood. Smaller neighborhoods increase diversity, while larger
+neighborhoods accelerate convergence.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Max stall:&lt;/b&gt; Indicates how many iterations without significant improvement are
+allowed before a stall window is detected.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Required stall windows:&lt;/b&gt; Specifies how many consecutive stall windows must occur
+before the optimization process is terminated.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Max iterations:&lt;/b&gt; Sets a hard upper limit on the number of iterations performed
+during a single PSO run.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Search space factor:&lt;/b&gt; Terminates the optimization once the hypervolume spanned by
+the swarm falls below a defined fraction of the initial search space, indicating spatial
+convergence.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Convergence factor:&lt;/b&gt; Defines the minimum relative improvement required within a
+stall window for the optimization to continue.
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;li&gt;
+Together, these parameters govern the exploratory behavior, convergence dynamics, and
+overall robustness of the PSO algorithm.
+&lt;/li&gt;</source>
+        <translation type="vanished">&lt;p&gt;
+Particle Swarm Optimization ist ein populationsbasiertes Optimierungsverfahren, das vom
+kollektiven Bewegungsverhalten natürlicher Schwärme inspiriert ist. Jedes Partikel
+repräsentiert eine mögliche Lösung im Parameterraum und aktualisiert seine Position
+aufgrund einer Kombination aus Trägheit, individueller Orientierung und sozialer
+Orientierung. Dieser Mechanismus ermöglicht ein adaptives Gleichgewicht zwischen der
+Exploration des Suchraums und der Konvergenz zu vielversprechenden Regionen.
+&lt;/p&gt;
+
+&lt;p&gt;
+Die Bewertung der Kandidaten folgt einem feasibility‑aware lexikografischen Kriterium.
+Zulässige Lösungen werden stets unzulässigen vorgezogen. Unter den unzulässigen
+Kandidaten gilt die Lösung mit der geringeren Gesamtverletzung als besser. Unter den
+zulässigen Kandidaten wird diejenige mit dem tieferen Performance‑Wert bevorzugt. Dieser
+Ansatz gewährleistet Robustheit gegenüber Nebenbedingungen und ermöglicht gleichzeitig
+eine präzise Feinoptimierung innerhalb des zulässigen Bereichs.
+&lt;/p&gt;
+
+&lt;p&gt;&lt;b&gt;Hyperparameter (in den Einstellungen konfigurierbar)&lt;/b&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;
+&lt;b&gt;Wiederholungen:&lt;/b&gt; Führt den gesamten PSO‑Ablauf mehrfach mit unterschiedlichen
+Zufallsinitialisierungen aus. Dies erhöht die Robustheit und reduziert die
+Wahrscheinlichkeit, in lokalen Minima zu verbleiben. Die beste Lösung über alle
+Durchläufe hinweg wird als Endresultat ausgewählt.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Schwarmgrösse:&lt;/b&gt; Legt die Anzahl Partikel im Schwarm fest. Grössere Populationen
+decken den Suchraum breiter ab, führen jedoch zu höherem Rechenaufwand.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Zufallsfaktor:&lt;/b&gt; Steuert den stochastischen Anteil der
+Geschwindigkeitsaktualisierung. Höhere Werte fördern die Exploration, während tiefere
+Werte eine stabilere Konvergenz unterstützen.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Startwertbereich:&lt;/b&gt; Definiert den zulässigen Bereich für das Trägheitsgewicht. Das
+Trägheitsgewicht bestimmt den Einfluss der bisherigen Geschwindigkeit und wird
+adaptiv innerhalb dieses Intervalls angepasst.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Kognitiver Faktor (u1):&lt;/b&gt; Bestimmt die Stärke der individuellen Orientierung eines
+Partikels an seiner eigenen besten bekannten Position.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Sozialer Faktor (u1):&lt;/b&gt; Bestimmt die Stärke der sozialen Orientierung an der besten
+Position innerhalb der dynamisch gewählten Nachbarschaft.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Initiale Schwarmspanne:&lt;/b&gt; Legt die anfängliche räumliche Verteilung der Partikel
+innerhalb der Parametergrenzen fest. Ein grösserer Span führt zu einer breiteren
+Initialisierung und damit zu stärkerer Exploration.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Min. Nachbarschaftsanteil:&lt;/b&gt; Definiert den minimalen Anteil des Schwarms, der als
+lokale Nachbarschaft berücksichtigt wird. Kleinere Nachbarschaften erhöhen die
+Diversität, während grössere Nachbarschaften die Konvergenz beschleunigen.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Max. Stillstand:&lt;/b&gt; Gibt an, wie viele Iterationen ohne wesentliche Verbesserung
+zugelassen werden, bevor ein Stillstandsfenster erkannt wird.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Stillstandsfenster erforderlich:&lt;/b&gt; Legt fest, wie viele aufeinanderfolgende Stall‑Fenster
+auftreten müssen, bevor der Optimierungsprozess beendet wird.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Max. Iterationen:&lt;/b&gt; Setzt eine harte Obergrenze für die Anzahl Iterationen, die
+während eines einzelnen PSO‑Durchlaufs ausgeführt werden.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Suchraumfaktor:&lt;/b&gt; Beendet die Optimierung, sobald das vom Schwarm
+aufgespannte Hypervolumen unter einen definierten Bruchteil des anfänglichen
+Suchraums fällt, was auf eine räumliche Konvergenz hinweist.
+&lt;/li&gt;
+
+&lt;li&gt;
+&lt;b&gt;Konvergenzfaktor:&lt;/b&gt; Definiert die minimale relative Verbesserung, die innerhalb
+eines Stall‑Fensters erreicht werden muss, damit der Optimierungsprozess fortgesetzt
+wird.
+&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;li&gt;
+Diese Parameter steuern gemeinsam das explorative Verhalten, die Konvergenzdynamik und
+die Gesamtrobustheit des PSO‑Algorithmus.
+&lt;/li&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;
+The Data Management module provides functionality for importing and exporting complete
+application states. This mechanism enables users to archive, transfer, or restore
+projects in a reproducible manner. All relevant configuration data are stored in a
+single JSON file, ensuring transparency and long-term accessibility.
+&lt;/p&gt;
+
+&lt;p&gt;
+During export, the application serializes the current project into a structured JSON
+representation. This file contains all essential model parameters, including the plant
+definition, excitation function settings, controller configuration, PSO configuration,
+and the solver settings defined in the Settings. The exported file therefore
+captures the full state of the optimization environment and can be used to reproduce
+results or continue work on another system.
+&lt;/p&gt;
+
+&lt;p&gt;
+During import, the application reads a previously exported JSON file and restores the
+entire project state. All parameters are reloaded into their corresponding models,
+including PSO hyperparameters and solver settings. This ensures that imported projects
+behave identically to the original environment from which they were exported.
+&lt;/p&gt;</source>
+        <translation type="vanished">&lt;p&gt;
+Das Modul Datenverwaltung stellt Funktionen zum Importieren und Exportieren kompletter
+Applikationszustände zur Verfügung. Dieser Mechanismus ermöglicht es den
+Anwenderinnen und Anwendern, Projekte in reproduzierbarer Form zu archivieren,
+zu übertragen oder wiederherzustellen. Sämtliche relevanten Konfigurationsdaten werden
+in einer einzigen JSON‑Datei gespeichert, was Transparenz und langfristige
+Nachvollziehbarkeit sicherstellt.
+&lt;/p&gt;
+
+&lt;p&gt;
+Beim Export serialisiert die Applikation das aktuelle Projekt in eine strukturierte
+JSON‑Darstellung. Diese Datei enthält alle wesentlichen Modellparameter, einschliesslich
+der Streckendefinition, der Einstellungen der Anregungsfunktion, der
+Reglerkonfiguration, der PSO‑Konfiguration sowie der in den Einstellungen definierten
+Solver‑Parameter. Die exportierte Datei bildet somit den vollständigen Zustand der
+Optimierungsumgebung ab und kann verwendet werden, um Resultate zu reproduzieren oder
+die Arbeit auf einem anderen System fortzusetzen.
+&lt;/p&gt;
+
+&lt;p&gt;
+Beim Import liest die Applikation eine zuvor exportierte JSON‑Datei ein und stellt den
+gesamten Projektzustand wieder her. Sämtliche Parameter werden in ihre entsprechenden
+Modelle zurückgeladen, einschliesslich der PSO‑Hyperparameter und der Solver‑Einstellungen.
+Dies stellt sicher, dass importierte Projekte sich identisch zur ursprünglichen
+Umgebung verhalten, aus der sie exportiert wurden.
+&lt;/p&gt;</translation>
+    </message>
+    <message>
         <source>&lt;p&gt;
 The reporting functionality enables the creation of a comprehensive dynamic report that
 summarizes all relevant aspects of a completed PSO-based controller optimization. The
@@ -1007,7 +1325,7 @@ plant model, the excitation function, the controller configuration, the PSO
 configuration, the optimization results, and a set of diagnostic plots such as the block
 diagram, time-domain response, Bode plot, and transfer functions.
 &lt;/p&gt;</source>
-        <translation>&lt;p&gt;
+        <translation type="vanished">&lt;p&gt;
 Die Bericht‑Funktionalität ermöglicht die Erstellung eines umfassenden dynamischen
 Berichts, der alle relevanten Aspekte einer abgeschlossenen, PSO‑basierten
 Regleroptimierung zusammenfasst. Der Bericht wird als PDF‑Dokument generiert und
