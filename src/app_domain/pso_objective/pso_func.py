@@ -1,173 +1,19 @@
-# ------------------------------------------------------------------------------
-# Project:       PID Optimizer
-# Module:        pso_system_optimization.py
-# Description:   Provides Numba-accelerated simulation routines and performance index evaluation
-#                for PSO-based PID optimization. Includes PID update logic, ODE solvers,
-#                closed-loop and open-loop response functions, and a vectorized PSO objective
-#                function for evaluating multiple PID parameter sets in parallel.
-#
-# Authors:       Florin Buechi, Thomas Staehli
-# Created:       01.12.2025
-# Modified:      09.03.2026
-# Version:       1.2
-#
-# License:       ZHAW Zuercher Hochschule fuer angewandte Wissenschaften (or internal use only)
-# ------------------------------------------------------------------------------
-
 import math
 import time
-from dataclasses import dataclass
 from typing import Callable
 
 import numpy as np
-from numba import njit, prange, types, float64, int64
 
 from app_domain.controlsys.PIDClosedLoop import PIDClosedLoop
 from app_domain.controlsys.closedLoop import ClosedLoop
 from app_domain.controlsys.enums import *
+
 from .freq_metrics import compute_loop_metrics_batch
-
-
-@dataclass(frozen=True)
-class TfLimitReport:
-    """Report for the desired raw D-filter time constant and the applied limit.
-
-    Attributes:
-        tf_raw: Desired unbounded filter time constant computed from ``Td / N``.
-        tf_effective: Filter time constant actually used after applying limits.
-        tf_min: Active lower bound on the filter time constant.
-        simulation_limit: Lower bound imposed by the simulation step size.
-        sampling_limit: Lower bound imposed by the real sampling rate.
-        limited: Whether any lower-limit clamp was applied.
-        limited_by_simulation: Whether the simulation-step limit was active.
-        limited_by_sampling: Whether the sampling-rate limit was active.
-        min_sampling_rate_hz: Sampling rate required to realize the effective
-            filter time constant ``tf_effective``.
-    """
-    tf_raw: float
-    tf_effective: float
-    tf_min: float
-    simulation_limit: float
-    sampling_limit: float
-    limited: bool
-    limited_by_simulation: bool
-    limited_by_sampling: bool
-    # Sampling-rate suggestion for realizing the effective target Tf.
-    min_sampling_rate_hz: float
-
-
-def _normalize_positive_scalar(value: float, name: str) -> float:
-    normalized = float(value)
-    if normalized <= 0.0:
-        raise ValueError(f"{name} must be > 0.")
-    return normalized
-
-
-def _normalize_sampling_rate_hz(sampling_rate_hz: float | None) -> float | None:
-    if sampling_rate_hz is None:
-        return None
-    return _normalize_positive_scalar(sampling_rate_hz, "sampling_rate_hz")
-
-
-def compute_effective_tf_report(
-    Td: float,
-    dt: float,
-    *,
-    tf_tuning_factor_n: float = 5.0,
-    tf_limit_factor_k: float = 5.0,
-    sampling_rate_hz: float | None = None,
-) -> TfLimitReport:
-    """Compute raw and limited derivative-filter time constants for one ``Td``.
-
-    Args:
-        Td: Derivative time constant candidate.
-        dt: Simulation time step.
-        tf_tuning_factor_n: D-filter tuning factor ``N`` in ``Tf = Td / N``.
-        tf_limit_factor_k: Lower-limit factor ``k`` in
-            ``Tf >= k * max(dt, Ts_real)``.
-        sampling_rate_hz: Optional real-system sampling rate in Hz.
-
-    Returns:
-        TfLimitReport: Report containing the desired raw filter time constant,
-        the applied effective value, active limits, and the sampling-rate
-        recommendation needed to realize ``tf_effective``.
-    """
-    td = float(Td)
-    sim_dt = _normalize_positive_scalar(dt, "dt")
-    n_factor = _normalize_positive_scalar(tf_tuning_factor_n, "tf_tuning_factor_n")
-    k_factor = _normalize_positive_scalar(tf_limit_factor_k, "tf_limit_factor_k")
-    rate_hz = _normalize_sampling_rate_hz(sampling_rate_hz)
-
-    if td <= 0.0:
-        return TfLimitReport(
-            tf_raw=0.0,
-            tf_effective=0.0,
-            tf_min=0.0,
-            simulation_limit=0.0,
-            sampling_limit=0.0,
-            limited=False,
-            limited_by_simulation=False,
-            limited_by_sampling=False,
-            min_sampling_rate_hz=np.nan,
-        )
-
-    tf_raw = td / n_factor
-    simulation_limit = k_factor * sim_dt
-    sampling_limit = 0.0 if rate_hz is None else (k_factor / rate_hz)
-    tf_min = max(simulation_limit, sampling_limit)
-    tf_effective = max(tf_raw, tf_min)
-
-    limited_by_simulation = (
-        tf_raw < simulation_limit
-        and math.isclose(tf_effective, simulation_limit, rel_tol=1e-12, abs_tol=1e-12)
-    )
-    limited_by_sampling = (
-        rate_hz is not None
-        and tf_raw < sampling_limit
-        and math.isclose(tf_effective, sampling_limit, rel_tol=1e-12, abs_tol=1e-12)
-    )
-    limited = limited_by_simulation or limited_by_sampling
-    # Sampling-rate recommendation for realizing the actually applied filter
-    # time constant.
-    min_sampling_rate_hz = k_factor / tf_effective
-
-    return TfLimitReport(
-        tf_raw=tf_raw,
-        tf_effective=tf_effective,
-        tf_min=tf_min,
-        simulation_limit=simulation_limit,
-        sampling_limit=sampling_limit,
-        limited=limited,
-        limited_by_simulation=limited_by_simulation,
-        limited_by_sampling=limited_by_sampling,
-        min_sampling_rate_hz=min_sampling_rate_hz,
-    )
-
-
-def compute_effective_tf_batch(
-    Td: np.ndarray,
-    dt: float,
-    *,
-    tf_tuning_factor_n: float = 5.0,
-    tf_limit_factor_k: float = 5.0,
-    sampling_rate_hz: float | None = None,
-) -> tuple[np.ndarray, np.ndarray]:
-    sim_dt = _normalize_positive_scalar(dt, "dt")
-    n_factor = _normalize_positive_scalar(tf_tuning_factor_n, "tf_tuning_factor_n")
-    k_factor = _normalize_positive_scalar(tf_limit_factor_k, "tf_limit_factor_k")
-    rate_hz = _normalize_sampling_rate_hz(sampling_rate_hz)
-
-    td = np.asarray(Td, dtype=np.float64)
-    tf_raw = np.zeros_like(td, dtype=np.float64)
-    tf_effective = np.zeros_like(td, dtype=np.float64)
-
-    active = td > 0.0
-    if np.any(active):
-        tf_raw[active] = td[active] / n_factor
-        tf_min = max(k_factor * sim_dt, 0.0 if rate_hz is None else (k_factor / rate_hz))
-        tf_effective[active] = np.maximum(tf_raw[active], tf_min)
-
-    return tf_raw, tf_effective
+from .filter_time_constant_handler import (
+    TfLimitReport, compute_effective_tf_report, compute_effective_tf_batch,
+    normalize_positive_scalar, normalize_sampling_rate_hz
+)
+from .time_domain_numba import pid_pso_func
 
 
 class PsoFunc:
@@ -207,40 +53,40 @@ class PsoFunc:
     """
 
     def __init__(
-        self,
-        controller: ClosedLoop,
-        t0: float,
-        t1: float,
-        dt: float,
-        r: Callable[[np.ndarray], np.ndarray] | None = None,
-        l: Callable[[np.ndarray], np.ndarray] | None = None,
-        n: Callable[[np.ndarray], np.ndarray] | None = None,
-        solver: MySolver = MySolver.RK4,
-        performance_index: PerformanceIndex = PerformanceIndex.ITAE,
-        swarm_size: int = 40,
-        pre_compiling: bool = True,
-        *,
-        use_freq_metrics: bool = True,
-        tf_tuning_factor_n: float = 5.0,
-        tf_limit_factor_k: float = 5.0,
-        sampling_rate_hz: float | None = None,
-        # Frequency grid
-        freq_low_exp: float = -5.0,
-        freq_high_exp: float = 5.0,
-        freq_points: int = 450,
-        # Constraints
-        pm_min_deg: float = 60.0,
-        gm_min_db: float = 5.0,
-        ms_max_db: float | None = 20.0 * math.log10(2.0),
-        use_overshoot_control: bool = False,
-        allowed_overshoot_pct: float = 0.0,
+            self,
+            controller: ClosedLoop,
+            t0: float,
+            t1: float,
+            dt: float,
+            r: Callable[[np.ndarray], np.ndarray] | None = None,
+            l: Callable[[np.ndarray], np.ndarray] | None = None,
+            n: Callable[[np.ndarray], np.ndarray] | None = None,
+            solver: MySolver = MySolver.RK4,
+            performance_index: PerformanceIndex = PerformanceIndex.ITAE,
+            swarm_size: int = 40,
+            pre_compiling: bool = True,
+            *,
+            use_freq_metrics: bool = True,
+            tf_tuning_factor_n: float = 5.0,
+            tf_limit_factor_k: float = 5.0,
+            sampling_rate_hz: float | None = None,
+            # Frequency grid
+            freq_low_exp: float = -5.0,
+            freq_high_exp: float = 5.0,
+            freq_points: int = 450,
+            # Constraints
+            pm_min_deg: float = 60.0,
+            gm_min_db: float = 5.0,
+            ms_max_db: float | None = 20.0 * math.log10(2.0),
+            use_overshoot_control: bool = False,
+            allowed_overshoot_pct: float = 0.0,
             calculate_overshoot: bool = False,
             use_max_du_dt_constraint: bool = False,
             calculate_max_du_dt: bool = False,
             allowed_max_du_dt: float = 0.0,
             du_dt_window_steps: int = 10,
-        log_path: str | None = None, # TODO FLO rueckgaengig logging
-        enable_logging: bool = False, # TODO FLO rueckgaengig logging
+            log_path: str | None = None,  # TODO FLO rueckgaengig logging
+            enable_logging: bool = False,  # TODO FLO rueckgaengig logging
     ) -> None:
         """
         Initialize a PsoFunc instance.
@@ -313,9 +159,9 @@ class PsoFunc:
         self.t1 = t1
         self.dt = dt
         self.t_eval = np.arange(t0, t1 + dt, dt)
-        self.tf_tuning_factor_n = _normalize_positive_scalar(tf_tuning_factor_n, "tf_tuning_factor_n")
-        self.tf_limit_factor_k = _normalize_positive_scalar(tf_limit_factor_k, "tf_limit_factor_k")
-        self.sampling_rate_hz = _normalize_sampling_rate_hz(sampling_rate_hz)
+        self.tf_tuning_factor_n = normalize_positive_scalar(tf_tuning_factor_n, "tf_tuning_factor_n")
+        self.tf_limit_factor_k = normalize_positive_scalar(tf_limit_factor_k, "tf_limit_factor_k")
+        self.sampling_rate_hz = normalize_sampling_rate_hz(sampling_rate_hz)
 
         # TODO FLO rueckgaengig logging
         self.enable_logging = bool(enable_logging)
@@ -493,12 +339,12 @@ class PsoFunc:
             f.writelines(lines)
 
     def finalize_log_batch(
-        self,
-        *,
-        particles: list,
-        gbest,
-        pbest_updated: np.ndarray,
-        gbest_updated: np.ndarray,
+            self,
+            *,
+            particles: list,
+            gbest,
+            pbest_updated: np.ndarray,
+            gbest_updated: np.ndarray,
     ) -> None:
         """Finalize deferred batch logging with PSO state (pBest/gBest)."""
         if (not self.enable_logging) or (self._pending_log_batch is None):
@@ -551,46 +397,6 @@ class PsoFunc:
             gbest_cost=gbest_cost,
         )
         self._pending_log_batch = None
-
-
-    def set_constraints(
-        self,
-        *,
-        pm_min_deg: float | None = None,
-        gm_min_db: float | None = None,
-        ms_max_db: float | None = None,
-        use_overshoot_control: bool | None = None,
-        allowed_overshoot_pct: float | None = None,
-            calculate_overshoot: bool | None = None,
-            use_max_du_dt_constraint: bool | None = None,
-            calculate_max_du_dt: bool | None = None,
-            allowed_max_du_dt: float | None = None,
-            du_dt_window_steps: int | None = None,
-    ) -> None:
-        """Update constraints and optional diagnostic metrics dynamically."""
-        if pm_min_deg is not None:
-            self.pm_min_deg = float(pm_min_deg)
-        if gm_min_db is not None:
-            self.gm_min_db = float(gm_min_db)
-        if ms_max_db is not None:
-            self.ms_max_db = float(ms_max_db)
-        if use_overshoot_control is not None:
-            self.use_overshoot_control = bool(use_overshoot_control)
-        if allowed_overshoot_pct is not None:
-            self.allowed_overshoot_pct = float(allowed_overshoot_pct)
-        if calculate_overshoot is not None:
-            self.calculate_overshoot = bool(calculate_overshoot)
-        if use_max_du_dt_constraint is not None:
-            self.use_max_du_dt_constraint = bool(use_max_du_dt_constraint)
-        if calculate_max_du_dt is not None:
-            self.calculate_max_du_dt = bool(calculate_max_du_dt)
-        if allowed_max_du_dt is not None:
-            self.allowed_max_du_dt = float(allowed_max_du_dt)
-        if du_dt_window_steps is not None:
-            self.du_dt_window_steps = int(du_dt_window_steps)
-
-        self._update_max_du_dt_cache()
-        self._update_overshoot_control_cache()
 
     def _update_max_du_dt_cache(self) -> None:
         """Validate cached parameters for the ``max_du_dt`` window metric."""
@@ -828,32 +634,18 @@ class PsoFunc:
             compute_overshoot = self.calculate_overshoot or self.use_overshoot_control
             compute_max_du_dt = self.calculate_max_du_dt or self.use_max_du_dt_constraint
 
-            perf_vals, overshoot_vals, max_du_dt_vals = _pid_pso_func(
-                Xf,
-                self.t_eval,
-                self.dt,
-                self.r_eval,
-                self.l_eval,
-                self.n_eval,
-                self.A,
-                self.B,
-                self.C,
-                self.D,
-                self.plant_order,
-                Tf[feasible],
-                self.control_constraint,
-                self.anti_windup_method,
-                self.ka,
-                self.solver,
-                self.performance_index,
+            perf_vals, overshoot_vals, max_du_dt_vals = pid_pso_func(
+                Xf, self.t_eval, self.dt, self.r_eval, self.l_eval,
+                self.n_eval, self.A, self.B, self.C, self.D,
+                self.plant_order, Tf[feasible],
+                self.control_constraint, self.anti_windup_method,
+                self.ka, self.solver, self.performance_index,
                 1 if compute_overshoot else 0,
                 self._overshoot_step_amplitude_abs,
                 self._overshoot_step_start_idx,
-                self._overshoot_step_sign,
-                self._overshoot_r_final,
+                self._overshoot_step_sign, self._overshoot_r_final,
                 1 if compute_max_du_dt else 0,
-                self.du_dt_window_steps,
-                Pf,  # IMPORTANT: swarm_size = number of feasible particles
+                self.du_dt_window_steps, Pf
             )
             time_cost[feasible] = perf_vals
             overshoot_pct[feasible] = overshoot_vals
@@ -994,495 +786,3 @@ class PsoFunc:
         self.calculate_overshoot = value
 
         self._update_overshoot_control_cache()
-
-# =============================================================================
-# Helper Functions
-# =============================================================================
-@njit(float64[:](float64[:, :], float64[:]), inline="always")
-def _matvec_auto(A: np.ndarray, x: np.ndarray) -> np.ndarray:
-    """
-    Perform matrix-vector multiplication manually for Numba.
-
-    Args:
-        A: Square matrix.
-        x: Vector.
-
-    Returns:
-        Result of A @ x as a 1-D numpy array.
-    """
-    n = A.shape[0]
-    y = np.zeros(n)
-
-    for i in range(n):
-        acc = 0.0
-        for j in range(n):
-            acc += A[i][j] * x[j]
-        y[i] = acc
-
-    return y
-
-
-@njit(float64(float64[:], float64[:]), inline="always")
-def dot1D(x: np.ndarray, y: np.ndarray) -> float:
-    """
-    Compute dot product of two 1-D vectors manually for Numba.
-
-    Args:
-        x: Vector x.
-        y: Vector y.
-
-    Returns:
-        The scalar dot product x.T @ y.
-    """
-    acc = 0.0
-    for i in range(x.shape[0]):
-        acc += x[i] * y[i]
-    return acc
-
-
-# =============================================================================
-# PID Update
-# =============================================================================
-@njit(
-    types.UniTuple(float64, 3)(
-        float64, float64, float64, float64, float64, float64, float64, float64, float64, float64, float64, int64,
-        float64
-    ),
-    inline="always"
-)
-def pid_update(e: float, e_prev: float, d_filtered_prev: float, integral_prev: float,
-               Kp: float, Ti: float, Td: float, Tf: float, dt: float, u_min: float, u_max: float,
-               anti_windup_method: int, ka: float) -> tuple[float, float, float]:
-    """
-    Perform a single PID controller update including anti-windup.
-
-    The function computes proportional, integral and filtered derivative terms,
-    applies the selected anti-windup strategy and returns the saturated control
-    signal together with the updated integral and filtered derivative states.
-
-    The application-level controller representation remains the ISA
-    time-constant form ``(Kp, Ti, Td, Tf)``. Inside this numerical kernel, the
-    integral and derivative contributions are evaluated through the equivalent
-    local gain terms ``Ki = Kp / Ti`` and ``Kd = Kp * Td`` for efficiency.
-
-    Args:
-        e: Current control error.
-        e_prev: Previous control error.
-        d_filtered_prev: Previous filtered derivative state.
-        integral_prev: Previous integral state.
-        Kp: Proportional gain.
-        Ti: Integral time constant.
-        Td: Derivative time constant.
-        Tf: Derivative filter time constant.
-        dt: Simulation time step.
-        u_min: Lower actuator limit.
-        u_max: Upper actuator limit.
-        anti_windup_method: Selected anti-windup method.
-        ka: Scaling factor for the back-calculation feedback path.
-    """
-    # 1) Proportional
-    P_term = Kp * e
-
-    # 2) Integration
-    if Ti > 0.0:
-        integral_candidate = integral_prev + e * dt
-    else:
-        integral_candidate = integral_prev
-
-    # Local gain-equivalent evaluation of the ISA controller: Ki = Kp / Ti.
-    I_term_previous = Kp * (1.0 / Ti) * integral_prev if Ti > 0 else 0.0
-    I_term_candidate = Kp * (1.0 / Ti) * integral_candidate if Ti > 0 else 0.0
-
-    # 3) Derivative (filtered)
-    if Td > 0.0:
-        alpha = Tf / (Tf + dt)
-        d_filtered_updated = alpha * d_filtered_prev + (1.0 - alpha) * ((e - e_prev) / dt)
-    else:
-        d_filtered_updated = 0.0
-
-    # Local gain-equivalent evaluation of the ISA controller: Kd = Kp * Td.
-    D_term = Kp * Td * d_filtered_updated
-
-    # 4) Build u (unsat)
-    u_unsat_previous = P_term + I_term_previous + D_term
-    u_unsat_candidate = P_term + I_term_candidate + D_term
-
-    # 5) Anti-windup
-    if anti_windup_method == AntiWindupInt.CONDITIONAL:
-        if (u_min < u_unsat_candidate < u_max) or \
-                (u_unsat_candidate >= u_max and e < 0.0) or \
-                (u_unsat_candidate <= u_min and e > 0.0):
-            integral_updated = integral_candidate
-            u_unsat_updated = u_unsat_candidate
-        else:
-            integral_updated = integral_prev
-            u_unsat_updated = u_unsat_previous
-
-    elif anti_windup_method == AntiWindupInt.CLAMPING:
-        if (u_min < I_term_candidate < u_max) or \
-                (I_term_candidate >= u_max and e < 0.0) or \
-                (I_term_candidate <= u_min and e > 0.0):
-            integral_updated = integral_candidate
-            u_unsat_updated = u_unsat_candidate
-        else:
-            integral_updated = integral_prev
-            u_unsat_updated = u_unsat_previous
-
-    elif anti_windup_method == AntiWindupInt.BACKCALCULATION:
-        u_sat_candidate = min(max(u_unsat_candidate, u_min), u_max)
-
-        # The application state integrates the unscaled integral state x_I
-        # with I_term = Ki * x_I and Ki = Kp / Ti. A block diagram that feeds
-        # the saturation error through the scaling factor ka into the already
-        # scaled I-branch therefore maps to ka * (u_sat - u_unsat) / Ki on this state.
-        if Ti > 0.0 and Kp != 0.0:
-            integral_updated = integral_candidate + dt * ka * (Ti / Kp) * (u_sat_candidate - u_unsat_candidate)
-        else:
-            integral_updated = integral_candidate
-
-        I_term_updated = Kp * (1.0 / Ti) * integral_updated if Ti > 0.0 else 0.0
-        u_unsat_updated = P_term + I_term_updated + D_term
-
-    else:
-        u_unsat_updated = 0.0
-        integral_updated = 0.0
-
-    # 6) Saturation
-    u_updated = min(max(u_unsat_updated, u_min), u_max)
-
-    return u_updated, integral_updated, d_filtered_updated
-
-
-# =============================================================================
-# ODE Solver
-# =============================================================================
-@njit(float64[:](float64[:, :], float64[:], float64[:], float64, float64), inline="always")
-def rk4(A: np.ndarray, B: np.ndarray, x: np.ndarray, u: float, dt: float) -> np.ndarray:
-    """Perform a single RK4 integration step."""
-    Bu = B * u
-    k1 = _matvec_auto(A, x) + Bu
-    k2 = _matvec_auto(A, x + 0.5 * dt * k1) + Bu
-    k3 = _matvec_auto(A, x + 0.5 * dt * k2) + Bu
-    k4 = _matvec_auto(A, x + dt * k3) + Bu
-    x += (dt / 6.0) * (k1 + 2 * k2 + 2 * k3 + k4)
-    return x
-
-
-# =============================================================================
-# Performance index
-# =============================================================================
-@njit(float64(float64[:], float64[:], float64[:]), inline="always")
-def iae(t: np.ndarray, y: np.ndarray, r: np.ndarray) -> float:
-    val = 0.0
-    for i in range(1, t.shape[0]):
-        dt = t[i] - t[i - 1]
-        val += abs(r[i] - y[i]) * dt
-    return val
-
-
-@njit(float64(float64[:], float64[:], float64[:]), inline="always")
-def ise(t: np.ndarray, y: np.ndarray, r: np.ndarray) -> float:
-    val = 0.0
-    for i in range(1, t.shape[0]):
-        dt = t[i] - t[i - 1]
-        val += (r[i] - y[i])**2 * dt
-    return val
-
-
-@njit(float64(float64[:], float64[:], float64[:]), inline="always")
-def itae(t: np.ndarray, y: np.ndarray, r: np.ndarray) -> float:
-    val = 0.0
-    for i in range(1, t.shape[0]):
-        dt = t[i] - t[i - 1]
-        val += t[i] * abs(r[i] - y[i]) * dt
-    return val
-
-
-@njit(float64(float64[:], float64[:], float64[:]), inline="always")
-def itse(t: np.ndarray, y: np.ndarray, r: np.ndarray) -> float:
-    val = 0.0
-    for i in range(1, t.shape[0]):
-        dt = t[i] - t[i - 1]
-        val += t[i] * (r[i] - y[i])**2 * dt
-    return val
-
-
-# =============================================================================
-# Plant Response
-# =============================================================================
-@njit(float64[:](
-    float64[:], float64, float64[:], float64[:],
-    float64[:, :], float64[:], float64[:], float64, int64
-),
-    inline="always"
-)
-def system_response(t_eval: np.ndarray, dt: float, u_eval: np.ndarray,
-                    x: np.ndarray, A: np.ndarray, B: np.ndarray,
-                    C: np.ndarray, D: float, solver: int) -> np.ndarray:
-    n_steps = len(t_eval)
-    y_hist = np.zeros(n_steps)
-
-    for i in range(n_steps):
-        u = float(u_eval[i])
-
-        match solver:
-            case MySolverInt.RK4:
-                x = rk4(A, B, x, u, dt)
-
-        y = dot1D(C, x)
-        y_hist[i] = y + D * u
-
-    return y_hist
-
-
-@njit(inline="always")
-def pid_system_response(Kp: float, Ti: float, Td: float, Tf: float,
-                        t_eval: np.ndarray, dt: float,
-                        r_eval: np.ndarray, l_eval: np.ndarray, n_eval: np.ndarray,
-                        x: np.ndarray, control_constraint: np.ndarray,
-                        anti_windup_method: int, ka: float,
-                        A: np.ndarray, B: np.ndarray, C: np.ndarray, D: float, solver: int
-                        ) -> tuple[np.ndarray, np.ndarray]:
-    """
-    Simulate a SISO system under PID control with reference and two disturbances (Z1, Z2).
-
-    The function advances the plant state and controller states over `t_eval` and
-    returns both the control signal history and the measured output trajectory.
-
-    Args:
-        Kp: Proportional gain.
-        Ti: Integral time constant.
-        Td: Derivative time constant.
-        Tf: Derivative filter time constant.
-        t_eval: Time vector.
-        dt: Simulation time step.
-        r_eval: Reference trajectory.
-        l_eval: Disturbance at plant input (Z1).
-        n_eval: Disturbance at measurement/output (Z2).
-        x: Initial state vector.
-        control_constraint: Control limits [u_min, u_max].
-        anti_windup_method: Anti-windup strategy enum value.
-        ka: Scaling factor applied to the back-calculation feedback term.
-        A: Plant state matrix.
-        B: Input matrix.
-        C: Output matrix.
-        D: Feedthrough scalar.
-        solver: Solver enum value.
-
-    Returns:
-        u_hist:
-            Control signal history u(t), shape (n_steps,).
-
-        y_hist:
-            Measured output history y(t), including measurement disturbance and
-            feedthrough term, shape (n_steps,).
-    """
-    e_prev = 0.0
-    filtered_prev = 0.0
-    integral = 0.0
-
-    u_min = float(control_constraint[0])
-    u_max = float(control_constraint[1])
-
-    n_steps = len(t_eval)
-    y_hist = np.zeros(n_steps)
-    u_hist = np.zeros(n_steps)
-    y = dot1D(C, x)
-
-    for i in range(n_steps):
-        r = float(r_eval[i])
-        l = float(l_eval[i])
-        n = float(n_eval[i])
-
-        e = r - (y + n)
-
-        u, integral, filtered_prev = pid_update(
-            e, e_prev, filtered_prev, integral, Kp, Ti, Td, Tf,
-            dt, u_min, u_max, anti_windup_method, ka
-        )
-
-        if solver == MySolverInt.RK4:
-            x = rk4(A, B, x, u + l, dt)
-
-        y = dot1D(C, x)
-
-        # Historie: nur das reale Ausgangssignal plus Feedthrough
-        u_hist[i] = u
-        y_hist[i] = y + n + D * (u + l)
-
-        e_prev = e
-
-    return u_hist, y_hist
-
-
-@njit(inline="always")
-def pid_simulate_metrics(
-    Kp: float,
-    Ti: float,
-    Td: float,
-    Tf: float,
-    t_eval: np.ndarray,
-    dt: float,
-    r_eval: np.ndarray,
-    l_eval: np.ndarray,
-    n_eval: np.ndarray,
-    x: np.ndarray,
-    control_constraint: np.ndarray,
-    anti_windup_method: int,
-    ka: float,
-    A: np.ndarray,
-    B: np.ndarray,
-    C: np.ndarray,
-    D: float,
-    solver: int,
-    performance_index: int,
-    use_overshoot_control: int,
-    overshoot_step_amplitude_abs: float,
-    overshoot_step_start_idx: int,
-    overshoot_step_sign: float,
-    overshoot_r_final: float,
-        calculate_max_du_dt: int,
-        du_dt_window_steps: int,
-) -> tuple[float, float, float]:
-    """Simulate one PID candidate and return time-domain evaluation metrics.
-
-    Overshoot is tracked only from the precomputed step start index onward.
-    Anti-windup behavior, including back-calculation scaling via ``ka``,
-    is applied in the internal PID update step.
-
-    Returns:
-        tuple[float, float, float]:
-            ``(performance_index_value, overshoot_pct, max_du_dt)``
-
-        ``max_du_dt`` is computed only when ``calculate_max_du_dt`` is enabled.
-        It represents the maximum absolute finite-difference control-rate
-        estimate over a sliding window of ``du_dt_window_steps`` samples:
-        ``max(|u[k] - u[k-m]| / (m * dt))`` with ``m = du_dt_window_steps``.
-    """
-    e_prev = 0.0
-    filtered_prev = 0.0
-    integral = 0.0
-
-    u_min = float(control_constraint[0])
-    u_max = float(control_constraint[1])
-
-    y = dot1D(C, x)
-    perf = 0.0
-
-    max_overshoot = 0.0
-    use_ov = use_overshoot_control != 0
-    use_du_dt = calculate_max_du_dt != 0
-    max_du_dt = np.nan
-    window_steps = du_dt_window_steps
-    window_dt = 0.0
-    u_hist = np.empty(1, dtype=np.float64)
-    if use_du_dt:
-        max_du_dt = 0.0
-        window_dt = float(window_steps) * dt
-        u_hist = np.zeros(len(t_eval), dtype=np.float64)
-
-    n_steps = len(t_eval)
-    for i in range(n_steps):
-        r = float(r_eval[i])
-        l = float(l_eval[i])
-        n = float(n_eval[i])
-
-        e = r - (y + n)
-
-        u, integral, filtered_prev = pid_update(
-            e, e_prev, filtered_prev, integral, Kp, Ti, Td, Tf,
-            dt, u_min, u_max, anti_windup_method, ka
-        )
-
-        if use_du_dt:
-            # Windowed finite-difference estimate of |du/dt|. Using m > 1
-            # smooths single-step spikes while preserving the du/dt semantics.
-            u_hist[i] = u
-            if i >= window_steps:
-                du_dt_abs = abs(u - u_hist[i - window_steps]) / window_dt
-                if du_dt_abs > max_du_dt:
-                    max_du_dt = du_dt_abs
-
-        if solver == MySolverInt.RK4:
-            x = rk4(A, B, x, u + l, dt)
-
-        y = dot1D(C, x)
-        y_out = y + n + D * (u + l)
-
-        if i > 0:
-            err = r - y_out
-            if performance_index == PerformanceIndexInt.IAE:
-                perf += abs(err) * dt
-            elif performance_index == PerformanceIndexInt.ISE:
-                perf += err * err * dt
-            elif performance_index == PerformanceIndexInt.ITAE:
-                perf += t_eval[i] * abs(err) * dt
-            elif performance_index == PerformanceIndexInt.ITSE:
-                perf += t_eval[i] * err * err * dt
-
-        if use_ov and overshoot_step_amplitude_abs > 0.0 and i >= overshoot_step_start_idx:
-            signed_overshoot = overshoot_step_sign * (y_out - overshoot_r_final)
-            if signed_overshoot > max_overshoot:
-                max_overshoot = signed_overshoot
-
-        e_prev = e
-
-    if (not use_ov) or overshoot_step_amplitude_abs <= 0.0:
-        overshoot_pct = np.nan
-    else:
-        if overshoot_step_start_idx < n_steps:
-            if max_overshoot > 0.0:
-                overshoot_pct = 100.0 * max_overshoot / overshoot_step_amplitude_abs
-            else:
-                overshoot_pct = 0.0
-        else:
-            overshoot_pct = np.inf
-
-    return perf, overshoot_pct, max_du_dt
-
-
-# =============================================================================
-# PSO Function
-# =============================================================================
-@njit(parallel=True)
-def _pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarray, l_eval: np.ndarray,
-                  n_eval: np.ndarray, A: np.ndarray, B: np.ndarray, C: np.ndarray, D: float,
-                  system_order: int, Tf: np.ndarray, control_constraint: np.ndarray, anti_windup_method: int,
-                  ka: float, solver: int, performance_index: int,
-                  use_overshoot_control: int, overshoot_step_amplitude_abs: float,
-                  overshoot_step_start_idx: int, overshoot_step_sign: float,
-                  overshoot_r_final: float, calculate_max_du_dt: int,
-                  du_dt_window_steps: int, swarm_size: int
-                  ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    performance_index_val = np.zeros(swarm_size)
-    overshoot_pct = np.full(swarm_size, np.nan)
-    max_du_dt = np.full(swarm_size, np.nan)
-
-    for i in prange(swarm_size):
-        Kp = float(X[i, 0])
-        Ti = float(X[i, 1])
-        Td = float(X[i, 2])
-        Tf_i = float(Tf[i])
-
-        x = np.zeros(system_order, dtype=np.float64)
-
-        perf_i, overshoot_i, max_du_dt_i = pid_simulate_metrics(
-            Kp, Ti, Td, Tf_i,
-            t_eval, dt,
-            r_eval, l_eval, n_eval,
-            x, control_constraint,
-            anti_windup_method, ka, A, B, C, D, solver,
-            performance_index,
-            use_overshoot_control,
-            overshoot_step_amplitude_abs,
-            overshoot_step_start_idx,
-            overshoot_step_sign,
-            overshoot_r_final,
-            calculate_max_du_dt,
-            du_dt_window_steps,
-        )
-        performance_index_val[i] = perf_i
-        overshoot_pct[i] = overshoot_i
-        max_du_dt[i] = max_du_dt_i
-
-    return performance_index_val, overshoot_pct, max_du_dt

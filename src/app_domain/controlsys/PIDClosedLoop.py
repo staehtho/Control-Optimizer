@@ -358,7 +358,7 @@ class PIDClosedLoop(ClosedLoop):
             - The controller's ``ka`` value is forwarded to ``pid_system_response()``.
             - Internally calls the compiled function `pid_system_response()` for performance.
         """
-        from app_domain.pso_objective.pso_system_optimization import pid_system_response
+        from app_domain.pso_objective.time_domain_numba import pid_system_response
 
         t_eval = np.arange(t0, t1 + dt, dt)
 
