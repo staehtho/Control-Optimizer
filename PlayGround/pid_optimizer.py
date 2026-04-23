@@ -25,15 +25,14 @@ from app_domain.PSO import Swarm
 from app_domain.controlsys import (
     Plant,
     PIDClosedLoop,
-    PsoFunc,
-    compute_effective_tf_report,
     settling_time,
     AntiWindup,
     PerformanceIndex,
     bode_plot,
 )
+from app_domain.pso_objective import PsoFunc, compute_effective_tf_report
 #from services.report_generator import report_generator
-from app_domain.pso_objective.freq_metrics import compute_loop_metrics_batch_from_frf
+from app_domain.pso_objective.freq_metrics import compute_loop_metrics_batch
 import matplotlib.pyplot as plt
 
 print("Starting the PID Optimizer. Loading modules, please wait...")
@@ -302,17 +301,9 @@ def main():
     # Frequency metrics for best solution (DEBUG)
     # --------------------------------------------------
     w_dbg = np.logspace(-2, 5, 600)
-    s_dbg = 1j * w_dbg
-    G_dbg = plant.system(s_dbg)
 
-    metrics_dbg = compute_loop_metrics_batch_from_frf(
-        G=G_dbg,
-        w=w_dbg,
-        Kp=np.array([best_Kp]),
-        Ti=np.array([best_Ti]),
-        Td=np.array([best_Td]),
-        Tf=np.array([pid.Tf]),
-    )
+    X = np.column_stack([best_Kp, best_Ti, best_Td, pid.Tf])
+    metrics_dbg = compute_loop_metrics_batch(plant, PIDClosedLoop, X, w_dbg)
 
     pm_dbg = metrics_dbg["pm_deg"][0]
     gm_dbg = metrics_dbg["gm_db"][0]

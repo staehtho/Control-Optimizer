@@ -12,9 +12,9 @@ SRC_PATH = PROJECT_ROOT / "src"
 if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
-from app_domain.controlsys import Plant
+from app_domain.controlsys import Plant, PIDClosedLoop
 from app_domain.pso_objective import compute_effective_tf_report
-from app_domain.pso_objective.freq_metrics import compute_loop_metrics_batch_from_frf
+from app_domain.pso_objective.freq_metrics import compute_loop_metrics_batch
 
 
 # Verification grid aligned with the MATLAB reference script.
@@ -158,15 +158,13 @@ def evaluate_cases(df_cases: pd.DataFrame, w: np.ndarray) -> pd.DataFrame:
         )
 
         with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
-            G = np.asarray(plant.system(s), dtype=np.complex128)
-            metrics = compute_loop_metrics_batch_from_frf(
-                G=G,
-                w=w,
-                Kp=group["Kp"].to_numpy(dtype=float),
-                Ti=group["Ti"].to_numpy(dtype=float),
-                Td=group["Td"].to_numpy(dtype=float),
-                Tf=tf_used,
-            )
+            X = np.column_stack([
+                group["Kp"].to_numpy(float),
+                group["Ti"].to_numpy(float),
+                group["Td"].to_numpy(float),
+                np.full(len(group), tf_used, dtype=float)
+            ])
+            metrics = compute_loop_metrics_batch(plant, PIDClosedLoop, X, w)
 
         group = group.reset_index(drop=True)
         for idx, case in group.iterrows():

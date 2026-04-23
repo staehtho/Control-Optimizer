@@ -30,7 +30,7 @@ from app_domain.controlsys import (
 )
 from app_domain.pso_objective import PsoFunc, compute_effective_tf_report
 #from services.report_generator import report_generator
-from app_domain.pso_objective.freq_metrics import compute_loop_metrics_batch_from_frf
+from app_domain.pso_objective.freq_metrics import compute_loop_metrics_batch
 
 print("Starting the PID Optimizer. Loading modules, please wait...")
 
@@ -135,6 +135,7 @@ def run_one_case(case, *, swarm_size=40, iterations=14,
         ms_max_db=ms_max_db,
         performance_index=performance_index,
         swarm_size=swarm_size,
+        pre_compiling=False
     )
 
     best = {"Kp": 0.0, "Ti": 0.0, "Td": 0.0, "cost": sys.float_info.max}
@@ -160,16 +161,9 @@ def run_one_case(case, *, swarm_size=40, iterations=14,
     pid.set_filter(Tf=tf_report.tf_effective)
 
     w = np.logspace(-5, 5, 600)
-    s = 1j * w
-    G = plant.system(s)
 
-    metrics = compute_loop_metrics_batch_from_frf(
-        G=G, w=w,
-        Kp=np.array([best["Kp"]]),
-        Ti=np.array([best["Ti"]]),
-        Td=np.array([best["Td"]]),
-        Tf=np.array([pid.Tf]),
-    )
+    X = np.column_stack([best["Kp"], best["Ti"], best["Td"], pid.Tf])
+    metrics = compute_loop_metrics_batch(plant, PIDClosedLoop, X, w)
 
     out = {
         "type": case["type"],
@@ -204,7 +198,7 @@ def run_batch(xlsx_path: str, out_path: str = "batch_results.xlsx"):
 
 
 def main():
-    excel_path = "../Verification Freq_Metrics no_impact/Referenzsysteme.xlsx"  # ← anpassen!
+    excel_path = "Referenzsysteme 1.xlsx"  # ← anpassen!
     run_batch(excel_path)
 
 

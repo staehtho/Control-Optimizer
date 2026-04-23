@@ -242,6 +242,22 @@ class PIDClosedLoop(ClosedLoop):
         D = (self._td * s) / (self._tf * s + 1)
         return self._kp * (P + I + D)
 
+    @classmethod
+    def frf_batch(cls, X: np.ndarray, s: np.ndarray) -> np.ndarray:
+        """
+        X[:,0] = Kp
+        X[:,1] = Ti
+        X[:,2] = Td
+        X[:,3] = Tf
+        """
+        with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
+            Kp = X[:, 0][:, None]
+            Ti = X[:, 1][:, None]
+            Td = X[:, 2][:, None]
+            Tf = X[:, 3][:, None]
+            s_row = s[None, :]
+            return Kp * (1 + 1 / (Ti * s_row) + (Td * s_row) / (Tf * s_row + 1))
+
     # TODO(2026-03-18): Reactivate and fix __format__ only when symbolic MATLAB export
     # is actually needed. The previous implementation was unused in the codebase and
     # algebraically inconsistent with the implemented ISA PID-T1 controller

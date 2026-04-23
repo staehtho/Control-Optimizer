@@ -28,7 +28,7 @@ from app_domain.controlsys import (
     Plant,
 )
 from app_domain.pso_objective import PsoFunc, compute_effective_tf_report
-from app_domain.pso_objective.freq_metrics import compute_loop_metrics_batch_from_frf
+from app_domain.pso_objective.freq_metrics import compute_loop_metrics_batch
 
 print("Starting the PID Optimizer. Loading modules, please wait...")
 
@@ -190,17 +190,9 @@ def run_one_case(
     pid.set_filter(Tf=tf_report.tf_effective)
 
     w = np.logspace(-5, 5, 600)
-    s = 1j * w
-    G = plant.system(s)
 
-    metrics = compute_loop_metrics_batch_from_frf(
-        G=G,
-        w=w,
-        Kp=np.array([best["Kp"]]),
-        Ti=np.array([best["Ti"]]),
-        Td=np.array([best["Td"]]),
-        Tf=np.array([pid.Tf]),
-    )
+    X = np.column_stack([best["Kp"], best["Ti"], best["Td"], pid.Tf])
+    metrics = compute_loop_metrics_batch(plant, PIDClosedLoop, X, w)
 
     out = {
         "type": case["type"],

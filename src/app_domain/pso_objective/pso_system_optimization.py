@@ -25,7 +25,7 @@ from numba import njit, prange, types, float64, int64
 from app_domain.controlsys.PIDClosedLoop import PIDClosedLoop
 from app_domain.controlsys.closedLoop import ClosedLoop
 from app_domain.controlsys.enums import *
-from app_domain.pso_objective.freq_metrics import compute_loop_metrics_batch_from_frf
+from .freq_metrics import compute_loop_metrics_batch
 
 
 @dataclass(frozen=True)
@@ -752,11 +752,8 @@ class PsoFunc:
         self._call_id += 1
         self._pending_log_batch = None
 
-        Kp = X[:, 0]
-        Ti = X[:, 1]
-        Td = X[:, 2]
         _, Tf = compute_effective_tf_batch(
-            Td,
+            Td=X[:, 2],
             dt=self.dt,
             tf_tuning_factor_n=self.tf_tuning_factor_n,
             tf_limit_factor_k=self.tf_limit_factor_k,
@@ -767,14 +764,13 @@ class PsoFunc:
         # 1) Optional: Frequency metrics + constraint violation
         # --------------------------------------------------
         if self.use_freq_metrics:
+            tf_copy = Tf.copy()
             with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
-                metrics = compute_loop_metrics_batch_from_frf(
-                    G=self._G,
+                metrics = compute_loop_metrics_batch(
+                    plant=self.controller.plant,
+                    controller_class=type(self.controller),
+                    X=np.hstack([X, tf_copy.reshape(tf_copy.shape[0], 1)]),
                     w=self._w,
-                    Kp=Kp,
-                    Ti=Ti,
-                    Td=Td,
-                    Tf=Tf,
                 )
 
             V = self._compute_violation_batch(metrics)
@@ -912,9 +908,9 @@ class PsoFunc:
         # --------------------------------------------------
         if self.enable_logging:
             batch = {
-                "Kp": Kp,
-                "Ti": Ti,
-                "Td": Td,
+                "Kp": X[:, 0],
+                "Ti": X[:, 1],
+                "Td": X[:, 2],
                 "pm": pm,
                 "gm": gm,
                 "ms_db": ms_db,
@@ -937,7 +933,7 @@ class PsoFunc:
             if defer_logging:
                 self._pending_log_batch = batch
             else:
-                P_local = int(Kp.shape[0])
+                P_local = int(X[:, 0].shape[0])
                 false_flags = np.zeros(P_local, dtype=np.bool_)
                 nan_vals = np.full(P_local, np.nan, dtype=np.float64)
                 self._log_batch(

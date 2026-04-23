@@ -237,14 +237,17 @@ class PsoSimulationEngine:
         eval_time_domain = {k: float(v[0]) for k, v in eval_time_domain.items()}
 
         # result frequency domain
+        X = np.array([[self._best_kp,
+                       self._best_ti,
+                       self._best_td,
+                       tf_report.tf_effective]])
         eval_frequency_domain = compute_loop_metrics_batch(
             plant=Plant(param.num, param.den),
-            Kp=self._best_kp,
-            Ti=self._best_ti,
-            Td=self._best_td,
-            Tf=tf_report.tf_effective,
+            controller_class=PIDClosedLoop,
+            X=X,
             w=(param.omega_exp_low, param.omega_exp_high, param.omega_points)
         )
+
         eval_frequency_domain = {k: float(v[0]) for k, v in eval_frequency_domain.items()}
 
         show_overshoot = resolve_function_type(param.function) == FunctionTypes.STEP

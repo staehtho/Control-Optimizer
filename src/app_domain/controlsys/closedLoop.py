@@ -146,6 +146,18 @@ class ClosedLoop(ABC):
         """
         pass
 
+    @classmethod
+    @abstractmethod
+    def frf_batch(cls, X: np.ndarray, s: np.ndarray) -> np.ndarray:
+        """
+        Vectorized batch FRF.
+
+        X: parameter matrix of shape (P, n_params)
+        s: frequency vector of shape (N,)
+        returns: C(jw) matrix of shape (P, N)
+        """
+        pass
+
     def closed_loop(self, s: complex | np.ndarray) -> complex | np.ndarray:
         """Compute the closed-loop transfer function.
 

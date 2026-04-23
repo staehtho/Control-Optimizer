@@ -4,6 +4,7 @@ from pathlib import Path
 
 import numpy as np
 import matplotlib.pyplot as plt
+from sympy.physics.control import PIDController
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Add src to Python path so imports from src/... work
@@ -11,7 +12,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SRC_PATH = PROJECT_ROOT / "src"
 sys.path.insert(0, str(SRC_PATH))
 
-from app_domain.controlsys import Plant, PIDClosedLoop, bode_plot, compute_effective_tf_report
+from app_domain.controlsys import Plant, PIDClosedLoop, bode_plot
+from app_domain.pso_objective import compute_effective_tf_report
 from app_domain.pso_objective.freq_metrics import compute_loop_metrics_batch
 
 
@@ -42,13 +44,15 @@ def main():
     Tf = tf_report.tf_effective
 
     # -------------------------------------------------------------------------
+    X = np.array([[Kp,
+                   Ti,
+                   Td,
+                   Tf]])
     metrics = compute_loop_metrics_batch(
         plant,
-        Kp=np.array([Kp], dtype=float),
-        Ti=np.array([Ti], dtype=float),
-        Td=np.array([Td], dtype=float),
-        Tf=np.array([Tf], dtype=float),
-        adaptive_range=True,
+        controller_class=PIDClosedLoop,
+        X=X,
+        w=(-5, 5, 500)
         # Optional: override grid params if you want
         # N1=300, wmin1=1e-3, wmax1=1e3,
         # N2=450, wmin2=1e-5, wmax2=1e5,

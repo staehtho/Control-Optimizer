@@ -1,56 +1,65 @@
-# src/services/controlsys/freq_metrics.py
 from __future__ import annotations
 
-from typing import Any
-
 import numpy as np
+from typing import TYPE_CHECKING, Type
 
+if TYPE_CHECKING:
+    from app_domain.controlsys import Plant, ClosedLoop
+
+
+# ---------------------------------------------------------------------------
+# Utility
+# ---------------------------------------------------------------------------
 
 def linear_magnitude_to_db(value: float | np.ndarray) -> np.ndarray:
-    """Convert magnitude ratios to dB with a finite lower guard."""
+    """Convert linear magnitude values to decibels (dB).
+
+    This function applies a numerical guard to avoid taking the logarithm of
+    zero by clamping the magnitude to a minimum of 1e-300.
+
+    Args:
+        value: Linear magnitude value or array of values.
+
+    Returns:
+        A NumPy array containing the magnitude values converted to dB.
+    """
+
     return 20.0 * np.log10(np.maximum(np.asarray(value, dtype=np.float64), 1e-300))
 
 
-def pid_controller_freq_response(
-    Kp: np.ndarray,
-    Ti: np.ndarray,
-    Td: np.ndarray,
-    Tf: np.ndarray,
-    s: np.ndarray,
-) -> np.ndarray:
-    """Compute the frequency response of an ideal/ISA PID controller with derivative filter.
+def _finite_complex_mask(z: np.ndarray) -> np.ndarray:
+    return np.isfinite(z.real) & np.isfinite(z.imag)
 
-    The controller transfer function is:
 
-        C(s) = Kp * (1 + 1/(Ti*s) + (Td*s)/(Tf*s + 1))
+def _ensure_frequency_grid(w: np.ndarray | tuple | list) -> np.ndarray:
+    """Normalize a frequency grid specification.
 
-    This module expects the ISA time-constant parameterization ``(Kp, Ti, Td, Tf)``.
-    It does not use product-series PID semantics.
-
-    This function is vectorized and supports broadcasting. Typical usage within
-    batch evaluation:
-
-        C = pid_controller_freq_response(
-            Kp[:, None],
-            Ti[:, None],
-            Td[:, None],
-            Tf[:, None],
-            s[None, :],
-        )
+    The input may be either:
+    - a 1D array of frequencies, or
+    - a tuple/list of the form (low_exp, high_exp, num_points), which is
+      interpreted as a logspace definition.
 
     Args:
-        Kp: Proportional gain(s). Shape must be broadcastable to ``s``.
-        Ti: Integral time constant(s). Shape must be broadcastable to ``s``.
-        Td: Derivative time constant(s). Shape must be broadcastable to ``s``.
-        Tf: Derivative filter time constant(s). Shape must be broadcastable to ``s``.
-        s: Complex frequency points (for example ``1j * omega``).
+        w: Frequency grid specification.
 
     Returns:
-        Complex controller response ``C(s)`` with broadcasted shape.
+        A 1D NumPy array of frequencies in rad/s.
+
+    Raises:
+        ValueError: If the input format is invalid.
     """
-    return Kp * (1.0 + 1.0 / (Ti * s) + (Td * s) / (Tf * s + 1.0))
+
+    if isinstance(w, np.ndarray) or np.isscalar(w):
+        return np.asarray(w, dtype=np.float64).reshape(-1)
+    if isinstance(w, (tuple, list)) and len(w) == 3:
+        low, high, num = w
+        return np.logspace(low, high, int(num), dtype=np.float64)
+    raise ValueError("w must be array-like or (low_exp, high_exp, num_points)")
 
 
+# ---------------------------------------------------------------------------
+# Crossing helpers
+# ---------------------------------------------------------------------------
 def _find_crossings_1d(
     x: np.ndarray,
     y: np.ndarray,
@@ -58,87 +67,44 @@ def _find_crossings_1d(
     *,
     atol: float = 1e-12,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Find all crossings of ``y`` with ``target`` on a 1D grid.
+    x = np.asarray(x, float).reshape(-1)
+    y = np.asarray(y, float).reshape(-1)
 
-    A near-exact sample hit counts as a valid crossing. Consecutive duplicate
-    crossings caused by a target plateau are collapsed so that each distinct
-    crossing location appears only once.
-
-    Args:
-        x: Sample locations of shape ``(N,)``.
-        y: Sample values of shape ``(N,)``.
-        target: Target value to cross.
-        atol: Absolute tolerance for direct sample hits.
-
-    Returns:
-        Tuple ``(x_cross, k_left)``. ``x_cross`` contains all crossing
-        locations, and ``k_left`` contains the corresponding left interval
-        indices used for interpolation.
-    """
-    x = np.asarray(x, dtype=np.float64).reshape(-1)
-    y = np.asarray(y, dtype=np.float64).reshape(-1)
-
-    if x.shape[0] != y.shape[0]:
-        raise ValueError("x and y must have the same length.")
-    if x.shape[0] < 2:
-        return (
-            np.empty(0, dtype=np.float64),
-            np.empty(0, dtype=np.int64),
-        )
-
-    target = float(target)
+    if x.size < 2:
+        return np.empty(0), np.empty(0, int)
 
     y0 = y[:-1]
     y1 = y[1:]
 
-    hit0 = np.isclose(y0, target, atol=atol, rtol=0.0)
-    hit1 = np.isclose(y1, target, atol=atol, rtol=0.0)
+    hit0 = np.isclose(y0, target, atol=atol, rtol=0)
+    hit1 = np.isclose(y1, target, atol=atol, rtol=0)
+    sign_change = (y0 - target) * (y1 - target) < 0
 
-    d0 = y0 - target
-    d1 = y1 - target
-    sign_change = (d0 * d1) < 0.0
+    cand = hit0 | hit1 | sign_change
+    if not np.any(cand):
+        return np.empty(0), np.empty(0, int)
 
-    candidates = hit0 | hit1 | sign_change
-    if not np.any(candidates):
-        return (
-            np.empty(0, dtype=np.float64),
-            np.empty(0, dtype=np.int64),
-        )
+    k = np.flatnonzero(cand)
+    x0 = x[k]
+    x1 = x[k + 1]
+    y0 = y[k]
+    y1 = y[k + 1]
 
-    k_left = np.flatnonzero(candidates).astype(np.int64, copy=False)
+    flat = y0 == y1
+    x_cross = np.empty_like(x0)
+    x_cross[flat] = 0.5 * (x0[flat] + x1[flat])
+    nf = ~flat
+    x_cross[nf] = x0[nf] + (target - y0[nf]) * (x1[nf] - x0[nf]) / (y1[nf] - y0[nf])
 
-    y0_sel = y0[k_left]
-    y1_sel = y1[k_left]
-    hit0_sel = hit0[k_left]
-    hit1_sel = hit1[k_left]
-
-    x0_sel = x[k_left]
-    x1_sel = x[k_left + 1]
-
-    x_cross = np.empty_like(x0_sel)
-    flat_mask = y1_sel == y0_sel
-    x_cross[flat_mask] = 0.5 * (x0_sel[flat_mask] + x1_sel[flat_mask])
-    non_flat_mask = ~flat_mask
-    x_cross[non_flat_mask] = (
-        x0_sel[non_flat_mask]
-        + (target - y0_sel[non_flat_mask])
-        * (x1_sel[non_flat_mask] - x0_sel[non_flat_mask])
-        / (y1_sel[non_flat_mask] - y0_sel[non_flat_mask])
-    )
-    x_cross = np.where(
-        hit1_sel,
-        x1_sel,
-        np.where(hit0_sel, x0_sel, x_cross),
-    )
+    x_cross = np.where(hit1[k], x1, np.where(hit0[k], x0, x_cross))
 
     if x_cross.size > 1:
-        keep = np.ones(x_cross.shape[0], dtype=np.bool_)
+        keep = np.ones_like(x_cross, bool)
         keep[1:] = x_cross[1:] != x_cross[:-1]
         x_cross = x_cross[keep]
-        k_left = k_left[keep]
+        k = k[keep]
 
-    return x_cross, k_left
-
+    return x_cross, k
 
 def _interpolate_values_at_crossings(
     x: np.ndarray,
@@ -146,7 +112,7 @@ def _interpolate_values_at_crossings(
     k_left: np.ndarray,
     x_cross: np.ndarray,
 ) -> np.ndarray:
-    """Linearly interpolate ``y`` at crossing locations described by ``k_left``."""
+
     x0 = x[k_left]
     x1 = x[k_left + 1]
     y0 = y[k_left]
@@ -157,7 +123,6 @@ def _interpolate_values_at_crossings(
         0.5 * (y0 + y1),
     )
 
-
 def _interpolate_crossings_batch(
     x: np.ndarray,
     y: np.ndarray,
@@ -166,96 +131,61 @@ def _interpolate_crossings_batch(
     *,
     atol: float,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Find and interpolate all crossings against one scalar target in batch form.
-
-    Args:
-        x: Sample locations of shape ``(N,)``.
-        y: Sample values of shape ``(P, N)`` whose crossings are searched.
-        target: Scalar target value to cross.
-        z: Companion values of shape ``(P, N)`` to interpolate at the same
-            crossing locations.
-        atol: Absolute tolerance for direct sample hits.
-
-    Returns:
-        Tuple ``(candidate_mask, x_cross, z_cross)`` with shape ``(P, N-1)``
-        each. Entries where ``candidate_mask`` is ``False`` are undefined in
-        ``x_cross`` and ``z_cross`` and must be masked by the caller.
-    """
-    x = np.asarray(x, dtype=np.float64).reshape(-1)
-    y = np.asarray(y, dtype=np.float64)
-    z = np.asarray(z, dtype=np.float64)
-
-    if y.ndim != 2 or z.ndim != 2:
-        raise ValueError("y and z must be two-dimensional arrays.")
-    if y.shape != z.shape:
-        raise ValueError("y and z must have the same shape.")
-    if x.shape[0] != y.shape[1]:
-        raise ValueError("x length must match the last dimension of y and z.")
+    x = np.asarray(x, float).reshape(-1)
+    y = np.asarray(y, float)
+    z = np.asarray(z, float)
 
     y0 = y[:, :-1]
     y1 = y[:, 1:]
     z0 = z[:, :-1]
     z1 = z[:, 1:]
 
-    x0 = np.broadcast_to(x[:-1], y0.shape)
-    x1 = np.broadcast_to(x[1:], y0.shape)
+    x0 = x[:-1]
+    x1 = x[1:]
 
-    hit0 = np.isclose(y0, target, atol=atol, rtol=0.0)
-    hit1 = np.isclose(y1, target, atol=atol, rtol=0.0)
-    sign_change = ((y0 - target) * (y1 - target)) < 0.0
-    candidates = hit0 | hit1 | sign_change
+    hit0 = np.isclose(y0, target, atol=atol, rtol=0)
+    hit1 = np.isclose(y1, target, atol=atol, rtol=0)
+    sign_change = (y0 - target) * (y1 - target) < 0
 
+    cand = hit0 | hit1 | sign_change
+
+    x0b = np.broadcast_to(x0, y0.shape)
+    x1b = np.broadcast_to(x1, y0.shape)
+
+    flat = y0 == y1
     x_cross = np.empty_like(y0)
-    flat_mask = y1 == y0
-    x_cross[flat_mask] = 0.5 * (x0[flat_mask] + x1[flat_mask])
-    non_flat_mask = ~flat_mask
-    x_cross[non_flat_mask] = (
-        x0[non_flat_mask]
-        + (target - y0[non_flat_mask])
-        * (x1[non_flat_mask] - x0[non_flat_mask])
-        / (y1[non_flat_mask] - y0[non_flat_mask])
+    x_cross[flat] = 0.5 * (x0b[flat] + x1b[flat])
+    nf = ~flat
+    x_cross[nf] = (
+            x0b[nf]
+            + (target - y0[nf]) * (x1b[nf] - x0b[nf]) / (y1[nf] - y0[nf])
     )
-    x_cross = np.where(hit1, x1, np.where(hit0, x0, x_cross))
+    x_cross = np.where(hit1, x1b, np.where(hit0, x0b, x_cross))
 
     z_cross = np.empty_like(z0)
-    same_x_mask = x1 == x0
-    z_cross[same_x_mask] = 0.5 * (z0[same_x_mask] + z1[same_x_mask])
-    diff_x_mask = ~same_x_mask
-    z_cross[diff_x_mask] = (
-        z0[diff_x_mask]
-        + (x_cross[diff_x_mask] - x0[diff_x_mask])
-        * (z1[diff_x_mask] - z0[diff_x_mask])
-        / (x1[diff_x_mask] - x0[diff_x_mask])
+    same_x = x1b == x0b
+    z_cross[same_x] = 0.5 * (z0[same_x] + z1[same_x])
+    dx = ~same_x
+    z_cross[dx] = (
+            z0[dx]
+            + (x_cross[dx] - x0b[dx]) * (z1[dx] - z0[dx]) / (x1b[dx] - x0b[dx])
     )
     z_cross = np.where(hit1, z1, np.where(hit0, z0, z_cross))
 
-    return candidates, x_cross, z_cross
+    return cand, x_cross, z_cross
 
 
 def _select_worst_metric_batch(
-    metric_candidates: np.ndarray,
+        metric: np.ndarray,
     x_candidates: np.ndarray,
     candidate_mask: np.ndarray,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Select the smallest valid metric per row from batch candidate arrays.
-
-    Args:
-        metric_candidates: Candidate metric values of shape ``(P, M)``.
-        x_candidates: Candidate x-locations of shape ``(P, M)``.
-        candidate_mask: Boolean validity mask of shape ``(P, M)``.
-
-    Returns:
-        Tuple ``(found, best_x, best_metric)`` with shape ``(P,)`` each.
-        Rows without valid candidates return ``found=False``, ``best_x=NaN``,
-        and ``best_metric=+inf``.
-    """
-    masked_metric = np.where(candidate_mask, metric_candidates, np.inf)
-    best_idx = np.argmin(masked_metric, axis=1)
-    rows = np.arange(masked_metric.shape[0], dtype=np.int64)
+    masked = np.where(candidate_mask, metric, np.inf)
+    idx = np.argmin(masked, axis=1)
+    rows = np.arange(masked.shape[0])
     found = np.any(candidate_mask, axis=1)
-
-    best_metric = np.where(found, masked_metric[rows, best_idx], np.inf)
-    best_x = np.where(found, x_candidates[rows, best_idx], np.nan)
+    best_metric = np.where(found, masked[rows, idx], np.inf)
+    best_x = np.where(found, x_candidates[rows, idx], np.nan)
     return found, best_x, best_metric
 
 
@@ -264,303 +194,211 @@ def _compute_gain_margin_row(
     phase_row: np.ndarray,
     mag_db_row: np.ndarray,
 ) -> tuple[bool, float, float]:
-    """Compute the worst gain margin for one open-loop frequency response.
 
-    This fallback path considers all odd negative phase targets reached by the
-    unwrapped phase, i.e. ``-pi, -3pi, -5pi, ...``, and returns the smallest
-    gain margin among them.
-    """
     min_phase = float(np.min(phase_row))
     max_phase = float(np.max(phase_row))
 
-    best_gm_db = np.inf
-    best_log_w180 = np.nan
-    found_any = False
+    best = np.inf
+    best_w = np.nan
+    found = False
 
     target = -np.pi
     while target >= min_phase - 1e-9:
         if target <= max_phase + 1e-9:
-            log_w180, k_w180 = _find_crossings_1d(log_w, phase_row, target, atol=1e-9)
-            if log_w180.size:
-                mag_db_at_w180 = _interpolate_values_at_crossings(log_w, mag_db_row, k_w180, log_w180)
-                gm_candidates_db = -mag_db_at_w180
-                worst_idx = int(np.argmin(gm_candidates_db))
-                worst_gm_db = float(gm_candidates_db[worst_idx])
+            xs, ks = _find_crossings_1d(log_w, phase_row, target, atol=1e-9)
+            if xs.size:
+                mags = _interpolate_values_at_crossings(log_w, mag_db_row, ks, xs)
+                gm = -mags
+                i = int(np.argmin(gm))
+                if gm[i] < best:
+                    best = gm[i]
+                    best_w = float(np.exp(xs[i]))
+                    found = True
+        target -= 2 * np.pi
 
-                if (not found_any) or (worst_gm_db < best_gm_db):
-                    best_gm_db = worst_gm_db
-                    best_log_w180 = float(log_w180[worst_idx])
-                    found_any = True
-
-        target -= 2.0 * np.pi
-
-    if not found_any:
+    if not found:
         return False, np.nan, np.inf
-
-    return True, float(np.exp(best_log_w180)), best_gm_db
-
-
-def _finite_complex_mask(z: np.ndarray) -> np.ndarray:
-    """Return per-entry finiteness mask for a complex array."""
-    return np.isfinite(z.real) & np.isfinite(z.imag)
+    return True, best_w, best
 
 
-def compute_loop_metrics_batch_from_frf(
-    G: np.ndarray,
+# ---------------------------------------------------------------------------
+# Core metric engine
+# ---------------------------------------------------------------------------
+
+def compute_loop_metrics_batch_from_open_loop(
+        L: np.ndarray,
     w: np.ndarray,
-    Kp: np.ndarray,
-    Ti: np.ndarray,
-    Td: np.ndarray,
-    Tf: np.ndarray,
 ) -> dict[str, np.ndarray]:
-    """Compute loop stability metrics for a batch of ISA-form PID candidates.
+    """Compute classical loop stability metrics from open-loop FRFs.
 
-    The plant response ``G(jw)`` is assumed to be precomputed on the
-    frequency grid ``w``. All PID candidates are evaluated on that same grid
-    using the ISA time-constant parameterization ``(Kp, Ti, Td, Tf)``.
+    This function evaluates:
+    - phase margin (PM)
+    - gain margin (GM)
+    - maximum sensitivity (Ms)
+    - crossover frequencies (wc, w180)
 
-    Computed outputs:
-        - ``pm_deg``: worst phase margin in degrees
-        - ``gm_db``: worst gain margin in dB
-        - ``ms_db``: maximum sensitivity in dB, ``20 * log10(max |S(jw)|)``
-        - ``wc``: crossover frequency associated with the worst phase margin
-        - ``w180``: crossover frequency associated with the worst gain margin
-        - ``has_wc`` / ``has_w180``: crossover existence flags
-        - ``numerically_valid_particles``: numerical validity flag
-
-    Conventions:
-        - If no 0 dB crossover exists, ``has_wc=False`` and ``pm_deg=NaN``.
-        - If no odd negative phase crossover exists, ``has_w180=False`` and
-          ``gm_db=+inf``.
-        - If ``L`` or ``S`` contains any non-finite value on the grid, the
-          candidate is treated as invalid. In that case:
-          ``numerically_valid_particles=False``, ``has_wc=False``,
-          ``has_w180=False``, ``pm_deg=NaN``, ``gm_db=+inf``, ``ms_db=+inf``.
-        - If multiple 0 dB crossovers exist, the worst phase margin is used.
-        - Gain margin is evaluated over all odd negative phase targets
-          ``-pi, -3pi, -5pi, ...`` reached by the unwrapped phase, and the
-          worst gain margin is used.
-        - Crossover interpolation is performed on ``log(w)``.
+    The input open-loop transfer function L(jw) may represent a batch of
+    candidates, enabling vectorized evaluation.
 
     Args:
-        G: Plant frequency response with shape ``(N,)``.
-        w: Frequency grid in rad/s with shape ``(N,)``.
-        Kp: Proportional gains with shape ``(P,)``.
-        Ti: Integral time constants with shape ``(P,)``.
-        Td: Derivative time constants with shape ``(P,)``.
-        Tf: Derivative filter time constants with shape ``(P,)``.
+        L: Open-loop frequency response(s) with shape (P, N) or (N,).
+        w: Frequency grid of shape (N,).
 
     Returns:
-        Dictionary with batch-wise metric arrays of shape ``(P,)``.
+        A dictionary containing:
+            pm_deg: Phase margin in degrees.
+            gm_db: Gain margin in dB.
+            ms_db: Maximum sensitivity in dB.
+            wc: Frequency of worst phase margin.
+            w180: Frequency of worst gain margin.
+            has_wc: Boolean flags for PM existence.
+            has_w180: Boolean flags for GM existence.
+            numerically_valid_particles: Validity mask for each candidate.
+
+    Raises:
+        ValueError: If the input dimensions are inconsistent.
     """
-    w = np.asarray(w, dtype=np.float64)
-    G = np.asarray(G, dtype=np.complex128)
 
-    if w.ndim != 1 or G.ndim != 1:
-        raise ValueError("w and G must be one-dimensional arrays.")
-    w = w.reshape(-1)
-    G = G.reshape(-1)
+    w = np.asarray(w, float).reshape(-1)
+    L = np.asarray(L, complex)
+    if L.ndim == 1:
+        L = L.reshape(1, -1)
 
-    if w.shape[0] != G.shape[0]:
-        raise ValueError("w and G must have the same length.")
-
-    Kp = np.asarray(Kp, dtype=np.float64)
-    Ti = np.asarray(Ti, dtype=np.float64)
-    Td = np.asarray(Td, dtype=np.float64)
-    Tf = np.asarray(Tf, dtype=np.float64)
-
-    if Kp.ndim != 1 or Ti.ndim != 1 or Td.ndim != 1 or Tf.ndim != 1:
-        raise ValueError("Kp, Ti, Td, and Tf must be one-dimensional arrays.")
-
-    Kp = Kp.reshape(-1)
-    Ti = Ti.reshape(-1)
-    Td = Td.reshape(-1)
-    Tf = Tf.reshape(-1)
-
-    P = Kp.shape[0]
-    if not (Ti.shape[0] == P and Td.shape[0] == P and Tf.shape[0] == P):
-        raise ValueError("Kp, Ti, Td, and Tf must all have the same batch length.")
-
-    s = 1j * w
+    P, N = L.shape
     log_w = np.log(w)
 
+    S = 1 / (1 + L)
+
+    valid = np.all(_finite_complex_mask(L), axis=1) & np.all(_finite_complex_mask(S), axis=1)
+    good = np.where(valid)[0]
+
+    pm = np.full(P, np.nan)
+    gm = np.full(P, np.inf)
+    ms = np.full(P, np.inf)
+    wc = np.full(P, np.nan)
+    w180 = np.full(P, np.nan)
+    has_wc = np.zeros(P, bool)
+    has_w180 = np.zeros(P, bool)
+
+    if good.size == 0:
+        return dict(
+            pm_deg=pm,
+            gm_db=gm,
+            ms_db=ms,
+            has_wc=has_wc,
+            has_w180=has_w180,
+            w180=w180,
+            numerically_valid_particles=valid
+        )
+
+    Lg = L[good]
+    Sg = S[good]
+
+    ms_good = linear_magnitude_to_db(np.max(np.abs(Sg), axis=1))
+    ms[good] = ms_good
+
+    mag_db = linear_magnitude_to_db(np.abs(Lg))
+    phase = np.unwrap(np.angle(Lg), axis=1)
+    min_phase = np.min(phase, axis=1)
+
+    # Phase margin
+    pm_mask, pm_log_wc, pm_phase = _interpolate_crossings_batch(
+        log_w, mag_db, 0.0, phase, atol=1e-12
+    )
+    pm_candidates = 180 + np.degrees(pm_phase)
     with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
-        C = pid_controller_freq_response(
-            Kp[:, None],
-            Ti[:, None],
-            Td[:, None],
-            Tf[:, None],
-            s[None, :],
-        )
-        L = C * G[None, :]
-        S = 1.0 / (1.0 + L)
+        wc_candidates = np.where(pm_mask, np.exp(pm_log_wc), np.nan)
 
-    finite_L = _finite_complex_mask(L)
-    finite_S = _finite_complex_mask(S)
-
-    numerically_valid_particles = np.all(finite_L, axis=1) & np.all(finite_S, axis=1)
-    good_idx = np.where(numerically_valid_particles)[0]
-
-    pm_deg = np.full(P, np.nan, dtype=np.float64)
-    gm_db = np.full(P, np.inf, dtype=np.float64)
-    ms_db = np.full(P, np.inf, dtype=np.float64)
-
-    wc = np.full(P, np.nan, dtype=np.float64)
-    w180 = np.full(P, np.nan, dtype=np.float64)
-    has_wc = np.zeros(P, dtype=np.bool_)
-    has_w180 = np.zeros(P, dtype=np.bool_)
-
-    if good_idx.size == 0:
-        return {
-            "pm_deg": pm_deg,
-            "gm_db": gm_db,
-            "ms_db": ms_db,
-            "has_wc": has_wc,
-            "has_w180": has_w180,
-            "wc": wc,
-            "w180": w180,
-            "numerically_valid_particles": numerically_valid_particles,
-        }
-
-    Lg = L[good_idx]
-    Sg = S[good_idx]
-
-    with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
-        ms_good = np.max(np.abs(Sg), axis=1)
-        ms_good = linear_magnitude_to_db(ms_good)
-        absLg = np.abs(Lg)
-        mag_db_good = linear_magnitude_to_db(absLg)
-
-    phase_good = np.unwrap(np.angle(Lg), axis=1)
-    min_phase_good = np.min(phase_good, axis=1)
-
-    ms_db[good_idx] = ms_good
-
-    pm_mask, pm_log_wc, pm_phase_at_wc = _interpolate_crossings_batch(
-        log_w,
-        mag_db_good,
-        0.0,
-        phase_good,
-        atol=1e-12,
+    found_wc, wc_good, pm_good = _select_worst_metric_batch(
+        pm_candidates, wc_candidates, pm_mask
     )
-    pm_candidates = 180.0 + np.degrees(pm_phase_at_wc)
-    pm_wc_candidates = np.full_like(pm_log_wc, np.nan)
-    pm_wc_candidates[pm_mask] = np.exp(pm_log_wc[pm_mask])
-    has_wc_good, wc_good, pm_good = _select_worst_metric_batch(
-        pm_candidates,
-        pm_wc_candidates,
-        pm_mask,
-    )
-    has_wc[good_idx] = has_wc_good
-    wc[good_idx] = wc_good
-    pm_deg[good_idx] = np.where(has_wc_good, pm_good, np.nan)
+    has_wc[good] = found_wc
+    wc[good] = wc_good
+    pm[good] = np.where(found_wc, pm_good, np.nan)
 
-    gm_simple_mask = min_phase_good > (-3.0 * np.pi)
-    if np.any(gm_simple_mask):
-        simple_local_idx = np.where(gm_simple_mask)[0]
-        gm_mask, gm_log_w180, gm_mag_db_at_w180 = _interpolate_crossings_batch(
-            log_w,
-            phase_good[simple_local_idx],
-            -np.pi,
-            mag_db_good[simple_local_idx],
-            atol=1e-9,
+    # Gain margin
+    simple = min_phase > -3 * np.pi
+    if np.any(simple):
+        idx = np.where(simple)[0]
+        gm_mask, gm_log_w, gm_mag = _interpolate_crossings_batch(
+            log_w, phase[idx], -np.pi, mag_db[idx], atol=1e-9
         )
-        gm_candidates = -gm_mag_db_at_w180
-        gm_w180_candidates = np.full_like(gm_log_w180, np.nan)
-        gm_w180_candidates[gm_mask] = np.exp(gm_log_w180[gm_mask])
-        has_w180_simple, w180_simple, gm_simple = _select_worst_metric_batch(
-            gm_candidates,
-            gm_w180_candidates,
-            gm_mask,
+        gm_candidates = -gm_mag
+
+        with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
+            w180_candidates = np.where(gm_mask, np.exp(gm_log_w), np.nan)
+
+        found_gm, w180_good, gm_good = _select_worst_metric_batch(
+            gm_candidates, w180_candidates, gm_mask
         )
-        simple_global_idx = good_idx[simple_local_idx]
-        has_w180[simple_global_idx] = has_w180_simple
-        w180[simple_global_idx] = w180_simple
-        gm_db[simple_global_idx] = np.where(has_w180_simple, gm_simple, np.inf)
+        global_idx = good[idx]
+        has_w180[global_idx] = found_gm
+        w180[global_idx] = w180_good
+        gm[global_idx] = np.where(found_gm, gm_good, np.inf)
 
-    if np.any(~gm_simple_mask):
-        for local_row in np.where(~gm_simple_mask)[0]:
-            global_row = good_idx[local_row]
-            has_w180_row, w180_row, gm_row = _compute_gain_margin_row(
-                log_w,
-                phase_good[local_row],
-                mag_db_good[local_row],
-            )
-            if has_w180_row:
-                has_w180[global_row] = True
-                w180[global_row] = w180_row
-                gm_db[global_row] = gm_row
+    # Fallback for deep phase
+    deep = np.where(~simple)[0]
+    for local in deep:
+        global_row = good[local]
+        ok, w180_row, gm_row = _compute_gain_margin_row(
+            log_w, phase[local], mag_db[local]
+        )
+        if ok:
+            has_w180[global_row] = True
+            w180[global_row] = w180_row
+            gm[global_row] = gm_row
 
-    return {
-        "pm_deg": pm_deg,
-        "gm_db": gm_db,
-        "ms_db": ms_db,
-        "has_wc": has_wc,
-        "has_w180": has_w180,
-        "wc": wc,
-        "w180": w180,
-        "numerically_valid_particles": numerically_valid_particles,
-    }
-
-
-def _ensure_array(x):
-    return np.atleast_1d(x).astype(float)
-
-
-def _ensure_frequency_grid(w):
-    # Case 1: already array-like
-    if isinstance(w, np.ndarray) or np.isscalar(w):
-        return np.asarray(w, dtype=np.float64).reshape(-1)
-
-    # Case 2: tuple/list → (low_exp, high_exp, num_points) for logspace
-    if isinstance(w, (tuple, list)) and len(w) == 3:
-        low_exp, high_exp, num = w
-        return np.logspace(low_exp, high_exp, int(num), dtype=np.float64)
-
-    raise ValueError(
-        "w must be either an array or (low_exp, high_exp, num_points)"
+    return dict(
+        pm_deg=pm,
+        gm_db=gm,
+        ms_db=ms,
+        has_wc=has_wc,
+        has_w180=has_w180,
+        wc=wc,
+        w180=w180,
+        numerically_valid_particles=valid,
     )
 
+
+# ---------------------------------------------------------------------------
+# Controller-agnostic batch interface (PSO-ready)
+# ---------------------------------------------------------------------------
 
 def compute_loop_metrics_batch(
-    plant: Any,
-        Kp: float | np.ndarray,
-        Ti: float | np.ndarray,
-        Td: float | np.ndarray,
-        Tf: float | np.ndarray,
+        plant: Plant,
+        controller_class: Type[ClosedLoop],
+        X: np.ndarray,
         w: np.ndarray | tuple | list,
 ) -> dict[str, np.ndarray]:
-    """Convenience wrapper that evaluates the plant FRF internally.
+    """Compute loop stability metrics for a batch of controller candidates.
+
+    This function evaluates a batch of controllers that share the same
+    structure but differ in parameter values. The controller class must
+    implement a vectorized batch FRF method:
+
+        @classmethod
+        def frf_batch(cls, X, s) -> np.ndarray
 
     Args:
-        plant: Plant object exposing ``system(s)``.
-        Kp: Proportional gains with shape ``(P,)`` or scalar.
-        Ti: Integral time constants with shape ``(P,)`` or scalar.
-        Td: Derivative time constants with shape ``(P,)`` or scalar.
-        Tf: Derivative filter time constants with shape ``(P,)`` or scalar.
-        w: Frequency grid:
-            - array-like of shape ``(N,)``
-            - OR tuple/list ``(low_exp, high_exp, num_points)`` → logspace
+        plant: Plant.
+        controller_class: ClosedLoop.
+        X: Parameter matrix of shape (P, n_params), where each row contains
+           one controller candidate.
+        w: Frequency grid, either as a 1D array or a logspace tuple/list.
 
     Returns:
-        Same metric dictionary as ``compute_loop_metrics_batch_from_frf``.
+        A dictionary of loop stability metrics, as produced by
+        compute_loop_metrics_batch_from_open_loop().
+
+    Raises:
+        ValueError: If the controller class does not implement frf_batch().
     """
-    # Normalize frequency grid
-    w = _ensure_frequency_grid(w)
-    s = 1j * w
+    w_arr = _ensure_frequency_grid(w)
+    s = 1j * w_arr
 
-    # Evaluate plant FRF
-    with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
-        G = plant.system(s)
+    G = np.array(plant.system(s)).reshape(-1)
 
-    # Normalize controller parameters
-    Kp, Ti, Td, Tf = map(_ensure_array, (Kp, Ti, Td, Tf))
+    C = controller_class.frf_batch(X, s)  # shape (P, N)
+    L = C * G[None, :]
 
-    return compute_loop_metrics_batch_from_frf(
-        G=G,
-        w=w,
-        Kp=Kp,
-        Ti=Ti,
-        Td=Td,
-        Tf=Tf,
-    )
+    return compute_loop_metrics_batch_from_open_loop(L, w_arr)
