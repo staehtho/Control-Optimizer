@@ -54,10 +54,19 @@ class MySolver(Enum):
 class MySolverInt(IntEnum):
     RK4 = MySolver.RK4.value
 
+
 class ExcitationTarget(Enum):
     REFERENCE = "Reference"
     INPUT_DISTURBANCE = "Input Disturbance"
     MEASUREMENT_DISTURBANCE = "Measurement Disturbance"
+
+
+class Controller(Enum):
+    PID = auto()
+
+
+class ControllerInt(IntEnum):
+    PID = Controller.PID.value
 
 
 def map_enum_to_int(enum_value: Enum) -> IntEnum:
