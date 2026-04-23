@@ -254,3 +254,12 @@ class HelpView(ViewMixin, QWidget):
             diagram, time-domain response, Bode plot, and transfer functions.
             </p>"""
         ))
+
+    # ============================================================
+    # Applied theme
+    # ============================================================
+    def _on_theme_applied(self) -> None:
+        """Update theme-dependent UI elements."""
+        icon = self._load_icon(Icons.help, self._title_icon_size)
+        self._label_icon.setPixmap(icon.pixmap(self._title_icon_size, self._title_icon_size))
+
