@@ -10,3 +10,4 @@ from .pso_system_optimization import (
     itae,
     itse,
 )
+from .freq_metrics import compute_loop_metrics_batch_from_frf, compute_loop_metrics_batch

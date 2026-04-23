@@ -16,7 +16,6 @@
 
 import sys
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
@@ -27,13 +26,9 @@ from app_domain.controlsys import (
     PIDClosedLoop,
     PerformanceIndex,
     Plant,
-    PsoFunc,
-    bode_plot,
-    compute_effective_tf_report,
-    crossover_frequency,
-    settling_time,
 )
-from app_domain.controlsys.freq_metrics import compute_loop_metrics_batch_from_frf
+from app_domain.pso_objective import PsoFunc, compute_effective_tf_report
+from app_domain.pso_objective.freq_metrics import compute_loop_metrics_batch_from_frf
 
 print("Starting the PID Optimizer. Loading modules, please wait...")
 

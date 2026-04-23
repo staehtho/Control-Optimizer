@@ -34,7 +34,7 @@ from app_domain.controlsys import (
 from app_domain.pso_objective import PsoFunc, compute_effective_tf_report
 
 #from services.report_generator import report_generator
-from app_domain.controlsys.freq_metrics import compute_loop_metrics_batch_from_frf
+from app_domain.pso_objective.freq_metrics import compute_loop_metrics_batch_from_frf
 import matplotlib.pyplot as plt
 
 print("Starting the PID Optimizer. Loading modules, please wait...")

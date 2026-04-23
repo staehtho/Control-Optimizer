@@ -5,7 +5,8 @@ import numpy as np
 import sys
 import time
 
-from app_domain.controlsys import ExcitationTarget, Plant, PIDClosedLoop, compute_loop_metrics_batch
+from app_domain.controlsys import ExcitationTarget, Plant, PIDClosedLoop
+from app_domain.pso_objective import compute_loop_metrics_batch
 from app_domain.pso_objective import PsoFunc, compute_effective_tf_report
 from app_domain.PSO import Swarm
 from app_types import PsoResult
