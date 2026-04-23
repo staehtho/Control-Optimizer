@@ -260,13 +260,24 @@ def system_response(t_eval: np.ndarray, dt: float, u_eval: np.ndarray,
 
 
 @njit(inline="always")
-def pid_system_response(Kp: float, Ti: float, Td: float, Tf: float,
-                        t_eval: np.ndarray, dt: float,
-                        r_eval: np.ndarray, l_eval: np.ndarray, n_eval: np.ndarray,
-                        x: np.ndarray, control_constraint: np.ndarray,
-                        anti_windup_method: int, ka: float,
-                        A: np.ndarray, B: np.ndarray, C: np.ndarray, D: float, solver: int
-                        ) -> tuple[np.ndarray, np.ndarray]:
+def system_response_closed_loop(
+        controller_param: np.ndarray,
+        t_eval: np.ndarray,
+        dt: float,
+        r_eval: np.ndarray,
+        l_eval: np.ndarray,
+        n_eval: np.ndarray,
+        x: np.ndarray,
+        control_constraint: np.ndarray,
+        anti_windup_method: int,
+        controller_type: int,
+        ka: float,
+        A: np.ndarray,
+        B: np.ndarray,
+        C: np.ndarray,
+        D: float,
+        solver: int
+) -> tuple[np.ndarray, np.ndarray]:
     """
     Simulate a SISO system under PID control with reference and two disturbances (Z1, Z2).
 
@@ -274,10 +285,7 @@ def pid_system_response(Kp: float, Ti: float, Td: float, Tf: float,
     returns both the control signal history and the measured output trajectory.
 
     Args:
-        Kp: Proportional gain.
-        Ti: Integral time constant.
-        Td: Derivative time constant.
-        Tf: Derivative filter time constant.
+        controller_param: Parameter from controller
         t_eval: Time vector.
         dt: Simulation time step.
         r_eval: Reference trajectory.
@@ -286,6 +294,7 @@ def pid_system_response(Kp: float, Ti: float, Td: float, Tf: float,
         x: Initial state vector.
         control_constraint: Control limits [u_min, u_max].
         anti_windup_method: Anti-windup strategy enum value.
+        controller_type: Controller type enum value.
         ka: Scaling factor applied to the back-calculation feedback term.
         A: Plant state matrix.
         B: Input matrix.
@@ -304,6 +313,7 @@ def pid_system_response(Kp: float, Ti: float, Td: float, Tf: float,
     e_prev = 0.0
     filtered_prev = 0.0
     integral = 0.0
+    u = 0.0
 
     u_min = float(control_constraint[0])
     u_max = float(control_constraint[1])
@@ -320,10 +330,13 @@ def pid_system_response(Kp: float, Ti: float, Td: float, Tf: float,
 
         e = r - (y + n)
 
-        u, integral, filtered_prev = pid_update(
-            e, e_prev, filtered_prev, integral, Kp, Ti, Td, Tf,
-            dt, u_min, u_max, anti_windup_method, ka
-        )
+        if controller_type == ControllerTypeInt.PID:
+            Kp, Ti, Td, Tf = map(float, controller_param[:4])
+
+            u, integral, filtered_prev = pid_update(
+                e, e_prev, filtered_prev, integral, Kp, Ti, Td, Tf,
+                dt, u_min, u_max, anti_windup_method, ka
+            )
 
         if solver == MySolverInt.RK4:
             x = rk4(A, B, x, u + l, dt)
@@ -340,11 +353,8 @@ def pid_system_response(Kp: float, Ti: float, Td: float, Tf: float,
 
 
 @njit(inline="always")
-def pid_simulate_metrics(
-        Kp: float,
-        Ti: float,
-        Td: float,
-        Tf: float,
+def simulate_metrics(
+        controller_param: np.ndarray,
         t_eval: np.ndarray,
         dt: float,
         r_eval: np.ndarray,
@@ -353,6 +363,7 @@ def pid_simulate_metrics(
         x: np.ndarray,
         control_constraint: np.ndarray,
         anti_windup_method: int,
+        controller_type: int,
         ka: float,
         A: np.ndarray,
         B: np.ndarray,
@@ -386,6 +397,7 @@ def pid_simulate_metrics(
     e_prev = 0.0
     filtered_prev = 0.0
     integral = 0.0
+    u = 0.0
 
     u_min = float(control_constraint[0])
     u_max = float(control_constraint[1])
@@ -413,10 +425,13 @@ def pid_simulate_metrics(
 
         e = r - (y + n)
 
-        u, integral, filtered_prev = pid_update(
-            e, e_prev, filtered_prev, integral, Kp, Ti, Td, Tf,
-            dt, u_min, u_max, anti_windup_method, ka
-        )
+        if controller_type == ControllerTypeInt.PID:
+            Kp, Ti, Td, Tf = map(float, controller_param[:4])
+
+            u, integral, filtered_prev = pid_update(
+                e, e_prev, filtered_prev, integral, Kp, Ti, Td, Tf,
+                dt, u_min, u_max, anti_windup_method, ka
+            )
 
         if use_du_dt:
             # Windowed finite-difference estimate of |du/dt|. Using m > 1
@@ -469,33 +484,59 @@ def pid_simulate_metrics(
 # PSO Function
 # =============================================================================
 @njit(parallel=True)
-def pid_pso_func(X: np.ndarray, t_eval: np.ndarray, dt: float, r_eval: np.ndarray, l_eval: np.ndarray,
-                 n_eval: np.ndarray, A: np.ndarray, B: np.ndarray, C: np.ndarray, D: float,
-                 system_order: int, Tf: np.ndarray, control_constraint: np.ndarray, anti_windup_method: int,
-                 ka: float, solver: int, performance_index: int,
-                 use_overshoot_control: int, overshoot_step_amplitude_abs: float,
-                 overshoot_step_start_idx: int, overshoot_step_sign: float,
-                 overshoot_r_final: float, calculate_max_du_dt: int,
-                 du_dt_window_steps: int, swarm_size: int
-                 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def time_domain_pso_func(
+        controller_param: np.ndarray,
+        t_eval: np.ndarray,
+        dt: float,
+        r_eval:
+        np.ndarray,
+        l_eval: np.ndarray,
+        n_eval: np.ndarray,
+        A: np.ndarray,
+        B: np.ndarray,
+        C: np.ndarray,
+        D: float,
+        system_order: int,
+        control_constraint: np.ndarray,
+        anti_windup_method: int,
+        controller_type: int,
+        ka: float,
+        solver: int,
+        performance_index: int,
+        use_overshoot_control: int,
+        overshoot_step_amplitude_abs: float,
+        overshoot_step_start_idx: int,
+        overshoot_step_sign: float,
+        overshoot_r_final: float,
+        calculate_max_du_dt: int,
+        du_dt_window_steps: int,
+        swarm_size: int
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+
     performance_index_val = np.zeros(swarm_size)
     overshoot_pct = np.full(swarm_size, np.nan)
     max_du_dt = np.full(swarm_size, np.nan)
 
     for i in prange(swarm_size):
-        Kp = float(X[i, 0])
-        Ti = float(X[i, 1])
-        Td = float(X[i, 2])
-        Tf_i = float(Tf[i])
-
         x = np.zeros(system_order, dtype=np.float64)
 
-        perf_i, overshoot_i, max_du_dt_i = pid_simulate_metrics(
-            Kp, Ti, Td, Tf_i,
-            t_eval, dt,
-            r_eval, l_eval, n_eval,
-            x, control_constraint,
-            anti_windup_method, ka, A, B, C, D, solver,
+        perf_i, overshoot_i, max_du_dt_i = simulate_metrics(
+            controller_param[i, :],
+            t_eval,
+            dt,
+            r_eval,
+            l_eval,
+            n_eval,
+            x,
+            control_constraint,
+            anti_windup_method,
+            controller_type,
+            ka,
+            A,
+            B,
+            C,
+            D,
+            solver,
             performance_index,
             use_overshoot_control,
             overshoot_step_amplitude_abs,

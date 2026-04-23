@@ -3,16 +3,16 @@ from typing import Callable
 
 import numpy as np
 
-from app_domain.controlsys.PIDClosedLoop import PIDClosedLoop
-from app_domain.controlsys.closedLoop import ClosedLoop
-from app_domain.controlsys.enums import *
+from app_domain.controlsys import (
+    ClosedLoop, PIDClosedLoop, MySolver, PerformanceIndex, map_enum_to_int, ControllerType
+)
 
 from .freq_metrics import compute_loop_metrics_batch
 from .filter_time_constant_handler import (
     TfLimitReport, compute_effective_tf_report, compute_effective_tf_batch,
     normalize_positive_scalar, normalize_sampling_rate_hz
 )
-from .time_domain_numba import pid_pso_func
+from .time_domain_numba import time_domain_pso_func
 
 
 class PsoFunc:
@@ -147,6 +147,12 @@ class PsoFunc:
               - V for infeasible candidates
         """
         self.controller = controller
+
+        # define through type the Controller-Enum
+        if isinstance(controller, PIDClosedLoop):
+            self._controller_enum = ControllerType.PID
+        else:
+            raise TypeError(f"Unsupported controller type: '{type(self.controller)}'")
 
         self.t0 = t0
         self.t1 = t1
@@ -382,33 +388,49 @@ class PsoFunc:
         if X.ndim == 1:
             X = X.reshape(1, -1)
 
-        if not isinstance(self.controller, PIDClosedLoop):
-            raise NotImplementedError(f"Unsupported controller type: '{type(self.controller)}'")
+        P = X.shape[0]
+
+        Td = np.zeros(P, dtype=np.float64)
+        calc_tf = False
+
+        # determine whether tf needs to be calculated and get Td from X
+        match self._controller_enum:
+            case ControllerType.PID:
+                Td = X[:, 2]
+                calc_tf = True
+            case _:
+                raise NotImplementedError(
+                    f"Controller type '{self._controller_enum}' is not supported in time‑domain PSO."
+                )
 
         P = X.shape[0]
 
-        _, Tf = compute_effective_tf_batch(
-            Td=X[:, 2],
-            dt=self.dt,
-            tf_tuning_factor_n=self.tf_tuning_factor_n,
-            tf_limit_factor_k=self.tf_limit_factor_k,
-            sampling_rate_hz=self.sampling_rate_hz,
-        )
+        if calc_tf:
+            _, Tf = compute_effective_tf_batch(
+                Td=Td,
+                dt=self.dt,
+                tf_tuning_factor_n=self.tf_tuning_factor_n,
+                tf_limit_factor_k=self.tf_limit_factor_k,
+                sampling_rate_hz=self.sampling_rate_hz,
+            )
+
+            # expand the X vector with the tf vector
+            X = np.hstack([X, Tf.reshape(Tf.shape[0], 1)])
 
         # --------------------------------------------------
         # 1) Optional: Frequency metrics + constraint violation
         # --------------------------------------------------
         if self.use_freq_metrics:
-            tf_copy = Tf.copy()
             with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
                 metrics = compute_loop_metrics_batch(
                     plant=self.controller.plant,
                     controller_class=type(self.controller),
-                    X=np.hstack([X, tf_copy.reshape(tf_copy.shape[0], 1)]),
+                    X=X,
                     w=self._w,
                 )
 
             V = self._compute_violation_batch(metrics)
+
         else:
             # No frequency-domain constraints -> all candidates feasible.
             V = np.zeros(P, dtype=np.float64)
@@ -439,24 +461,39 @@ class PsoFunc:
         # 2) Time simulation only for currently feasible candidates
         # --------------------------------------------------
         if np.any(feasible):
+            # reduce the X vector to hold only the feasible candidates
             Xf = X[feasible]
             Pf = int(Xf.shape[0])
             compute_overshoot = self.calculate_overshoot or self.use_overshoot_control
             compute_max_du_dt = self.calculate_max_du_dt or self.use_max_du_dt_constraint
 
-            perf_vals, overshoot_vals, max_du_dt_vals = pid_pso_func(
-                Xf, self.t_eval, self.dt, self.r_eval, self.l_eval,
-                self.n_eval, self.A, self.B, self.C, self.D,
-                self.plant_order, Tf[feasible],
-                self.control_constraint, self.anti_windup_method,
-                self.ka, self.solver, self.performance_index,
+            perf_vals, overshoot_vals, max_du_dt_vals = time_domain_pso_func(
+                Xf,
+                self.t_eval,
+                self.dt,
+                self.r_eval,
+                self.l_eval,
+                self.n_eval,
+                self.A,
+                self.B,
+                self.C,
+                self.D,
+                self.plant_order,
+                self.control_constraint,
+                self.anti_windup_method,
+                map_enum_to_int(self._controller_enum),
+                self.ka, self.solver,
+                self.performance_index,
                 1 if compute_overshoot else 0,
                 self._overshoot_step_amplitude_abs,
                 self._overshoot_step_start_idx,
-                self._overshoot_step_sign, self._overshoot_r_final,
+                self._overshoot_step_sign,
+                self._overshoot_r_final,
                 1 if compute_max_du_dt else 0,
-                self.du_dt_window_steps, Pf
+                self.du_dt_window_steps,
+                Pf
             )
+
             time_cost[feasible] = perf_vals
             overshoot_pct[feasible] = overshoot_vals
             max_du_dt[feasible] = max_du_dt_vals
@@ -516,10 +553,8 @@ class PsoFunc:
 
     def set_calculate_max_du_dt(self, value: bool) -> None:
         self.calculate_max_du_dt = value
-
         self._update_max_du_dt_cache()
 
     def set_calculate_overshoot(self, value: bool) -> None:
         self.calculate_overshoot = value
-
         self._update_overshoot_control_cache()

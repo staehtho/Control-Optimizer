@@ -1,6 +1,6 @@
 from .time_domain_numba import (
     system_response,
-    pid_system_response,
+    system_response_closed_loop,
     iae,
     ise,
     itae,
@@ -12,7 +12,7 @@ from .filter_time_constant_handler import TfLimitReport, compute_effective_tf_ba
 
 __all__ = [
     "system_response",
-    "pid_system_response",
+    "system_response_closed_loop",
     "iae",
     "ise",
     "itae",

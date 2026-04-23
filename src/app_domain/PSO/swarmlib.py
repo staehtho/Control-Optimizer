@@ -367,7 +367,7 @@ class Swarm:
 
         if callable(eval_func):
             try:
-                evaluation: dict[str, Any] = eval_func(positions, defer_logging=True)
+                evaluation: dict[str, Any] = eval_func(positions)
                 self._last_eval_deferred_logging = True
             except TypeError:
                 evaluation = eval_func(positions)

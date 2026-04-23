@@ -358,7 +358,7 @@ class PIDClosedLoop(ClosedLoop):
             - The controller's ``ka`` value is forwarded to ``pid_system_response()``.
             - Internally calls the compiled function `pid_system_response()` for performance.
         """
-        from app_domain.pso_objective.time_domain_numba import pid_system_response
+        from app_domain.pso_objective.time_domain_numba import system_response_closed_loop
 
         t_eval = np.arange(t0, t1 + dt, dt)
 
@@ -390,11 +390,22 @@ class PIDClosedLoop(ClosedLoop):
         # SISO → D ist ein skalar
         D = float(D[0, 0])
 
-        u, y = pid_system_response(Kp=self._kp, Ti=self._ti, Td=self._td,
-                                Tf=self._tf, t_eval=t_eval, dt=dt,
-                                r_eval=r_eval, l_eval=l_eval, n_eval=n_eval,
-                                x=x0, control_constraint=np.array(self._control_constraint, dtype=np.float64),
-                                anti_windup_method=map_enum_to_int(self._anti_windup_method),
-                                ka=float(self.ka),
-                                A=A, B=B, C=C, D=D, solver=map_enum_to_int(solver))
+        u, y = system_response_closed_loop(
+            controller_param=np.array([self._kp, self._ti, self._td, self._tf]),
+            t_eval=t_eval,
+            dt=dt,
+            r_eval=r_eval,
+            l_eval=l_eval,
+            n_eval=n_eval,
+            x=np.array(x0),
+            control_constraint=np.array(self._control_constraint, dtype=np.float64),
+            anti_windup_method=map_enum_to_int(self._anti_windup_method),
+            controller_type=map_enum_to_int(ControllerType.PID),
+            ka=float(self.ka),
+            A=A,
+            B=B,
+            C=C,
+            D=D,
+            solver=map_enum_to_int(solver)
+        )
         return t_eval, u, y
