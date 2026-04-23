@@ -61,12 +61,12 @@ class ExcitationTarget(Enum):
     MEASUREMENT_DISTURBANCE = "Measurement Disturbance"
 
 
-class Controller(Enum):
+class ControllerType(Enum):
     PID = auto()
 
 
-class ControllerInt(IntEnum):
-    PID = Controller.PID.value
+class ControllerTypeInt(IntEnum):
+    PID = ControllerType.PID.value
 
 
 def map_enum_to_int(enum_value: Enum) -> IntEnum:
