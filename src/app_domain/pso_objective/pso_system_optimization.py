@@ -22,10 +22,10 @@ from typing import Callable
 import numpy as np
 from numba import njit, prange, types, float64, int64
 
-from .PIDClosedLoop import PIDClosedLoop
-from .closedLoop import ClosedLoop
-from .enums import *
-from .freq_metrics import compute_loop_metrics_batch_from_frf
+from app_domain.controlsys.PIDClosedLoop import PIDClosedLoop
+from app_domain.controlsys.closedLoop import ClosedLoop
+from app_domain.controlsys.enums import *
+from app_domain.controlsys.freq_metrics import compute_loop_metrics_batch_from_frf
 
 
 @dataclass(frozen=True)

@@ -26,14 +26,13 @@ from app_domain.PSO import Swarm
 from app_domain.controlsys import (
     Plant,
     PIDClosedLoop,
-    PsoFunc,
-    compute_effective_tf_report,
     settling_time,
     AntiWindup,
     PerformanceIndex,
     bode_plot,
-    crossover_frequency,
 )
+from app_domain.pso_objective import PsoFunc, compute_effective_tf_report
+
 #from services.report_generator import report_generator
 from app_domain.controlsys.freq_metrics import compute_loop_metrics_batch_from_frf
 import matplotlib.pyplot as plt

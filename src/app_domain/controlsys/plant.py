@@ -225,7 +225,7 @@ class Plant:
                 - Time vector (np.ndarray)
                 - Plant output trajectory (np.ndarray)
         """
-        from .pso_system_optimization import system_response  # local import
+        from app_domain.pso_objective.pso_system_optimization import system_response  # local import
         t_eval = np.arange(t0, t1 + dt, dt)
         u_eval = u(t_eval)
 

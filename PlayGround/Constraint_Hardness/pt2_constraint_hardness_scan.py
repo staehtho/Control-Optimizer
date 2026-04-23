@@ -15,7 +15,8 @@ SRC_PATH = PROJECT_ROOT / "src"
 if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
-from app_domain.controlsys import AntiWindup, MySolver, PIDClosedLoop, PerformanceIndex, Plant, PsoFunc
+from app_domain.controlsys import AntiWindup, MySolver, PIDClosedLoop, PerformanceIndex, Plant
+from app_domain.pso_objective import PsoFunc
 
 
 # ---------------------------------------------------------------------------
