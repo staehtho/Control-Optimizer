@@ -423,8 +423,8 @@ class PsoFunc:
         if self.use_freq_metrics:
             with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
                 metrics = compute_loop_metrics_batch(
-                    plant=self.controller.plant,
-                    controller_class=type(self.controller),
+                    plant_tf=self.controller.plant.system,
+                    controller_tf=self.controller.frf_batch,
                     X=X,
                     w=self._w,
                 )

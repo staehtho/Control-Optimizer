@@ -242,8 +242,9 @@ class PsoSimulationEngine:
                        self._best_td,
                        tf_report.tf_effective]])
         eval_frequency_domain = compute_loop_metrics_batch(
-            plant=Plant(param.num, param.den),
-            controller_class=PIDClosedLoop,
+            plant_tf=Plant(param.num, param.den).system,
+            # TODO: replace here the class
+            controller_tf=PIDClosedLoop.frf_batch,
             X=X,
             w=(param.omega_exp_low, param.omega_exp_high, param.omega_points)
         )

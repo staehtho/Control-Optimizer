@@ -49,8 +49,8 @@ def main():
                    Td,
                    Tf]])
     metrics = compute_loop_metrics_batch(
-        plant,
-        controller_class=PIDClosedLoop,
+        plant.system,
+        PIDClosedLoop.frf_batch,
         X=X,
         w=(-5, 5, 500)
         # Optional: override grid params if you want

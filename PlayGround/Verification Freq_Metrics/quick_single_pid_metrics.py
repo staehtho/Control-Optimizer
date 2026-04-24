@@ -50,7 +50,7 @@ def main() -> None:
     w = np.logspace(w_min_exp, w_max_exp, w_points)
 
     X = np.column_stack([Kp, Ti, Td, tf_used])
-    metrics = compute_loop_metrics_batch(plant, PIDClosedLoop, X, w)
+    metrics = compute_loop_metrics_batch(plant.system, PIDClosedLoop.frf_batch, X, w)
 
     print("Plant:")
     print(f"  num = {plant_num}")

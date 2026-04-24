@@ -163,7 +163,7 @@ def run_one_case(case, *, swarm_size=40, iterations=14,
     w = np.logspace(-5, 5, 600)
 
     X = np.column_stack([best["Kp"], best["Ti"], best["Td"], pid.Tf])
-    metrics = compute_loop_metrics_batch(plant, PIDClosedLoop, X, w)
+    metrics = compute_loop_metrics_batch(plant.system, PIDClosedLoop.frf_batch, X, w)
 
     out = {
         "type": case["type"],

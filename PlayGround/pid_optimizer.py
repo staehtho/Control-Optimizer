@@ -303,7 +303,7 @@ def main():
     w_dbg = np.logspace(-2, 5, 600)
 
     X = np.column_stack([best_Kp, best_Ti, best_Td, pid.Tf])
-    metrics_dbg = compute_loop_metrics_batch(plant, PIDClosedLoop, X, w_dbg)
+    metrics_dbg = compute_loop_metrics_batch(plant.system, PIDClosedLoop.frf_batch, X, w_dbg)
 
     pm_dbg = metrics_dbg["pm_deg"][0]
     gm_dbg = metrics_dbg["gm_db"][0]

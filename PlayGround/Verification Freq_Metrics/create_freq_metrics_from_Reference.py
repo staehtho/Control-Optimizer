@@ -164,7 +164,7 @@ def evaluate_cases(df_cases: pd.DataFrame, w: np.ndarray) -> pd.DataFrame:
                 group["Td"].to_numpy(float),
                 np.full(len(group), tf_used, dtype=float)
             ])
-            metrics = compute_loop_metrics_batch(plant, PIDClosedLoop, X, w)
+            metrics = compute_loop_metrics_batch(plant.system, PIDClosedLoop.frf_batch, X, w)
 
         group = group.reset_index(drop=True)
         for idx, case in group.iterrows():
