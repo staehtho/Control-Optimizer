@@ -1,0 +1,14 @@
+config_id,family,hardness,threshold_value,threshold_unit,use_freq_metrics,pm_min_deg,gm_min_db,ms_max_db,use_overshoot_control,allowed_overshoot_pct,use_max_du_dt_constraint,allowed_max_du_dt,du_dt_window_steps,num_runs,base_seed,swarm_size,max_iter
+reference_unconstrained,reference,unconstrained,0.0,-,0,0.0,0.0,,0,0.0,0,0.0,10,200,20260413,40,100
+pm_easy,pm,easy,11.7,deg,1,11.7,0.0,,0,0.0,0,0.0,10,200,20260413,40,100
+pm_medium,pm,medium,25.9,deg,1,25.9,0.0,,0,0.0,0,0.0,10,200,20260413,40,100
+pm_hard,pm,hard,46.2,deg,1,46.2,0.0,,0,0.0,0,0.0,10,200,20260413,40,100
+ms_easy,ms,easy,13.7,dB,1,0.0,0.0,13.7,0,0.0,0,0.0,10,200,20260413,40,100
+ms_medium,ms,medium,7.5,dB,1,0.0,0.0,7.5,0,0.0,0,0.0,10,200,20260413,40,100
+ms_hard,ms,hard,3.1,dB,1,0.0,0.0,3.1,0,0.0,0,0.0,10,200,20260413,40,100
+overshoot_easy,overshoot,easy,64.9,%,0,0.0,0.0,,1,64.9,0,0.0,10,200,20260413,40,100
+overshoot_medium,overshoot,medium,31.6,%,0,0.0,0.0,,1,31.6,0,0.0,10,200,20260413,40,100
+overshoot_hard,overshoot,hard,5.0,%,0,0.0,0.0,,1,5.0,0,0.0,10,200,20260413,40,100
+du_dt_easy,du_dt,easy,159.4,1/s,0,0.0,0.0,,0,0.0,1,159.4,10,200,20260413,40,100
+du_dt_medium,du_dt,medium,41.0,1/s,0,0.0,0.0,,0,0.0,1,41.0,10,200,20260413,40,100
+du_dt_hard,du_dt,hard,7.5,1/s,0,0.0,0.0,,0,0.0,1,7.5,10,200,20260413,40,100
