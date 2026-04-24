@@ -79,7 +79,7 @@ PSO_CONFIG = {
     "convergence_factor": 1e-2,
 }
 
-DEFAULT_RUNS = 100
+DEFAULT_RUNS = 200
 DEFAULT_BASE_SEED = 20260413
 
 
@@ -428,7 +428,7 @@ def main() -> None:
         default=str(
             Path(__file__).resolve().parent
             / "results"
-            / "pt2_d01_u100_convergence_runs_with_reference"
+            / "pt2_d01_u200_convergence_runs_with_reference"
         ),
         help="Directory for the generated CSV files.",
     )

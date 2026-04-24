@@ -9,27 +9,19 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-DEFAULT_DATA_PATH = (
-    Path(__file__).resolve().parents[3]
-    / "BA-Dokumentation"
-    / "Figures"
-    / "data"
-    / "pso_convergence"
-    / "pt2_d01_u100_convergence_runs_with_reference"
-    / "curve_stop_iteration.csv"
+DEFAULT_RESULTS_DIR = (
+    Path(__file__).resolve().parent
+    / "results"
+    / "pt2_d01_u200_convergence_runs_with_reference"
 )
+
+DEFAULT_DATA_PATH = DEFAULT_RESULTS_DIR / "run_summary.csv"
 
 DEFAULT_OUTPUT_BASENAME = (
     Path(__file__).resolve().parents[3]
     / "BA-Dokumentation"
     / "Figures"
     / "pso_stop_iteration"
-)
-
-DEFAULT_RESULTS_DIR = (
-    Path(__file__).resolve().parent
-    / "results"
-    / "pt2_d01_u100_convergence_runs_with_reference"
 )
 
 FAMILY_ORDER = ["reference", "pm", "ms", "overshoot", "du_dt"]
@@ -80,7 +72,18 @@ def build_rows_from_run_summary(path: Path) -> list[dict[str, str]]:
         grouped[row["config_id"]].append(row)
 
     out_rows: list[dict[str, str]] = []
+    family_hardness_to_config: dict[tuple[str, str], str] = {}
     for group_rows in grouped.values():
+        exemplar = group_rows[0]
+        key = (exemplar["family"], exemplar["hardness"])
+        previous = family_hardness_to_config.get(key)
+        if previous is not None and previous != exemplar["config_id"]:
+            raise ValueError(
+                "Ambiguous plot grouping detected: "
+                f"{key!r} is used by both '{previous}' and '{exemplar['config_id']}'."
+            )
+        family_hardness_to_config[key] = exemplar["config_id"]
+
         ordered_rows = sorted(
             (row for row in group_rows if row.get("stop_iteration", "").strip() != ""),
             key=lambda row: (float(row["stop_iteration"]), int(float(row["run_id"]))),
@@ -89,6 +92,7 @@ def build_rows_from_run_summary(path: Path) -> list[dict[str, str]]:
         for rank_index, row in enumerate(ordered_rows, start=1):
             out_rows.append(
                 {
+                    "config_id": row["config_id"],
                     "family": row["family"],
                     "hardness": row["hardness"],
                     "rank_index": str(rank_index),
@@ -101,7 +105,12 @@ def build_rows_from_run_summary(path: Path) -> list[dict[str, str]]:
 def load_plot_rows(data_path: Path) -> list[dict[str, str]]:
     resolved = data_path.resolve()
     if resolved.exists():
-        return read_rows(resolved)
+        rows = read_rows(resolved)
+        if rows and "stop_iteration" in rows[0] and "rank_index" in rows[0]:
+            return rows
+        if rows and "stop_iteration" in rows[0] and "config_id" in rows[0]:
+            return build_rows_from_run_summary(resolved)
+        raise ValueError(f"Unsupported input format for stop-iteration plot: '{resolved}'")
 
     fallback_run_summary = DEFAULT_RESULTS_DIR / "run_summary.csv"
     if fallback_run_summary.exists():
@@ -113,6 +122,19 @@ def load_plot_rows(data_path: Path) -> list[dict[str, str]]:
 
 
 def build_series(rows: list[dict[str, str]]) -> dict[tuple[str, str], list[tuple[float, float]]]:
+    family_hardness_to_config: dict[tuple[str, str], str] = {}
+    for row in rows:
+        config_id = str(row.get("config_id", ""))
+        key = (row["family"], row["hardness"])
+        previous = family_hardness_to_config.get(key)
+        if config_id and previous is not None and previous != config_id:
+            raise ValueError(
+                "Ambiguous plot grouping detected: "
+                f"{key!r} is used by both '{previous}' and '{config_id}'."
+            )
+        if config_id:
+            family_hardness_to_config[key] = config_id
+
     grouped: dict[tuple[str, str], list[dict[str, str]]] = defaultdict(list)
     for row in rows:
         grouped[(row["family"], row["hardness"])].append(row)

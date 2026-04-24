@@ -274,26 +274,60 @@ class Swarm:
                  max_iter: int = 100,
                  stall_windows_required: int = 3,
                  space_factor: float = 0.001,
-                 convergence_factor: float = 1e-2) -> None:
+        convergence_factor: float = 1e-2) -> None:
         """Initializes the PSO swarm with given parameters.
 
         Args:
-            obj_func (Callable[[np.ndarray], np.ndarray]): Objective function.
-            size (int): Number of particles in the swarm.
-            param_number (int): Number of parameters (dimensions) to optimize.
-            bounds (List[List[float]]): Bounds for each parameter [[min, max], ...].
-            randomness (float, optional): Random factor for velocity updates. Defaults to 1.0.
-            u1 (float, optional): Cognitive coefficient. Defaults to 1.49.
-            u2 (float, optional): Social coefficient. Defaults to 1.49.
-            initial_range (tuple[float, float], optional): Inertia weight range. Defaults to (0.1, 1.1).
-            initial_swarm_span (int, optional): Initial span divisions for particle positions. Defaults to 2000.
-            min_neighbors_fraction (float, optional): Minimum fraction of swarm considered neighbors. Defaults to 0.25.
-            max_stall (int, optional): Maximum iterations with little improvement. Defaults to 15.
-            max_iter (int, optional): Hard iteration limit for one swarm run. Defaults to 100.
-            stall_windows_required (int, optional): Consecutive weak-improvement windows required before stopping.
-                Defaults to 3.
-            space_factor (float, optional): Factor to define particle space convergence. Defaults to 0.001.
-            convergence_factor (float, optional): Relative change threshold for convergence. Defaults to 1e-2.
+            obj_func (Callable[[np.ndarray], np.ndarray]):
+                Objective function evaluated for each particle position.
+            size (int):
+                Number of particles in the swarm.
+            param_number (int):
+                Number of optimization variables per particle.
+            bounds (List[List[float]]):
+                Lower and upper bounds for each variable in the form
+                ``[[min_1, min_2, ...], [max_1, max_2, ...]]``.
+            randomness (float, optional):
+                Spread of the random factors used in the velocity update.
+                Higher values increase stochastic variation in the particle
+                motion. Defaults to 1.0.
+            u1 (float, optional):
+                Cognitive coefficient, i.e. the weight of the particle's own
+                best position in the velocity update. Defaults to 1.49.
+            u2 (float, optional):
+                Social coefficient, i.e. the weight of the neighborhood best
+                position in the velocity update. Defaults to 1.49.
+            initial_range (tuple[float, float], optional):
+                Lower and upper bound for the adaptive inertia weight ``w``.
+                The swarm starts with the upper value, and later updates of
+                ``w`` are clipped to this interval. Defaults to (0.1, 1.1).
+            initial_swarm_span (int, optional):
+                Resolution of the grid used to sample initial particle
+                positions within the search bounds. Larger values create a
+                finer initialization grid. Defaults to 2000.
+            min_neighbors_fraction (float, optional):
+                Minimum fraction of the swarm used to define the local
+                neighborhood size. The actual neighborhood size is derived from
+                this fraction and may grow during the optimization. Defaults to
+                0.25.
+            max_stall (int, optional):
+                Look-back window size for the weak-improvement check. The
+                current best value is compared with the best value from
+                ``max_stall`` iterations earlier. Defaults to 15.
+            max_iter (int, optional):
+                Hard upper limit on the number of iterations for one swarm run.
+                Defaults to 100.
+            stall_windows_required (int, optional):
+                Number of consecutive weak-improvement windows required before
+                the stall-based termination criterion triggers. Defaults to 3.
+            space_factor (float, optional):
+                Relative threshold for the particle-space termination
+                criterion. The run stops when the current swarm hypervolume
+                falls below ``initial_space * space_factor``. Defaults to
+                0.001.
+            convergence_factor (float, optional):
+                Maximum relative improvement still considered as stagnation in
+                the stall-based termination check. Defaults to 1e-2.
         """
         self.obj_func = obj_func
         self.size = size

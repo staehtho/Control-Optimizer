@@ -10,15 +10,12 @@ from statistics import median
 import numpy as np
 
 
-DEFAULT_INPUT_DIR = Path(__file__).resolve().parent / "results" / "pt2_d01_u100_convergence_runs"
-DEFAULT_OUTPUT_DIR = (
-    Path(__file__).resolve().parents[3]
-    / "BA-Dokumentation"
-    / "Figures"
-    / "data"
-    / "pso_convergence"
-    / "pt2_d01_u100_convergence_runs"
+DEFAULT_INPUT_DIR = (
+    Path(__file__).resolve().parent
+    / "results"
+    / "pt2_d01_u200_convergence_runs_with_reference"
 )
+DEFAULT_OUTPUT_DIR = DEFAULT_INPUT_DIR / "plot_ready"
 
 
 def read_csv_rows(path: Path) -> list[dict[str, str]]:
@@ -85,6 +82,42 @@ def build_config_lookup(manifest_rows: list[dict[str, str]]) -> dict[str, dict[s
             "threshold_unit": str(row.get("threshold_unit", "")),
         }
     return lookup
+
+
+def validate_input_data(
+    *,
+    config_lookup: dict[str, dict[str, object]],
+    run_summary_rows: list[dict[str, str]],
+    iteration_rows: list[dict[str, str]],
+) -> None:
+    manifest_ids = set(config_lookup)
+    run_summary_ids = {str(row["config_id"]) for row in run_summary_rows}
+    iteration_ids = {str(row["config_id"]) for row in iteration_rows}
+
+    missing_in_runs = sorted(manifest_ids - run_summary_ids)
+    missing_in_trace = sorted(manifest_ids - iteration_ids)
+    extra_in_runs = sorted(run_summary_ids - manifest_ids)
+    extra_in_trace = sorted(iteration_ids - manifest_ids)
+
+    if missing_in_runs or missing_in_trace or extra_in_runs or extra_in_trace:
+        raise ValueError(
+            "Inconsistent convergence-study inputs: "
+            f"missing in run_summary={missing_in_runs}, "
+            f"missing in iteration_trace={missing_in_trace}, "
+            f"extra in run_summary={extra_in_runs}, "
+            f"extra in iteration_trace={extra_in_trace}"
+        )
+
+    family_hardness_to_config: dict[tuple[str, str], str] = {}
+    for config_id, meta in config_lookup.items():
+        key = (str(meta["family"]), str(meta["hardness"]))
+        previous = family_hardness_to_config.get(key)
+        if previous is not None and previous != config_id:
+            raise ValueError(
+                "Ambiguous plot grouping detected: "
+                f"{key!r} is used by both '{previous}' and '{config_id}'."
+            )
+        family_hardness_to_config[key] = config_id
 
 
 def build_overview_rows(
@@ -382,7 +415,7 @@ def main() -> None:
         "--output-dir",
         type=str,
         default=str(DEFAULT_OUTPUT_DIR),
-        help=f"Target directory inside BA-Dokumentation for plot-ready CSVs (default: {DEFAULT_OUTPUT_DIR}).",
+        help=f"Target directory for plot-ready CSVs (default: {DEFAULT_OUTPUT_DIR}).",
     )
     args = parser.parse_args()
 
@@ -395,6 +428,11 @@ def main() -> None:
     iteration_rows = read_csv_rows(input_dir / "iteration_trace.csv")
 
     config_lookup = build_config_lookup(manifest_rows)
+    validate_input_data(
+        config_lookup=config_lookup,
+        run_summary_rows=run_summary_rows,
+        iteration_rows=iteration_rows,
+    )
     run_rows_by_config: dict[str, list[dict[str, str]]] = defaultdict(list)
     for row in run_summary_rows:
         run_rows_by_config[str(row["config_id"])].append(row)
