@@ -202,15 +202,19 @@ def format_value(value) -> str:
     return str(value)
 
 
-def on_vm_changed(view, widget: QObject, key: str | FieldType, attribute: str, *args, **kwargs) -> None:
+def on_vm_changed(view, widget: QObject | None, key: str | FieldType, attribute: str, *args, **kwargs) -> None:
     """Update a widget to reflect the current value of its corresponding attribute."""
     # Traverse dotted attribute path
-    attr = widget
-    for attr_name in attribute.split("."):
-        if not hasattr(attr, attr_name):
-            raise AttributeError(f"'{attr_name}' not found in widget '{key}'")
-        attr = getattr(attr, attr_name)
-    value = attr
+    if widget is None:
+        value = attribute
+
+    else:
+        attr = widget
+        for attr_name in attribute.split("."):
+            if not hasattr(attr, attr_name):
+                raise AttributeError(f"'{attr_name}' not found in widget '{key}'")
+            attr = getattr(attr, attr_name)
+        value = attr
 
     # Log the update
     view.logger.debug(f"Updating widget '{key}' to value: {value}")
