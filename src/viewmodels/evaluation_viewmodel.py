@@ -146,9 +146,9 @@ class EvaluationViewModel(BaseViewModel):
                 self._pso_snapshot.controller_constraint_min,
                 self._pso_snapshot.controller_constraint_max,
             ),
-            reference=function.get(ExcitationTarget.REFERENCE).get_function(),
-            input_disturbance=function.get(ExcitationTarget.INPUT_DISTURBANCE).get_function(),
-            measurement_disturbance=function.get(ExcitationTarget.MEASUREMENT_DISTURBANCE).get_function(),
+            reference=function[ExcitationTarget.REFERENCE].get_function(),
+            input_disturbance=function[ExcitationTarget.INPUT_DISTURBANCE].get_function(),
+            measurement_disturbance=function[ExcitationTarget.MEASUREMENT_DISTURBANCE].get_function(),
         )
 
         self._simulation_service.compute_closed_loop_response(context, self._on_closed_loop_compute_finished)

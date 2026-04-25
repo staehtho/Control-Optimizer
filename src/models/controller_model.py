@@ -1,11 +1,17 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from dataclasses import dataclass
 
 from app_domain.controlsys import AntiWindup
 
+if TYPE_CHECKING:
+    from app_domain.controlsys import ControllerType
+    from app_types import BaseControllerSpec
 
 @dataclass
 class ControllerModel:
-    controller_type: str = "PID"
+    controller_type: ControllerType
+    controller_spec: BaseControllerSpec
 
     constraint_min: float = -5.0
     constraint_max: float = 5.0

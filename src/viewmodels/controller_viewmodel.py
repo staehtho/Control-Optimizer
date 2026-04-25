@@ -2,9 +2,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 from PySide6.QtCore import QObject, Signal, Slot
 
-from app_domain.controlsys import AntiWindup
+from app_domain.controlsys import AntiWindup, ControllerType
 from .base_viewmodel import BaseViewModel
-from app_types import ControllerField
+from app_types import ControllerField, CONTROLLER_SPECS, BaseControllerSpec
 from utils import LoggedProperty
 
 if TYPE_CHECKING:
@@ -29,10 +29,23 @@ class ControllerViewModel(BaseViewModel):
     # ============================================================
     # controller
     # ============================================================
-    controller_type = LoggedProperty(
+    def _custom_setter_controller_type(self, value: ControllerType) -> ControllerType:
+
+        self._model_controller.controller_spec = CONTROLLER_SPECS[value]()
+
+        return value
+
+    controller_type: ControllerType = LoggedProperty(
         path="_model_controller.controller_type",
         signal="controllerTypeChanged",
-        typ=str
+        typ=ControllerType,
+        custom_setter=_custom_setter_controller_type
+    )
+
+    controller_spec: BaseControllerSpec = LoggedProperty(
+        path="_model_controller.controller_spec",
+        typ=BaseControllerSpec,
+        read_only=True
     )
 
     # ============================================================
@@ -45,7 +58,7 @@ class ControllerViewModel(BaseViewModel):
 
         return True  # allow normal update
 
-    anti_windup = LoggedProperty(
+    anti_windup: AntiWindup = LoggedProperty(
         path="_model_controller.anti_windup",
         signal="antiWindupChanged",
         typ=AntiWindup,
@@ -65,7 +78,7 @@ class ControllerViewModel(BaseViewModel):
 
         return self._verify(ControllerField.CONSTRAINT_MIN, result)
 
-    constraint_min = LoggedProperty(
+    constraint_min: float = LoggedProperty(
         path="_model_controller.constraint_min",
         signal="constraintMinChanged",
         typ=float,
@@ -82,7 +95,7 @@ class ControllerViewModel(BaseViewModel):
 
         return self._verify(ControllerField.CONSTRAINT_MAX, result)
 
-    constraint_max = LoggedProperty(
+    constraint_max: float = LoggedProperty(
         path="_model_controller.constraint_max",
         signal="constraintMaxChanged",
         typ=float,
@@ -92,13 +105,13 @@ class ControllerViewModel(BaseViewModel):
     # ============================================================
     # ka
     # ============================================================
-    ka = LoggedProperty(
+    ka: float = LoggedProperty(
         path="_model_controller.ka",
         signal="kaChanged",
         typ=float,
     )
 
-    ka_enabled = LoggedProperty(
+    ka_enabled: bool = LoggedProperty(
         path="_model_controller.ka_enabled",
         signal="kaEnabledChanged",
         typ=bool,
@@ -107,7 +120,7 @@ class ControllerViewModel(BaseViewModel):
     # ============================================================
     # filter time constant
     # ============================================================
-    tuning_factor = LoggedProperty(
+    tuning_factor: float = LoggedProperty(
         path="_model_controller.tuning_factor",
         signal="tuningFactorChanged",
         typ=float,
@@ -138,7 +151,7 @@ class ControllerViewModel(BaseViewModel):
 
         return new_value
 
-    sampling_rate = LoggedProperty(
+    sampling_rate: str = LoggedProperty(
         path="_model_controller.sampling_rate",
         signal="samplingRateChanged",
         typ=str,
