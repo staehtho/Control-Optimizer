@@ -37,10 +37,7 @@ class ClosedLoopResponseEngine:
 
         pid_cl = PIDClosedLoop(
             plant,
-            Kp=context.kp,
-            Ti=context.ti,
-            Td=context.td,
-            Tf=context.tf,
+            **context.controller_params,
             control_constraint=list(context.constraint),
             anti_windup_method=context.anti_windup,
             ka=context.ka

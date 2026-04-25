@@ -133,10 +133,7 @@ class EvaluationViewModel(BaseViewModel):
         context = ClosedLoopResponseContext(
             num=list(self._pso_snapshot.plant_num),
             den=list(self._pso_snapshot.plant_den),
-            kp=self._pos_result.kp,
-            ti=self._pos_result.ti,
-            td=self._pos_result.td,
-            tf=self._pos_result.tf,
+            controller_params=self._pos_result.best_params,
             t0=t0,
             t1=t1,
             solver=self._settings.solver,
