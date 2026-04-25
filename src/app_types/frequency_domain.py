@@ -46,14 +46,5 @@ class ControllerTransferContext:
 
     This context contains PID controller parameters used to evaluate
     the controller transfer function C(s) in the frequency domain.
-
-    Attributes:
-        kp: Proportional gain.
-        ti: Integral time constant.
-        td: Derivative time constant.
-        tf: Derivative filter time constant.
     """
-    kp: float
-    ti: float
-    td: float
-    tf: float
+    controller_parmas: dict[str, float]

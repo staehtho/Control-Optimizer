@@ -47,13 +47,13 @@ class SimulationViewModel(BaseViewModel):
         self._vm_pso.psoSimulationFinished.connect(self._on_pso_simulation_finished)
 
     t0 = LoggedProperty(
-        path="_pos_result.t0",
+        path="_pso_result.t0",
         typ=float,
         read_only=True
     )
 
     t1 = LoggedProperty(
-        path="_pos_result.t1",
+        path="_pso_result.t1",
         typ=float,
         read_only=True
     )

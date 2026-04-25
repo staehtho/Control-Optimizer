@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import logging
-from numpy import ndarray
+from numpy import ndarray, array
 
 from app_domain.controlsys import Plant, PIDClosedLoop
 
@@ -43,11 +43,7 @@ class ControllerTransferEngine:
                 evaluated at the given frequencies.
         """
         self._logger.info(
-            "Starting controller transfer computation (Kp=%.3f, Ti=%.3f, Td=%.3f, Tf=%.3f, n=%d)",
-            context.kp,
-            context.ti,
-            context.td,
-            context.tf,
+            f"Starting controller transfer computation (controller params:{context.controller_parmas}, n=%d)",
             omega.size,
         )
 
@@ -55,19 +51,15 @@ class ControllerTransferEngine:
         # but it is not used when computing the controller transfer function.
         pid_cl = PIDClosedLoop(
             Plant([1], [1, 1]),
-            Kp=context.kp,
-            Ti=context.ti,
-            Td=context.td,
-            Tf=context.tf,
+            **context.controller_parmas
         )
 
         s = 1j * omega
         C = pid_cl.controller(s)
 
         self._logger.info(
-            "Controller transfer computation finished (omega.size=%d)",
+            "Controller transfer computation finished (n=%d)",
             omega.size,
         )
 
-        return C
-
+        return array(C)

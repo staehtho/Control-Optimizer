@@ -39,7 +39,7 @@ class EvaluationViewModel(BaseViewModel):
         super().__init__(parent)
 
         self._settings = settings
-        self._pos_result: PsoResult | None = None
+        self._pso_result: PsoResult | None = None
         self._pso_snapshot: PsoSimulationSnapshot | None = None
 
         self._vm_pso = vm_pso
@@ -53,13 +53,13 @@ class EvaluationViewModel(BaseViewModel):
         self._vm_pso.psoSimulationFinished.connect(self._on_pso_simulation_finished)
 
     t0 = LoggedProperty(
-        path="_pos_result.t0",
+        path="_pso_result.t0",
         typ=float,
         read_only=True
     )
 
     t1 = LoggedProperty(
-        path="_pos_result.t1",
+        path="_pso_result.t1",
         typ=float,
         read_only=True
     )
@@ -89,21 +89,21 @@ class EvaluationViewModel(BaseViewModel):
     )
 
     def _on_pso_simulation_finished(self) -> None:
-        self._pos_result = self._vm_pso.get_pso_result()
+        self._pso_result = self._vm_pso.get_pso_result()
         self._pso_snapshot = self._vm_pso.get_pso_snapshot()
 
         self.psoSimulationFinished.emit()
 
     @Slot()
     def get_pso_result(self) -> PsoResult | None:
-        return self._pos_result
+        return self._pso_result
 
     @Slot()
     def get_pso_snapshot(self) -> PsoSimulationSnapshot | None:
         return self._pso_snapshot
 
     def has_result(self) -> bool:
-        return self._pos_result is not None
+        return self._pso_result is not None
 
     def has_snapshot(self) -> bool:
         return self._pso_snapshot is not None
@@ -121,7 +121,7 @@ class EvaluationViewModel(BaseViewModel):
 
     @Slot(float, float)
     def compute_closed_loop_response(self, t0: float, t1: float) -> None:
-        if self._pos_result is None or self._pso_snapshot is None:
+        if self._pso_result is None or self._pso_snapshot is None:
             self.logger.debug("Plant is not valid, closed loop response are not computed")
             return
 
@@ -133,7 +133,7 @@ class EvaluationViewModel(BaseViewModel):
         context = ClosedLoopResponseContext(
             num=list(self._pso_snapshot.plant_num),
             den=list(self._pso_snapshot.plant_den),
-            controller_params=self._pos_result.best_params,
+            controller_params=self._pso_result.best_params,
             t0=t0,
             t1=t1,
             solver=self._settings.solver,
@@ -155,7 +155,7 @@ class EvaluationViewModel(BaseViewModel):
 
     @Slot(float, float)
     def compute_plant_response(self, t0: float, t1: float) -> None:
-        if self._pos_result is None or self._pso_snapshot is None:
+        if self._pso_result is None or self._pso_snapshot is None:
             self.logger.debug("Plant is not valid, plant response are not computed")
             return
 
@@ -181,7 +181,7 @@ class EvaluationViewModel(BaseViewModel):
 
     @Slot(float, float)
     def compute_function(self, t0: float, t1: float) -> None:
-        if self._pos_result is None or self._pso_snapshot is None:
+        if self._pso_result is None or self._pso_snapshot is None:
             self.logger.debug("No Result are available, function are not computed")
             return
 
@@ -200,7 +200,7 @@ class EvaluationViewModel(BaseViewModel):
 
     @Slot(float, float)
     def compute_plant_frequency_response(self, omega_min: float, omega_max: float) -> None:
-        if self._pos_result is None or self._pso_snapshot is None:
+        if self._pso_result is None or self._pso_snapshot is None:
             self.logger.debug("Plant is not valid, plant frequency response are not computed")
             return
 
@@ -223,7 +223,7 @@ class EvaluationViewModel(BaseViewModel):
 
     @Slot(float, float)
     def compute_closed_loop_frequency_response(self, omega_min: float, omega_max: float) -> None:
-        if self._pos_result is None or self._pso_snapshot is None:
+        if self._pso_result is None or self._pso_snapshot is None:
             self.logger.debug("Plant is not valid, closed loop frequency response are not computed")
             return
 
@@ -234,12 +234,7 @@ class EvaluationViewModel(BaseViewModel):
             den=list(self._pso_snapshot.plant_den),
         )
 
-        context_controller = ControllerTransferContext(
-            kp=self._pos_result.kp,
-            ti=self._pos_result.ti,
-            td=self._pos_result.td,
-            tf=self._pos_result.tf,
-        )
+        context_controller = ControllerTransferContext(self._pso_result.best_params)
 
         self._simulation_service.compute_closed_loop_transfer_response(
             context_plant=context_plant,
