@@ -231,8 +231,8 @@ def main():
     pid.set_pid_param(Kp=best_Kp, Ti=best_Ti, Td=best_Td)
     pid.set_filter(Tf=tf_report.tf_effective)
     best_eval = obj_func.evaluate_candidates(np.array([[best_Kp, best_Ti, best_Td]], dtype=np.float64))
-    best_overshoot_pct = float(best_eval["overshoot_pct"][0])
-    best_max_du_dt = float(best_eval["max_du_dt"][0])
+    best_overshoot_pct = float(best_eval.overshoot_pct[0])
+    best_max_du_dt = float(best_eval.max_du_dt[0])
 
     data = {
         "best_Kp": best_Kp,

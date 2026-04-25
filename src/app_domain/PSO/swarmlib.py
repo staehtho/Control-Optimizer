@@ -19,9 +19,11 @@ import copy
 import math
 import random
 import sys
-from typing import Any, Callable, List, Optional
+from typing import Callable, List, Optional
 
 import numpy as np
+
+from app_domain.pso_objective import PsoFunc
 
 
 def is_better_candidate(
@@ -260,7 +262,7 @@ class Swarm:
     """
 
     def __init__(self,
-                 obj_func: Callable[[np.ndarray], np.ndarray],
+                 obj_func: PsoFunc,
                  size: int,
                  param_number: int,
                  bounds: List[List[float]],
@@ -278,7 +280,7 @@ class Swarm:
         """Initializes the PSO swarm with given parameters.
 
         Args:
-            obj_func (Callable[[np.ndarray], np.ndarray]): Objective function.
+            obj_func (PsoFunc): Objective function.
             size (int): Number of particles in the swarm.
             param_number (int): Number of parameters (dimensions) to optimize.
             bounds (List[List[float]]): Bounds for each parameter [[min, max], ...].
@@ -363,19 +365,19 @@ class Swarm:
                 (cost, feasible, violation, perf)
         """
         positions = np.array([p.position for p in self.particles])
-        eval_func = getattr(self.obj_func, "evaluate_candidates", None)
+        eval_func = self.obj_func.evaluate_candidates
 
         if callable(eval_func):
             try:
-                evaluation: dict[str, Any] = eval_func(positions)
+                evaluation = eval_func(positions)
                 self._last_eval_deferred_logging = True
             except TypeError:
                 evaluation = eval_func(positions)
                 self._last_eval_deferred_logging = False
-            cost = np.asarray(evaluation["cost"], dtype=float).reshape(-1)
-            feasible = np.asarray(evaluation["feasible"], dtype=bool).reshape(-1)
-            violation = np.asarray(evaluation["violation"], dtype=float).reshape(-1)
-            perf = np.asarray(evaluation["perf"], dtype=float).reshape(-1)
+            cost = np.asarray(evaluation.cost, dtype=float).reshape(-1)
+            feasible = np.asarray(evaluation.feasible, dtype=bool).reshape(-1)
+            violation = np.asarray(evaluation.violation, dtype=float).reshape(-1)
+            perf = np.asarray(evaluation.perf, dtype=float).reshape(-1)
             return cost, feasible, violation, perf
 
         # Backward-compatible fallback: old scalar objective is treated as feasible-only.

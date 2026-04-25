@@ -85,10 +85,10 @@ def main() -> None:
         np.array([[Kp, Ti, Td]], dtype=np.float64)
     )
 
-    cost = float(result["cost"][0])
-    perf = float(result["perf"][0])
-    feasible = bool(result["feasible"][0])
-    violation = float(result["violation"][0])
+    cost = float(result.cost[0])
+    perf = float(result.perf[0])
+    feasible = bool(result.feasible[0])
+    violation = float(result.violation[0])
 
     t_eval, u_eval, y_eval = controller.system_response(
         t0=t0,

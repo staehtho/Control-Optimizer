@@ -338,9 +338,9 @@ def evaluate_sweep_point(sweep_point: SweepPoint) -> dict[str, float | str | int
         )
         result = obj_func.evaluate_candidates(X)
 
-        feasible = np.asarray(result["feasible"], dtype=bool)
-        violation = np.asarray(result["violation"], dtype=np.float64)
-        perf = np.asarray(result["perf"], dtype=np.float64)
+        feasible = np.asarray(result.feasible, dtype=bool)
+        violation = np.asarray(result.violation, dtype=np.float64)
+        perf = np.asarray(result.perf, dtype=np.float64)
 
         feasible_ratio = float(np.mean(feasible))
         feasible_ratios.append(feasible_ratio)

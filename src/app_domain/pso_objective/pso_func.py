@@ -1,4 +1,5 @@
 import math
+from dataclasses import dataclass
 from typing import Callable
 
 import numpy as np
@@ -13,6 +14,24 @@ from .filter_time_constant_handler import (
     normalize_positive_scalar, normalize_sampling_rate_hz
 )
 from .time_domain_numba import time_domain_pso_func
+
+
+@dataclass(slots=True)
+class PsoEvaluationResult:
+    cost: np.ndarray
+    feasible: np.ndarray
+    violation: np.ndarray
+    perf: np.ndarray
+    overshoot_pct: np.ndarray
+    max_du_dt: np.ndarray
+    pm_deg: np.ndarray
+    gm_db: np.ndarray
+    ms_db: np.ndarray
+    has_wc: np.ndarray
+    has_w180: np.ndarray
+    wc: np.ndarray
+    w180: np.ndarray
+    numerically: np.ndarray
 
 
 class PsoFunc:
@@ -165,14 +184,8 @@ class PsoFunc:
         # Toggle frequency-domain metrics/constraints
         self.use_freq_metrics = bool(use_freq_metrics)
 
-        if self.use_freq_metrics:
-            self._freq_low_exp = float(freq_low_exp)
-            self._freq_high_exp = float(freq_high_exp)
-            self._freq_points = int(freq_points)
-
-            self._w = np.logspace(self._freq_low_exp, self._freq_high_exp, self._freq_points).astype(np.float64)
-            self._s = 1j * self._w
-            self._G = np.asarray(self.controller.plant.system(self._s), dtype=np.complex128)
+        self._w = np.logspace(freq_low_exp, freq_high_exp, freq_points).astype(np.float64)
+        self._plant_tf = self.controller.plant.system
 
         if r is None:
             r = lambda t: np.zeros_like(t)
@@ -229,7 +242,7 @@ class PsoFunc:
 
     def __call__(self, X: np.ndarray) -> np.ndarray:
         """Backward-compatible scalar objective interface."""
-        return self.evaluate_candidates(X)["cost"]
+        return self.evaluate_candidates(X).cost
 
     def evaluate_tf_for_td(self, Td: float) -> TfLimitReport:
         return compute_effective_tf_report(
@@ -362,7 +375,7 @@ class PsoFunc:
         V[hard_fail] = np.inf
         return V
 
-    def evaluate_candidates(self, X: np.ndarray) -> dict[str, np.ndarray]:
+    def evaluate_candidates(self, X: np.ndarray) -> PsoEvaluationResult:
         """
         Evaluate candidates and expose both scalar cost and feasibility-aware data.
 
@@ -370,7 +383,7 @@ class PsoFunc:
             X: PID parameter matrix of shape (P, 3). Each row contains [Kp, Ti, Td].
 
         Returns:
-            dict with:
+            PsoEvaluationResult with:
               - cost: scalar summary value
                 (J for feasible candidates, V for infeasible candidates)
               - feasible: final feasibility flag
@@ -381,8 +394,6 @@ class PsoFunc:
                 NaN if overshoot evaluation is disabled or unavailable
               - max_du_dt: measured maximum absolute control-rate estimate for
                 simulated candidates; NaN if evaluation is disabled or unavailable
-            If defer_logging=True, core batch metrics are cached and can be finalized later
-            with PSO state (pBest/gBest) via finalize_log_batch(...).
         """
         X = np.array(X, dtype=np.float64)
         if X.ndim == 1:
@@ -420,10 +431,11 @@ class PsoFunc:
         # --------------------------------------------------
         # 1) Optional: Frequency metrics + constraint violation
         # --------------------------------------------------
+        metrics = {}
         if self.use_freq_metrics:
             with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
                 metrics = compute_loop_metrics_batch(
-                    plant_tf=self.controller.plant.system,
+                    plant_tf=self._plant_tf,
                     controller_tf=self.controller.frf_batch,
                     X=X,
                     w=self._w,
@@ -542,14 +554,22 @@ class PsoFunc:
         V_total = V.copy()
         feasible_final = V_total <= 0.0
 
-        return {
-            "cost": cost,
-            "feasible": feasible_final,
-            "violation": V_total,
-            "perf": perf,
-            "overshoot_pct": overshoot_pct,
-            "max_du_dt": max_du_dt,
-        }
+        return PsoEvaluationResult(
+            cost=cost,
+            feasible=feasible_final,
+            violation=V_total,
+            perf=perf,
+            overshoot_pct=overshoot_pct,
+            max_du_dt=max_du_dt,
+            pm_deg=metrics.get("pm_deg", np.zeros_like(cost)),
+            gm_db=metrics.get("gm_db", np.zeros_like(cost)),
+            ms_db=metrics.get("ms_db", np.zeros_like(cost)),
+            has_wc=metrics.get("has_wc", np.zeros_like(cost)),
+            has_w180=metrics.get("has_w180", np.zeros_like(cost)),
+            wc=metrics.get("wc", np.zeros_like(cost)),
+            w180=metrics.get("w180", np.zeros_like(cost)),
+            numerically=metrics.get("numerically", np.zeros_like(cost)),
+        )
 
     def set_calculate_max_du_dt(self, value: bool) -> None:
         self.calculate_max_du_dt = value
@@ -558,3 +578,6 @@ class PsoFunc:
     def set_calculate_overshoot(self, value: bool) -> None:
         self.calculate_overshoot = value
         self._update_overshoot_control_cache()
+
+    def set_calculate_freq_metrics(self, value: bool) -> None:
+        self.use_freq_metrics = value
