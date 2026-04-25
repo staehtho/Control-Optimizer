@@ -372,6 +372,7 @@ class PsoConfigurationViewModel(BaseViewModel):
             num=self._model_plant.num,
             den=self._model_plant.den,
             controller_type=self._model_controller.controller_type,
+            controller_param_names=self._model_controller.controller_spec.param_names,
             controller_class=self._model_controller.controller_spec.controller_class,
             t0=self.t0,
             t1=self.t1,

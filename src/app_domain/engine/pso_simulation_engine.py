@@ -204,10 +204,14 @@ class PsoSimulationEngine:
 
         show_overshoot = resolve_function_type(param.function) == FunctionTypes.STEP
 
+        params = {k: v for k, v in zip(param.controller_param_names, self._best_params)}
+
+        if has_tf:
+            params["tf"] = tf_report
+
         return PsoResult(
             simulation_time=self._total_duration,
-            best_params=self._best_params,
-            tf=tf_report.tf_effective,
+            best_params=params,
             has_tf=has_tf,
             tf_limited_simulation=tf_report.limited_by_simulation,
             tf_limited_sampling=tf_report.limited_by_sampling,
@@ -237,7 +241,7 @@ class PsoSimulationEngine:
 
         match param.controller_type:
             case ControllerType.PID:
-                Td = self._best_params[2]
+                Td = float(self._best_params[2])
             case _:
                 raise NotImplementedError(
                     f"Controller type '{param.controller_type}' is not defined in tf evaluation."
@@ -247,7 +251,7 @@ class PsoSimulationEngine:
             return None
 
         return compute_effective_tf_report(
-            Td=self._best_params[2],
+            Td=Td,
             dt=param.dt,
             tf_tuning_factor_n=param.tuning_factor,
             tf_limit_factor_k=param.limit_factor,

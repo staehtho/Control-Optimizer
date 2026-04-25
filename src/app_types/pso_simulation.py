@@ -31,6 +31,7 @@ class PsoSimulationParam:
     den: list[float]
 
     controller_type: ControllerType
+    controller_param_names: list[str]
     controller_class: type[ClosedLoop]
 
     t0: float
@@ -82,8 +83,7 @@ class PsoResult:
 
     simulation_time: float
 
-    best_params: list[float]
-    tf: float
+    best_params: dict[str, float]
     has_tf: bool
     tf_limited_simulation: bool
     tf_limited_sampling: bool

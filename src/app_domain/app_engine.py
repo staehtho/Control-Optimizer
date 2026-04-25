@@ -263,6 +263,7 @@ class AppEngine:
             num=[1],
             den=[1, 2, 1],
             controller_type=ControllerType.PID,
+            controller_param_names=['kp', 'ti', 'td'],
             controller_class=PIDClosedLoop,
             t0=0,
             t1=10,
