@@ -201,6 +201,11 @@ class PIDClosedLoop(ClosedLoop):
                 If neither representation is fully provided.
         """
         # --- Parameter Validation ---
+        if all(v is None for v in (Kp, Ki, Kd, Ti, Td)):
+            Kp = 1.0
+            Ti = 1.0
+            Td = 1.0
+
         gain_form = all(v is not None for v in (Kp, Ki, Kd))
         time_form = all(v is not None for v in (Kp, Ti, Td))
 
