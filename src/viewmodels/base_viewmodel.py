@@ -26,7 +26,7 @@ class BaseViewModel(QObject):
 
     #: Emitted when validation of a property fails.
     #: Contains the field identifier and the validation error message.
-    validationFailed = Signal(FieldType, str)
+    validationFailed = Signal(object, str)
     saveSvgRequested = Signal(object)
     svgExportFinished = Signal()
 
@@ -116,7 +116,7 @@ class BaseViewModel(QObject):
 
         return ValidationResult(True)
 
-    def _verify(self, field: FieldType, result: ValidationResult) -> bool:
+    def _verify(self, field: str | FieldType, result: ValidationResult) -> bool:
         """
         Process a validation result.
 

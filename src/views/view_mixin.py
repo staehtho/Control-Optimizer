@@ -277,7 +277,7 @@ class ViewMixin:
     @staticmethod
     def _on_vm_changed(
             view: Any,
-            widget: QObject,
+            widget: QObject | None,
             key: str | FieldType,
             attr_name: str,
             *args: Any,
@@ -290,7 +290,7 @@ class ViewMixin:
     # Validation Handling
     # ============================================================
 
-    def _on_validation_failed(self, field: FieldType, message: str) -> None:
+    def _on_validation_failed(self, field: str | FieldType, message: str) -> None:
         """Handle a validation error for a specific field."""
         validation_helpers.on_validation_failed(self, field, message)
 

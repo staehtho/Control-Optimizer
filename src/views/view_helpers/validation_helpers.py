@@ -11,7 +11,7 @@ from app_types import FieldType
 # Validation Handling
 # ============================================================
 
-def on_validation_failed(view, field: FieldType, message: str) -> None:
+def on_validation_failed(view, field: str | FieldType, message: str) -> None:
     """Handle a validation error for a specific field."""
     widget = view.field_widgets.get(field)
 
