@@ -3,7 +3,8 @@ from typing import TYPE_CHECKING
 from dataclasses import dataclass
 
 if TYPE_CHECKING:
-    from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex, MySolver
+    from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex, MySolver, ClosedLoop, \
+        ControllerType
     from app_domain.functions import BaseFunction
 
 
@@ -29,6 +30,9 @@ class PsoSimulationParam:
     num: list[float]
     den: list[float]
 
+    controller_type: ControllerType
+    controller_class: type[ClosedLoop]
+
     t0: float
     t1: float
     dt: float
@@ -46,9 +50,8 @@ class PsoSimulationParam:
     excitation_target: ExcitationTarget
     function: BaseFunction
 
-    kp: tuple[float, float]
-    ti: tuple[float, float]
-    td: tuple[float, float]
+    bounds: tuple[list[float], list[float]]
+    n_param: int
 
     swarm_size: int
     pso_iteration: int
@@ -79,10 +82,9 @@ class PsoResult:
 
     simulation_time: float
 
-    kp: float
-    ti: float
-    td: float
+    best_params: list[float]
     tf: float
+    has_tf: bool
     tf_limited_simulation: bool
     tf_limited_sampling: bool
     min_sampling_rate: float

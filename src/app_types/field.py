@@ -109,15 +109,9 @@ class PsoField(FieldType):
     STABILITY_MARGIN = "stability_margin"
 
     PSO_BOUNDS = "pso_bounds"
-    KP_BOUNDS = "kp_bounds"
-    KP_MIN = "kp_min"
-    KP_MAX = "kp_max"
-    TI_BOUNDS = "ti_bounds"
-    TI_MIN = "ti_min"
-    TI_MAX = "ti_max"
-    TD_BOUNDS = "td_bounds"
-    TD_MIN = "td_min"
-    TD_MAX = "td_max"
+    PSO_BOUNDS_KEY = "[)bound(]"
+    PSO_LOWER_KEY = "[)lower(]"
+    PSO_UPPER_KEY = "[)upper(]"
 
     RUN_PSO = "run_pso"
     INTERRUPT_PSO = "interrupt_pso"

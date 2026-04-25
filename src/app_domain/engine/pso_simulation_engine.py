@@ -5,15 +5,15 @@ import numpy as np
 import sys
 import time
 
-from app_domain.controlsys import ExcitationTarget, Plant, PIDClosedLoop
-from app_domain.pso_objective import compute_loop_metrics_batch
-from app_domain.pso_objective import PsoFunc, compute_effective_tf_report
+from app_domain.controlsys import ExcitationTarget, Plant, ControllerType
+from app_domain.pso_objective import PsoFunc, compute_effective_tf_report, TfLimitReport
 from app_domain.PSO import Swarm
 from app_types import PsoResult
 from app_domain.functions import resolve_function_type, FunctionTypes
 
 if TYPE_CHECKING:
     from app_types import PsoSimulationParam
+    from app_domain.controlsys import ClosedLoop
 
 class PsoSimulationEngine:
     """Domain-layer engine for PSO-based PID optimization."""
@@ -24,9 +24,7 @@ class PsoSimulationEngine:
 
         self._total_duration = 0.0
 
-        self._best_kp = 0.0
-        self._best_ti = 0.0
-        self._best_td = 0.0
+        self._best_params = []
 
     # ==========================================================
     # Public API
@@ -42,13 +40,13 @@ class PsoSimulationEngine:
 
         self._logger.info("Starting PSO simulation.")
 
-        pid_cl = self._create_controller(param)
+        cl = self._create_controller(param)
         r, l, n = self._configure_excitation(param)
 
         use_freq_metrics = param.gain_margin_enabled or param.phase_margin_enabled or param.stability_margin_enabled
 
         objective = PsoFunc(
-            controller=pid_cl,
+            controller=cl,
             t0=param.t0,
             t1=param.t1,
             dt=param.dt,
@@ -76,9 +74,7 @@ class PsoSimulationEngine:
             pre_compiling=False,
         )
 
-        bounds = self._extract_bounds(param)
-
-        self._run_pso(param, objective, bounds, callback, should_stop)
+        self._run_pso(param, objective, callback, should_stop)
 
         self._logger.info("PSO simulation finished.")
         return self._evaluate_pso_result(param, objective)
@@ -87,23 +83,17 @@ class PsoSimulationEngine:
     # Controller Setup
     # ==========================================================
     @staticmethod
-    def _create_controller(param: PsoSimulationParam) -> PIDClosedLoop:
+    def _create_controller(param: PsoSimulationParam) -> ClosedLoop:
         """Create plant, PID controller, and set filter time constant."""
 
         plant = Plant(param.num, param.den)
 
-        pid_cl = PIDClosedLoop(
+        return param.controller_class(
             plant,
-            Kp=10,
-            Ti=1,
-            Td=1,
-            Tf=0,
             control_constraint=list(param.constraint),
             anti_windup_method=param.anti_windup,
             ka=param.ka
         )
-
-        return pid_cl
 
     # ==========================================================
     # Excitation
@@ -127,32 +117,12 @@ class PsoSimulationEngine:
         return r, l, n
 
     # ==========================================================
-    # Bounds
-    # ==========================================================
-    @staticmethod
-    def _extract_bounds(param: PsoSimulationParam):
-        """Extract parameter bounds for PSO."""
-
-        kp_min, kp_max = param.kp
-        ti_min, ti_max = param.ti
-        td_min, td_max = param.td
-
-        bounds = [
-            [kp_min, ti_min, td_min],
-            [kp_max, ti_max, td_max]
-        ]
-
-        return bounds
-
-    # ==========================================================
     # PSO Execution
     # ==========================================================
-
     def _run_pso(
             self,
             param: PsoSimulationParam,
             objective: PsoFunc,
-            bounds,
             callback: Callable[[int], None],
             should_stop: Optional[Callable[[], bool]] = None,
     ) -> None:
@@ -160,9 +130,8 @@ class PsoSimulationEngine:
 
         self._total_duration = 0.0
 
-        self._best_kp = 0.0
-        self._best_ti = 0.0
-        self._best_td = 0.0
+        self._best_params = []
+
         best_cost = sys.float_info.max
 
         total_start = time.perf_counter()
@@ -177,17 +146,16 @@ class PsoSimulationEngine:
             swarm = Swarm(
                 objective,
                 param.swarm_size,
-                3,
-                bounds,
+                param.n_param,
+                list(param.bounds),
                 **param.hyperparameters.__dict__
             )
 
-            result, cost = swarm.simulate_swarm()
-            kp, ti, td = result
+            params, cost = swarm.simulate_swarm()
 
             if cost < best_cost:
                 best_cost = cost
-                self._best_kp, self._best_ti, self._best_td = float(kp), float(ti), float(td)
+                self._best_params = params
 
             duration = time.perf_counter() - iter_start
 
@@ -222,58 +190,66 @@ class PsoSimulationEngine:
         # set the calculation flag
         objective.set_calculate_max_du_dt(True)
         objective.set_calculate_overshoot(True)
+        objective.set_calculate_freq_metrics(True)
 
-        tf_report = compute_effective_tf_report(
-            Td=self._best_td,
-            dt=param.dt,
-            tf_tuning_factor_n=param.tuning_factor,
-            tf_limit_factor_k=param.limit_factor,
-            sampling_rate_hz=param.sampling_rate,
-        )
+        tf_report = self._evaluate_tf(param)
+
+        has_tf = True
+        if tf_report is None:
+            has_tf = False
+            tf_report = TfLimitReport(0, 0, 0, 0, 0, False, False, False, 0)
 
         # result time domain
-        x = np.array([[self._best_kp, self._best_ti, self._best_td]], dtype=np.float64)
-        eval_time_domain = objective.evaluate_candidates(x)
-        eval_time_domain = {k: float(v[0]) for k, v in eval_time_domain.items()}
-
-        # result frequency domain
-        X = np.array([[self._best_kp,
-                       self._best_ti,
-                       self._best_td,
-                       tf_report.tf_effective]])
-        eval_frequency_domain = compute_loop_metrics_batch(
-            plant_tf=Plant(param.num, param.den).system,
-            # TODO: replace here the class
-            controller_tf=PIDClosedLoop.frf_batch,
-            X=X,
-            w=(param.omega_exp_low, param.omega_exp_high, param.omega_points)
-        )
-
-        eval_frequency_domain = {k: float(v[0]) for k, v in eval_frequency_domain.items()}
+        eval_result = objective.evaluate_candidates(np.array([self._best_params]))
 
         show_overshoot = resolve_function_type(param.function) == FunctionTypes.STEP
 
         return PsoResult(
             simulation_time=self._total_duration,
-            kp=self._best_kp,
-            ti=self._best_ti,
-            td=self._best_td,
+            best_params=self._best_params,
             tf=tf_report.tf_effective,
+            has_tf=has_tf,
             tf_limited_simulation=tf_report.limited_by_simulation,
             tf_limited_sampling=tf_report.limited_by_sampling,
             min_sampling_rate=tf_report.min_sampling_rate_hz,
             t0=param.t0,
             t1=param.t1,
-            is_feasible=bool(eval_time_domain['feasible']),
-            error_criterion=eval_time_domain['perf'],
-            overshoot=eval_time_domain['overshoot_pct'],
+            is_feasible=bool(eval_result.feasible[0]),
+            error_criterion=float(eval_result.perf[0]),
+            overshoot=float(eval_result.overshoot_pct[0]),
             show_overshoot=show_overshoot,
-            slew_rate=eval_time_domain['max_du_dt'],
-            gain_margin=eval_frequency_domain['gm_db'],
-            omega_180=eval_frequency_domain['w180'],
-            has_omega_180=bool(eval_frequency_domain['has_w180']),
-            phase_margin=eval_frequency_domain['pm_deg'],
-            omega_c=eval_frequency_domain['wc'],
-            has_omega_c=bool(eval_frequency_domain['has_wc']),
-            stability_margin=eval_frequency_domain['ms_db'],
+            slew_rate=float(eval_result.max_du_dt[0]),
+            gain_margin=float(eval_result.gm_db[0]),
+            omega_180=float(eval_result.w180[0]),
+            has_omega_180=bool(eval_result.has_w180[0]),
+            phase_margin=float(eval_result.pm_deg[0]),
+            omega_c=float(eval_result.wc[0]),
+            has_omega_c=bool(eval_result.has_wc[0]),
+            stability_margin=float(eval_result.ms_db[0]),
+        )
+
+    def _evaluate_tf(
+            self,
+            param: PsoSimulationParam,
+    ) -> TfLimitReport | None:
+        """Evaluate Tf report."""
+        Td = None
+
+        match param.controller_type:
+            case ControllerType.PID:
+                Td = self._best_params[2]
+            case _:
+                raise NotImplementedError(
+                    f"Controller type '{param.controller_type}' is not defined in tf evaluation."
+                )
+
+        if Td is None:
+            return None
+
+        return compute_effective_tf_report(
+            Td=self._best_params[2],
+            dt=param.dt,
+            tf_tuning_factor_n=param.tuning_factor,
+            tf_limit_factor_k=param.limit_factor,
+            sampling_rate_hz=param.sampling_rate,
         )

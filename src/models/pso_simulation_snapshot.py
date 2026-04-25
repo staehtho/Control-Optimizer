@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex
+from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex, ControllerType
 from app_domain.functions import BaseFunction
 
 
@@ -10,7 +10,7 @@ class PsoSimulationSnapshot:
     plant_den: tuple[float, ...]
     plant_tf: str
 
-    controller_type: str
+    controller_type: ControllerType
     controller_anti_windup: AntiWindup
     controller_ka: float
     controller_constraint_min: float
@@ -22,9 +22,10 @@ class PsoSimulationSnapshot:
     excitation_target: ExcitationTarget
     excitation_function: BaseFunction
     error_criterion: PerformanceIndex
-    kp: tuple[float, float]
-    ti: tuple[float, float]
-    td: tuple[float, float]
+
+    bounds: tuple[list[float], list[float]]
+    n_param: int
+
     overshoot_control: float
     overshoot_control_enabled: bool
     slew_rate_max: float
