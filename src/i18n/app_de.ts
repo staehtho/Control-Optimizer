@@ -422,72 +422,72 @@ Wenn die Abtastrate unbekannt ist, dieses Feld leer lassen, um einen empfohlenen
         <translation type="vanished">Datenverwaltung</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="148"/>
+        <location filename="../views/data_management_view.py" line="149"/>
         <source>Import and Export App Data</source>
         <translation>App‑Daten importieren und exportieren</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="149"/>
+        <location filename="../views/data_management_view.py" line="150"/>
         <source>Create Report</source>
         <translation>Bericht erstellen</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="155"/>
+        <location filename="../views/data_management_view.py" line="156"/>
         <source>Report Configuration</source>
         <translation>Berichtskonfiguration</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="158"/>
+        <location filename="../views/data_management_view.py" line="159"/>
         <source>Plant Configuration</source>
         <translation>Regelstreckenkonfiguration</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="159"/>
+        <location filename="../views/data_management_view.py" line="160"/>
         <source>Excitation Function Configuration</source>
         <translation>Anregungsfunktionskonfiguration</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="160"/>
+        <location filename="../views/data_management_view.py" line="161"/>
         <source>Controller Configuration</source>
         <translation>Reglerkonfiguration</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="161"/>
+        <location filename="../views/data_management_view.py" line="162"/>
         <source>PSO Configuration</source>
         <translation>PSO‑Konfiguration</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="162"/>
+        <location filename="../views/data_management_view.py" line="163"/>
         <source>Block Diagram</source>
         <translation>Blockdiagramm</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="163"/>
+        <location filename="../views/data_management_view.py" line="164"/>
         <source>Time Domain Plot</source>
         <translation>Zeitbereichsdiagramm</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="164"/>
+        <location filename="../views/data_management_view.py" line="165"/>
         <source>Bode Plot</source>
         <translation>Bode‑Diagramm</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="165"/>
+        <location filename="../views/data_management_view.py" line="166"/>
         <source>Transfer Functions</source>
         <translation>Übertragungsfunktionen</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="211"/>
+        <location filename="../views/data_management_view.py" line="212"/>
         <source>Export completed successfully</source>
         <translation>Export erfolgreich abgeschlossen</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="207"/>
+        <location filename="../views/data_management_view.py" line="208"/>
         <source>Import completed successfully</source>
         <translation>Import erfolgreich abgeschlossen</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="215"/>
+        <location filename="../views/data_management_view.py" line="216"/>
         <source>Report generated successfully</source>
         <translation>Bericht erfolgreich erstellt</translation>
     </message>
@@ -495,12 +495,22 @@ Wenn die Abtastrate unbekannt ist, dieses Feld leer lassen, um einen empfohlenen
 <context>
     <name>DataManagementViewModel</name>
     <message>
-        <location filename="../viewmodels/data_management_viewmodel.py" line="161"/>
+        <location filename="../viewmodels/data_management_viewmodel.py" line="29"/>
+        <source>Import failed: {message}</source>
+        <translation>Import fehlgeschlagen: {message}</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/data_management_viewmodel.py" line="30"/>
+        <source>Import failed: Unknown error</source>
+        <translation>Import fehlgeschlagen: Unbekannter Fehler</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/data_management_viewmodel.py" line="164"/>
         <source>Failed to start report generation</source>
         <translation>Berichterstellung konnte nicht gestartet werden</translation>
     </message>
     <message>
-        <location filename="../viewmodels/data_management_viewmodel.py" line="169"/>
+        <location filename="../viewmodels/data_management_viewmodel.py" line="172"/>
         <source>Report generation failed due to missing data</source>
         <translation>Berichterstellung aufgrund fehlender Daten fehlgeschlagen</translation>
     </message>
@@ -1572,6 +1582,37 @@ effiziente und stabile Optimierung im gesamten Parameterraum.
     </message>
 </context>
 <context>
+    <name>ImportExport</name>
+    <message>
+        <location filename="../models/project_state_io.py" line="94"/>
+        <location filename="../models/project_state_io.py" line="231"/>
+        <source>Project file must contain a JSON object at the top level</source>
+        <translation>Die Projektdatei muss auf oberster Ebene ein JSON-Objekt enthalten</translation>
+    </message>
+    <message>
+        <location filename="../models/project_state_io.py" line="98"/>
+        <source>Project file is missing the required &apos;version&apos; field</source>
+        <translation>In der Projektdatei fehlt das erforderliche Feld „Version“</translation>
+    </message>
+    <message>
+        <location filename="../models/project_state_io.py" line="101"/>
+        <source>Unsupported project file version: {version}. Supported versions: {supported}</source>
+        <translation>Nicht unterstützte Projektdateiversion: {version}. Unterstützte Versionen: {supported}</translation>
+    </message>
+    <message>
+        <location filename="../models/project_state_io.py" line="223"/>
+        <location filename="../models/project_state_io.py" line="237"/>
+        <source>Unknown import field or enum value: {name}</source>
+        <translation>Unbekanntes Importfeld oder Enum-Wert: {name}</translation>
+    </message>
+    <message>
+        <location filename="../models/project_state_io.py" line="225"/>
+        <location filename="../models/project_state_io.py" line="239"/>
+        <source>Invalid project file data: {message}</source>
+        <translation>Ungültige Projektdateidaten: {message}</translation>
+    </message>
+</context>
+<context>
     <name>ImportPathWidget</name>
     <message>
         <location filename="../views/widgets/path_widget/import_path_widget.py" line="17"/>
@@ -1973,27 +2014,27 @@ Begrenzt, wie stark das geschlossene System auf Störungen und Modellunsicherhei
 <context>
     <name>PsoConfigurationViewModel</name>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="81"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="82"/>
         <source>Invalid value: start time ({t0}) must be smaller than end time ({t1}).</source>
         <translation>Ungültiger Wert: Startzeit ({t0}) muss kleiner sein als Endzeit ({t1}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="102"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="103"/>
         <source>Invalid value: end time ({t1}) must be greater than start time ({t0}).</source>
         <translation>Ungültiger Wert: Endzeit ({t1}) muss grösser sein als Startzeit ({t0}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="241"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="242"/>
         <source>Invalid value: min ({value}) must be greater or equal than ({min}).</source>
         <translation>Ungültiger Wert: Minimum ({value}) muss grösser oder gleich sein als ({min}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="251"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="252"/>
         <source>Invalid value: min ({value}) must be smaller than max ({max}).</source>
         <translation>Ungültiger Wert: Minimum ({value}) muss kleiner sein als Maximum ({max}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="276"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="277"/>
         <source>Invalid value: max ({value}) must be greater than min ({min}).</source>
         <translation>Ungültiger Wert: Maximum ({value}) muss grösser sein als Minimum ({min}).</translation>
     </message>
