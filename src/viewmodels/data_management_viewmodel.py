@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import QObject, Signal, Slot
+from PySide6.QtCore import QObject, QCoreApplication, Signal, Slot, QT_TRANSLATE_NOOP
 
 from app_types import (
     DynamicReportData, DynamicReportPlant, DynamicReportExcitationFunction,
@@ -26,6 +26,8 @@ if TYPE_CHECKING:
 BLOCK_DIAGRAM = "block_diagram"
 TIME_DOMAIN = "time_domain"
 FREQUENCY_DOMAIN = "frequency_domain"
+IMPORT_FAILED_TEMPLATE = QT_TRANSLATE_NOOP("DataManagementViewModel", "Import failed: {message}")
+IMPORT_FAILED_UNKNOWN = QT_TRANSLATE_NOOP("DataManagementViewModel", "Import failed: Unknown error")
 
 
 class DataManagementViewModel(BaseViewModel):
@@ -43,6 +45,7 @@ class DataManagementViewModel(BaseViewModel):
     reportFailed = Signal(str)
     exportFinished = Signal()
     importFinished = Signal()
+    importFailed = Signal(str)
 
     def __init__(
             self,
@@ -200,8 +203,15 @@ class DataManagementViewModel(BaseViewModel):
 
     @Slot(str)
     def load_project(self, path: str | Path) -> None:
-        self._engine.load_project(path)
-        self.importFinished.emit()
+        try:
+            self._engine.load_project(path)
+            self.importFinished.emit()
+            return
+        except Exception as exc:
+            translated_error = QCoreApplication.translate("DataManagementViewModel", str(exc))
+            message = self.tr(str(IMPORT_FAILED_TEMPLATE)).format(message=translated_error)
+            self.importFailed.emit(message)
+            return
 
     # ============================================================
     # Internal Helper

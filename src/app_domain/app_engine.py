@@ -336,6 +336,8 @@ class AppEngine:
         payload = json.loads(source.read_text(encoding="utf-8"))
         self.model_container.import_project_state(payload)
         self.refresh_ui_from_models()
+        self.model_container.import_project_bounds(payload)
+        self.ensure_pso_viewmodel().refresh_from_model()
         self.logger.info("Project state loaded from %s", source)
 
     def refresh_ui_from_models(self) -> None:
@@ -343,6 +345,7 @@ class AppEngine:
         self.ensure_language_viewmodel().refresh_from_model()
         self.ensure_theme_viewmodel().refresh_from_model()
 
+        self.ensure_pso_viewmodel().preserve_bounds_on_next_controller_sync()
         self.ensure_controller_viewmodel().refresh_from_model()
         self.ensure_plant_viewmodel().refresh_from_model()
         self.ensure_pso_viewmodel().refresh_from_model()
@@ -354,4 +357,3 @@ class AppEngine:
         """Stop background workers before the application exits."""
         self.logger.info("Shutting down AppEngine.")
         self.simulation_service.shutdown()
-

@@ -8,7 +8,7 @@ from .controller_model import ControllerModel
 from .data_management_model import DataManagementModel
 from .function_model import FunctionModel
 from .plant_model import PlantModel
-from .project_state_io import export_project_state, import_project_state
+from .project_state_io import export_project_state, import_project_bounds, import_project_state
 from .pso_configuration_model import PsoConfigurationModel
 from .settings_model import SettingsModel
 from .simulation_model import SimulationModel
@@ -65,3 +65,6 @@ class ModelContainer:
 
     def import_project_state(self, state: dict) -> None:
         import_project_state(self, state)
+
+    def import_project_bounds(self, state: dict) -> None:
+        import_project_bounds(self, state)

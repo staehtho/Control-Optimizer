@@ -63,6 +63,7 @@ class PsoConfigurationViewModel(BaseViewModel):
         self._pso_snapshot: PsoSimulationSnapshot | None = None
 
         self._overshoot_control_visibility: bool = self._get_overshoot_control_visibility()
+        self._preserve_bounds_on_next_controller_sync = False
 
         self._connect_signals()
         self.run_pso_simulation()
@@ -324,6 +325,10 @@ class PsoConfigurationViewModel(BaseViewModel):
         return self._pos_iteration
 
     @Slot()
+    def preserve_bounds_on_next_controller_sync(self) -> None:
+        self._preserve_bounds_on_next_controller_sync = True
+
+    @Slot()
     def refresh_from_model(self) -> None:
         self._overshoot_control_visibility = self._get_overshoot_control_visibility()
 
@@ -344,20 +349,39 @@ class PsoConfigurationViewModel(BaseViewModel):
         self.stabilityMarginChanged.emit()
         self.stabilityMarginEnabledChanged.emit()
 
-        self._on_vm_controller_changed()
+        self._sync_controller_bounds(preserve_existing=True)
 
     # ============================================================
     # Internal helpers
     # ============================================================
     def _on_vm_controller_changed(self) -> None:
-        """Set the bounds of the controller according to the current parameters."""
+        """Reset bounds to controller defaults after an actual controller change."""
+        preserve_existing = self._preserve_bounds_on_next_controller_sync
+        self._preserve_bounds_on_next_controller_sync = False
+        self._sync_controller_bounds(preserve_existing=preserve_existing)
+
+    def _sync_controller_bounds(self, preserve_existing: bool) -> None:
+        """Sync controller bounds, optionally preserving imported values during UI refresh."""
         spec = self._vm_controller.controller_spec
         lw, up = spec.bounds
         params = spec.param_names
 
+        current_lower = self._model_pso.lower_bounds
+        current_upper = self._model_pso.upper_bounds
+
+        expected_keys = list(params)
+        lower_keys_match = list(current_lower.keys()) == expected_keys
+        upper_keys_match = list(current_upper.keys()) == expected_keys
+
         self._model_pso.min_bounds = {k: v for k, v in zip(params, spec.min_bounds)}
-        self._model_pso.lower_bounds = {k: v for k, v in zip(params, lw)}
-        self._model_pso.upper_bounds = {k: v for k, v in zip(params, up)}
+
+        if preserve_existing and lower_keys_match and upper_keys_match:
+            self._model_pso.lower_bounds = {key: current_lower[key] for key in params}
+            self._model_pso.upper_bounds = {key: current_upper[key] for key in params}
+        else:
+            self._model_pso.lower_bounds = {k: v for k, v in zip(params, lw)}
+            self._model_pso.upper_bounds = {k: v for k, v in zip(params, up)}
+
         self._model_pso.n_params = len(lw)
 
         for key in params:
