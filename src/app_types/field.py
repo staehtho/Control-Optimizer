@@ -137,9 +137,7 @@ class PsoResultField(FieldType):
     TIME = "time"
 
     CONTROLLER_PARAMETERS = "controller_parameters"
-    KP = "kp"
-    TI = "ti"
-    TD = "td"
+    PARAMETERS = "parameters"
     FILTER_TIME_CONSTANT = "filter_time_constant"
     TF = "tf"
     TF_LIMITED = "tf_limited"

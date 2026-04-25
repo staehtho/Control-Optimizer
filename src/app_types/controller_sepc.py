@@ -22,7 +22,7 @@ class BaseControllerSpec:
 @dataclass
 class PIDControllerSpec(BaseControllerSpec):
     controller_class = PIDClosedLoop
-    param_names = ["kp", "ti", "td"]
+    param_names = ["Kp", "Ti", "Td"]
     min_bounds = [0.0, 1e-9, 0.0]
     bounds = ([0.0, 0.001, 0.0], [10.0, 10.0, 10.0])
     build_svg = staticmethod(bd.build_controller_svg_pid)

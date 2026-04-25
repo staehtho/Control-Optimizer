@@ -33,7 +33,7 @@ class SimulationViewModel(BaseViewModel):
 
         self._model_functions = model_functions
         self._settings: SettingsModel = settings
-        self._pos_result: PsoResult | None = None
+        self._pso_result: PsoResult | None = None
         self._pso_snapshot: PsoSimulationSnapshot | None = None
 
         self._vm_pso = vm_pso
@@ -65,7 +65,7 @@ class SimulationViewModel(BaseViewModel):
     )
 
     def _on_pso_simulation_finished(self) -> None:
-        self._pos_result = self._vm_pso.get_pso_result()
+        self._pso_result = self._vm_pso.get_pso_result()
         self._pso_snapshot = self._vm_pso.get_pso_snapshot()
 
         if self._pso_snapshot is None:
@@ -83,14 +83,14 @@ class SimulationViewModel(BaseViewModel):
         self.psoSimulationFinished.emit()
 
     def has_result(self) -> bool:
-        return self._pos_result is not None
+        return self._pso_result is not None
 
     def has_snapshot(self) -> bool:
         return self._pso_snapshot is not None
 
     @Slot(float, float)
     def compute_closed_loop_response(self, t0: float, t1: float) -> None:
-        if self._pos_result is None or self._pso_snapshot is None:
+        if self._pso_result is None or self._pso_snapshot is None:
             self.logger.debug("Plant is not valid, closed loop response are not computed")
             return
 
@@ -99,10 +99,7 @@ class SimulationViewModel(BaseViewModel):
         context = ClosedLoopResponseContext(
             num=list(self._pso_snapshot.plant_num),
             den=list(self._pso_snapshot.plant_den),
-            kp=self._pos_result.kp,
-            ti=self._pos_result.ti,
-            td=self._pos_result.td,
-            tf=self._pos_result.tf,
+            controller_params=self._pso_result.best_params,
             t0=t0,
             t1=t1,
             solver=self._settings.solver,
@@ -112,12 +109,12 @@ class SimulationViewModel(BaseViewModel):
                 self._pso_snapshot.controller_constraint_min,
                 self._pso_snapshot.controller_constraint_max,
             ),
-            reference=self._model_functions.get(
-                ExcitationTarget.REFERENCE.name).selected_function.get_function(),
-            input_disturbance=self._model_functions.get(
-                ExcitationTarget.INPUT_DISTURBANCE.name).selected_function.get_function(),
-            measurement_disturbance=self._model_functions.get(
-                ExcitationTarget.MEASUREMENT_DISTURBANCE.name).selected_function.get_function()
+            reference=self._model_functions[
+                ExcitationTarget.REFERENCE.name].selected_function.get_function(),
+            input_disturbance=self._model_functions[
+                ExcitationTarget.INPUT_DISTURBANCE.name].selected_function.get_function(),
+            measurement_disturbance=self._model_functions[
+                ExcitationTarget.MEASUREMENT_DISTURBANCE.name].selected_function.get_function()
         )
 
         self._simulation_service.compute_closed_loop_response(context, self._on_closed_loop_compute_finished)
@@ -127,7 +124,7 @@ class SimulationViewModel(BaseViewModel):
 
     @Slot(float, float)
     def compute_plant_response(self, t0: float, t1: float) -> None:
-        if self._pos_result is None or self._pso_snapshot is None:
+        if self._pso_result is None or self._pso_snapshot is None:
             self.logger.debug("Plant is not valid, plant response are not computed")
             return
 
@@ -139,8 +136,7 @@ class SimulationViewModel(BaseViewModel):
             t0=t0,
             t1=t1,
             solver=self._settings.solver,
-            reference=self._model_functions.get(
-                ExcitationTarget.REFERENCE.name).selected_function.get_function()
+            reference=self._model_functions[ExcitationTarget.REFERENCE.name].selected_function.get_function()
         )
 
         self._simulation_service.compute_plant_response(context, self._on_plant_compute_finished)

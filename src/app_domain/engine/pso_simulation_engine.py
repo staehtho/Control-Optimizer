@@ -207,7 +207,7 @@ class PsoSimulationEngine:
         params = {k: v for k, v in zip(param.controller_param_names, self._best_params)}
 
         if has_tf:
-            params["tf"] = tf_report
+            params["Tf"] = float(tf_report.tf_effective)
 
         return PsoResult(
             simulation_time=self._total_duration,

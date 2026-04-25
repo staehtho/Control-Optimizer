@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QTabWidget, QHBoxLayout
+from PySide6.QtWidgets import QWidget, QLabel, QSizePolicy, QTabWidget, QHBoxLayout, QVBoxLayout
 from PySide6.QtCore import QT_TRANSLATE_NOOP, Qt
 from numpy import ndarray
 
@@ -22,7 +22,7 @@ from resources.resources import Icons
 if TYPE_CHECKING:
     from app_domain.ui_context import UiContext
     from app_types import FrequencyResponse
-    from viewmodels import EvaluationViewModel, PlotViewModel
+    from viewmodels import EvaluationViewModel, PlotViewModel, BodePlotViewModel
     from views.widgets import SectionFrame
 
 TIME_DOMAIN = "time_domain"
@@ -50,10 +50,20 @@ FIELDS: dict[str, list[SectionConfig | FieldConfig]] = {
             FieldConfig(EvaluationField.TF_SENSITIVITY, FormulaWidget, create_label=False),
         ]),
     ],
-    "result": [
+    "result_left": [
         SectionConfig(PsoResultField.RUN_TIME, [
             FieldConfig(PsoResultField.TIME, QLabel, False)
         ]),
+        SectionConfig(PsoResultField.CONTROLLER_PARAMETERS, [
+            FieldConfig(PsoResultField.PARAMETERS, QLabel, False),
+            SectionConfig(PsoResultField.FILTER_TIME_CONSTANT, [
+                FieldConfig(PsoResultField.TF, QLabel, False),
+                FieldConfig(PsoResultField.TF_LIMITED, QLabel, False),
+                FieldConfig(PsoResultField.MIN_SAMPLING_RATE, QLabel, False),
+            ]),
+        ]),
+    ],
+    "result_right": [
         SectionConfig(PsoResultField.PERFORMANCE_INDEX, [
             SectionConfig(PsoResultField.TIME_DOMAIN, [
                 FieldConfig(PsoResultField.ERROR_CRITERION, QLabel, False),
@@ -65,16 +75,6 @@ FIELDS: dict[str, list[SectionConfig | FieldConfig]] = {
                 FieldConfig(PsoResultField.PHASE_MARGIN, QLabel, False),
                 FieldConfig(PsoResultField.STABILITY_MARGIN, QLabel, False),
             ])
-        ]),
-        SectionConfig(PsoResultField.CONTROLLER_PARAMETERS, [
-            FieldConfig(PsoResultField.KP, QLabel, False),
-            FieldConfig(PsoResultField.TI, QLabel, False),
-            FieldConfig(PsoResultField.TD, QLabel, False),
-            SectionConfig(PsoResultField.FILTER_TIME_CONSTANT, [
-                FieldConfig(PsoResultField.TF, QLabel, False),
-                FieldConfig(PsoResultField.TF_LIMITED, QLabel, False),
-                FieldConfig(PsoResultField.MIN_SAMPLING_RATE, QLabel, False),
-            ]),
         ]),
     ]
 }
@@ -115,21 +115,6 @@ PSO_RESULT_TEMPLATE: dict[PsoResultField, Any] = {
         "Stability margin: %(value).3f dB"
     ),
 
-    PsoResultField.KP: QT_TRANSLATE_NOOP(
-        "EvaluationView",
-        "Kp: %(kp).3f"
-    ),
-
-    PsoResultField.TI: QT_TRANSLATE_NOOP(
-        "EvaluationView",
-        "Ti: %(ti).3f"
-    ),
-
-    PsoResultField.TD: QT_TRANSLATE_NOOP(
-        "EvaluationView",
-        "Td: %(td).3f"
-    ),
-
     PsoResultField.TF: QT_TRANSLATE_NOOP(
         "EvaluationView",
         "Tf: %(tf).3f"
@@ -163,7 +148,7 @@ class EvaluationView(ViewMixin, QWidget):
             self,
             ui_context: UiContext,
             vm_evaluator: EvaluationViewModel,
-            vm_plots: dict[str, PlotViewModel],
+            vm_plots: dict[str, PlotViewModel | BodePlotViewModel],
             parent: QWidget = None
     ):
         QWidget.__init__(self, parent)
@@ -221,9 +206,22 @@ class EvaluationView(ViewMixin, QWidget):
 
         frame_layout.addWidget(self._feasible_widget)
 
-        grid_layout = self._create_grid(FIELDS["result"])
+        result_layout = QHBoxLayout()
+        frame_layout.addLayout(result_layout)
 
-        frame_layout.addLayout(grid_layout)
+        # Left column
+        left_col = QVBoxLayout()
+        left_col.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        # Right column
+        right_col = QVBoxLayout()
+        right_col.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        result_layout.addLayout(left_col)
+        result_layout.addLayout(right_col)
+
+        left_col.addLayout(self._create_grid(FIELDS["result_left"], columns=2))
+        right_col.addLayout(self._create_grid(FIELDS["result_right"], columns=2))
 
         return frame
 
@@ -607,10 +605,7 @@ class EvaluationView(ViewMixin, QWidget):
             PsoResultField.GAIN_MARGIN: ({"value": result.gain_margin, "omega": result.omega_180}, True),
             PsoResultField.PHASE_MARGIN: ({"value": result.phase_margin, "omega": result.omega_c}, True),
             PsoResultField.STABILITY_MARGIN: ({"value": result.stability_margin}, True),
-            PsoResultField.KP: ({"kp": result.kp}, True),
-            PsoResultField.TI: ({"ti": result.ti}, True),
-            PsoResultField.TD: ({"td": result.td}, True),
-            PsoResultField.TF: ({"tf": result.tf}, True),
+            PsoResultField.TF: ({"tf": result.best_params.get("Tf", 0)}, True),
             PsoResultField.TF_LIMITED: ({"limited": LIMITED_TEMPLATE.get(limited_key, "")}, show_limited),
             PsoResultField.MIN_SAMPLING_RATE: ({"sampling_rate": result.min_sampling_rate}, not show_limited),
         }
@@ -620,6 +615,17 @@ class EvaluationView(ViewMixin, QWidget):
             widget = self.field_widgets.get(key)
             widget.setVisible(visible)
             widget.setText(self.tr(PSO_RESULT_TEMPLATE[key]) % val_dict)
+
+        # set visibility of the tf section
+        self.labels[PsoResultField.FILTER_TIME_CONSTANT].setVisible(result.has_tf)
+
+        # set the params
+        param_text = "".join(
+            f"<p>{key.title()}: {value:.3f}</p>"
+            for key, value in result.best_params.items()
+            if key != "Tf"
+        )
+        self.field_widgets[PsoResultField.PARAMETERS].setText(param_text)
 
     def _load_block_diagram(self) -> None:
         """Build and recolor the closed loop block diagram SVG."""
