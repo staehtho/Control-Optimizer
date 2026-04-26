@@ -258,9 +258,8 @@ class DataManagementViewModel(BaseViewModel):
             phase_margin=snapshot.phase_margin if snapshot.phase_margin_enabled else None,
             stability=snapshot.stability_margin if snapshot.stability_margin_enabled else None,
             pso_bounds_parameters={
-                "kp": snapshot.kp,
-                "ti": snapshot.ti,
-                "td": snapshot.td,
+                k: (float(lw), float(up))
+                for k, (lw, up) in zip(snapshot.controller_spec.param_names, zip(*snapshot.bounds))
             }
         )
 
@@ -275,10 +274,7 @@ class DataManagementViewModel(BaseViewModel):
         return DynamicReportPsoResult(
             is_feasible=result.is_feasible,
             simulation_time=result.simulation_time,
-            kp=result.kp,
-            ti=result.ti,
-            td=result.td,
-            tf=result.tf,
+            controller_params=result.best_params,
             recommended_sampling_rate=result.min_sampling_rate,
             tf_limitation=tf_limitation,
             error_criterion=result.error_criterion,

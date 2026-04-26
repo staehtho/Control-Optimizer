@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex
+    from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex, ControllerType
 
 
 
@@ -33,7 +33,7 @@ class DynamicReportExcitationFunction:
 
 @dataclass(frozen=True)
 class DynamicReportControllerConfiguration:
-    controller_type: str
+    controller_type: ControllerType
 
     anti_windup: AntiWindup
     factor_ka: float | None
@@ -66,10 +66,7 @@ class DynamicReportPsoConfiguration:
 class DynamicReportPsoResult:
     is_feasible: bool
     simulation_time: float
-    kp: float
-    ti: float
-    td: float
-    tf: float
+    controller_params: dict[str, float]
     recommended_sampling_rate: float | None
     tf_limitation: str | None
 

@@ -53,12 +53,9 @@ def section_result_summary(report: BaseReport, data: DynamicReportPsoResult) -> 
     report.add_paragraph(
         QCoreApplication.translate(
             "Report",
-            "Controller Parameter: Kp = %(kp)s, Ti = %(ti)s, Td = %(td)s, Tf = %(tf)s."
+            "Controller Parameter: %(params)s."
         ) % {
-            "kp": _format_value(data.kp),
-            "ti": _format_value(data.ti),
-            "td": _format_value(data.td),
-            "tf": _format_value(data.tf)
+            "params": ", ".join([f"{k.title()} = {_format_value(v)}" for k, v in data.controller_params.items()])
         }
     )
 
@@ -110,7 +107,7 @@ def section_controller_configuration(report: BaseReport, data: DynamicReportCont
             QCoreApplication.translate(
                 "Report",
                 "%(type)s controller"
-            ) % {"type": data.controller_type}
+            ) % {"type": TRANSLATION(data.controller_type)}
         )
 
     with report.section():
@@ -140,10 +137,7 @@ def section_controller_configuration(report: BaseReport, data: DynamicReportCont
         str_anti_windup = QCoreApplication.translate(
             "Report",
             "%(anti_windup)s method%(ka_part)s."
-        ) % {
-                              "anti_windup": base,
-                              "ka_part": ka_part,
-                          }
+        ) % {"anti_windup": base, "ka_part": ka_part}
 
         report.add_paragraph(str_anti_windup)
 
@@ -258,12 +252,8 @@ def section_pso_result(report: BaseReport, data_config: DynamicReportPsoConfigur
             QCoreApplication.translate("Report", "Parameter"),
             QCoreApplication.translate("Report", "Value"),
         ]
-        table_data = [
-            ["Kp", _format_value(data.kp)],
-            ["Ti", _format_value(data.ti)],
-            ["Td", _format_value(data.td)],
-            ["Tf", _format_value(data.tf)],
-        ]
+        table_data = [[k.title(), _format_value(v)] for k, v in data.controller_params.items()]
+
         report.add_table(header, table_data, width=250)
 
     with report.section():

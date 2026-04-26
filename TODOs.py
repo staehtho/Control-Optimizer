@@ -8,7 +8,6 @@
 
 
 # TODO: Wo ist die automatische Simulationszeit in App -> ok ich verstehe wo (PSO Parameters -> Endtime) somit kann die
-#   Endzeit und Start zeit automatisch bestummen werden -> Startzeit dann auf 0s -> Aufwand abschätzen
+#   Endzeit und Start zeit automatisch bestimmt werden -> Startzeit dann auf 0s -> Aufwand abschätzen
 
 # TODO: SettingsView: kommentar bei hyperparam -> Beschreibung siehe Help??
-# TODO: Update the report so it can handle different controllers
