@@ -11,5 +11,4 @@
 #   Endzeit und Start zeit automatisch bestummen werden -> Startzeit dann auf 0s -> Aufwand abschätzen
 
 # TODO: SettingsView: kommentar bei hyperparam -> Beschreibung siehe Help??
-# TODO: Update block diagram in pso view
 # TODO: Update the report so it can handle different controllers

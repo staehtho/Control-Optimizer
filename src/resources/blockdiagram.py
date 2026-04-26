@@ -35,6 +35,7 @@ def load_controller_diagram(
 
 
 def load_closed_loop_diagram(
+        build_controller_svg: Callable[[AntiWindup], list[SvgData]],
         anti_windup: AntiWindup,
         constraint: tuple[float, float],
         color_map: dict[str, str] | None = None,
@@ -42,6 +43,7 @@ def load_closed_loop_diagram(
     """Build and return the SVG for a full closed-loop system diagram.
 
     Args:
+        build_controller_svg: Build controller diagram function.
         anti_windup: Selected anti-windup strategy.
         constraint: Tuple of (min, max) constraint values.
         color_map: Optional Mapping of original SVG colors to new colors.
@@ -57,7 +59,7 @@ def load_closed_loop_diagram(
         (BlockDiagram.closed_loop, (0, 0))
     ]
 
-    controller_svgs = build_controller_svg_structure(anti_windup)
+    controller_svgs = build_controller_svg(anti_windup)
 
     # Offset controller elements and append them
     for svg_name, (x, y) in controller_svgs:
@@ -94,45 +96,6 @@ def merge_svg_layers(svg_data: list[SvgData]) -> str:
         )
 
     return merge_svgs(layers)
-
-
-def build_controller_svg_structure(anti_windup: AntiWindup) -> list[SvgData]:
-    """Define the structure (components + positions) of the controller diagram.
-
-    Args:
-        anti_windup: Selected anti-windup strategy.
-
-    Returns:
-        List of SVG elements with their positions.
-    """
-    # Layout offsets
-    y_offset = 125
-    node_x = 150
-    sum_x = 475
-
-    svg_elements: list[SvgData] = [
-        (BlockDiagram.blank_base, (0, 0)),
-        (BlockDiagram.controller_in, (0, y_offset)),
-        (BlockDiagram.controller_out, (sum_x, y_offset)),
-        (BlockDiagram.p_path, (node_x, y_offset)),
-        (BlockDiagram.d_path, (node_x, y_offset)),
-    ]
-
-    # Add anti-windup block depending on selected strategy
-    match anti_windup:
-        case AntiWindup.BACKCALCULATION:
-            svg_elements.append((BlockDiagram.backcalculation, (node_x, y_offset)))
-        case AntiWindup.CLAMPING:
-            svg_elements.append((BlockDiagram.clamping, (node_x, y_offset)))
-        case AntiWindup.CONDITIONAL:
-            svg_elements.append((BlockDiagram.conditional, (node_x, y_offset)))
-        case unknown_value:
-            raise ValueError(
-                f"Unsupported anti-windup method: {unknown_value!r}. "
-                "Expected one of: BACKCALCULATION, CLAMPING, CONDITIONAL."
-            )
-
-    return svg_elements
 
 
 def inject_constraints_into_svg(svg: str, constraint: tuple[float, float]) -> str:

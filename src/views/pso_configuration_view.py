@@ -440,6 +440,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
     def _load_closed_loop_block_diagram(self) -> None:
         """Build and recolor the closed loop block diagram SVG."""
         merged_svg = load_closed_loop_diagram(
+            self._vm_controller.controller_spec.build_svg,
             self._vm_controller.anti_windup,
             (self._vm_controller.constraint_min, self._vm_controller.constraint_max),
             self._vm_theme.get_svg_color_map(),
@@ -533,6 +534,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
         self._connect_object_signals(self._get_pso_bounds_widget_bindings())
         self._retranslate_pso_bounds()
         self._apply_init_value_pos_bounds()
+        self._load_closed_loop_block_diagram()
 
     def _on_vm_pso_bounds_changed(self, key: str, bound_key: str) -> None:
         field_key = f"{key}.{bound_key}.{PsoField.PSO_BOUNDS_KEY.value}"
