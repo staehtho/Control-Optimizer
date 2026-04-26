@@ -177,6 +177,38 @@ def pid_update(e: float, e_prev: float, d_filtered_prev: float, integral_prev: f
     return u_updated, integral_updated, d_filtered_updated
 
 
+@njit(inline="always")
+def controller_step(
+        controller_type: int,
+        controller_param: np.ndarray,
+        e: float,
+        e_prev: float,
+        filtered_prev: float,
+        integral: float,
+        dt: float,
+        u_min: float,
+        u_max: float,
+        anti_windup_method: int,
+        ka: float
+):
+    """
+    Centralized controller dispatch.
+    Returns (u, new_integral, new_filtered_prev).
+    Unsupported controllers return NaN sentinels.
+    """
+    if controller_type == ControllerTypeInt.PID:
+        Kp, Ti, Td, Tf = map(float, controller_param[:4])
+        return pid_update(
+            e, e_prev, filtered_prev, integral,
+            Kp, Ti, Td, Tf,
+            dt, u_min, u_max,
+            anti_windup_method, ka
+        )
+
+    # Unsupported controller → sentinel values
+    return np.nan, np.nan, np.nan
+
+
 # =============================================================================
 # ODE Solver
 # =============================================================================
@@ -190,6 +222,34 @@ def rk4(A: np.ndarray, B: np.ndarray, x: np.ndarray, u: float, dt: float) -> np.
     k4 = _matvec_auto(A, x + dt * k3) + Bu
     x += (dt / 6.0) * (k1 + 2 * k2 + 2 * k3 + k4)
     return x
+
+
+@njit(inline="always")
+def plant_step(
+        A: np.ndarray,
+        B: np.ndarray,
+        C: np.ndarray,
+        D: float,
+        x: np.ndarray,
+        u: float,
+        l: float,
+        n: float,
+        dt: float,
+        solver: int
+) -> tuple[np.ndarray, float, float]:
+    """
+    One simulation step of the plant:
+    - advances the state x
+    - computes y (pure plant output)
+    - computes y_out (measured output incl. disturbance + feedthrough)
+    """
+    if solver == MySolverInt.RK4:
+        x = rk4(A, B, x, u + l, dt)
+
+    y = dot1D(C, x)
+    y_out = y + n + D * (u + l)
+
+    return x, y, y_out
 
 
 # =============================================================================
@@ -231,6 +291,25 @@ def itse(t: np.ndarray, y: np.ndarray, r: np.ndarray) -> float:
     return val
 
 
+@njit(inline="always")
+def update_perf(
+        perf: float,
+        performance_index: int,
+        err: float,
+        t: float,
+        dt: float,
+) -> float:
+    if performance_index == PerformanceIndexInt.IAE:
+        return perf + abs(err) * dt
+    elif performance_index == PerformanceIndexInt.ISE:
+        return perf + err * err * dt
+    elif performance_index == PerformanceIndexInt.ITAE:
+        return perf + t * abs(err) * dt
+    elif performance_index == PerformanceIndexInt.ITSE:
+        return perf + t * err * err * dt
+    return perf
+
+
 # =============================================================================
 # Plant Response
 # =============================================================================
@@ -259,6 +338,9 @@ def system_response(t_eval: np.ndarray, dt: float, u_eval: np.ndarray,
     return y_hist
 
 
+# =============================================================================
+# System Response
+# =============================================================================
 @njit(inline="always")
 def system_response_closed_loop(
         controller_param: np.ndarray,
@@ -313,7 +395,6 @@ def system_response_closed_loop(
     e_prev = 0.0
     filtered_prev = 0.0
     integral = 0.0
-    u = 0.0
 
     u_min = float(control_constraint[0])
     u_max = float(control_constraint[1])
@@ -321,6 +402,7 @@ def system_response_closed_loop(
     n_steps = len(t_eval)
     y_hist = np.zeros(n_steps)
     u_hist = np.zeros(n_steps)
+
     y = dot1D(C, x)
 
     for i in range(n_steps):
@@ -330,28 +412,30 @@ def system_response_closed_loop(
 
         e = r - (y + n)
 
-        if controller_type == ControllerTypeInt.PID:
-            Kp, Ti, Td, Tf = map(float, controller_param[:4])
+        # controller decision inside controller_step
+        u, integral, filtered_prev = controller_step(
+            controller_type, controller_param,
+            e, e_prev, filtered_prev, integral,
+            dt, u_min, u_max,
+            anti_windup_method, ka
+        )
 
-            u, integral, filtered_prev = pid_update(
-                e, e_prev, filtered_prev, integral, Kp, Ti, Td, Tf,
-                dt, u_min, u_max, anti_windup_method, ka
-            )
+        if np.isnan(u):
+            return np.ones_like(t_eval) * np.inf, np.ones_like(t_eval) * np.inf
 
-        if solver == MySolverInt.RK4:
-            x = rk4(A, B, x, u + l, dt)
+        x, y, y_out = plant_step(A, B, C, D, x, u, l, n, dt, solver)
 
-        y = dot1D(C, x)
-
-        # Historie: nur das reale Ausgangssignal plus Feedthrough
         u_hist[i] = u
-        y_hist[i] = y + n + D * (u + l)
+        y_hist[i] = y_out
 
         e_prev = e
 
     return u_hist, y_hist
 
 
+# =============================================================================
+# PSO helper
+# =============================================================================
 @njit(inline="always")
 def simulate_metrics(
         controller_param: np.ndarray,
@@ -397,7 +481,6 @@ def simulate_metrics(
     e_prev = 0.0
     filtered_prev = 0.0
     integral = 0.0
-    u = 0.0
 
     u_min = float(control_constraint[0])
     u_max = float(control_constraint[1])
@@ -425,13 +508,15 @@ def simulate_metrics(
 
         e = r - (y + n)
 
-        if controller_type == ControllerTypeInt.PID:
-            Kp, Ti, Td, Tf = map(float, controller_param[:4])
-
-            u, integral, filtered_prev = pid_update(
-                e, e_prev, filtered_prev, integral, Kp, Ti, Td, Tf,
-                dt, u_min, u_max, anti_windup_method, ka
-            )
+        u, integral, filtered_prev = controller_step(
+            controller_type, controller_param,
+            e, e_prev, filtered_prev, integral,
+            dt, u_min, u_max,
+            anti_windup_method, ka
+        )
+        # unsupported controller → return sentinel values
+        if np.isnan(u):
+            return np.inf, np.nan, np.nan
 
         if use_du_dt:
             # Windowed finite-difference estimate of |du/dt|. Using m > 1
@@ -442,22 +527,11 @@ def simulate_metrics(
                 if du_dt_abs > max_du_dt:
                     max_du_dt = du_dt_abs
 
-        if solver == MySolverInt.RK4:
-            x = rk4(A, B, x, u + l, dt)
-
-        y = dot1D(C, x)
-        y_out = y + n + D * (u + l)
+        x, y, y_out = plant_step(A, B, C, D, x, u, l, n, dt, solver)
 
         if i > 0:
             err = r - y_out
-            if performance_index == PerformanceIndexInt.IAE:
-                perf += abs(err) * dt
-            elif performance_index == PerformanceIndexInt.ISE:
-                perf += err * err * dt
-            elif performance_index == PerformanceIndexInt.ITAE:
-                perf += t_eval[i] * abs(err) * dt
-            elif performance_index == PerformanceIndexInt.ITSE:
-                perf += t_eval[i] * err * err * dt
+            perf = update_perf(perf, performance_index, err, t_eval[i], dt)
 
         if use_ov and overshoot_step_amplitude_abs > 0.0 and i >= overshoot_step_start_idx:
             signed_overshoot = overshoot_step_sign * (y_out - overshoot_r_final)
