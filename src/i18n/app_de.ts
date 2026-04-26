@@ -1584,30 +1584,30 @@ effiziente und stabile Optimierung im gesamten Parameterraum.
 <context>
     <name>ImportExport</name>
     <message>
-        <location filename="../models/project_state_io.py" line="94"/>
-        <location filename="../models/project_state_io.py" line="231"/>
+        <location filename="../models/project_state_io.py" line="95"/>
+        <location filename="../models/project_state_io.py" line="239"/>
         <source>Project file must contain a JSON object at the top level</source>
         <translation>Die Projektdatei muss auf oberster Ebene ein JSON-Objekt enthalten</translation>
     </message>
     <message>
-        <location filename="../models/project_state_io.py" line="98"/>
+        <location filename="../models/project_state_io.py" line="100"/>
         <source>Project file is missing the required &apos;version&apos; field</source>
         <translation>In der Projektdatei fehlt das erforderliche Feld „Version“</translation>
     </message>
     <message>
-        <location filename="../models/project_state_io.py" line="101"/>
+        <location filename="../models/project_state_io.py" line="103"/>
         <source>Unsupported project file version: {version}. Supported versions: {supported}</source>
         <translation>Nicht unterstützte Projektdateiversion: {version}. Unterstützte Versionen: {supported}</translation>
     </message>
     <message>
-        <location filename="../models/project_state_io.py" line="223"/>
-        <location filename="../models/project_state_io.py" line="237"/>
+        <location filename="../models/project_state_io.py" line="228"/>
+        <location filename="../models/project_state_io.py" line="246"/>
         <source>Unknown import field or enum value: {name}</source>
         <translation>Unbekanntes Importfeld oder Enum-Wert: {name}</translation>
     </message>
     <message>
-        <location filename="../models/project_state_io.py" line="225"/>
-        <location filename="../models/project_state_io.py" line="239"/>
+        <location filename="../models/project_state_io.py" line="231"/>
+        <location filename="../models/project_state_io.py" line="249"/>
         <source>Invalid project file data: {message}</source>
         <translation>Ungültige Projektdateidaten: {message}</translation>
     </message>
@@ -1961,7 +1961,7 @@ Stellt ausreichende Stabilität sicher, indem der zulässige zusätzliche Phasen
 Begrenzt, wie stark das geschlossene System auf Störungen und Modellunsicherheiten reagiert.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="466"/>
+        <location filename="../views/pso_configuration_view.py" line="467"/>
         <source>Interrupted</source>
         <translation>Unterbrochen</translation>
     </message>

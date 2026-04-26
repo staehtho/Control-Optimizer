@@ -1561,30 +1561,30 @@ optimization across the entire parameter space.
 <context>
     <name>ImportExport</name>
     <message>
-        <location filename="../models/project_state_io.py" line="94"/>
-        <location filename="../models/project_state_io.py" line="231"/>
+        <location filename="../models/project_state_io.py" line="95"/>
+        <location filename="../models/project_state_io.py" line="239"/>
         <source>Project file must contain a JSON object at the top level</source>
         <translation>Project file must contain a JSON object at the top level</translation>
     </message>
     <message>
-        <location filename="../models/project_state_io.py" line="98"/>
+        <location filename="../models/project_state_io.py" line="100"/>
         <source>Project file is missing the required &apos;version&apos; field</source>
         <translation>Project file is missing the required &apos;version&apos; field</translation>
     </message>
     <message>
-        <location filename="../models/project_state_io.py" line="101"/>
+        <location filename="../models/project_state_io.py" line="103"/>
         <source>Unsupported project file version: {version}. Supported versions: {supported}</source>
         <translation>Unsupported project file version: {version}. Supported versions: {supported}</translation>
     </message>
     <message>
-        <location filename="../models/project_state_io.py" line="223"/>
-        <location filename="../models/project_state_io.py" line="237"/>
+        <location filename="../models/project_state_io.py" line="228"/>
+        <location filename="../models/project_state_io.py" line="246"/>
         <source>Unknown import field or enum value: {name}</source>
         <translation>Unknown import field or enum value: {name}</translation>
     </message>
     <message>
-        <location filename="../models/project_state_io.py" line="225"/>
-        <location filename="../models/project_state_io.py" line="239"/>
+        <location filename="../models/project_state_io.py" line="231"/>
+        <location filename="../models/project_state_io.py" line="249"/>
         <source>Invalid project file data: {message}</source>
         <translation>Invalid project file data: {message}</translation>
     </message>
@@ -1938,7 +1938,7 @@ Ensures adequate stability by limiting the allowable additional phase lag before
 Limits how strongly the closed loop system responds to disturbances and model uncertainties.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="466"/>
+        <location filename="../views/pso_configuration_view.py" line="467"/>
         <source>Interrupted</source>
         <translation>Interrupted</translation>
     </message>
