@@ -18,10 +18,9 @@ from app_domain.controlsys import (
     PIDClosedLoop,
     PerformanceIndex,
     Plant,
-    PsoFunc,
-    compute_effective_tf_report,
     dominant_pole_realpart,
 )
+from app_domain.pso_objective import PsoFunc
 
 
 def load_cases_from_excel(xlsx_path: Path) -> list[dict]:

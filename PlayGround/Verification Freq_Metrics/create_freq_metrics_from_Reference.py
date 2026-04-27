@@ -13,7 +13,6 @@ if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
 from app_domain.controlsys import Plant, PIDClosedLoop
-from app_domain.pso_objective import compute_effective_tf_report
 from app_domain.pso_objective.freq_metrics import compute_loop_metrics_batch
 
 
@@ -21,10 +20,8 @@ from app_domain.pso_objective.freq_metrics import compute_loop_metrics_batch
 W_MIN_EXP = -4
 W_MAX_EXP = 4
 W_POINTS = 4000
-TIME_STEP = 1e-4
-TF_TUNING_FACTOR_N = 5.0
-TF_LIMIT_FACTOR_K = 5.0
-SAMPLING_RATE_HZ = None
+TF_MIN = 1e-6
+TF_MAX = 1e6
 
 
 def make_ptn(n: int) -> Plant:
@@ -37,6 +34,22 @@ def make_pt2(damping: float) -> Plant:
     """PT2: G(s) = 1 / (s^2 + 2*D*s + 1) with K=1 and Tm=1."""
     den = np.array([1.0, 2.0 * float(damping), 1.0], dtype=float)
     return Plant(num=np.array([1.0], dtype=float), den=den)
+
+
+def matlab_style_tf_from_den(den: np.ndarray) -> float:
+    """Mirror the MATLAB verification logic for deriving Tf from the plant poles."""
+    poles = np.roots(np.asarray(den, dtype=np.float64))
+    if poles.size == 0:
+        raise ValueError("Plant denominator must define at least one pole.")
+
+    dominant_pole = poles[np.argmax(poles.real)]
+    if dominant_pole.real < -1e-12:
+        tau = -1.0 / dominant_pole.real
+    else:
+        tau = 1.0 / max(abs(dominant_pole), 1e-12)
+
+    tf_value = tau / 100.0
+    return float(np.clip(tf_value, TF_MIN, TF_MAX))
 
 
 def parse_reference_cases(xlsx_path: Path) -> pd.DataFrame:
@@ -143,26 +156,15 @@ def evaluate_cases(df_cases: pd.DataFrame, w: np.ndarray) -> pd.DataFrame:
             plant = make_pt2(float(param))
 
         s = 1j * w
-        tf_used = np.array(
-            [
-                compute_effective_tf_report(
-                    Td=float(td_value),
-                    dt=TIME_STEP,
-                    tf_tuning_factor_n=TF_TUNING_FACTOR_N,
-                    tf_limit_factor_k=TF_LIMIT_FACTOR_K,
-                    sampling_rate_hz=SAMPLING_RATE_HZ,
-                ).tf_effective
-                for td_value in group["Td"].to_numpy(dtype=float)
-            ],
-            dtype=float,
-        )
+        tf_scalar = matlab_style_tf_from_den(plant.den)
+        tf_used = np.full(len(group), tf_scalar, dtype=float)
 
         with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
             X = np.column_stack([
                 group["Kp"].to_numpy(float),
                 group["Ti"].to_numpy(float),
                 group["Td"].to_numpy(float),
-                np.full(len(group), tf_used, dtype=float)
+                tf_used,
             ])
             metrics = compute_loop_metrics_batch(plant.system, PIDClosedLoop.frf_batch, X, w)
 
