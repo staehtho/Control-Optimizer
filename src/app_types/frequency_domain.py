@@ -3,6 +3,8 @@ from typing import List
 
 from numpy import ndarray
 
+from app_domain.controlsys import ClosedLoop
+
 
 @dataclass(frozen=True)
 class PlantTransferContext:
@@ -42,9 +44,6 @@ class FrequencyResponse:
 
 @dataclass(frozen=True)
 class ControllerTransferContext:
-    """Input parameters for computing the controller frequency response.
-
-    This context contains PID controller parameters used to evaluate
-    the controller transfer function C(s) in the frequency domain.
-    """
+    """Input parameters for computing the controller frequency response. """
+    controller: type[ClosedLoop]
     controller_parmas: dict[str, float]

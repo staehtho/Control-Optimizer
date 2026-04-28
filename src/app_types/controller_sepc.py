@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Callable
 from dataclasses import dataclass
 
-from app_domain.controlsys import ControllerType, PIDClosedLoop
+from app_domain.controlsys import ControllerType, PIDClosedLoop, PIDFFClosedLoop
 import resources.blockdiagram as bd
 
 if TYPE_CHECKING:
@@ -30,7 +30,8 @@ class PIDControllerSpec(BaseControllerSpec):
 
 @dataclass
 class PIDFFControllerSpec(BaseControllerSpec):
-    controller_class = PIDClosedLoop
+    controller_class = PIDFFClosedLoop
+    # TODO: params?
     param_names = ["ab", "cd"]
     min_bounds = [5.0, 5.0]
     bounds = ([5.0, 5.0], [20.0, 30.0])

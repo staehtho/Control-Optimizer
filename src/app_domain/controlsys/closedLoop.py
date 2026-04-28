@@ -20,11 +20,13 @@ from typing import Callable
 
 import numpy as np
 
-from .enums import AntiWindup
+from .enums import AntiWindup, MySolver, map_enum_to_int, ControllerType
 from .plant import Plant
 
 
 class ClosedLoop(ABC):
+    controller_type: ControllerType  # each subclass sets this
+
     def __init__(
             self,
             plant: Plant,
@@ -121,6 +123,10 @@ class ClosedLoop(ABC):
         return self._ka
 
     @abstractmethod
+    def get_controller_params(self) -> list[float]:
+        pass
+
+    @abstractmethod
     def controller(self, s: complex | np.ndarray) -> complex | np.ndarray:
         """Compute the controller transfer function in the Laplace domain.
 
@@ -144,6 +150,12 @@ class ClosedLoop(ABC):
             NotImplementedError:
                 Raised by concrete subclasses if controller evaluation is not implemented.
         """
+        pass
+
+    @classmethod
+    @abstractmethod
+    def transfer_function(cls, s: complex | np.ndarray, **params) -> complex | np.ndarray:
+        """Class-level controller evaluation."""
         pass
 
     @classmethod
@@ -235,7 +247,7 @@ class ClosedLoop(ABC):
             t0: float = 0,
             t1: float = 10,
             dt: float = 1e-4
-    ) -> tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Compute the step response of the system.
 
@@ -269,7 +281,7 @@ class ClosedLoop(ABC):
             t0: float = 0,
             t1: float = 10,
             dt: float = 1e-4
-    ) -> tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Compute the step response of the system to a disturbance at the plant input (l).
 
@@ -294,7 +306,7 @@ class ClosedLoop(ABC):
             t0: float = 0,
             t1: float = 10,
             dt: float = 1e-4
-    ) -> tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Compute the step response of the system to a disturbance at the plant input (n).
 
@@ -314,7 +326,6 @@ class ClosedLoop(ABC):
         n = lambda t: np.ones_like(t)
         return self.system_response(t0, t1, dt, n=n)
 
-    @abstractmethod
     def system_response(
             self,
             t0: float,
@@ -323,49 +334,110 @@ class ClosedLoop(ABC):
             r: Callable[[np.ndarray], np.ndarray] | None = None,
             l: Callable[[np.ndarray], np.ndarray] | None = None,
             n: Callable[[np.ndarray], np.ndarray] | None = None,
-            x0: np.ndarray | None = None,
-            y0: float = 0
-    ) -> tuple[np.ndarray, np.ndarray]:
-        """Simulate the closed-loop time-domain response of the system.
-
-        Computes the time response of the controlled plant under a specified
-        reference trajectory and optional disturbances. Implementations must
-        propagate the plant dynamics, controller dynamics, and all internal states
-        over the time vector defined by ``t0``, ``t1``, and ``dt``.
-
-        The function must return both the simulated time vector and the corresponding
-        output trajectory. Concrete subclasses must implement the actual simulation.
-
-        Args:
-            t0 (float):
-                Simulation start time in seconds.
-            t1 (float):
-                Simulation end time in seconds.
-            dt (float):
-                Simulation time step in seconds.
-            r (Callable[[np.ndarray], np.ndarray] | None, optional):
-                Reference (setpoint) function. Must accept a NumPy time vector and
-                return a trajectory of equal length. If ``None``, a zero reference is used.
-            l (Callable[[np.ndarray], np.ndarray] | None, optional):
-                Input disturbance function applied at the plant input (Z1). If ``None``,
-                a zero disturbance is assumed.
-            n (Callable[[np.ndarray], np.ndarray] | None, optional):
-                Measurement disturbance function added at the output (Z2). If ``None``,
-                a zero disturbance is assumed.
-            x0 (np.ndarray | None, optional):
-                Initial state vector of the plant. If ``None``, a zero state vector
-                must be assumed by the implementation.
-            y0 (float, optional):
-                Initial value of the measured output. Defaults to ``0``.
-
-        Returns:
-            tuple[np.ndarray, np.ndarray]:
-                A tuple ``(t, y)`` consisting of:
-                - ``t``: Time vector used for simulation.
-                - ``y``: Output trajectory of the closed-loop system.
-
-        Raises:
-            NotImplementedError:
-                Raised by concrete subclasses if time-domain simulation is not implemented.
+            solver: MySolver = MySolver.RK4,
+            x0: np.ndarray | None = None
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        pass
+            Simulate the closed-loop time-domain response of the system.
+
+            This method performs a complete closed-loop simulation using the plant's
+            state-space model and the controller kernel associated with the controller
+            type of this instance. The controller is evaluated through the Numba-compiled
+            kernel stored in ``CONTROLLER_REGISTRY`` and parameterized by the subclass-
+            specific ``get_controller_params()`` implementation.
+
+            The simulation propagates:
+                - plant dynamics (A, B, C, D)
+                - controller action via the selected kernel
+                - reference trajectory r(t)
+                - input disturbance l(t)
+                - measurement disturbance n(t)
+                - anti-windup and actuator constraints
+
+            Subclasses do not override this method. They must only define:
+                - ``controller_type`` (enum key for CONTROLLER_REGISTRY)
+                - ``get_controller_params()`` returning the controller parameter vector
+
+            Args:
+                t0 (float):
+                    Simulation start time in seconds.
+                t1 (float):
+                    Simulation end time in seconds.
+                dt (float):
+                    Simulation time step in seconds.
+                r (Callable[[np.ndarray], np.ndarray] | None, optional):
+                    Reference (setpoint) function. If ``None``, a zero reference is used.
+                l (Callable[[np.ndarray], np.ndarray] | None, optional):
+                    Input disturbance function applied at the plant input. If ``None``,
+                    a zero disturbance is used.
+                n (Callable[[np.ndarray], np.ndarray] | None, optional):
+                    Measurement disturbance added to the plant output. If ``None``,
+                    a zero disturbance is used.
+                solver (MySolver, optional):
+                    Numerical integration method for the plant dynamics.
+                x0 (np.ndarray | None, optional):
+                    Initial plant state vector. If ``None``, a zero vector is used.
+
+            Returns:
+                tuple[np.ndarray, np.ndarray, np.ndarray]:
+                    ``(t, u, y)`` where:
+                        - ``t`` is the time vector
+                        - ``u`` is the control signal trajectory
+                        - ``y`` is the plant output trajectory
+
+            Notes:
+                This method is controller-agnostic. All controller-specific behavior
+                (parameter vector, kernel selection) is delegated to the subclass and
+                the controller registry.
+            """
+        from app_domain.pso_objective.time_domain_numba import system_response_closed_loop, CONTROLLER_REGISTRY
+
+        t_eval = np.arange(t0, t1 + dt, dt)
+
+        if r is None:
+            r = lambda t: np.zeros_like(t)
+
+        if l is None:
+            l = lambda t: np.zeros_like(t)
+
+        if n is None:
+            n = lambda t: np.zeros_like(t)
+
+        r_eval = r(t_eval)
+        l_eval = l(t_eval)
+        n_eval = n(t_eval)
+
+        if x0 is None:
+            x0 = np.zeros(self._plant.get_plant_order())
+
+        A, B, C, D = self._plant.get_ABCD()
+
+        A = np.ascontiguousarray(A, dtype=np.float64)
+        # SISO → (n x 1)
+        B = B.flatten()
+        B = np.ascontiguousarray(B, dtype=np.float64)
+        # SISO → (1 x n) wird aber in ein (n x 1) umgeschrieben (Performance)
+        C = C.flatten()
+        C = np.ascontiguousarray(C, dtype=np.float64)
+        # SISO → D ist ein skalar
+        D = float(D[0, 0])
+
+        u, y = system_response_closed_loop(
+            kernel=CONTROLLER_REGISTRY[self.controller_type].kernel,
+            controller_param=np.array(self.get_controller_params()),
+            t_eval=t_eval,
+            dt=dt,
+            r_eval=r_eval,
+            l_eval=l_eval,
+            n_eval=n_eval,
+            x=np.array(x0),
+            control_constraint=np.array(self._control_constraint, dtype=np.float64),
+            anti_windup_method=map_enum_to_int(self._anti_windup_method),
+            ka=float(self.ka),
+            A=A,
+            B=B,
+            C=C,
+            D=D,
+            solver=map_enum_to_int(solver)
+        )
+        return t_eval, u, y

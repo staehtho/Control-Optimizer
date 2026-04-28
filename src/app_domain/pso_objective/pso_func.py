@@ -4,7 +4,7 @@ from typing import Callable
 
 import numpy as np
 
-from app_domain.controlsys import ClosedLoop, PIDClosedLoop
+from app_domain.controlsys import ClosedLoop, PIDClosedLoop, PIDFFClosedLoop
 from app_domain.controlsys.enums import MySolver, PerformanceIndex, map_enum_to_int, ControllerType
 from .freq_metrics import compute_loop_metrics_batch
 from .filter_time_constant_handler import (
@@ -164,10 +164,13 @@ class PsoFunc:
               - V for infeasible candidates
         """
         self.controller = controller
+        self._controller_enum = None
 
         # define through type the Controller-Enum
         if isinstance(controller, PIDClosedLoop):
             self._controller_enum = ControllerType.PID
+        elif isinstance(controller, PIDFFClosedLoop):
+            self._controller_enum = ControllerType.PID_FF
         else:
             raise TypeError(f"Unsupported controller type: '{type(self.controller)}'")
 

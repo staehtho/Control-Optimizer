@@ -47,15 +47,8 @@ class ControllerTransferEngine:
             omega.size,
         )
 
-        # A default plant is required for PIDClosedLoop initialization,
-        # but it is not used when computing the controller transfer function.
-        pid_cl = PIDClosedLoop(
-            Plant([1], [1, 1]),
-            **context.controller_parmas
-        )
-
         s = 1j * omega
-        C = pid_cl.controller(s)
+        C = context.controller.transfer_function(s=s, **context.controller_parmas)
 
         self._logger.info(
             "Controller transfer computation finished (n=%d)",

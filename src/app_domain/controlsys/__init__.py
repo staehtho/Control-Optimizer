@@ -1,4 +1,5 @@
 from .PIDClosedLoop import PIDClosedLoop
+from .PIDFFClosedLoop import PIDFFClosedLoop
 from .closedLoop import ClosedLoop
 from .enums import (
     AntiWindup, AntiWindupInt, PerformanceIndex, PerformanceIndexInt, MySolver, MySolverInt, ExcitationTarget,

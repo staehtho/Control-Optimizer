@@ -234,7 +234,10 @@ class EvaluationViewModel(BaseViewModel):
             den=list(self._pso_snapshot.plant_den),
         )
 
-        context_controller = ControllerTransferContext(self._pso_result.best_params)
+        context_controller = ControllerTransferContext(
+            self._pso_snapshot.controller_spec.controller_class,
+            self._pso_result.best_params
+        )
 
         self._simulation_service.compute_closed_loop_transfer_response(
             context_plant=context_plant,
