@@ -120,7 +120,22 @@ def inject_constraints_into_svg(svg: str, constraint: tuple[float, float]) -> st
 # ============================================================
 # Controller Builder
 # ============================================================
-def build_controller_svg_pid(anti_windup: AntiWindup) -> list[SvgData]:
+def _handle_anti_windup(anti_windup: AntiWindup, x: int, y: int) -> SvgData:
+    match anti_windup:
+        case AntiWindup.BACKCALCULATION:
+            return BlockDiagram.backcalculation, (x, y)
+        case AntiWindup.CLAMPING:
+            return BlockDiagram.clamping, (x, y)
+        case AntiWindup.CONDITIONAL:
+            return BlockDiagram.conditional, (x, y)
+        case unknown_value:
+            raise ValueError(
+                f"Unsupported anti-windup method: {unknown_value!r}. "
+                "Expected one of: BACKCALCULATION, CLAMPING, CONDITIONAL."
+            )
+
+
+def get_pid_controller_svg(anti_windup: AntiWindup) -> list[SvgData]:
     """Define the structure (components + positions) of the controller diagram.
 
     Args:
@@ -140,26 +155,13 @@ def build_controller_svg_pid(anti_windup: AntiWindup) -> list[SvgData]:
         (BlockDiagram.controller_out, (sum_x, y_offset)),
         (BlockDiagram.p_path, (node_x, y_offset)),
         (BlockDiagram.d_path, (node_x, y_offset)),
+        _handle_anti_windup(anti_windup, node_x, y_offset),
     ]
-
-    # Add anti-windup block depending on selected strategy
-    match anti_windup:
-        case AntiWindup.BACKCALCULATION:
-            svg_elements.append((BlockDiagram.backcalculation, (node_x, y_offset)))
-        case AntiWindup.CLAMPING:
-            svg_elements.append((BlockDiagram.clamping, (node_x, y_offset)))
-        case AntiWindup.CONDITIONAL:
-            svg_elements.append((BlockDiagram.conditional, (node_x, y_offset)))
-        case unknown_value:
-            raise ValueError(
-                f"Unsupported anti-windup method: {unknown_value!r}. "
-                "Expected one of: BACKCALCULATION, CLAMPING, CONDITIONAL."
-            )
 
     return svg_elements
 
 
-def build_controller_svg_pid_ff(anti_windup: AntiWindup) -> list[SvgData]:
+def get_pid_ff_controller_svg(anti_windup: AntiWindup) -> list[SvgData]:
     """Define the structure (components + positions) of the controller diagram.
 
     Args:
@@ -173,22 +175,10 @@ def build_controller_svg_pid_ff(anti_windup: AntiWindup) -> list[SvgData]:
     node_x = 150
     sum_x = 475
 
+    # TODO: update the block diagramm
     svg_elements: list[SvgData] = [
         (BlockDiagram.blank_base, (0, 0)),
+        _handle_anti_windup(anti_windup, node_x, y_offset),
     ]
-
-    # Add anti-windup block depending on selected strategy
-    match anti_windup:
-        case AntiWindup.BACKCALCULATION:
-            svg_elements.append((BlockDiagram.backcalculation, (node_x, y_offset)))
-        case AntiWindup.CLAMPING:
-            svg_elements.append((BlockDiagram.clamping, (node_x, y_offset)))
-        case AntiWindup.CONDITIONAL:
-            svg_elements.append((BlockDiagram.conditional, (node_x, y_offset)))
-        case unknown_value:
-            raise ValueError(
-                f"Unsupported anti-windup method: {unknown_value!r}. "
-                "Expected one of: BACKCALCULATION, CLAMPING, CONDITIONAL."
-            )
 
     return svg_elements

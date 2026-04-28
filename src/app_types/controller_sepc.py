@@ -71,7 +71,7 @@ class PIDControllerSpec(BaseControllerSpec):
     param_names = ["Kp", "Ti", "Td"]
     min_bounds = [0.0, 1e-9, 0.0]
     bounds = ([0.0, 0.001, 0.0], [10.0, 10.0, 10.0])
-    build_svg = staticmethod(bd.build_controller_svg_pid)
+    build_svg = staticmethod(bd.get_pid_controller_svg)
 
 
 @dataclass
@@ -81,7 +81,7 @@ class PIDFFControllerSpec(BaseControllerSpec):
     param_names = ["ab", "cd"]
     min_bounds = [5.0, 5.0]
     bounds = ([5.0, 5.0], [20.0, 30.0])
-    build_svg = staticmethod(bd.build_controller_svg_pid_ff)
+    build_svg = staticmethod(bd.get_pid_ff_controller_svg)
 
 
 CONTROLLER_SPECS = {
