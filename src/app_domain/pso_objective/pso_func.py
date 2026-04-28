@@ -15,7 +15,6 @@ from .filter_time_constant_handler import (
 )
 from .time_domain_numba import time_domain_pso_func
 
-from utils.timer import Timer
 
 @dataclass(slots=True)
 class PsoEvaluationResult:
@@ -396,15 +395,12 @@ class PsoFunc:
               - max_du_dt: measured maximum absolute control-rate estimate for
                 simulated candidates; NaN if evaluation is disabled or unavailable
         """
-        timer = Timer()
-        timer.start("X")
         X = np.array(X, dtype=np.float64)
         if X.ndim == 1:
             X = X.reshape(1, -1)
 
         P = X.shape[0]
-        timer.stop()
-        timer.start("Tf")
+
         Td = np.zeros(P, dtype=np.float64)
         calc_tf = False
 
@@ -429,13 +425,11 @@ class PsoFunc:
             # expand the X vector with the tf vector
             X = np.hstack([X, Tf.reshape(Tf.shape[0], 1)])
 
-        timer.stop()
         # --------------------------------------------------
         # 1) Optional: Frequency metrics + constraint violation
         # --------------------------------------------------
         metrics = {}
         if self.use_freq_metrics:
-            timer.start("freq metrics")
             with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
                 metrics = compute_loop_metrics_batch(
                     plant_tf=self._plant_tf,
@@ -445,12 +439,11 @@ class PsoFunc:
                 )
 
             V = self._compute_violation_batch(metrics)
-            timer.stop()
 
         else:
             # No frequency-domain constraints -> all candidates feasible.
             V = np.zeros(P, dtype=np.float64)
-        timer.start("Init array")
+
         V_ov = np.zeros(P, dtype=np.float64)
         V_du = np.zeros(P, dtype=np.float64)
 
@@ -466,19 +459,17 @@ class PsoFunc:
         cost = np.full(P, np.nan, dtype=np.float64)
         # J for feasibility-aware ranking. Infeasible candidates keep J=inf.
         perf = np.full(P, np.inf, dtype=np.float64)
-        timer.stop()
-        timer.start("feasible")
+
         infeasible = V > 0.0
         feasible = ~infeasible
 
         # Infeasible candidates use their total violation as scalar cost proxy.
         cost[infeasible] = V[infeasible]
-        timer.stop()
+
         # --------------------------------------------------
         # 2) Time simulation only for currently feasible candidates
         # --------------------------------------------------
         if np.any(feasible):
-            timer.start("time domain")
             # reduce the X vector to hold only the feasible candidates
             Xf = X[feasible]
             Pf = int(Xf.shape[0])
@@ -519,10 +510,8 @@ class PsoFunc:
             feasible_indices = np.where(feasible)[0]
             feasible_cost = perf_vals.copy()
             infeasible_time_constraint = np.zeros(Pf, dtype=np.bool_)
-            timer.stop()
 
             if self.use_overshoot_control:
-                timer.start("overshoot")
                 overshoot_scale = max(abs(self.allowed_overshoot_pct), 1.0)
                 overshoot_violation = np.maximum(
                     0.0,
@@ -535,10 +524,8 @@ class PsoFunc:
                 V_ov[feasible_indices] = V_ov_local
                 V[feasible_indices] += V_ov_local
                 infeasible_time_constraint |= overshoot_violation > 0.0
-                timer.stop()
 
             if self.use_max_du_dt_constraint:
-                timer.start("max_du_dt")
                 du_dt_scale = max(abs(self.allowed_max_du_dt), 1.0)
                 max_du_dt_violation = np.maximum(
                     0.0,
@@ -555,17 +542,15 @@ class PsoFunc:
                 V_du[feasible_indices] = V_du_local
                 V[feasible_indices] += V_du_local
                 infeasible_time_constraint |= max_du_dt_violation > 0.0
-                timer.stop()
-            timer.start("infeasible time")
+
             if np.any(infeasible_time_constraint):
                 feasible_cost[infeasible_time_constraint] = V[feasible_indices[infeasible_time_constraint]]
                 perf[feasible_indices[infeasible_time_constraint]] = np.inf
             cost[feasible] = feasible_cost
-            timer.stop()
 
         V_total = V.copy()
         feasible_final = V_total <= 0.0
-        timer.report()
+
         return PsoEvaluationResult(
             cost=cost,
             feasible=feasible_final,
