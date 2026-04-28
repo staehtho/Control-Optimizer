@@ -21,7 +21,7 @@ from typing import Callable
 import numpy as np
 
 from .closedLoop import ClosedLoop
-from .enums import *
+from .enums import AntiWindup, MySolver, ControllerType, map_enum_to_int
 from .plant import Plant
 
 
@@ -363,7 +363,7 @@ class PIDClosedLoop(ClosedLoop):
             - The controller's ``ka`` value is forwarded to ``pid_system_response()``.
             - Internally calls the compiled function `pid_system_response()` for performance.
         """
-        from app_domain.pso_objective.time_domain_numba import system_response_closed_loop
+        from app_domain.pso_objective.time_domain_numba import system_response_closed_loop, CONTROLLER_REGISTRY
 
         t_eval = np.arange(t0, t1 + dt, dt)
 
@@ -396,6 +396,7 @@ class PIDClosedLoop(ClosedLoop):
         D = float(D[0, 0])
 
         u, y = system_response_closed_loop(
+            kernel=CONTROLLER_REGISTRY[ControllerType.PID].kernel,
             controller_param=np.array([self._kp, self._ti, self._td, self._tf]),
             t_eval=t_eval,
             dt=dt,
@@ -405,7 +406,6 @@ class PIDClosedLoop(ClosedLoop):
             x=np.array(x0),
             control_constraint=np.array(self._control_constraint, dtype=np.float64),
             anti_windup_method=map_enum_to_int(self._anti_windup_method),
-            controller_type=map_enum_to_int(ControllerType.PID),
             ka=float(self.ka),
             A=A,
             B=B,

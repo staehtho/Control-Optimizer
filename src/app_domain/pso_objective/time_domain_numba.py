@@ -16,7 +16,7 @@
 
 import numpy as np
 from numba import njit, prange, types, float64, int64
-from app_domain.controlsys.enums import *
+from app_domain.controlsys.enums import ControllerType, PerformanceIndexInt, AntiWindupInt, MySolverInt
 
 
 # =============================================================================
@@ -176,11 +176,8 @@ def pid_update(e: float, e_prev: float, d_filtered_prev: float, integral_prev: f
 
     return u_updated, integral_updated, d_filtered_updated
 
-
 @njit(inline="always")
-def controller_step(
-        controller_type: int,
-        controller_param: np.ndarray,
+def pid_kernel(
         e: float,
         e_prev: float,
         filtered_prev: float,
@@ -188,25 +185,18 @@ def controller_step(
         dt: float,
         u_min: float,
         u_max: float,
+        controller_param: np.ndarray,
         anti_windup_method: int,
         ka: float
-):
-    """
-    Centralized controller dispatch.
-    Returns (u, new_integral, new_filtered_prev).
-    Unsupported controllers return NaN sentinels.
-    """
-    if controller_type == ControllerTypeInt.PID:
-        Kp, Ti, Td, Tf = map(float, controller_param[:4])
-        return pid_update(
-            e, e_prev, filtered_prev, integral,
-            Kp, Ti, Td, Tf,
-            dt, u_min, u_max,
-            anti_windup_method, ka
-        )
+) -> tuple[float, float, float]:
+    Kp, Ti, Td, Tf = controller_param
+    return pid_update(
+        e, e_prev, filtered_prev, integral,
+        Kp, Ti, Td, Tf,
+        dt, u_min, u_max,
+        anti_windup_method, ka
+    )
 
-    # Unsupported controller → sentinel values
-    return np.nan, np.nan, np.nan
 
 
 # =============================================================================
@@ -322,6 +312,7 @@ def system_response(t_eval: np.ndarray, dt: float, u_eval: np.ndarray,
 # =============================================================================
 @njit(inline="always")
 def system_response_closed_loop(
+        kernel,
         controller_param: np.ndarray,
         t_eval: np.ndarray,
         dt: float,
@@ -331,7 +322,6 @@ def system_response_closed_loop(
         x: np.ndarray,
         control_constraint: np.ndarray,
         anti_windup_method: int,
-        controller_type: int,
         ka: float,
         A: np.ndarray,
         B: np.ndarray,
@@ -346,6 +336,7 @@ def system_response_closed_loop(
     returns both the control signal history and the measured output trajectory.
 
     Args:
+        kernel: Simulation kernel.
         controller_param: Parameter from controller
         t_eval: Time vector.
         dt: Simulation time step.
@@ -355,7 +346,6 @@ def system_response_closed_loop(
         x: Initial state vector.
         control_constraint: Control limits [u_min, u_max].
         anti_windup_method: Anti-windup strategy enum value.
-        controller_type: Controller type enum value.
         ka: Scaling factor applied to the back-calculation feedback term.
         A: Plant state matrix.
         B: Input matrix.
@@ -391,12 +381,17 @@ def system_response_closed_loop(
 
         e = r - (y + n)
 
-        # controller decision inside controller_step
-        u, integral, filtered_prev = controller_step(
-            controller_type, controller_param,
-            e, e_prev, filtered_prev, integral,
-            dt, u_min, u_max,
-            anti_windup_method, ka
+        u, integral, filtered_prev = kernel(
+            e,
+            e_prev,
+            filtered_prev,
+            integral,
+            dt,
+            u_min,
+            u_max,
+            controller_param,
+            anti_windup_method,
+            ka
         )
 
         if np.isnan(u):
@@ -417,6 +412,7 @@ def system_response_closed_loop(
 # =============================================================================
 @njit(inline="always")
 def simulate_metrics(
+        kernel,
         controller_param: np.ndarray,
         t_eval: np.ndarray,
         dt: float,
@@ -426,7 +422,6 @@ def simulate_metrics(
         x: np.ndarray,
         control_constraint: np.ndarray,
         anti_windup_method: int,
-        controller_type: int,
         ka: float,
         A: np.ndarray,
         B: np.ndarray,
@@ -487,15 +482,18 @@ def simulate_metrics(
 
         e = r - (y + n)
 
-        u, integral, filtered_prev = controller_step(
-            controller_type, controller_param,
-            e, e_prev, filtered_prev, integral,
-            dt, u_min, u_max,
-            anti_windup_method, ka
+        u, integral, filtered_prev = kernel(
+            e,
+            e_prev,
+            filtered_prev,
+            integral,
+            dt,
+            u_min,
+            u_max,
+            controller_param,
+            anti_windup_method,
+            ka
         )
-        # unsupported controller → return sentinel values
-        if np.isnan(u):
-            return np.inf, np.nan, np.nan
 
         if use_du_dt:
             # Windowed finite-difference estimate of |du/dt|. Using m > 1
@@ -545,6 +543,7 @@ def simulate_metrics(
 # =============================================================================
 @njit(parallel=True)
 def time_domain_pso_func(
+        kernel,
         controller_param: np.ndarray,
         t_eval: np.ndarray,
         dt: float,
@@ -559,7 +558,6 @@ def time_domain_pso_func(
         system_order: int,
         control_constraint: np.ndarray,
         anti_windup_method: int,
-        controller_type: int,
         ka: float,
         solver: int,
         performance_index: int,
@@ -581,6 +579,7 @@ def time_domain_pso_func(
         x = np.zeros(system_order, dtype=np.float64)
 
         perf_i, overshoot_i, max_du_dt_i = simulate_metrics(
+            kernel,
             controller_param[i, :],
             t_eval,
             dt,
@@ -590,7 +589,6 @@ def time_domain_pso_func(
             x,
             control_constraint,
             anti_windup_method,
-            controller_type,
             ka,
             A,
             B,
@@ -611,3 +609,16 @@ def time_domain_pso_func(
         max_du_dt[i] = max_du_dt_i
 
     return performance_index_val, overshoot_pct, max_du_dt
+
+
+# =============================================================================
+# Controller Registry
+# =============================================================================
+class ControllerSpec:
+    def __init__(self, kernel):
+        self.kernel = kernel
+
+
+CONTROLLER_REGISTRY = {
+    ControllerType.PID: ControllerSpec(kernel=pid_kernel)
+}

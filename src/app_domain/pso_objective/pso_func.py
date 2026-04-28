@@ -4,16 +4,14 @@ from typing import Callable
 
 import numpy as np
 
-from app_domain.controlsys import (
-    ClosedLoop, PIDClosedLoop, MySolver, PerformanceIndex, map_enum_to_int, ControllerType
-)
-
+from app_domain.controlsys import ClosedLoop, PIDClosedLoop
+from app_domain.controlsys.enums import MySolver, PerformanceIndex, map_enum_to_int, ControllerType
 from .freq_metrics import compute_loop_metrics_batch
 from .filter_time_constant_handler import (
     TfLimitReport, compute_effective_tf_report, compute_effective_tf_batch,
     normalize_positive_scalar, normalize_sampling_rate_hz
 )
-from .time_domain_numba import time_domain_pso_func
+from .time_domain_numba import time_domain_pso_func, CONTROLLER_REGISTRY
 
 
 @dataclass(slots=True)
@@ -477,6 +475,7 @@ class PsoFunc:
             compute_max_du_dt = self.calculate_max_du_dt or self.use_max_du_dt_constraint
 
             perf_vals, overshoot_vals, max_du_dt_vals = time_domain_pso_func(
+                CONTROLLER_REGISTRY[self._controller_enum].kernel,
                 Xf,
                 self.t_eval,
                 self.dt,
@@ -490,7 +489,6 @@ class PsoFunc:
                 self.plant_order,
                 self.control_constraint,
                 self.anti_windup_method,
-                map_enum_to_int(self._controller_enum),
                 self.ka, self.solver,
                 self.performance_index,
                 1 if compute_overshoot else 0,
