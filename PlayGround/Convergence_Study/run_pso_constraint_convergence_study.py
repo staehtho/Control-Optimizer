@@ -189,7 +189,6 @@ def build_objective(config: ConstraintConfig) -> PsoFunc:
         calculate_max_du_dt=True,
         allowed_max_du_dt=config.allowed_max_du_dt,
         du_dt_window_steps=config.du_dt_window_steps,
-        enable_logging=False,
     )
 
 

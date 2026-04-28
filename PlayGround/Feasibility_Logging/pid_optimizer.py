@@ -16,7 +16,6 @@
 
 
 import sys
-from pathlib import Path
 
 import numpy as np
 from tqdm import tqdm
@@ -164,13 +163,6 @@ def main():
         t_set, y_set = plant.system_response(u=r, t0=start_time, t1=end_time, dt=time_step)
         end_time = settling_time(t=t_set, y=y_set, r=r, tolerance=0.05, max_allowed_time=end_time)
 
-    base_dir = Path(__file__).resolve().parent
-    log_file = base_dir / "particle_log.csv"
-
-    # Fresh logfile per run to avoid mixed legacy separators/headers.
-    if log_file.exists():
-        log_file.unlink()
-
     obj_func = PsoFunc(
         pid,
         start_time, end_time, time_step,
@@ -194,8 +186,6 @@ def main():
         du_dt_window_steps=du_dt_window_steps,
         performance_index=performance_index,
         swarm_size=swarm_size,
-        enable_logging=True,
-        log_path=str(log_file),
     )
 
     # init values
@@ -212,7 +202,6 @@ def main():
 
 
     for run_idx in pbar:
-        obj_func.set_run_id(run_idx)
         swarm = Swarm(obj_func, swarm_size, 3, bounds)
         swarm_result, objective_cost_val = swarm.simulate_swarm()
 
