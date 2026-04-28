@@ -430,12 +430,12 @@ class PsoFunc:
             X = np.hstack([X, Tf.reshape(Tf.shape[0], 1)])
 
         timer.stop()
-        timer.start("freq metrics")
         # --------------------------------------------------
         # 1) Optional: Frequency metrics + constraint violation
         # --------------------------------------------------
         metrics = {}
         if self.use_freq_metrics:
+            timer.start("freq metrics")
             with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
                 metrics = compute_loop_metrics_batch(
                     plant_tf=self._plant_tf,
@@ -445,11 +445,11 @@ class PsoFunc:
                 )
 
             V = self._compute_violation_batch(metrics)
+            timer.stop()
 
         else:
             # No frequency-domain constraints -> all candidates feasible.
             V = np.zeros(P, dtype=np.float64)
-        timer.stop()
         timer.start("Init array")
         V_ov = np.zeros(P, dtype=np.float64)
         V_du = np.zeros(P, dtype=np.float64)
