@@ -291,25 +291,6 @@ def itse(t: np.ndarray, y: np.ndarray, r: np.ndarray) -> float:
     return val
 
 
-@njit(inline="always")
-def update_perf(
-        perf: float,
-        performance_index: int,
-        err: float,
-        t: float,
-        dt: float,
-) -> float:
-    if performance_index == PerformanceIndexInt.IAE:
-        return perf + abs(err) * dt
-    elif performance_index == PerformanceIndexInt.ISE:
-        return perf + err * err * dt
-    elif performance_index == PerformanceIndexInt.ITAE:
-        return perf + t * abs(err) * dt
-    elif performance_index == PerformanceIndexInt.ITSE:
-        return perf + t * err * err * dt
-    return perf
-
-
 # =============================================================================
 # Plant Response
 # =============================================================================
@@ -328,9 +309,7 @@ def system_response(t_eval: np.ndarray, dt: float, u_eval: np.ndarray,
     for i in range(n_steps):
         u = float(u_eval[i])
 
-        match solver:
-            case MySolverInt.RK4:
-                x = rk4(A, B, x, u, dt)
+        x, y, y_out = plant_step(A, B, C, D, x, u, 0, 0, dt, solver)
 
         y = dot1D(C, x)
         y_hist[i] = y + D * u
@@ -531,7 +510,14 @@ def simulate_metrics(
 
         if i > 0:
             err = r - y_out
-            perf = update_perf(perf, performance_index, err, t_eval[i], dt)
+            if performance_index == PerformanceIndexInt.IAE:
+                perf += abs(err) * dt
+            elif performance_index == PerformanceIndexInt.ISE:
+                perf += err * err * dt
+            elif performance_index == PerformanceIndexInt.ITAE:
+                perf += t_eval[i] * abs(err) * dt
+            elif performance_index == PerformanceIndexInt.ITSE:
+                perf += t_eval[i] * err * err * dt
 
         if use_ov and overshoot_step_amplitude_abs > 0.0 and i >= overshoot_step_start_idx:
             signed_overshoot = overshoot_step_sign * (y_out - overshoot_r_final)
