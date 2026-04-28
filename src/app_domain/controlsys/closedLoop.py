@@ -371,7 +371,7 @@ class ClosedLoop(ABC):
         if x0 is None:
             x0 = np.zeros(self._plant.get_plant_order())
 
-        A, B, C, D = self._plant.get_ABCD()
+        A, B, C, D = self._plant.get_state_space_model()
 
         A = np.ascontiguousarray(A, dtype=np.float64)
         # SISO → (n x 1)

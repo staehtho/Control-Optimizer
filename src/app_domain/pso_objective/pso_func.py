@@ -200,7 +200,7 @@ class PsoFunc:
         self.n_eval = n(self.t_eval)
 
         # Extract state-space matrices and ensure they are contiguous for Numba
-        A, B, C, D = self.controller.plant.get_ABCD()
+        A, B, C, D = self.controller.plant.get_state_space_model()
         self.A = np.ascontiguousarray(A, dtype=np.float64)
 
         # SISO -> (n,)
