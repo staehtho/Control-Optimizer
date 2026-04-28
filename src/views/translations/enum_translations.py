@@ -3,7 +3,7 @@ from typing import Callable, Type, Any
 from PySide6.QtCore import QCoreApplication
 from enum import Enum
 
-from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex, MySolver
+from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex, MySolver, ControllerType
 from app_domain.functions import FunctionTypes
 from app_types import LanguageType, ThemeType, PlotLabels, NavLabels, PerformanceIndexDescription, validate_enum_mapping
 
@@ -247,5 +247,16 @@ class Translation:
                 return QCoreApplication.translate("ControlEnums", "Light")
             case ThemeType.DARK:
                 return QCoreApplication.translate("ControlEnums", "Dark")
+            case _:
+                raise ValueError(f"No translation registered for enum value: {value}")
+
+    @register_translation(ControllerType)
+    def _controller_type(self, value: Enum) -> str:
+        """Return translated label for ControllerType enum."""
+        match value:
+            case ControllerType.PID:
+                return QCoreApplication.translate("ControlEnums", "PID")
+            case ControllerType.PID_FF:
+                return QCoreApplication.translate("ControlEnums", "PID FF")
             case _:
                 raise ValueError(f"No translation registered for enum value: {value}")

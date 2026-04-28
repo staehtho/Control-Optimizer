@@ -293,6 +293,16 @@
         <source>Dark</source>
         <translation>Dunkel</translation>
     </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="258"/>
+        <source>PID</source>
+        <translation>PID</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="260"/>
+        <source>PID FF</source>
+        <translation>PID FF</translation>
+    </message>
 </context>
 <context>
     <name>ControllerView</name>
@@ -361,14 +371,14 @@
         <translation>Abtastrate unbekannt</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="169"/>
+        <location filename="../views/controller_view.py" line="172"/>
         <source>Defines the filter factor N used to compute the filter time constant Tf = Td/N.
                 Smaller values of N result in stronger filtering and a smoother but slower control response.</source>
         <translation>Definiert den Filterfaktor N zur Berechnung der Filterzeitkonstante Tf = Td/N.
 Kleinere Werte von N führen zu stärkerer Filterung und einer glatteren, aber langsameren Regelantwort.</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="173"/>
+        <location filename="../views/controller_view.py" line="176"/>
         <source>The filter time constant Tf is automatically limited by the system’s sampling rate and
                 the simulation time step to ensure stable and proper behavior.
                 If the sampling rate is unknown, leave this field empty to receive a recommended value.</source>
@@ -385,12 +395,12 @@ Wenn die Abtastrate unbekannt ist, dieses Feld leer lassen, um einen empfohlenen
 <context>
     <name>ControllerViewModel</name>
     <message>
-        <location filename="../viewmodels/controller_viewmodel.py" line="62"/>
+        <location filename="../viewmodels/controller_viewmodel.py" line="75"/>
         <source>Invalid value: min ({value}) must be smaller than max ({max}).</source>
         <translation>Ungültiger Wert: Minimum ({value}) muss kleiner sein als Maximum ({max}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/controller_viewmodel.py" line="79"/>
+        <location filename="../viewmodels/controller_viewmodel.py" line="92"/>
         <source>Invalid value: max ({value}) must be greater than min ({min}).</source>
         <translation>Ungültiger Wert: Maximum ({value}) muss grösser sein als Minimum ({min}).</translation>
     </message>
@@ -412,72 +422,72 @@ Wenn die Abtastrate unbekannt ist, dieses Feld leer lassen, um einen empfohlenen
         <translation type="vanished">Datenverwaltung</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="148"/>
+        <location filename="../views/data_management_view.py" line="149"/>
         <source>Import and Export App Data</source>
         <translation>App‑Daten importieren und exportieren</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="149"/>
+        <location filename="../views/data_management_view.py" line="150"/>
         <source>Create Report</source>
         <translation>Bericht erstellen</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="155"/>
+        <location filename="../views/data_management_view.py" line="156"/>
         <source>Report Configuration</source>
         <translation>Berichtskonfiguration</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="158"/>
+        <location filename="../views/data_management_view.py" line="159"/>
         <source>Plant Configuration</source>
         <translation>Regelstreckenkonfiguration</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="159"/>
+        <location filename="../views/data_management_view.py" line="160"/>
         <source>Excitation Function Configuration</source>
         <translation>Anregungsfunktionskonfiguration</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="160"/>
+        <location filename="../views/data_management_view.py" line="161"/>
         <source>Controller Configuration</source>
         <translation>Reglerkonfiguration</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="161"/>
+        <location filename="../views/data_management_view.py" line="162"/>
         <source>PSO Configuration</source>
         <translation>PSO‑Konfiguration</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="162"/>
+        <location filename="../views/data_management_view.py" line="163"/>
         <source>Block Diagram</source>
         <translation>Blockdiagramm</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="163"/>
+        <location filename="../views/data_management_view.py" line="164"/>
         <source>Time Domain Plot</source>
         <translation>Zeitbereichsdiagramm</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="164"/>
+        <location filename="../views/data_management_view.py" line="165"/>
         <source>Bode Plot</source>
         <translation>Bode‑Diagramm</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="165"/>
+        <location filename="../views/data_management_view.py" line="166"/>
         <source>Transfer Functions</source>
         <translation>Übertragungsfunktionen</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="211"/>
+        <location filename="../views/data_management_view.py" line="212"/>
         <source>Export completed successfully</source>
         <translation>Export erfolgreich abgeschlossen</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="207"/>
+        <location filename="../views/data_management_view.py" line="208"/>
         <source>Import completed successfully</source>
         <translation>Import erfolgreich abgeschlossen</translation>
     </message>
     <message>
-        <location filename="../views/data_management_view.py" line="215"/>
+        <location filename="../views/data_management_view.py" line="216"/>
         <source>Report generated successfully</source>
         <translation>Bericht erfolgreich erstellt</translation>
     </message>
@@ -485,12 +495,22 @@ Wenn die Abtastrate unbekannt ist, dieses Feld leer lassen, um einen empfohlenen
 <context>
     <name>DataManagementViewModel</name>
     <message>
-        <location filename="../viewmodels/data_management_viewmodel.py" line="161"/>
+        <location filename="../viewmodels/data_management_viewmodel.py" line="29"/>
+        <source>Import failed: {message}</source>
+        <translation>Import fehlgeschlagen: {message}</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/data_management_viewmodel.py" line="30"/>
+        <source>Import failed: Unknown error</source>
+        <translation>Import fehlgeschlagen: Unbekannter Fehler</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/data_management_viewmodel.py" line="164"/>
         <source>Failed to start report generation</source>
         <translation>Berichterstellung konnte nicht gestartet werden</translation>
     </message>
     <message>
-        <location filename="../viewmodels/data_management_viewmodel.py" line="169"/>
+        <location filename="../viewmodels/data_management_viewmodel.py" line="172"/>
         <source>Report generation failed due to missing data</source>
         <translation>Berichterstellung aufgrund fehlender Daten fehlgeschlagen</translation>
     </message>
@@ -533,64 +553,61 @@ Wenn die Abtastrate unbekannt ist, dieses Feld leer lassen, um einen empfohlenen
         <translation>Stabilitätsreserve: %(value).3f dB</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="118"/>
         <source>Kp: %(kp).3f</source>
-        <translation>Kp: %(kp).3f</translation>
+        <translation type="vanished">Kp: %(kp).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="123"/>
         <source>Ti: %(ti).3f</source>
-        <translation>Ti: %(ti).3f</translation>
+        <translation type="vanished">Ti: %(ti).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="128"/>
         <source>Td: %(td).3f</source>
-        <translation>Td: %(td).3f</translation>
+        <translation type="vanished">Td: %(td).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="133"/>
+        <location filename="../views/evaluation_view.py" line="118"/>
         <source>Tf: %(tf).3f</source>
         <translation>Tf: %(tf).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="138"/>
+        <location filename="../views/evaluation_view.py" line="123"/>
         <source>Tf limited by %(limited)s</source>
         <translation>Tf begrenzt durch %(limited)s</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="143"/>
+        <location filename="../views/evaluation_view.py" line="128"/>
         <source>Min. sampling rate: %(sampling_rate).3f Hz</source>
         <translation>Minimale Abtastrate: %(sampling_rate).3f Hz</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="150"/>
+        <location filename="../views/evaluation_view.py" line="135"/>
         <source>simulation</source>
         <translation>Simulation</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="151"/>
+        <location filename="../views/evaluation_view.py" line="136"/>
         <source>sampling rate</source>
         <translation>Abtastrate</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="260"/>
-        <location filename="../views/evaluation_view.py" line="265"/>
+        <location filename="../views/evaluation_view.py" line="258"/>
+        <location filename="../views/evaluation_view.py" line="263"/>
         <source>Time [s]</source>
         <translation>Zeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="261"/>
-        <location filename="../views/evaluation_view.py" line="266"/>
+        <location filename="../views/evaluation_view.py" line="259"/>
+        <location filename="../views/evaluation_view.py" line="264"/>
         <source>Output</source>
         <translation>Ausgang</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="365"/>
+        <location filename="../views/evaluation_view.py" line="363"/>
         <source>System Analysis and Visualization</source>
         <translation>Systemanalyse und Visualisierung</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="384"/>
+        <location filename="../views/evaluation_view.py" line="382"/>
         <source>Closed Loop</source>
         <translation>Geschlossener Regelkreis</translation>
     </message>
@@ -599,74 +616,74 @@ Wenn die Abtastrate unbekannt ist, dieses Feld leer lassen, um einen empfohlenen
         <translation type="vanished">Auswertung</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="364"/>
+        <location filename="../views/evaluation_view.py" line="362"/>
         <source>PSO Result</source>
         <translation>PSO‑Resultat</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="368"/>
-        <location filename="../views/evaluation_view.py" line="378"/>
+        <location filename="../views/evaluation_view.py" line="366"/>
+        <location filename="../views/evaluation_view.py" line="376"/>
         <source>Time Domain</source>
         <translation>Zeitbereich</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="369"/>
-        <location filename="../views/evaluation_view.py" line="379"/>
+        <location filename="../views/evaluation_view.py" line="367"/>
+        <location filename="../views/evaluation_view.py" line="377"/>
         <source>Frequency Domain</source>
         <translation>Frequenzbereich</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="370"/>
+        <location filename="../views/evaluation_view.py" line="368"/>
         <source>Block Diagram</source>
         <translation>Blockdiagramm</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="371"/>
+        <location filename="../views/evaluation_view.py" line="369"/>
         <source>Transfer Functions</source>
         <translation>Übertragungsfunktionen</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="374"/>
+        <location filename="../views/evaluation_view.py" line="372"/>
         <source>PSO run time</source>
         <translation>PSO‑Laufzeit</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="376"/>
+        <location filename="../views/evaluation_view.py" line="374"/>
         <source>Filter Time Constant</source>
         <translation>Filterzeitkonstante</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="377"/>
+        <location filename="../views/evaluation_view.py" line="375"/>
         <source>Performance Index</source>
         <translation>Gütefunktion</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="381"/>
+        <location filename="../views/evaluation_view.py" line="379"/>
         <source>Plant</source>
         <translation>Regelstrecke</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="382"/>
+        <location filename="../views/evaluation_view.py" line="380"/>
         <source>Controller</source>
         <translation>Regler</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="383"/>
+        <location filename="../views/evaluation_view.py" line="381"/>
         <source>Open Loop</source>
         <translation>Offene Kette</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="385"/>
+        <location filename="../views/evaluation_view.py" line="383"/>
         <source>Sensitivity</source>
         <translation>Sensitivität</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="391"/>
+        <location filename="../views/evaluation_view.py" line="389"/>
         <source>Not feasible</source>
         <translation>Nicht zulässig</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="375"/>
+        <location filename="../views/evaluation_view.py" line="373"/>
         <source>Controller Parameters</source>
         <translation>Reglerparameter</translation>
     </message>
@@ -1565,6 +1582,37 @@ effiziente und stabile Optimierung im gesamten Parameterraum.
     </message>
 </context>
 <context>
+    <name>ImportExport</name>
+    <message>
+        <location filename="../models/project_state_io.py" line="95"/>
+        <location filename="../models/project_state_io.py" line="239"/>
+        <source>Project file must contain a JSON object at the top level</source>
+        <translation>Die Projektdatei muss auf oberster Ebene ein JSON-Objekt enthalten</translation>
+    </message>
+    <message>
+        <location filename="../models/project_state_io.py" line="100"/>
+        <source>Project file is missing the required &apos;version&apos; field</source>
+        <translation>In der Projektdatei fehlt das erforderliche Feld „Version“</translation>
+    </message>
+    <message>
+        <location filename="../models/project_state_io.py" line="103"/>
+        <source>Unsupported project file version: {version}. Supported versions: {supported}</source>
+        <translation>Nicht unterstützte Projektdateiversion: {version}. Unterstützte Versionen: {supported}</translation>
+    </message>
+    <message>
+        <location filename="../models/project_state_io.py" line="228"/>
+        <location filename="../models/project_state_io.py" line="246"/>
+        <source>Unknown import field or enum value: {name}</source>
+        <translation>Unbekanntes Importfeld oder Enum-Wert: {name}</translation>
+    </message>
+    <message>
+        <location filename="../models/project_state_io.py" line="231"/>
+        <location filename="../models/project_state_io.py" line="249"/>
+        <source>Invalid project file data: {message}</source>
+        <translation>Ungültige Projektdateidaten: {message}</translation>
+    </message>
+</context>
+<context>
     <name>ImportPathWidget</name>
     <message>
         <location filename="../views/widgets/path_widget/import_path_widget.py" line="17"/>
@@ -1777,104 +1825,106 @@ Muss grösser als die Startzeit sein.</translation>
         <translation type="vanished">PSO‑Parameter</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="242"/>
+        <location filename="../views/pso_configuration_view.py" line="252"/>
         <source>Closed Loop Block Diagram</source>
         <translation>Blockdiagramm des geschlossenen Regelkreises</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="246"/>
+        <location filename="../views/pso_configuration_view.py" line="256"/>
         <source>Plant</source>
         <translation>Regelstrecke</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="247"/>
+        <location filename="../views/pso_configuration_view.py" line="257"/>
         <source>Excitation Function</source>
         <translation>Anregungsfunktion</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="243"/>
+        <location filename="../views/pso_configuration_view.py" line="253"/>
         <source>PSO Simulation</source>
         <translation>PSO‑Simulation</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="249"/>
+        <location filename="../views/pso_configuration_view.py" line="259"/>
         <source>Simulation Time</source>
         <translation>Simulationszeit</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="254"/>
+        <location filename="../views/pso_configuration_view.py" line="264"/>
         <source>Error Criterion</source>
         <translation>Fehlerkriterium</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="250"/>
+        <location filename="../views/pso_configuration_view.py" line="260"/>
         <source>Start Time [s]</source>
         <translation>Startzeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="251"/>
+        <location filename="../views/pso_configuration_view.py" line="261"/>
         <source>End Time [s]</source>
         <translation>Endzeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="255"/>
+        <location filename="../views/pso_configuration_view.py" line="265"/>
         <source>Max Overshoot [%]</source>
         <translation>Maximales Überschwingen [%]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="256"/>
+        <location filename="../views/pso_configuration_view.py" line="266"/>
         <source>Slew Rate Limit</source>
         <translation>Stellratenbegrenzung</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="257"/>
+        <location filename="../views/pso_configuration_view.py" line="267"/>
         <source>Maximum du/dt</source>
         <translation>Maximales du/dt</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="258"/>
+        <location filename="../views/pso_configuration_view.py" line="268"/>
         <source>Window Size</source>
         <translation>Fenstergrösse</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="259"/>
+        <location filename="../views/pso_configuration_view.py" line="269"/>
         <source>Frequency Domain</source>
         <translation>Frequenzbereich</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="263"/>
+        <location filename="../views/pso_configuration_view.py" line="273"/>
         <source>PSO Bounds</source>
         <translation>PSO‑Grenzen</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="264"/>
         <source>Kp Bounds</source>
-        <translation>Kp‑Grenzen</translation>
+        <translation type="vanished">Kp‑Grenzen</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="267"/>
         <source>Ti Bounds</source>
-        <translation>Ti‑Grenzen</translation>
+        <translation type="vanished">Ti‑Grenzen</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="270"/>
         <source>Td Bounds</source>
-        <translation>Td‑Grenzen</translation>
+        <translation type="vanished">Td‑Grenzen</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="274"/>
+        <location filename="../views/pso_configuration_view.py" line="275"/>
         <source>Interrupt</source>
         <translation>PSO‑Simulation unterbrechen</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="291"/>
+        <location filename="../views/pso_configuration_view.py" line="304"/>
+        <source>%(param_name)s bounds</source>
+        <translation>%(param_name)s-Grenze</translation>
+    </message>
+    <message>
+        <location filename="../views/pso_configuration_view.py" line="311"/>
         <source>Specifies the maximum allowed overshoot as a percentage.
                 This setting is only available for excitation type %(excitation_target)s and function type %(function_type)s.</source>
         <translation>Legt das maximal zulässige Überschwingen in Prozent fest.
 Diese Einstellung ist nur für Anregungstyp %(excitation_target)s und Funktionstyp %(function_type)s verfügbar.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="298"/>
+        <location filename="../views/pso_configuration_view.py" line="318"/>
         <source>Limits the maximum rate of change of the controller output du/dt.
                 This constrains how quickly the control signal u can change over time,
                 helping to prevent actuator saturation and excessive dynamics.</source>
@@ -1883,84 +1933,80 @@ Dies limitiert, wie schnell sich das Steuersignal u ändern darf,
 und hilft, Aktorsättigung und übermässige Dynamik zu vermeiden.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="303"/>
+        <location filename="../views/pso_configuration_view.py" line="323"/>
         <source>Defines the time window used to compute the rate of change du/dt of the controller output.
                 Larger windows provide smoother estimates, while smaller windows increase sensitivity to rapid changes.</source>
         <translation>Definiert das Zeitfenster zur Berechnung der Änderungsrate du/dt des Reglerausgangs.
 Grössere Fenster liefern glattere Schätzungen, kleinere erhöhen die Sensitivität auf schnelle Änderungen.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="307"/>
+        <location filename="../views/pso_configuration_view.py" line="327"/>
         <source>Defines the minimum required gain margin (in dB).
                 Ensures sufficient robustness by specifying how much the open loop gain can increase before instability occurs.</source>
         <translation>Definiert die minimal erforderliche Verstärkungsreserve (in dB).
 Stellt ausreichende Robustheit sicher, indem festgelegt wird, wie stark die offene Kreisverstärkung steigen darf, bevor Instabilität auftritt.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="311"/>
+        <location filename="../views/pso_configuration_view.py" line="331"/>
         <source>Defines the minimum required phase margin (in degrees).
                 Ensures adequate stability by limiting the allowable additional phase lag before instability.</source>
         <translation>Definiert die minimal erforderliche Phasenreserve (in Grad).
 Stellt ausreichende Stabilität sicher, indem der zulässige zusätzliche Phasenverzug begrenzt wird.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="315"/>
+        <location filename="../views/pso_configuration_view.py" line="335"/>
         <source>Defines the maximum allowed sensitivity (in dB).
                 Limits how strongly the closed loop system responds to disturbances and model uncertainties.</source>
         <translation>Definiert die maximal zulässige Sensitivität (in dB).
 Begrenzt, wie stark das geschlossene System auf Störungen und Modellunsicherheiten reagiert.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="432"/>
+        <location filename="../views/pso_configuration_view.py" line="467"/>
         <source>Interrupted</source>
         <translation>Unterbrochen</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="248"/>
+        <location filename="../views/pso_configuration_view.py" line="258"/>
         <source>Excitation Target</source>
         <translation>Anregungsziel</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="252"/>
+        <location filename="../views/pso_configuration_view.py" line="262"/>
         <source>Performance Index</source>
         <translation>Gütekriterium</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="253"/>
+        <location filename="../views/pso_configuration_view.py" line="263"/>
         <source>Time Domain</source>
         <translation>Zeitbereich</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="260"/>
+        <location filename="../views/pso_configuration_view.py" line="270"/>
         <source>Gain margin [dB]</source>
         <translation>Amplitudenreserve [dB]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="261"/>
+        <location filename="../views/pso_configuration_view.py" line="271"/>
         <source>Phase margin [°]</source>
         <translation>Phasenreserve [°]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="262"/>
+        <location filename="../views/pso_configuration_view.py" line="272"/>
         <source>Stability margin [dB]</source>
         <translation>Stabilitätsreserve [dB]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="265"/>
-        <location filename="../views/pso_configuration_view.py" line="268"/>
-        <location filename="../views/pso_configuration_view.py" line="271"/>
+        <location filename="../views/pso_configuration_view.py" line="297"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="266"/>
-        <location filename="../views/pso_configuration_view.py" line="269"/>
-        <location filename="../views/pso_configuration_view.py" line="272"/>
+        <location filename="../views/pso_configuration_view.py" line="301"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="273"/>
+        <location filename="../views/pso_configuration_view.py" line="274"/>
         <source>Start PSO Simulation</source>
         <translation>PSO‑Simulation starten</translation>
     </message>
@@ -1978,16 +2024,17 @@ Begrenzt, wie stark das geschlossene System auf Störungen und Modellunsicherhei
         <translation>Ungültiger Wert: Endzeit ({t1}) muss grösser sein als Startzeit ({t0}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="233"/>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="275"/>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="317"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="242"/>
+        <source>Invalid value: min ({value}) must be greater or equal than ({min}).</source>
+        <translation>Ungültiger Wert: Minimum ({value}) muss grösser oder gleich sein als ({min}).</translation>
+    </message>
+    <message>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="252"/>
         <source>Invalid value: min ({value}) must be smaller than max ({max}).</source>
         <translation>Ungültiger Wert: Minimum ({value}) muss kleiner sein als Maximum ({max}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="251"/>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="296"/>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="335"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="277"/>
         <source>Invalid value: max ({value}) must be greater than min ({min}).</source>
         <translation>Ungültiger Wert: Maximum ({value}) muss grösser sein als Minimum ({min}).</translation>
     </message>

@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from service import SimulationService
     from app_types import PsoResult
     from models import ModelContainer, PsoConfigurationModel, SettingsModel, PlantModel, FunctionModel, ControllerModel
+    from .controller_viewmodel import ControllerViewModel
 
 class PsoConfigurationViewModel(BaseViewModel):
     t0Changed = Signal()
@@ -33,12 +34,8 @@ class PsoConfigurationViewModel(BaseViewModel):
     phaseMarginEnabledChanged = Signal()
     stabilityMarginChanged = Signal()
     stabilityMarginEnabledChanged = Signal()
-    kpMinChanged = Signal()
-    kpMaxChanged = Signal()
-    tiMinChanged = Signal()
-    tiMaxChanged = Signal()
-    tdMinChanged = Signal()
-    tdMaxChanged = Signal()
+    lowerBoundsChanged = Signal(str)
+    upperBoundsChanged = Signal(str)
     psoProgressChanged = Signal(int)
     psoSimulationFinished = Signal()
     psoSimulationInterrupted = Signal()
@@ -46,6 +43,7 @@ class PsoConfigurationViewModel(BaseViewModel):
     def __init__(
             self,
             model_container: ModelContainer,
+            vm_controller: ControllerViewModel,
             simulation_service: SimulationService,
             parent: QObject = None
     ) -> None:
@@ -56,6 +54,8 @@ class PsoConfigurationViewModel(BaseViewModel):
         self._model_controller: ControllerModel = model_container.model_controller
         self._model_pso: PsoConfigurationModel = model_container.model_pso
         self._settings: SettingsModel = model_container.model_settings
+
+        self._vm_controller: ControllerViewModel = vm_controller
         self._simulation_service = simulation_service
 
         self._pos_iteration: int = 0
@@ -63,13 +63,13 @@ class PsoConfigurationViewModel(BaseViewModel):
         self._pso_snapshot: PsoSimulationSnapshot | None = None
 
         self._overshoot_control_visibility: bool = self._get_overshoot_control_visibility()
+        self._preserve_bounds_on_next_controller_sync = False
 
         self._connect_signals()
         self.run_pso_simulation()
 
     def _connect_signals(self) -> None:
-        # No signals to connect
-        ...
+        self._vm_controller.controllerTypeChanged.connect(self._on_vm_controller_changed)
 
     # ============================================================
     # start time
@@ -223,127 +223,67 @@ class PsoConfigurationViewModel(BaseViewModel):
     )
 
     # ============================================================
-    # kp
+    # Bounds
     # ============================================================
-    def _verify_kp_min(self, value: float):
+    @Slot()
+    def get_lower_bounds(self) -> dict[str, float]:
+        self.logger.debug(f"Getter 'lower_bounds' called (value={self._model_pso.lower_bounds})")
+        return self._model_pso.lower_bounds
+
+    @Slot(str, float)
+    def set_lower_bound(self, key: str, value: float) -> None:
+        self.logger.debug(f"Setter 'lower_bounds' called (key={key}: value={value})")
+
+        field_key = f"{key}.{PsoField.PSO_LOWER_KEY.value}.{PsoField.PSO_BOUNDS_KEY.value}"
 
         result = self._validate_relation(
-            valid=value < self._model_pso.kp_max,
+            valid=value >= self._model_pso.min_bounds[key],
+            message=self.tr(
+                "Invalid value: min ({value}) must be greater or equal than ({min})."
+            ).format(value=value, min=self._model_pso.min_bounds[key])
+        )
+
+        if not self._verify(field_key, result):
+            return
+
+        result = self._validate_relation(
+            valid=value <= self._model_pso.upper_bounds[key],
             message=self.tr(
                 "Invalid value: min ({value}) must be smaller than max ({max})."
-            ).format(value=value, max=self._model_pso.kp_max)
+            ).format(value=value, max=self._model_pso.upper_bounds[key])
         )
 
-        return self._verify(PsoField.KP_MIN, result)
+        if not self._verify(field_key, result):
+            return
 
-    kp_min: float = LoggedProperty(
-        path="_model_pso.kp_min",
-        signal="kpMinChanged",
-        typ=float,
-        custom_setter=_verify_kp_min
-    )
+        self._model_pso.lower_bounds[key] = value
+        self.logger.debug(f"Emitting lowerBoundsChanged")
+        self.lowerBoundsChanged.emit(key)
 
-    def _verify_kp_max(self, value: float):
+    @Slot()
+    def get_upper_bounds(self) -> dict[str, float]:
+        self.logger.debug(f"Getter 'upper_bounds' called (value={self._model_pso.upper_bounds})")
+        return self._model_pso.upper_bounds
+
+    @Slot(str, float)
+    def set_upper_bound(self, key: str, value: float) -> None:
+        self.logger.debug(f"Setter 'upper_bound' called (key={key}: value={value})")
+
+        field_key = f"{key}.{PsoField.PSO_UPPER_KEY.value}.{PsoField.PSO_BOUNDS_KEY.value}"
 
         result = self._validate_relation(
-            valid=value > self._model_pso.kp_min,
+            valid=value >= self._model_pso.lower_bounds[key],
             message=self.tr(
                 "Invalid value: max ({value}) must be greater than min ({min})."
-            ).format(value=value, min=self._model_pso.kp_min)
+            ).format(value=value, min=self._model_pso.lower_bounds[key])
         )
 
-        return self._verify(PsoField.KP_MAX, result)
+        if not self._verify(field_key, result):
+            return
 
-    kp_max: float = LoggedProperty(
-        path="_model_pso.kp_max",
-        signal="kpMaxChanged",
-        typ=float,
-        custom_setter=_verify_kp_max
-    )
-
-    # ============================================================
-    # ti
-    # ============================================================
-    def _verify_ti_min(self, value: float):
-
-        if value == 0:
-            value = 1e-9
-
-        result = self._validate_relation(
-            valid=value < self._model_pso.ti_max,
-            message=self.tr(
-                "Invalid value: min ({value}) must be smaller than max ({max})."
-            ).format(value=value, max=self._model_pso.ti_max)
-        )
-
-        if not self._verify(PsoField.TI_MIN, result):
-            return False
-
-        return value
-
-    ti_min: float = LoggedProperty(
-        path="_model_pso.ti_min",
-        signal="tiMinChanged",
-        typ=float,
-        custom_setter=_verify_ti_min
-    )
-
-    def _verify_ti_max(self, value: float) -> bool:
-
-        result = self._validate_relation(
-            valid=value > self._model_pso.ti_min,
-            message=self.tr(
-                "Invalid value: max ({value}) must be greater than min ({min})."
-            ).format(value=value, min=self._model_pso.ti_min)
-        )
-
-        return self._verify(PsoField.TI_MAX, result)
-
-    ti_max: float = LoggedProperty(
-        path="_model_pso.ti_max",
-        signal="tiMaxChanged",
-        typ=float,
-        custom_setter=_verify_ti_max
-    )
-
-    # ============================================================
-    # td
-    # ============================================================
-    def _verify_td_min(self, value: float) -> bool:
-
-        result = self._validate_relation(
-            valid=value < self._model_pso.td_max,
-            message=self.tr(
-                "Invalid value: min ({value}) must be smaller than max ({max})."
-            ).format(value=value, max=self._model_pso.td_max)
-        )
-
-        return self._verify(PsoField.TD_MIN, result)
-
-    td_min: float = LoggedProperty(
-        path="_model_pso.td_min",
-        signal="tdMinChanged",
-        typ=float,
-        custom_setter=_verify_td_min
-    )
-
-    def _verify_td_max(self, value: float) -> bool:
-
-        result = self._validate_relation(
-            valid=value > self._model_pso.td_min,
-            message=self.tr(
-                "Invalid value: max ({value}) must be greater than min ({min})."
-            ).format(value=value, min=self._model_pso.td_min)
-        )
-
-        return self._verify(PsoField.TD_MAX, result)
-
-    td_max: float = LoggedProperty(
-        path="_model_pso.td_max",
-        signal="tdMaxChanged",
-        typ=float,
-        custom_setter=_verify_td_max
-    )
+        self._model_pso.upper_bounds[key] = value
+        self.logger.debug(f"Emitting upperBoundsChanged")
+        self.upperBoundsChanged.emit(key)
 
     # ============================================================
     # run PSO
@@ -372,10 +312,92 @@ class PsoConfigurationViewModel(BaseViewModel):
         self._simulation_service.stop_pso_simulation()
         self.psoSimulationInterrupted.emit()
 
+    @Slot()
+    def get_pso_result(self) -> PsoResult | None:
+        return self._pso_result
+
+    @Slot()
+    def get_pso_snapshot(self) -> PsoSimulationSnapshot | None:
+        return self._pso_snapshot
+
+    @Slot()
+    def get_pos_iteration(self) -> int:
+        return self._pos_iteration
+
+    @Slot()
+    def preserve_bounds_on_next_controller_sync(self) -> None:
+        self._preserve_bounds_on_next_controller_sync = True
+
+    @Slot()
+    def refresh_from_model(self) -> None:
+        self._overshoot_control_visibility = self._get_overshoot_control_visibility()
+
+        self.t0Changed.emit()
+        self.t1Changed.emit()
+        self.excitationTargetChanged.emit()
+        self.performanceIndexChanged.emit()
+        self.overshootControlChanged.emit()
+        self.overshootControlEnabledChanged.emit()
+        self.overshootControlVisibilityChanged.emit()
+        self.slewRateMaxChanged.emit()
+        self.slewWindowSizeChanged.emit()
+        self.slewRateLimitEnabledChanged.emit()
+        self.gainMarginChanged.emit()
+        self.gainMarginEnabledChanged.emit()
+        self.phaseMarginChanged.emit()
+        self.phaseMarginEnabledChanged.emit()
+        self.stabilityMarginChanged.emit()
+        self.stabilityMarginEnabledChanged.emit()
+
+        self._sync_controller_bounds(preserve_existing=True)
+
+    # ============================================================
+    # Internal helpers
+    # ============================================================
+    def _on_vm_controller_changed(self) -> None:
+        """Reset bounds to controller defaults after an actual controller change."""
+        preserve_existing = self._preserve_bounds_on_next_controller_sync
+        self._preserve_bounds_on_next_controller_sync = False
+        self._sync_controller_bounds(preserve_existing=preserve_existing)
+
+    def _sync_controller_bounds(self, preserve_existing: bool) -> None:
+        """Sync controller bounds, optionally preserving imported values during UI refresh."""
+        spec = self._vm_controller.controller_spec
+        lw, up = spec.bounds
+        params = spec.param_names
+
+        current_lower = self._model_pso.lower_bounds
+        current_upper = self._model_pso.upper_bounds
+
+        expected_keys = list(params)
+        lower_keys_match = list(current_lower.keys()) == expected_keys
+        upper_keys_match = list(current_upper.keys()) == expected_keys
+
+        self._model_pso.min_bounds = {k: v for k, v in zip(params, spec.min_bounds)}
+
+        if preserve_existing and lower_keys_match and upper_keys_match:
+            self._model_pso.lower_bounds = {key: current_lower[key] for key in params}
+            self._model_pso.upper_bounds = {key: current_upper[key] for key in params}
+        else:
+            self._model_pso.lower_bounds = {k: v for k, v in zip(params, lw)}
+            self._model_pso.upper_bounds = {k: v for k, v in zip(params, up)}
+
+        self._model_pso.n_params = len(lw)
+
+        for key in params:
+            self.lowerBoundsChanged.emit(key)
+            self.upperBoundsChanged.emit(key)
+
+    def _on_pso_progress(self, iteration: int) -> None:
+        self.psoProgressChanged.emit(iteration)
+
     def _get_pos_param(self) -> PsoSimulationParam:
         return PsoSimulationParam(
             num=self._model_plant.num,
             den=self._model_plant.den,
+            controller_type=self._model_controller.controller_type,
+            controller_param_names=self._model_controller.controller_spec.param_names,
+            controller_class=self._model_controller.controller_spec.controller_class,
             t0=self.t0,
             t1=self.t1,
             dt=self._settings.time_step,
@@ -391,9 +413,11 @@ class PsoConfigurationViewModel(BaseViewModel):
             ),
             excitation_target=self.excitation_target,
             function=self._model_function.selected_function.copy(),
-            kp=(self.kp_min, self.kp_max),
-            ti=(self.ti_min, self.ti_max),
-            td=(self.td_min, self.td_max),
+            bounds=(
+                [b for b in self._model_pso.lower_bounds.values()],
+                [b for b in self._model_pso.upper_bounds.values()],
+            ),
+            n_param=self._model_pso.n_params,
             swarm_size=self._settings.pso_swarm_size,
             pso_iteration=self._pos_iteration,
             error_criterion=self.error_criterion,
@@ -424,6 +448,7 @@ class PsoConfigurationViewModel(BaseViewModel):
             plant_den=tuple(self._model_plant.den),
             plant_tf=self._model_plant.tf,
             controller_type=self._model_controller.controller_type,
+            controller_spec=self._model_controller.controller_spec,
             controller_anti_windup=self._model_controller.anti_windup,
             controller_ka=self._model_controller.ka,
             controller_constraint_min=self._model_controller.constraint_min,
@@ -434,9 +459,11 @@ class PsoConfigurationViewModel(BaseViewModel):
             excitation_target=self._model_pso.excitation_target,
             excitation_function=self._model_function.selected_function.copy(),
             error_criterion=self._model_pso.error_criterion,
-            kp=(self._model_pso.kp_min, self._model_pso.kp_max),
-            ti=(self._model_pso.ti_min, self._model_pso.ti_max),
-            td=(self._model_pso.td_min, self._model_pso.td_max),
+            bounds=(
+                [b for b in self._model_pso.lower_bounds.values()],
+                [b for b in self._model_pso.upper_bounds.values()],
+            ),
+            n_param=self._model_pso.n_params,
             overshoot_control=self._model_pso.overshoot_control,
             overshoot_control_enabled=self._model_pso.overshoot_control_enabled,
             slew_rate_max=self._model_pso.slew_rate_max,
@@ -449,46 +476,3 @@ class PsoConfigurationViewModel(BaseViewModel):
             stability_margin=self._model_pso.stability_margin,
             stability_margin_enabled=self._model_pso.stability_margin_enabled,
         )
-
-    @Slot()
-    def get_pso_result(self) -> PsoResult | None:
-        return self._pso_result
-
-    @Slot()
-    def get_pso_snapshot(self) -> PsoSimulationSnapshot | None:
-        return self._pso_snapshot
-
-    @Slot()
-    def get_pos_iteration(self) -> int:
-        return self._pos_iteration
-
-    def _on_pso_progress(self, iteration: int) -> None:
-        self.psoProgressChanged.emit(iteration)
-
-    @Slot()
-    def refresh_from_model(self) -> None:
-        self._overshoot_control_visibility = self._get_overshoot_control_visibility()
-
-        self.t0Changed.emit()
-        self.t1Changed.emit()
-        self.excitationTargetChanged.emit()
-        self.performanceIndexChanged.emit()
-        self.overshootControlChanged.emit()
-        self.overshootControlEnabledChanged.emit()
-        self.overshootControlVisibilityChanged.emit()
-        self.slewRateMaxChanged.emit()
-        self.slewWindowSizeChanged.emit()
-        self.slewRateLimitEnabledChanged.emit()
-        self.gainMarginChanged.emit()
-        self.gainMarginEnabledChanged.emit()
-        self.phaseMarginChanged.emit()
-        self.phaseMarginEnabledChanged.emit()
-        self.stabilityMarginChanged.emit()
-        self.stabilityMarginEnabledChanged.emit()
-        self.kpMinChanged.emit()
-        self.kpMaxChanged.emit()
-        self.tiMinChanged.emit()
-        self.tiMaxChanged.emit()
-        self.tdMinChanged.emit()
-        self.tdMaxChanged.emit()
-

@@ -13,10 +13,7 @@ class ClosedLoopResponseContext:
     num: list[float]
     den: list[float]
 
-    kp: float
-    ti: float
-    td: float
-    tf: float
+    controller_params: dict[str, float]
 
     t0: float
     t1: float

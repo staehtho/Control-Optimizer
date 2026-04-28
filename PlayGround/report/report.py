@@ -1,4 +1,4 @@
-from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex
+from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex, ControllerType
 from app_types import (
     DynamicReportData, DynamicReportPlant, DynamicReportExcitationFunction,
     DynamicReportControllerConfiguration, DynamicReportPsoConfiguration, DynamicReportPsoResult,
@@ -23,7 +23,7 @@ excitation_function_data = DynamicReportExcitationFunction(
 )
 
 controller_configuration_data = DynamicReportControllerConfiguration(
-    controller_type="PID",
+    controller_type=ControllerType.PID,
     anti_windup=AntiWindup.CLAMPING,
     factor_ka=1,
     constraint_min=-5,
@@ -52,10 +52,7 @@ pso_configuration_data = DynamicReportPsoConfiguration(
 pso_result_data = DynamicReportPsoResult(
     is_feasible=False,
     simulation_time=10.5,
-    kp=10,
-    ti=5,
-    td=1,
-    tf=0.01,
+    controller_params={"Kp": 10, "Ti": 5, "Td": 3, "Tf": 1},
     recommended_sampling_rate=100,
     tf_limitation=None,
     error_criterion=0.15,

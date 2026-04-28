@@ -1,11 +1,12 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING, Any, Callable
 
 from PySide6.QtWidgets import (
     QWidget, QLabel, QLineEdit, QComboBox, QPushButton, QProgressBar, QHBoxLayout, QSizePolicy, QLayout,
-    QGraphicsOpacityEffect
+    QGraphicsOpacityEffect, QVBoxLayout
 )
-from PySide6.QtGui import QDoubleValidator, QIntValidator
+from PySide6.QtGui import QDoubleValidator, QIntValidator, Qt
 
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
 from app_domain.functions import FunctionTypes
@@ -20,33 +21,14 @@ if TYPE_CHECKING:
     from viewmodels import PlantViewModel, FunctionViewModel, PsoConfigurationViewModel, ControllerViewModel
     from views.widgets import SectionFrame
 
-
-FIELDS: list[FieldConfig | SectionConfig] = [
+FIELDS_LEFT: list[FieldConfig | SectionConfig] = [
     SectionConfig(PsoField.PLANT, [
         FieldConfig(PsoField.PLANT_TF, FormulaWidget, False),
         FieldConfig("", QLabel, False),
     ]),
-    SectionConfig(PsoField.EXCITATION, [
-        FieldConfig(PsoField.FUNCTION_FORMULA, FormulaWidget, False),
-        FieldConfig(PsoField.EXCITATION_TARGET, QComboBox),
-    ]),
     SectionConfig(PsoField.SIMULATION_TIME, [
         FieldConfig(PsoField.T0, QLineEdit),
         FieldConfig(PsoField.T1, QLineEdit),
-    ]),
-    SectionConfig(PsoField.PSO_BOUNDS, [
-        SectionConfig(PsoField.KP_BOUNDS, [
-            FieldConfig(PsoField.KP_MIN, QLineEdit),
-            FieldConfig(PsoField.KP_MAX, QLineEdit),
-        ]),
-        SectionConfig(PsoField.TI_BOUNDS, [
-            FieldConfig(PsoField.TI_MIN, QLineEdit),
-            FieldConfig(PsoField.TI_MAX, QLineEdit),
-        ]),
-        SectionConfig(PsoField.TD_BOUNDS, [
-            FieldConfig(PsoField.TD_MIN, QLineEdit),
-            FieldConfig(PsoField.TD_MAX, QLineEdit),
-        ]),
     ]),
     SectionConfig(PsoField.PERFORMANCE_INDEX, [
         SectionConfig(PsoField.TIME_DOMAIN, [
@@ -68,6 +50,14 @@ FIELDS: list[FieldConfig | SectionConfig] = [
     ]),
 ]
 
+FIELDS_RIGHT: list[FieldConfig | SectionConfig] = [
+    SectionConfig(PsoField.EXCITATION, [
+        FieldConfig(PsoField.FUNCTION_FORMULA, FormulaWidget, False),
+        FieldConfig(PsoField.EXCITATION_TARGET, QComboBox),
+    ]),
+    SectionConfig(PsoField.PSO_BOUNDS, [
+    ]),
+]
 
 class PsoConfigurationView(ViewMixin, QWidget):
     """View for configuring PSO parameters and running simulations."""
@@ -125,6 +115,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
         main_layout.addWidget(self._frm_run_pso)
 
         main_layout.addLayout(self._create_field_grid())
+        self._on_vm_controller_type_changed()
 
         main_layout.addLayout(self._create_navigation_buttons_layout())
 
@@ -147,12 +138,28 @@ class PsoConfigurationView(ViewMixin, QWidget):
 
     def _create_field_grid(self) -> QLayout:
         """Create the field grid layout."""
-        grid = self._create_grid(FIELDS)
+        layout = QHBoxLayout()
+
+        # Left column
+        left_col = QVBoxLayout()
+        left_col.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        # Right column
+        right_col = QVBoxLayout()
+        right_col.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        layout.addLayout(left_col)
+        layout.addLayout(right_col)
+
+        left_col.addLayout(self._create_grid(FIELDS_LEFT, columns=2))
+        right_col.addLayout(self._create_grid(FIELDS_RIGHT, columns=2))
 
         self.field_widgets[PsoField.PLANT_TF].set_font_size(self._formula_font_size_scale)
         self.field_widgets[PsoField.FUNCTION_FORMULA].set_font_size(self._formula_font_size_scale)
 
-        return grid
+        self._frm_pso_bounds: SectionFrame = self.labels[PsoField.PSO_BOUNDS]
+
+        return layout
 
     def _create_run_pso_frame(self) -> SectionFrame:
         """Create the PSO run control card."""
@@ -198,6 +205,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
         """Connect UI signals to event handlers."""
 
         self._connect_object_signals(self._get_widget_bindings())
+        self._connect_object_signals(self._get_pso_bounds_widget_bindings())
 
         self._btn_run_pso.clicked.connect(self._on_btn_run_pso)
         self._btn_interrupt_pso.clicked.connect(self._on_btn_interrupt_pso)
@@ -215,6 +223,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
         self._vm_function.functionChanged.connect(self._on_vm_function_function_changed)
 
         # Controller ViewModel
+        self._vm_controller.controllerTypeChanged.connect(self._on_vm_controller_type_changed)
         self._vm_controller.antiWindupChanged.connect(self._load_closed_loop_block_diagram)
         self._vm_controller.constraintMinChanged.connect(self._load_closed_loop_block_diagram)
         self._vm_controller.constraintMaxChanged.connect(self._load_closed_loop_block_diagram)
@@ -224,6 +233,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
         self._vm_pso.overshootControlVisibilityChanged.connect(self._on_vm_overshoot_control_visibility_changed)
 
         configs = self._get_vm_bindings()
+        configs.extend(self._get_pso_bounds_vm_bindings())
         configs.extend(self._get_toggle_vm_bindings())
         self._connect_object_signals(configs)
 
@@ -261,15 +271,6 @@ class PsoConfigurationView(ViewMixin, QWidget):
             PsoField.PHASE_MARGIN: self.tr("Phase margin [°]"),
             PsoField.STABILITY_MARGIN: self.tr("Stability margin [dB]"),
             PsoField.PSO_BOUNDS: self.tr("PSO Bounds"),
-            PsoField.KP_BOUNDS: self.tr("Kp Bounds"),
-            PsoField.KP_MIN: self.tr("Minimum"),
-            PsoField.KP_MAX: self.tr("Maximum"),
-            PsoField.TI_BOUNDS: self.tr("Ti Bounds"),
-            PsoField.TI_MIN: self.tr("Minimum"),
-            PsoField.TI_MAX: self.tr("Maximum"),
-            PsoField.TD_BOUNDS: self.tr("Td Bounds"),
-            PsoField.TD_MIN: self.tr("Minimum"),
-            PsoField.TD_MAX: self.tr("Maximum"),
             PsoField.RUN_PSO: self.tr("Start PSO Simulation"),
             PsoField.INTERRUPT_PSO: self.tr("Interrupt"),
         }
@@ -282,7 +283,26 @@ class PsoConfigurationView(ViewMixin, QWidget):
             data = {k: self._enum_translation(k) for k in value}
             self._cmb_add_item(self.field_widgets[key], data)
 
+        self._retranslate_pso_bounds()
         self._apply_tool_tips()
+
+    def _retranslate_pso_bounds(self) -> None:
+        """Update all PSO bounds text after a language change."""
+
+        for key in self.labels:
+            if PsoField.PSO_BOUNDS_KEY.value not in key:
+                continue
+
+            if PsoField.PSO_LOWER_KEY.value in key:
+                self.labels[key].setText(self.tr("Minimum"))
+                continue
+
+            if PsoField.PSO_UPPER_KEY.value in key:
+                self.labels[key].setText(self.tr("Maximum"))
+                continue
+
+            self.labels[key].setText(self.tr("%(param_name)s bounds") % {"param_name": str(key.split('.')[0]).title()})
+
 
     def _apply_tool_tips(self) -> None:
 
@@ -291,9 +311,9 @@ class PsoConfigurationView(ViewMixin, QWidget):
                 """Specifies the maximum allowed overshoot as a percentage.
                 This setting is only available for excitation type %(excitation_target)s and function type %(function_type)s."""
             ) % {
-                                            "excitation_target": self._enum_translation(ExcitationTarget.REFERENCE),
-                                            "function_type": self._enum_translation(FunctionTypes.STEP),
-                                        },
+                "excitation_target": self._enum_translation(ExcitationTarget.REFERENCE),
+                "function_type": self._enum_translation(FunctionTypes.STEP),
+            },
             PsoField.SLEW_RATE_MAX: self.tr(
                 """Limits the maximum rate of change of the controller output du/dt.
                 This constrains how quickly the control signal u can change over time,
@@ -337,13 +357,6 @@ class PsoConfigurationView(ViewMixin, QWidget):
             PsoField.GAIN_MARGIN: self._vm_pso.gain_margin,
             PsoField.PHASE_MARGIN: self._vm_pso.phase_margin,
             PsoField.STABILITY_MARGIN: self._vm_pso.stability_margin,
-            PsoField.KP_MIN: self._vm_pso.kp_min,
-            PsoField.KP_MAX: self._vm_pso.kp_max,
-            PsoField.TI_MIN: self._vm_pso.ti_min,
-            PsoField.TI_MAX: self._vm_pso.ti_max,
-            PsoField.TD_MIN: self._vm_pso.td_min,
-            PsoField.TD_MAX: self._vm_pso.td_max,
-
         }
         for key, value in init_value.items():
             self.field_widgets[key].setText(f"{value}")
@@ -365,6 +378,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
 
         self._set_formula_tf()
         self._set_formula_function()
+        self._apply_init_value_pos_bounds()
 
         self._btn_nav_next.setEnabled(False)
         effect = self._btn_nav_next.graphicsEffect()
@@ -377,6 +391,26 @@ class PsoConfigurationView(ViewMixin, QWidget):
         self._sync_toggle_states()
         self._vm_pso.check_overshoot_control_visibility()
         self._load_closed_loop_block_diagram()
+
+    def _apply_init_value_pos_bounds(self) -> None:
+        """Apply initial values to the PSO bounds."""
+
+        lw = self._vm_pso.get_lower_bounds()
+        up = self._vm_pso.get_upper_bounds()
+
+        for key in self.field_widgets.keys():
+            if PsoField.PSO_BOUNDS_KEY.value not in key:
+                continue
+
+            k = str(key.split('.')[0])
+
+            if PsoField.PSO_LOWER_KEY.value in key:
+                self.field_widgets[key].setText(f"{lw[k]}")
+                continue
+
+            if PsoField.PSO_UPPER_KEY.value in key:
+                self.field_widgets[key].setText(f"{up[k]}")
+                continue
 
     # ============================================================
     # Applied theme
@@ -406,6 +440,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
     def _load_closed_loop_block_diagram(self) -> None:
         """Build and recolor the closed loop block diagram SVG."""
         merged_svg = load_closed_loop_diagram(
+            self._vm_controller.controller_spec.build_svg,
             self._vm_controller.anti_windup,
             (self._vm_controller.constraint_min, self._vm_controller.constraint_max),
             self._vm_theme.get_svg_color_map(),
@@ -494,6 +529,32 @@ class PsoConfigurationView(ViewMixin, QWidget):
         if not visible:
             eff.setOpacity(0.0)
 
+    def _on_vm_controller_type_changed(self) -> None:
+        self._rebuild_pso_bounds_fields()
+        self._connect_object_signals(self._get_pso_bounds_widget_bindings())
+        self._retranslate_pso_bounds()
+        self._apply_init_value_pos_bounds()
+        self._load_closed_loop_block_diagram()
+
+    def _on_vm_pso_bounds_changed(self, key: str, bound_key: str) -> None:
+        field_key = f"{key}.{bound_key}.{PsoField.PSO_BOUNDS_KEY.value}"
+        field = self.field_widgets.get(field_key)
+        if field is None:
+            return
+
+        if bound_key == PsoField.PSO_LOWER_KEY.value:
+            bounds = self._vm_pso.get_lower_bounds()
+        else:
+            bounds = self._vm_pso.get_upper_bounds()
+
+        self._on_vm_changed(
+            self,
+            None,
+            field_key,
+            bounds[key],
+            field=field,
+        )
+
     # ============================================================
     # UI event handlers
     # ============================================================
@@ -523,6 +584,27 @@ class PsoConfigurationView(ViewMixin, QWidget):
         self._btn_run_pso.setEnabled(self._vm_plant.is_valid)
         self._vm_pso.interrupt_pso_simulation()
 
+    def _on_txt_changed(self, value: str | None = None, **kwargs: Any) -> None:
+        """Handle user changes in QLineEdit field."""
+        field = kwargs.get("field")
+        if not isinstance(field, QLineEdit) or field is None:
+            raise TypeError(f"Expected QObject, got {type(field)}")
+
+        setter = kwargs.get("setter")
+        if not isinstance(setter, Callable) or setter is None:
+            raise TypeError(f"Expected Callable, got {type(setter)}")
+
+        key = kwargs.get("key")
+        if not isinstance(key, str) or key is None:
+            raise TypeError(f"Expected str, got {type(key)}")
+
+        if value is None:
+            value = field.text()
+
+        self._clear_input_error(field)
+        self.logger.debug(f"UI event: txt_change changed (value={value})")
+        setter(key, float(value))
+
     # ============================================================
     # Internal helpers
     # ============================================================
@@ -533,6 +615,71 @@ class PsoConfigurationView(ViewMixin, QWidget):
     def _set_formula_function(self) -> None:
         """Update the excitation function formula display."""
         self.field_widgets[PsoField.FUNCTION_FORMULA].set_formula(self._vm_function.selected_function.get_formula())
+
+    def _rebuild_pso_bounds_fields(self) -> None:
+        self._frm_pso_bounds.clear_layout()
+
+        for key in list(self.field_widgets.keys()):
+            if PsoField.PSO_BOUNDS_KEY.value in key:
+                del self.field_widgets[key]
+
+        for key in list(self.labels.keys()):
+            if PsoField.PSO_BOUNDS_KEY.value in key:
+                del self.labels[key]
+
+        self._frm_pso_bounds.add_layout(self._create_grid(self._get_pso_bounds_sections(), columns=2))
+
+    def _get_pso_bounds_sections(self) -> list[SectionConfig]:
+        fields = []
+        for key in self._vm_controller.controller_spec.param_names:
+            fields.append(
+                SectionConfig(f"{key}.{PsoField.PSO_BOUNDS_KEY.value}", [
+                    FieldConfig(
+                        f"{key}.{PsoField.PSO_UPPER_KEY.value}.{PsoField.PSO_BOUNDS_KEY.value}",
+                        QLineEdit,
+                        validator=QDoubleValidator(0.0, 1e9, 6)
+                    ),
+                    FieldConfig(
+                        f"{key}.{PsoField.PSO_LOWER_KEY.value}.{PsoField.PSO_BOUNDS_KEY.value}",
+                        QLineEdit,
+                        validator=QDoubleValidator(0.0, 1e9, 6)
+                    )
+                ])
+            )
+        return fields
+
+    def _get_pso_bounds_widget_bindings(self) -> list[ConnectSignalConfig]:
+        configs = []
+
+        for key, field in self.field_widgets.items():
+            if PsoField.PSO_BOUNDS_KEY.value not in key:
+                continue
+
+            setter: Callable[[str, float], None] | None = None
+            if PsoField.PSO_LOWER_KEY.value in key:
+                setter = self._vm_pso.set_lower_bound
+            elif PsoField.PSO_UPPER_KEY.value in key:
+                setter = self._vm_pso.set_upper_bound
+
+            if setter is None:
+                continue
+
+            configs.append(
+                ConnectSignalConfig(
+                    key=key,
+                    signal_name="editingFinished",
+                    attr_name="",
+                    widget=field,
+                    kwargs={
+                        "field": field,
+                        "key": str(key.split('.')[0]),
+                        "setter": lambda k, value, current_setter=setter: current_setter(k, value),
+                    },
+                    override_event_handler=self._on_txt_changed,
+                )
+            )
+
+        return configs
 
     def _on_field_toggle_changed(self, checked: bool) -> None:
         """Handle gain margin toggle state changes."""
@@ -561,12 +708,6 @@ class PsoConfigurationView(ViewMixin, QWidget):
         k_gain_margin = PsoField.GAIN_MARGIN
         k_phase_margin = PsoField.PHASE_MARGIN
         k_stability_margin = PsoField.STABILITY_MARGIN
-        k_kp_min = PsoField.KP_MIN
-        k_kp_max = PsoField.KP_MAX
-        k_ti_min = PsoField.TI_MIN
-        k_ti_max = PsoField.TI_MAX
-        k_td_min = PsoField.TD_MIN
-        k_td_max = PsoField.TD_MAX
         k_slew_rate_limiter = PsoField.SLEW_RATE_LIMITER
 
         return [
@@ -653,54 +794,6 @@ class PsoConfigurationView(ViewMixin, QWidget):
                 kwargs={"value_type": float},
                 main_event_handler=self._on_widget_changed
             ),
-            ConnectSignalConfig(
-                key=k_kp_min,
-                signal_name="editingFinished",
-                attr_name="_vm_pso.kp_min",
-                widget=self.field_widgets.get(k_kp_min),
-                kwargs={"value_type": float},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_kp_max,
-                signal_name="editingFinished",
-                attr_name="_vm_pso.kp_max",
-                widget=self.field_widgets.get(k_kp_max),
-                kwargs={"value_type": float},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_ti_min,
-                signal_name="editingFinished",
-                attr_name="_vm_pso.ti_min",
-                widget=self.field_widgets.get(k_ti_min),
-                kwargs={"value_type": float},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_ti_max,
-                signal_name="editingFinished",
-                attr_name="_vm_pso.ti_max",
-                widget=self.field_widgets.get(k_ti_max),
-                kwargs={"value_type": float},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_td_min,
-                signal_name="editingFinished",
-                attr_name="_vm_pso.td_min",
-                widget=self.field_widgets.get(k_td_min),
-                kwargs={"value_type": float},
-                main_event_handler=self._on_widget_changed
-            ),
-            ConnectSignalConfig(
-                key=k_td_max,
-                signal_name="editingFinished",
-                attr_name="_vm_pso.td_max",
-                widget=self.field_widgets.get(k_td_max),
-                kwargs={"value_type": float},
-                main_event_handler=self._on_widget_changed
-            ),
 
             # Toggle / Enabled signals
             ConnectSignalConfig(
@@ -756,12 +849,6 @@ class PsoConfigurationView(ViewMixin, QWidget):
         k_gain_margin = PsoField.GAIN_MARGIN
         k_phase_margin = PsoField.PHASE_MARGIN
         k_stability_margin = PsoField.STABILITY_MARGIN
-        k_kp_min = PsoField.KP_MIN
-        k_kp_max = PsoField.KP_MAX
-        k_ti_min = PsoField.TI_MIN
-        k_ti_max = PsoField.TI_MAX
-        k_td_min = PsoField.TD_MIN
-        k_td_max = PsoField.TD_MAX
 
         return [
             ConnectSignalConfig(
@@ -844,53 +931,25 @@ class PsoConfigurationView(ViewMixin, QWidget):
                 kwargs={"field": self.field_widgets.get(k_stability_margin)},
                 main_event_handler=self._on_vm_changed,
             ),
+        ]
+
+    def _get_pso_bounds_vm_bindings(self) -> list[ConnectSignalConfig]:
+        return [
             ConnectSignalConfig(
-                key=k_kp_min,
-                signal_name="kpMinChanged",
-                attr_name="kp_min",
+                key="",
+                signal_name="lowerBoundsChanged",
+                attr_name="",
                 widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_kp_min)},
-                main_event_handler=self._on_vm_changed,
+                kwargs={"bound_key": PsoField.PSO_LOWER_KEY.value},
+                override_event_handler=self._on_vm_pso_bounds_changed,
             ),
             ConnectSignalConfig(
-                key=k_kp_max,
-                signal_name="kpMaxChanged",
-                attr_name="kp_max",
+                key="",
+                signal_name="upperBoundsChanged",
+                attr_name="",
                 widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_kp_max)},
-                main_event_handler=self._on_vm_changed,
-            ),
-            ConnectSignalConfig(
-                key=k_ti_min,
-                signal_name="tiMinChanged",
-                attr_name="ti_min",
-                widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_ti_min)},
-                main_event_handler=self._on_vm_changed,
-            ),
-            ConnectSignalConfig(
-                key=k_ti_max,
-                signal_name="tiMaxChanged",
-                attr_name="ti_max",
-                widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_ti_max)},
-                main_event_handler=self._on_vm_changed,
-            ),
-            ConnectSignalConfig(
-                key=k_td_min,
-                signal_name="tdMinChanged",
-                attr_name="td_min",
-                widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_td_min)},
-                main_event_handler=self._on_vm_changed,
-            ),
-            ConnectSignalConfig(
-                key=k_td_max,
-                signal_name="tdMaxChanged",
-                attr_name="td_max",
-                widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_td_max)},
-                main_event_handler=self._on_vm_changed,
+                kwargs={"bound_key": PsoField.PSO_UPPER_KEY.value},
+                override_event_handler=self._on_vm_pso_bounds_changed,
             ),
         ]
 

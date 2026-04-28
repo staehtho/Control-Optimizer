@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Callable
+
 from .resources import BlockDiagram, BLOCK_DIAGRAM_DIR
 from utils.svg_utils import SvgLayer, merge_svgs, recolor_svg
 from app_domain.controlsys import AntiWindup
@@ -8,6 +10,7 @@ type SvgData = tuple[str, tuple[int, int]]
 
 
 def load_controller_diagram(
+        build_controller_svg: Callable[[AntiWindup], list[SvgData]],
         anti_windup: AntiWindup,
         constraint: tuple[float, float],
         color_map: dict[str, str],
@@ -15,6 +18,7 @@ def load_controller_diagram(
     """Build and return the SVG for a controller block diagram.
 
     Args:
+        build_controller_svg: Build controller diagram function.
         anti_windup: Selected anti-windup strategy.
         constraint: Tuple of (min, max) constraint values.
         color_map: Mapping of original SVG colors to new colors.
@@ -22,7 +26,7 @@ def load_controller_diagram(
     Returns:
         A recolored SVG string representing the controller diagram.
     """
-    svg_structure = build_controller_svg_structure(anti_windup)
+    svg_structure = build_controller_svg(anti_windup)
     merged_svg = merge_svg_layers(svg_structure)
     constrained_svg = inject_constraints_into_svg(merged_svg, constraint)
     recolored_svg = recolor_svg(constrained_svg, color_map)
@@ -31,6 +35,7 @@ def load_controller_diagram(
 
 
 def load_closed_loop_diagram(
+        build_controller_svg: Callable[[AntiWindup], list[SvgData]],
         anti_windup: AntiWindup,
         constraint: tuple[float, float],
         color_map: dict[str, str] | None = None,
@@ -38,6 +43,7 @@ def load_closed_loop_diagram(
     """Build and return the SVG for a full closed-loop system diagram.
 
     Args:
+        build_controller_svg: Build controller diagram function.
         anti_windup: Selected anti-windup strategy.
         constraint: Tuple of (min, max) constraint values.
         color_map: Optional Mapping of original SVG colors to new colors.
@@ -53,7 +59,7 @@ def load_closed_loop_diagram(
         (BlockDiagram.closed_loop, (0, 0))
     ]
 
-    controller_svgs = build_controller_svg_structure(anti_windup)
+    controller_svgs = build_controller_svg(anti_windup)
 
     # Offset controller elements and append them
     for svg_name, (x, y) in controller_svgs:
@@ -92,7 +98,29 @@ def merge_svg_layers(svg_data: list[SvgData]) -> str:
     return merge_svgs(layers)
 
 
-def build_controller_svg_structure(anti_windup: AntiWindup) -> list[SvgData]:
+def inject_constraints_into_svg(svg: str, constraint: tuple[float, float]) -> str:
+    """Replace placeholder constraint values in the SVG.
+
+    Args:
+        svg: Input SVG string containing placeholders.
+        constraint: Tuple of (min, max) constraint values.
+
+    Returns:
+        SVG string with injected constraint values.
+    """
+    min_val, max_val = constraint
+
+    # Replace placeholder markers with actual values
+    svg = svg.replace("min: ###", f"min: {min_val}")
+    svg = svg.replace("max: ###", f"max: {max_val}")
+
+    return svg
+
+
+# ============================================================
+# Controller Builder
+# ============================================================
+def build_controller_svg_pid(anti_windup: AntiWindup) -> list[SvgData]:
     """Define the structure (components + positions) of the controller diagram.
 
     Args:
@@ -131,20 +159,36 @@ def build_controller_svg_structure(anti_windup: AntiWindup) -> list[SvgData]:
     return svg_elements
 
 
-def inject_constraints_into_svg(svg: str, constraint: tuple[float, float]) -> str:
-    """Replace placeholder constraint values in the SVG.
+def build_controller_svg_pid_ff(anti_windup: AntiWindup) -> list[SvgData]:
+    """Define the structure (components + positions) of the controller diagram.
 
     Args:
-        svg: Input SVG string containing placeholders.
-        constraint: Tuple of (min, max) constraint values.
+        anti_windup: Selected anti-windup strategy.
 
     Returns:
-        SVG string with injected constraint values.
+        List of SVG elements with their positions.
     """
-    min_val, max_val = constraint
+    # Layout offsets
+    y_offset = 125
+    node_x = 150
+    sum_x = 475
 
-    # Replace placeholder markers with actual values
-    svg = svg.replace("min: ###", f"min: {min_val}")
-    svg = svg.replace("max: ###", f"max: {max_val}")
+    svg_elements: list[SvgData] = [
+        (BlockDiagram.blank_base, (0, 0)),
+    ]
 
-    return svg
+    # Add anti-windup block depending on selected strategy
+    match anti_windup:
+        case AntiWindup.BACKCALCULATION:
+            svg_elements.append((BlockDiagram.backcalculation, (node_x, y_offset)))
+        case AntiWindup.CLAMPING:
+            svg_elements.append((BlockDiagram.clamping, (node_x, y_offset)))
+        case AntiWindup.CONDITIONAL:
+            svg_elements.append((BlockDiagram.conditional, (node_x, y_offset)))
+        case unknown_value:
+            raise ValueError(
+                f"Unsupported anti-windup method: {unknown_value!r}. "
+                "Expected one of: BACKCALCULATION, CLAMPING, CONDITIONAL."
+            )
+
+    return svg_elements

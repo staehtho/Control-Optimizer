@@ -8,6 +8,7 @@ from app_types import PlantResponseContext, PsoSimulationParam
 from app_domain.functions import StepFunction
 from models import ModelContainer
 from service import SimulationService
+from .controlsys import ControllerType
 from .ui_context import UiContext
 
 if TYPE_CHECKING:
@@ -154,7 +155,14 @@ class AppEngine:
 
     def ensure_pso_viewmodel(self) -> PsoConfigurationViewModel:
         from viewmodels import PsoConfigurationViewModel
-        return self._ensure("_vm_pso", lambda: PsoConfigurationViewModel(self.model_container, self.simulation_service))
+        return self._ensure(
+            "_vm_pso",
+            lambda: PsoConfigurationViewModel(
+                self.model_container,
+                self.ensure_controller_viewmodel(),
+                self.simulation_service
+            )
+        )
 
     def ensure_evaluator_viewmodel(self) -> EvaluationViewModel:
         from viewmodels import EvaluationViewModel
@@ -249,11 +257,14 @@ class AppEngine:
         This pre-compiles any JIT functions, initializes caches, and
         triggers one-time setup in the PSO engine for faster subsequent runs.
         """
-        from app_domain.controlsys import MySolver, AntiWindup, ExcitationTarget, PerformanceIndex
+        from app_domain.controlsys import MySolver, AntiWindup, ExcitationTarget, PerformanceIndex, PIDClosedLoop
         # Minimal PSO parameters for warmup
         pso_param = PsoSimulationParam(
             num=[1],
             den=[1, 2, 1],
+            controller_type=ControllerType.PID,
+            controller_param_names=['kp', 'ti', 'td'],
+            controller_class=PIDClosedLoop,
             t0=0,
             t1=10,
             dt=1e-4,
@@ -266,9 +277,11 @@ class AppEngine:
             constraint=(-5, 5),
             excitation_target=ExcitationTarget.REFERENCE,
             function=StepFunction(),
-            kp=(0, 10),
-            ti=(1e-9, 10),
-            td=(0, 10),
+            bounds=(
+                [0, 0.001, 0],
+                [10, 10, 10]
+            ),
+            n_param=3,
             swarm_size=40,
             pso_iteration=1,  # only one iteration for warmup
             error_criterion=PerformanceIndex.ITAE,
@@ -323,6 +336,8 @@ class AppEngine:
         payload = json.loads(source.read_text(encoding="utf-8"))
         self.model_container.import_project_state(payload)
         self.refresh_ui_from_models()
+        self.model_container.import_project_bounds(payload)
+        self.ensure_pso_viewmodel().refresh_from_model()
         self.logger.info("Project state loaded from %s", source)
 
     def refresh_ui_from_models(self) -> None:
@@ -330,6 +345,7 @@ class AppEngine:
         self.ensure_language_viewmodel().refresh_from_model()
         self.ensure_theme_viewmodel().refresh_from_model()
 
+        self.ensure_pso_viewmodel().preserve_bounds_on_next_controller_sync()
         self.ensure_controller_viewmodel().refresh_from_model()
         self.ensure_plant_viewmodel().refresh_from_model()
         self.ensure_pso_viewmodel().refresh_from_model()
@@ -341,4 +357,3 @@ class AppEngine:
         """Stop background workers before the application exits."""
         self.logger.info("Shutting down AppEngine.")
         self.simulation_service.shutdown()
-

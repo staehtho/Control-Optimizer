@@ -2,6 +2,11 @@ from .closed_loop_context import ClosedLoopResponseContext
 
 from .conect_signal_config import ConnectSignalConfig
 
+from .controller_sepc import (
+    CONTROLLER_SPECS,
+    BaseControllerSpec
+)
+
 from .enum_tooltips import (
     PerformanceIndexDescription,
     get_performance_tooltip,
@@ -70,6 +75,8 @@ from .validation_result import ValidationResult
 __all__ = [
     "ClosedLoopResponseContext",
     "ConnectSignalConfig",
+    "CONTROLLER_SPECS",
+    "BaseControllerSpec",
     "PerformanceIndexDescription",
     "get_performance_tooltip",
     "validate_enum_mapping",

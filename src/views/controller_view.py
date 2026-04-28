@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any
 from PySide6.QtGui import QDoubleValidator, QValidator
 from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit, QHBoxLayout, QGraphicsOpacityEffect
 
-from app_domain.controlsys import AntiWindup
+from app_domain.controlsys import AntiWindup, ControllerType
 from app_types import ControllerField, FieldConfig, SectionConfig, ConnectSignalConfig, NavLabels
 from .view_mixin import ViewMixin
 from views.widgets import AspectRatioSvgWidget
@@ -42,7 +42,7 @@ FIELDS: list[FieldConfig | SectionConfig] = [
     ]),
 
     SectionConfig(ControllerField.CONTROLLER_TYPE, [
-        FieldConfig(ControllerField.TYPE, QLabel),
+        FieldConfig(ControllerField.TYPE, QComboBox),
     ])
 ]
 
@@ -155,7 +155,10 @@ class ControllerView(ViewMixin, QWidget):
         txt: QLineEdit = self.field_widgets.get(ControllerField.SAMPLING_RATE)
         txt.setPlaceholderText(self.tr("Sampling rate unknown"))
 
-        enums = {ControllerField.ANTI_WINDUP_METHODE: AntiWindup}
+        enums = {
+            ControllerField.ANTI_WINDUP_METHODE: AntiWindup,
+            ControllerField.TYPE: ControllerType
+        }
         for key, value in enums.items():
             data = {k: self._enum_translation(k) for k in value}
             self._cmb_add_item(self.field_widgets[key], data)
@@ -186,7 +189,6 @@ class ControllerView(ViewMixin, QWidget):
     def _apply_init_value(self) -> None:
         """Apply initial values to all UI elements."""
         init_value = {
-            ControllerField.TYPE: self._vm_controller.controller_type,
             ControllerField.FACTOR_KA: self._vm_controller.ka,
             ControllerField.CONSTRAINT_MIN: self._vm_controller.constraint_min,
             ControllerField.CONSTRAINT_MAX: self._vm_controller.constraint_max,
@@ -197,9 +199,10 @@ class ControllerView(ViewMixin, QWidget):
         for key, value in init_value.items():
             self.field_widgets[key].setText(f"{value}")
 
-        index = self.field_widgets[ControllerField.ANTI_WINDUP_METHODE].findData(self._vm_controller.anti_windup)
-        if index >= 0:
-            self.field_widgets[ControllerField.ANTI_WINDUP_METHODE].setCurrentIndex(index)
+        for field in [ControllerField.ANTI_WINDUP_METHODE, ControllerField.TYPE]:
+            index = self.field_widgets[field].findData(self._vm_controller.anti_windup)
+            if index >= 0:
+                self.field_widgets[field].setCurrentIndex(index)
 
         self._on_ka_enable_changed()
 
@@ -237,6 +240,7 @@ class ControllerView(ViewMixin, QWidget):
     def _load_block_diagram(self) -> None:
         """Build and recolor the controller block diagram SVG."""
         merged_svg = load_controller_diagram(
+            self._vm_controller.controller_spec.build_svg,
             self._vm_controller.anti_windup,
             (self._vm_controller.constraint_min, self._vm_controller.constraint_max),
             self._vm_theme.get_svg_color_map(),
@@ -245,6 +249,7 @@ class ControllerView(ViewMixin, QWidget):
         self.field_widgets.get(ControllerField.BLOCK_DIAGRAM).set_svg_bytes(merged_svg.encode("utf-8"))
 
     def _get_widget_bindings(self) -> list[ConnectSignalConfig]:
+        k_controller_type = ControllerField.TYPE
         k_constraint_min = ControllerField.CONSTRAINT_MIN
         k_constraint_max = ControllerField.CONSTRAINT_MAX
         k_anti_windup_methode = ControllerField.ANTI_WINDUP_METHODE
@@ -253,6 +258,15 @@ class ControllerView(ViewMixin, QWidget):
         k_sampling_rate = ControllerField.SAMPLING_RATE
 
         return [
+            ConnectSignalConfig(
+                key=k_controller_type,
+                signal_name="currentIndexChanged",
+                attr_name="_vm_controller.controller_type",
+                widget=self.field_widgets.get(k_controller_type),
+                kwargs={"value_type": ControllerType},
+                main_event_handler=self._on_widget_changed,
+                post_event_handler=self._load_block_diagram,
+            ),
             ConnectSignalConfig(
                 key=k_constraint_min,
                 signal_name="editingFinished",
@@ -313,6 +327,7 @@ class ControllerView(ViewMixin, QWidget):
         ]
 
     def _get_vm_bindings(self) -> list[ConnectSignalConfig]:
+        k_controller_type = ControllerField.TYPE
         k_constraint_min = ControllerField.CONSTRAINT_MIN
         k_constraint_max = ControllerField.CONSTRAINT_MAX
         k_anti_windup_methode = ControllerField.ANTI_WINDUP_METHODE
@@ -321,6 +336,14 @@ class ControllerView(ViewMixin, QWidget):
         k_sampling_rate = ControllerField.SAMPLING_RATE
 
         return [
+            ConnectSignalConfig(
+                key=k_controller_type,
+                signal_name="controllerTypeChanged",
+                attr_name="controller_type",
+                widget=self._vm_controller,
+                kwargs={"field": self.field_widgets.get(k_controller_type)},
+                main_event_handler=self._on_vm_changed,
+            ),
             ConnectSignalConfig(
                 key=k_constraint_min,
                 signal_name="constraintMinChanged",
@@ -345,7 +368,7 @@ class ControllerView(ViewMixin, QWidget):
                 attr_name="anti_windup",
                 widget=self._vm_controller,
                 kwargs={"field": self.field_widgets.get(k_anti_windup_methode)},
-                main_event_handler=self._on_vm_changed
+                main_event_handler=self._on_vm_changed,
             ),
             ConnectSignalConfig(
                 key=k_factor_ka,

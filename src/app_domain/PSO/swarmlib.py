@@ -19,9 +19,11 @@ import copy
 import math
 import random
 import sys
-from typing import Any, Callable, List, Optional
+from typing import Callable, List, Optional
 
 import numpy as np
+
+from app_domain.pso_objective import PsoFunc
 
 
 def is_better_candidate(
@@ -259,22 +261,24 @@ class Swarm:
     global best tracking, and convergence criteria.
     """
 
-    def __init__(self,
-                 obj_func: Callable[[np.ndarray], np.ndarray],
-                 size: int,
-                 param_number: int,
-                 bounds: List[List[float]],
-                 randomness: float = 1.0,
-                 u1: float = 1.49,
-                 u2: float = 1.49,
-                 initial_range: tuple[float, float] = (0.1, 1.1),
-                 initial_swarm_span: int = 2000,
-                 min_neighbors_fraction: float = 0.25,
-                 max_stall: int = 15,
-                 max_iter: int = 100,
-                 stall_windows_required: int = 3,
-                 space_factor: float = 0.001,
-        convergence_factor: float = 1e-2) -> None:
+    def __init__(
+            self,
+            obj_func: PsoFunc,
+            size: int,
+            param_number: int,
+            bounds: List[List[float]],
+            randomness: float = 1.0,
+            u1: float = 1.49,
+            u2: float = 1.49,
+            initial_range: tuple[float, float] = (0.1, 1.1),
+            initial_swarm_span: int = 2000,
+            min_neighbors_fraction: float = 0.25,
+            max_stall: int = 15,
+            max_iter: int = 100,
+            stall_windows_required: int = 3,
+            space_factor: float = 0.001,
+            convergence_factor: float = 1e-2
+    ) -> None:
         """Initializes the PSO swarm with given parameters.
 
         Args:
@@ -397,19 +401,19 @@ class Swarm:
                 (cost, feasible, violation, perf)
         """
         positions = np.array([p.position for p in self.particles])
-        eval_func = getattr(self.obj_func, "evaluate_candidates", None)
+        eval_func = self.obj_func.evaluate_candidates
 
         if callable(eval_func):
             try:
-                evaluation: dict[str, Any] = eval_func(positions, defer_logging=True)
+                evaluation = eval_func(positions)
                 self._last_eval_deferred_logging = True
             except TypeError:
                 evaluation = eval_func(positions)
                 self._last_eval_deferred_logging = False
-            cost = np.asarray(evaluation["cost"], dtype=float).reshape(-1)
-            feasible = np.asarray(evaluation["feasible"], dtype=bool).reshape(-1)
-            violation = np.asarray(evaluation["violation"], dtype=float).reshape(-1)
-            perf = np.asarray(evaluation["perf"], dtype=float).reshape(-1)
+            cost = np.asarray(evaluation.cost, dtype=float).reshape(-1)
+            feasible = np.asarray(evaluation.feasible, dtype=bool).reshape(-1)
+            violation = np.asarray(evaluation.violation, dtype=float).reshape(-1)
+            perf = np.asarray(evaluation.perf, dtype=float).reshape(-1)
             return cost, feasible, violation, perf
 
         # Backward-compatible fallback: old scalar objective is treated as feasible-only.

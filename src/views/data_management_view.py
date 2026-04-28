@@ -136,6 +136,7 @@ class DataManagementView(ViewMixin, QWidget):
         self._vm_data.exportFinished.connect(self._on_export_finished)
         self._vm_data.reportFinished.connect(self._on_report_finished)
         self._vm_data.reportFailed.connect(self._on_report_failed)
+        self._vm_data.importFailed.connect(self._on_import_failed)
 
         self._connect_object_signals(self._get_vm_bindings())
 
@@ -216,6 +217,11 @@ class DataManagementView(ViewMixin, QWidget):
         self._info_banner.show_banner(5000)
 
     def _on_report_failed(self, message: str):
+        # message comes from ViewModel → wrap in translated UI text
+        self._error_banner.label.setText(message)
+        self._error_banner.show_banner(7000)
+
+    def _on_import_failed(self, message: str):
         # message comes from ViewModel → wrap in translated UI text
         self._error_banner.label.setText(message)
         self._error_banner.show_banner(7000)

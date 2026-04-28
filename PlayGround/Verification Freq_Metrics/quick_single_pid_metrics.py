@@ -11,8 +11,8 @@ SRC_PATH = PROJECT_ROOT / "src"
 if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
-from app_domain.controlsys import Plant
-from app_domain.controlsys.freq_metrics import compute_loop_metrics_batch_from_frf
+from app_domain.controlsys import Plant, PIDClosedLoop
+from app_domain.pso_objective.freq_metrics import compute_loop_metrics_batch
 
 
 # Strecke hier eingeben
@@ -48,19 +48,9 @@ def main() -> None:
     tf_used = default_tf(plant_den) if Tf is None else float(Tf)
 
     w = np.logspace(w_min_exp, w_max_exp, w_points)
-    s = 1j * w
 
-    with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
-        G = plant.system(s)
-
-    metrics = compute_loop_metrics_batch_from_frf(
-        G=G,
-        w=w,
-        Kp=np.array([Kp], dtype=float),
-        Ti=np.array([Ti], dtype=float),
-        Td=np.array([Td], dtype=float),
-        Tf=np.array([tf_used], dtype=float),
-    )
+    X = np.column_stack([Kp, Ti, Td, tf_used])
+    metrics = compute_loop_metrics_batch(plant.system, PIDClosedLoop.frf_batch, X, w)
 
     print("Plant:")
     print(f"  num = {plant_num}")

@@ -24,9 +24,8 @@ from app_domain.controlsys import (
     PIDClosedLoop,
     PerformanceIndex,
     Plant,
-    PsoFunc,
-    compute_effective_tf_report,
 )
+from app_domain.pso_objective import PsoFunc, compute_effective_tf_report
 
 
 # ---------------------------------------------------------------------------

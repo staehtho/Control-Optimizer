@@ -21,7 +21,7 @@ from typing import Callable
 import numpy as np
 
 from .closedLoop import ClosedLoop
-from .enums import *
+from .enums import AntiWindup, MySolver, ControllerType, map_enum_to_int
 from .plant import Plant
 
 
@@ -201,6 +201,11 @@ class PIDClosedLoop(ClosedLoop):
                 If neither representation is fully provided.
         """
         # --- Parameter Validation ---
+        if all(v is None for v in (Kp, Ki, Kd, Ti, Td)):
+            Kp = 1.0
+            Ti = 1.0
+            Td = 1.0
+
         gain_form = all(v is not None for v in (Kp, Ki, Kd))
         time_form = all(v is not None for v in (Kp, Ti, Td))
 
@@ -241,6 +246,22 @@ class PIDClosedLoop(ClosedLoop):
         I = 1 / (self._ti * s)
         D = (self._td * s) / (self._tf * s + 1)
         return self._kp * (P + I + D)
+
+    @classmethod
+    def frf_batch(cls, X: np.ndarray, s: np.ndarray) -> np.ndarray:
+        """
+        X[:,0] = Kp
+        X[:,1] = Ti
+        X[:,2] = Td
+        X[:,3] = Tf
+        """
+        with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
+            Kp = X[:, 0][:, None]
+            Ti = X[:, 1][:, None]
+            Td = X[:, 2][:, None]
+            Tf = X[:, 3][:, None]
+            s_row = s[None, :]
+            return Kp * (1 + 1 / (Ti * s_row) + (Td * s_row) / (Tf * s_row + 1))
 
     # TODO(2026-03-18): Reactivate and fix __format__ only when symbolic MATLAB export
     # is actually needed. The previous implementation was unused in the codebase and
@@ -342,7 +363,7 @@ class PIDClosedLoop(ClosedLoop):
             - The controller's ``ka`` value is forwarded to ``pid_system_response()``.
             - Internally calls the compiled function `pid_system_response()` for performance.
         """
-        from .pso_system_optimization import pid_system_response
+        from app_domain.pso_objective.time_domain_numba import system_response_closed_loop, CONTROLLER_REGISTRY
 
         t_eval = np.arange(t0, t1 + dt, dt)
 
@@ -374,11 +395,22 @@ class PIDClosedLoop(ClosedLoop):
         # SISO → D ist ein skalar
         D = float(D[0, 0])
 
-        u, y = pid_system_response(Kp=self._kp, Ti=self._ti, Td=self._td,
-                                Tf=self._tf, t_eval=t_eval, dt=dt,
-                                r_eval=r_eval, l_eval=l_eval, n_eval=n_eval,
-                                x=x0, control_constraint=np.array(self._control_constraint, dtype=np.float64),
-                                anti_windup_method=map_enum_to_int(self._anti_windup_method),
-                                ka=float(self.ka),
-                                A=A, B=B, C=C, D=D, solver=map_enum_to_int(solver))
+        u, y = system_response_closed_loop(
+            kernel=CONTROLLER_REGISTRY[ControllerType.PID].kernel,
+            controller_param=np.array([self._kp, self._ti, self._td, self._tf]),
+            t_eval=t_eval,
+            dt=dt,
+            r_eval=r_eval,
+            l_eval=l_eval,
+            n_eval=n_eval,
+            x=np.array(x0),
+            control_constraint=np.array(self._control_constraint, dtype=np.float64),
+            anti_windup_method=map_enum_to_int(self._anti_windup_method),
+            ka=float(self.ka),
+            A=A,
+            B=B,
+            C=C,
+            D=D,
+            solver=map_enum_to_int(solver)
+        )
         return t_eval, u, y

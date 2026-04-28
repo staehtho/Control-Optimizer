@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import QObject, Signal, Slot
+from PySide6.QtCore import QObject, QCoreApplication, Signal, Slot, QT_TRANSLATE_NOOP
 
 from app_types import (
     DynamicReportData, DynamicReportPlant, DynamicReportExcitationFunction,
@@ -26,6 +26,8 @@ if TYPE_CHECKING:
 BLOCK_DIAGRAM = "block_diagram"
 TIME_DOMAIN = "time_domain"
 FREQUENCY_DOMAIN = "frequency_domain"
+IMPORT_FAILED_TEMPLATE = QT_TRANSLATE_NOOP("DataManagementViewModel", "Import failed: {message}")
+IMPORT_FAILED_UNKNOWN = QT_TRANSLATE_NOOP("DataManagementViewModel", "Import failed: Unknown error")
 
 
 class DataManagementViewModel(BaseViewModel):
@@ -43,6 +45,7 @@ class DataManagementViewModel(BaseViewModel):
     reportFailed = Signal(str)
     exportFinished = Signal()
     importFinished = Signal()
+    importFailed = Signal(str)
 
     def __init__(
             self,
@@ -200,8 +203,15 @@ class DataManagementViewModel(BaseViewModel):
 
     @Slot(str)
     def load_project(self, path: str | Path) -> None:
-        self._engine.load_project(path)
-        self.importFinished.emit()
+        try:
+            self._engine.load_project(path)
+            self.importFinished.emit()
+            return
+        except Exception as exc:
+            translated_error = QCoreApplication.translate("DataManagementViewModel", str(exc))
+            message = self.tr(str(IMPORT_FAILED_TEMPLATE)).format(message=translated_error)
+            self.importFailed.emit(message)
+            return
 
     # ============================================================
     # Internal Helper
@@ -248,9 +258,8 @@ class DataManagementViewModel(BaseViewModel):
             phase_margin=snapshot.phase_margin if snapshot.phase_margin_enabled else None,
             stability=snapshot.stability_margin if snapshot.stability_margin_enabled else None,
             pso_bounds_parameters={
-                "kp": snapshot.kp,
-                "ti": snapshot.ti,
-                "td": snapshot.td,
+                k: (float(lw), float(up))
+                for k, (lw, up) in zip(snapshot.controller_spec.param_names, zip(*snapshot.bounds))
             }
         )
 
@@ -265,10 +274,7 @@ class DataManagementViewModel(BaseViewModel):
         return DynamicReportPsoResult(
             is_feasible=result.is_feasible,
             simulation_time=result.simulation_time,
-            kp=result.kp,
-            ti=result.ti,
-            td=result.td,
-            tf=result.tf,
+            controller_params=result.best_params,
             recommended_sampling_rate=result.min_sampling_rate,
             tf_limitation=tf_limitation,
             error_criterion=result.error_criterion,

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from app_domain.controlsys import ExcitationTarget, PerformanceIndex
 
@@ -10,12 +10,10 @@ class PsoConfigurationModel:
 
     excitation_target: ExcitationTarget = ExcitationTarget.REFERENCE
 
-    kp_min: float = 0.0
-    kp_max: float = 10.0
-    ti_min: float = 0.001
-    ti_max: float = 10.0
-    td_min: float = 0.0
-    td_max: float = 10.0
+    min_bounds: dict[str, float] = field(default_factory=dict)
+    lower_bounds: dict[str, float] = field(default_factory=dict)
+    upper_bounds: dict[str, float] = field(default_factory=dict)
+    n_params: int = 0
 
     error_criterion: PerformanceIndex = PerformanceIndex.ITAE
     overshoot_control: float = 10.0
