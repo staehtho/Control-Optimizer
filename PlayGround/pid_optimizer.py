@@ -90,7 +90,7 @@ def main():
     plant_den = [1, 0.2, 1]
 
     use_freq_metrics = False
-    pm_min_deg = 55
+    pm_min_deg = 54
     gm_min_db = 10
     ms_max_db = None
 
