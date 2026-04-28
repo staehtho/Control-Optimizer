@@ -117,36 +117,19 @@ class PIDClosedLoop(ClosedLoop):
     # -------------------- Properties --------------------
 
     @property
-    def Kp(self) -> float:
-        """Proportional gain."""
-        return self._kp
-
-    @property
-    def Ki(self) -> float:
-        """Equivalent integral gain of the ISA controller."""
-        return self._ki
-
-    @property
-    def Kd(self) -> float:
-        """Equivalent derivative gain of the ISA controller."""
-        return self._kd
-
-    @property
-    def Ti(self) -> float:
-        """Integral time constant."""
-        return self._ti
-
-    @property
     def Td(self) -> float:
         """Derivative time constant."""
+        # TODO: cleanup: to remove
         return self._td
 
     @property
     def Tf(self) -> float:
         """Derivative filter time constant."""
+        # TODO: cleanup: to remove
         return self._tf
 
     def set_filter(self, Tf):
+        # TODO: cleanup: to remove
         self._tf = Tf
 
     def set_pid_param(self,
@@ -158,47 +141,8 @@ class PIDClosedLoop(ClosedLoop):
                       # ISA time-constant form
                       Ti: float = None,
                       Td: float = None):
-        """Set PID controller parameters in either parallel gain form or ISA time-constant form.
-
-        This method allows parameterization of the PID controller using one of two
-        mutually exclusive representations:
-
-        **Parallel gain form**
-            - ``Kp``: Proportional gain
-            - ``Ki``: Integral gain
-            - ``Kd``: Derivative gain
-
-        **ISA time-constant form**
-            - ``Kp``: Proportional gain
-            - ``Ti``: Integral time constant (``Ti = Kp / Ki``)
-            - ``Td``: Derivative time constant (``Td = Kd / Kp``)
-
-        Both representations describe the same ideal/ISA additive PID controller.
-        This method does not support product-series PID parameterizations.
-
-        Only one representation may be provided. The method automatically converts
-        between both representations and stores the equivalent internal parameters:
-        ``Kp``, ``Ki``, ``Kd``, ``Ti``, and ``Td``.
-
-        Args:
-            Kp (float, optional):
-                Proportional gain. Required for both parameterizations.
-            Ki (float, optional):
-                Integral gain. Used only when specifying the parallel gain form.
-            Kd (float, optional):
-                Derivative gain. Used only when specifying the parallel gain form.
-            Ti (float, optional):
-                Integral time constant. Used only when specifying the ISA time-constant form.
-            Td (float, optional):
-                Derivative time constant. Used only when specifying the ISA time-constant form.
-
-        Raises:
-            ValueError:
-                If both parameter forms are provided simultaneously.
-            ValueError:
-                If neither representation is fully provided.
-        """
         # --- Parameter Validation ---
+        # TODO: cleanup: to remove
         if all(v is None for v in (Kp, Ki, Kd, Ti, Td)):
             Kp = 1.0
             Ti = 1.0
@@ -251,33 +195,3 @@ class PIDClosedLoop(ClosedLoop):
             Tf = X[:, 3][:, None]
             s_row = s[None, :]
             return Kp * (1 + 1 / (Ti * s_row) + (Td * s_row) / (Tf * s_row + 1))
-
-    # TODO(2026-03-18): Reactivate and fix __format__ only when symbolic MATLAB export
-    # is actually needed. The previous implementation was unused in the codebase and
-    # algebraically inconsistent with the implemented ISA PID-T1 controller
-    # C(s) = Kp * (1 + 1/(Ti*s) + (Td*s)/(Tf*s + 1)).
-    #
-    # def __format__(self, format_spec: str) -> str:
-    #     """
-    #     Format the PID-T1 controller as a MATLAB transfer function string.
-    #
-    #     Example:
-    #         >>> format(pid, "controller")
-    #         'tf([Td*Ti, Ti, 1], [Ti*Tf, Ti, 0]) * Kp'
-    #
-    #     Args:
-    #         format_spec (str): Format specifier ('controller' for MATLAB-style).
-    #
-    #     Returns:
-    #         str: Formatted MATLAB transfer function string.
-    #     """
-    #     format_spec = format_spec.strip().lower()
-    #     if format_spec == "controller":
-    #         num = f"[{self._ti * self._td} {self._ti} 1]"
-    #         den = f"[{self._ti * self._tf} {self._ti} 0]"
-    #         return f"tf({num}, {den}) * {self._kp}"
-    #     elif format_spec == "tf_num":
-    #         return "[1 0];"
-    #     elif format_spec == "tf_den":
-    #         return f"[{self._tf} 1];"
-    #     return super().__format__(format_spec)
