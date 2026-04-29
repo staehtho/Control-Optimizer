@@ -80,7 +80,7 @@ def main():
 
     kp_min = config["pso"]["bounds"]["kp_min"]
     kp_max = config["pso"]["bounds"]["kp_max"]
-    ti_min = config["pso"]["bounds"]["ti_min"]
+    ti_min = co nfig["pso"]["bounds"]["ti_min"]
     ti_max = config["pso"]["bounds"]["ti_max"]
     td_min = config["pso"]["bounds"]["td_min"]
     td_max = config["pso"]["bounds"]["td_max"]'''

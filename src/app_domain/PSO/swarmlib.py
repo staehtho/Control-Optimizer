@@ -352,7 +352,6 @@ class Swarm:
         self.gBest: Particle
         self.iterations: int = 0
         self._no_improvement_counter = 0
-        self._last_eval_deferred_logging = False
 
         # Initialize swarm particles
         self._init_swarm()
@@ -386,12 +385,8 @@ class Swarm:
             velocity = np.array([random.uniform(-r[j], r[j]) for j in range(self.param_number)])
             self.particles.append(Particle(position, velocity))
 
-        pbest_updated = self._init_costs()
-        gbest_updated = self._init_global_best()
-        self._finalize_deferred_log_batch(
-            pbest_updated=pbest_updated,
-            gbest_updated=gbest_updated,
-        )
+        self._init_costs()
+        self._init_global_best()
 
     def _evaluate_particles(self) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """Evaluate all particles and return cost + feasibility-aware ranking fields.
@@ -404,12 +399,7 @@ class Swarm:
         eval_func = self.obj_func.evaluate_candidates
 
         if callable(eval_func):
-            try:
-                evaluation = eval_func(positions)
-                self._last_eval_deferred_logging = True
-            except TypeError:
-                evaluation = eval_func(positions)
-                self._last_eval_deferred_logging = False
+            evaluation = eval_func(positions)
             cost = np.asarray(evaluation.cost, dtype=float).reshape(-1)
             feasible = np.asarray(evaluation.feasible, dtype=bool).reshape(-1)
             violation = np.asarray(evaluation.violation, dtype=float).reshape(-1)
@@ -417,7 +407,6 @@ class Swarm:
             return cost, feasible, violation, perf
 
         # Backward-compatible fallback: old scalar objective is treated as feasible-only.
-        self._last_eval_deferred_logging = False
         cost = np.asarray(self.obj_func(positions), dtype=float).reshape(-1)
         feasible = np.ones_like(cost, dtype=bool)
         violation = np.zeros_like(cost, dtype=float)
@@ -457,22 +446,6 @@ class Swarm:
         gbest_updated[best_idx] = True
         return gbest_updated
 
-    def _finalize_deferred_log_batch(
-        self,
-        pbest_updated: np.ndarray,
-        gbest_updated: np.ndarray,
-    ) -> None:
-        if not self._last_eval_deferred_logging:
-            return
-        finalize_log = getattr(self.obj_func, "finalize_log_batch", None)
-        if callable(finalize_log):
-            finalize_log(
-                particles=self.particles,
-                gbest=self.gBest,
-                pbest_updated=pbest_updated,
-                gbest_updated=gbest_updated,
-            )
-
         # -------------------------------------------------------------------------
         # Iteration
         # -------------------------------------------------------------------------
@@ -507,11 +480,6 @@ class Swarm:
                 self.gBest = copy.deepcopy(particle)
                 gbest_updated[idx] = True
                 new_best = True
-
-        self._finalize_deferred_log_batch(
-            pbest_updated=pbest_updated,
-            gbest_updated=gbest_updated,
-        )
 
         # Adaptive neighborhood and inertia adjustments
         if new_best:
