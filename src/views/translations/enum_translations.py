@@ -254,6 +254,8 @@ class Translation:
     def _controller_type(self, value: Enum) -> str:
         """Return translated label for ControllerType enum."""
         match value:
+            case ControllerType.PI:
+                return QCoreApplication.translate("ControlEnums", "PI")
             case ControllerType.PID:
                 return QCoreApplication.translate("ControlEnums", "PID")
             case ControllerType.PID_FF:

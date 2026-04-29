@@ -237,9 +237,10 @@ class PsoSimulationEngine:
             param: PsoSimulationParam,
     ) -> TfLimitReport | None:
         """Evaluate Tf report."""
-        Td = None
 
         match param.controller_type:
+            case ControllerType.PI:
+                Td = None
             case ControllerType.PID:
                 Td = float(self._best_params[2])
             case _:

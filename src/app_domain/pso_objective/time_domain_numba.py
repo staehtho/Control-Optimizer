@@ -65,6 +65,164 @@ def dot1D(x: np.ndarray, y: np.ndarray) -> float:
 
 
 # =============================================================================
+# PI Update
+# =============================================================================
+@njit(
+    types.UniTuple(float64, 3)(
+        float64, float64, float64, float64, float64, float64, float64, float64, float64, int64,
+        float64
+    ),
+    inline="always"
+)
+def pi_update(e, e_prev, d_filtered_prev, integral_prev,
+              Kp, Ti,
+              dt, u_min, u_max,
+              anti_windup_method, ka):
+    """
+    Compute a single update of an ISA-form PI controller with anti-windup.
+
+    This kernel evaluates the proportional and integral contributions of the
+    controller using the ISA time-constant representation (Kp, Ti). The
+    integral state is maintained as the unscaled ISA state x_I, with the
+    effective integral term computed as I = (Kp / Ti) * x_I.
+
+    Anti-windup is applied using one of three strategies:
+        - CONDITIONAL: integrate only when the unsaturated control action is
+          consistent with the actuator limits and error direction.
+        - CLAMPING: integrate only when the integral term itself is not
+          driving the controller into saturation.
+        - BACKCALCULATION: feed back the saturation error into the integral
+          state using the back-calculation gain ka.
+
+    Args:
+        e:
+            Current control error.
+        e_prev:
+            Previous error (unused for PI but kept for signature compatibility).
+        d_filtered_prev:
+            Previous derivative state (unused for PI; returned as 0.0).
+        integral_prev:
+            Previous unscaled integral state x_I.
+        Kp:
+            Proportional gain.
+        Ti:
+            Integral time constant. If Ti <= 0, integration is disabled.
+        dt:
+            Simulation time step.
+        u_min:
+            Actuator saturation lower limit.
+        u_max:
+            Actuator saturation upper limit.
+        anti_windup_method:
+            Integer code selecting the anti-windup strategy.
+        ka:
+            Back-calculation gain for the BACKCALCULATION method.
+
+    Returns:
+        u:
+            Saturated control signal.
+        integral_updated:
+            Updated unscaled integral state x_I.
+        d_filtered_updated:
+            Always 0.0 for PI controllers (placeholder for PID compatibility).
+    """
+
+    # 1) Proportional
+    P_term = Kp * e
+
+    # 2) Integration
+    if Ti > 0.0:
+        integral_candidate = integral_prev + e * dt
+    else:
+        integral_candidate = integral_prev
+
+    # Ki = Kp / Ti
+    if Ti > 0.0:
+        I_term_prev = (Kp / Ti) * integral_prev
+        I_term_candidate = (Kp / Ti) * integral_candidate
+    else:
+        I_term_prev = 0.0
+        I_term_candidate = 0.0
+
+    # 3) Unsaturated signals
+    u_unsat_prev = P_term + I_term_prev
+    u_unsat_candidate = P_term + I_term_candidate
+
+    # 4) Anti-windup
+    if anti_windup_method == AntiWindupInt.CONDITIONAL:
+        if ((u_min < u_unsat_candidate < u_max) or
+                (u_unsat_candidate >= u_max and e < 0.0) or
+                (u_unsat_candidate <= u_min and e > 0.0)):
+            integral_updated = integral_candidate
+            u_unsat_updated = u_unsat_candidate
+        else:
+            integral_updated = integral_prev
+            u_unsat_updated = u_unsat_prev
+
+    elif anti_windup_method == AntiWindupInt.CLAMPING:
+        if ((u_min < I_term_candidate < u_max) or
+                (I_term_candidate >= u_max and e < 0.0) or
+                (I_term_candidate <= u_min and e > 0.0)):
+            integral_updated = integral_candidate
+            u_unsat_updated = u_unsat_candidate
+        else:
+            integral_updated = integral_prev
+            u_unsat_updated = u_unsat_prev
+
+    elif anti_windup_method == AntiWindupInt.BACKCALCULATION:
+        if u_unsat_candidate > u_max:
+            u_sat_candidate = u_max
+        elif u_unsat_candidate < u_min:
+            u_sat_candidate = u_min
+        else:
+            u_sat_candidate = u_unsat_candidate
+
+        if Ti > 0.0 and Kp != 0.0:
+            integral_updated = (
+                    integral_candidate
+                    + dt * ka * (Ti / Kp) * (u_sat_candidate - u_unsat_candidate)
+            )
+        else:
+            integral_updated = integral_candidate
+
+        if Ti > 0.0:
+            I_term_updated = (Kp / Ti) * integral_updated
+        else:
+            I_term_updated = 0.0
+
+        u_unsat_updated = P_term + I_term_updated
+
+    else:
+        integral_updated = 0.0
+        u_unsat_updated = 0.0
+
+    # 5) Saturation
+    if u_unsat_updated > u_max:
+        u = u_max
+    elif u_unsat_updated < u_min:
+        u = u_min
+    else:
+        u = u_unsat_updated
+
+    return u, integral_updated, 0.0
+
+
+@njit(inline="always")
+def pi_kernel(
+        e, e_prev, filtered_prev, integral,
+        dt, u_min, u_max,
+        controller_param,
+        anti_windup_method, ka):
+    Kp, Ti = controller_param
+    return pi_update(
+        e, e_prev, filtered_prev, integral,
+        Kp, Ti,
+        dt, u_min, u_max,
+        anti_windup_method, ka
+    )
+
+
+# =============================================================================
 # PID Update
 # =============================================================================
 @njit(
@@ -78,32 +236,60 @@ def pid_update(e: float, e_prev: float, d_filtered_prev: float, integral_prev: f
                Kp: float, Ti: float, Td: float, Tf: float, dt: float, u_min: float, u_max: float,
                anti_windup_method: int, ka: float) -> tuple[float, float, float]:
     """
-    Perform a single PID controller update including anti-windup.
+     Compute a single update of an ISA-form PID controller with filtered
+     derivative and anti-windup.
 
-    The function computes proportional, integral and filtered derivative terms,
-    applies the selected anti-windup strategy and returns the saturated control
-    signal together with the updated integral and filtered derivative states.
+     The controller uses the ISA time-constant representation (Kp, Ti, Td, Tf).
+     The integral state is maintained as the unscaled ISA state x_I, with
+     I = (Kp / Ti) * x_I. The derivative term is evaluated using a first-order
+     low-pass filter with time constant Tf, applied to the discrete error
+     difference (e - e_prev) / dt.
 
-    The application-level controller representation remains the ISA
-    time-constant form ``(Kp, Ti, Td, Tf)``. Inside this numerical kernel, the
-    integral and derivative contributions are evaluated through the equivalent
-    local gain terms ``Ki = Kp / Ti`` and ``Kd = Kp * Td`` for efficiency.
+     Anti-windup is applied using one of three strategies:
+         - CONDITIONAL: integrate only when the unsaturated control action is
+           consistent with actuator limits and error direction.
+         - CLAMPING: integrate only when the integral term itself does not
+           push the controller into saturation.
+         - BACKCALCULATION: feed back the saturation error into the integral
+           state using the back-calculation gain ka, scaled according to the
+           ISA representation.
 
-    Args:
-        e: Current control error.
-        e_prev: Previous control error.
-        d_filtered_prev: Previous filtered derivative state.
-        integral_prev: Previous integral state.
-        Kp: Proportional gain.
-        Ti: Integral time constant.
-        Td: Derivative time constant.
-        Tf: Derivative filter time constant.
-        dt: Simulation time step.
-        u_min: Lower actuator limit.
-        u_max: Upper actuator limit.
-        anti_windup_method: Selected anti-windup method.
-        ka: Scaling factor for the back-calculation feedback path.
-    """
+     Args:
+         e:
+             Current control error.
+         e_prev:
+             Previous control error.
+         d_filtered_prev:
+             Previous filtered derivative state.
+         integral_prev:
+             Previous unscaled integral state x_I.
+         Kp:
+             Proportional gain.
+         Ti:
+             Integral time constant. If Ti <= 0, integration is disabled.
+         Td:
+             Derivative time constant. If Td <= 0, derivative action is disabled.
+         Tf:
+             Derivative filter time constant for the first-order low-pass filter.
+         dt:
+             Simulation time step.
+        u_min:
+            Actuator saturation lower limit.
+        u_max:
+            Actuator saturation upper limit.
+         anti_windup_method:
+             Integer code selecting the anti-windup strategy.
+         ka:
+             Back-calculation gain for the BACKCALCULATION method.
+
+     Returns:
+         u_updated:
+             Saturated control signal.
+         integral_updated:
+             Updated unscaled integral state x_I.
+         d_filtered_updated:
+             Updated filtered derivative state.
+     """
     # 1) Proportional
     P_term = Kp * e
 
@@ -175,6 +361,7 @@ def pid_update(e: float, e_prev: float, d_filtered_prev: float, integral_prev: f
     u_updated = min(max(u_unsat_updated, u_min), u_max)
 
     return u_updated, integral_updated, d_filtered_updated
+
 
 @njit(inline="always")
 def pid_kernel(
@@ -620,5 +807,6 @@ class ControllerSpec:
 
 
 CONTROLLER_REGISTRY = {
+    ControllerType.PI: ControllerSpec(kernel=pi_kernel),
     ControllerType.PID: ControllerSpec(kernel=pid_kernel)
 }

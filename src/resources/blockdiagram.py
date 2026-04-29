@@ -135,6 +135,31 @@ def _handle_anti_windup(anti_windup: AntiWindup, x: int, y: int) -> SvgData:
             )
 
 
+def get_pi_controller_svg(anti_windup: AntiWindup) -> list[SvgData]:
+    """Define the structure (components + positions) of the controller diagram.
+
+    Args:
+        anti_windup: Selected anti-windup strategy.
+
+    Returns:
+        List of SVG elements with their positions.
+    """
+    # Layout offsets
+    y_offset = 125
+    node_x = 150
+    sum_x = 475
+
+    svg_elements: list[SvgData] = [
+        (BlockDiagram.blank_base, (0, 0)),
+        (BlockDiagram.controller_in, (0, y_offset)),
+        (BlockDiagram.controller_out, (sum_x, y_offset)),
+        (BlockDiagram.p_path, (node_x, y_offset)),
+        _handle_anti_windup(anti_windup, node_x, y_offset),
+    ]
+
+    return svg_elements
+
+
 def get_pid_controller_svg(anti_windup: AntiWindup) -> list[SvgData]:
     """Define the structure (components + positions) of the controller diagram.
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Callable
 from dataclasses import dataclass
 
-from app_domain.controlsys import ControllerType, PIDClosedLoop, PIDFFClosedLoop
+from app_domain.controlsys import ControllerType, PIClosedLoop, PIDClosedLoop, PIDFFClosedLoop
 import resources.blockdiagram as bd
 
 if TYPE_CHECKING:
@@ -84,6 +84,16 @@ class PIDControllerSpec(BaseControllerSpec):
 
 
 @dataclass
+class PIControllerSpec(BaseControllerSpec):
+    controller_class = PIClosedLoop
+    param_names = ["Kp", "Ti"]
+    min_bounds = [0.0, 1e-9]
+    bounds = ([0.0, 0.001], [10.0, 10.0])
+    transfer_function = r"C(s) = K_p \frac{(T_i\, s + 1)}{T_i\, s}"
+    build_svg = staticmethod(bd.get_pi_controller_svg)
+
+
+@dataclass
 class PIDFFControllerSpec(BaseControllerSpec):
     controller_class = PIDFFClosedLoop
     # TODO: params?
@@ -95,6 +105,7 @@ class PIDFFControllerSpec(BaseControllerSpec):
 
 
 CONTROLLER_SPECS = {
+    ControllerType.PI: PIControllerSpec,
     ControllerType.PID: PIDControllerSpec,
     ControllerType.PID_FF: PIDFFControllerSpec,
 }

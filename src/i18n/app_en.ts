@@ -295,11 +295,16 @@
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="258"/>
+        <source>PI</source>
+        <translation>PI</translation>
+    </message>
+    <message>
+        <location filename="../views/translations/enum_translations.py" line="260"/>
         <source>PID</source>
         <translation>PID</translation>
     </message>
     <message>
-        <location filename="../views/translations/enum_translations.py" line="260"/>
+        <location filename="../views/translations/enum_translations.py" line="262"/>
         <source>PID FF</source>
         <translation>PID FF</translation>
     </message>

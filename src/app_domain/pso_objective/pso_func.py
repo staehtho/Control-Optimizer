@@ -4,7 +4,7 @@ from typing import Callable
 
 import numpy as np
 
-from app_domain.controlsys import ClosedLoop, PIDClosedLoop, PIDFFClosedLoop
+from app_domain.controlsys import ClosedLoop, PIDClosedLoop, PIDFFClosedLoop, PIClosedLoop
 from app_domain.controlsys.enums import MySolver, PerformanceIndex, map_enum_to_int, ControllerType
 from .freq_metrics import compute_loop_metrics_batch
 from .filter_time_constant_handler import (
@@ -167,7 +167,9 @@ class PsoFunc:
         self._controller_enum = None
 
         # define through type the Controller-Enum
-        if isinstance(controller, PIDClosedLoop):
+        if isinstance(controller, PIClosedLoop):
+            self._controller_enum = ControllerType.PI
+        elif isinstance(controller, PIDClosedLoop):
             self._controller_enum = ControllerType.PID
         elif isinstance(controller, PIDFFClosedLoop):
             self._controller_enum = ControllerType.PID_FF
@@ -403,10 +405,12 @@ class PsoFunc:
         P = X.shape[0]
 
         Td = np.zeros(P, dtype=np.float64)
-        calc_tf = False
 
         # determine whether tf needs to be calculated and get Td from X
         match self._controller_enum:
+            case ControllerType.PI:
+                calc_tf = False
+
             case ControllerType.PID:
                 Td = X[:, 2]
                 calc_tf = True

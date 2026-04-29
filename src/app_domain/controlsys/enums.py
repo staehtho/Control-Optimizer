@@ -62,6 +62,7 @@ class ExcitationTarget(Enum):
 
 
 class ControllerType(Enum):
+    PI = "pi"
     PID = "pid"
     PID_FF = "pid_ff"
 
