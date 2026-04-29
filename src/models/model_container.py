@@ -11,7 +11,6 @@ from .plant_model import PlantModel
 from .project_state_io import export_project_state, import_project_bounds, import_project_state
 from .pso_configuration_model import PsoConfigurationModel
 from .settings_model import SettingsModel
-from .simulation_model import SimulationModel
 
 
 class ModelContainer:
@@ -37,7 +36,6 @@ class ModelContainer:
             n_params=len(lw)
         )
 
-        self.model_simulation = SimulationModel()
         self.model_data = DataManagementModel()
 
     def ensure_function_model(self, key: str) -> FunctionModel:
