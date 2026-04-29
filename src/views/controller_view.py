@@ -199,8 +199,12 @@ class ControllerView(ViewMixin, QWidget):
         for key, value in init_value.items():
             self.field_widgets[key].setText(f"{value}")
 
-        for field in [ControllerField.ANTI_WINDUP_METHODE, ControllerField.TYPE]:
-            index = self.field_widgets[field].findData(self._vm_controller.anti_windup)
+        init_data = {
+            ControllerField.ANTI_WINDUP_METHODE: self._vm_controller.anti_windup,
+            ControllerField.TYPE: self._vm_controller.controller_type,
+        }
+        for field, value in init_data.items():
+            index = self.field_widgets[field].findData(value)
             if index >= 0:
                 self.field_widgets[field].setCurrentIndex(index)
 
