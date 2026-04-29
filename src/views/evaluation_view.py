@@ -511,6 +511,7 @@ class EvaluationView(ViewMixin, QWidget):
         self._update_time_domain_plots()
         self._update_frequency_domain_plots()
         self._update_pso_result_values()
+        self._set_formula_transfer_functions()
 
         widget: FormulaWidget = self.field_widgets[EvaluationField.TF_PLANT]
         snapshot = self._vm_evaluator.get_pso_snapshot()

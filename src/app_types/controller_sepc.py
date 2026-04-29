@@ -51,6 +51,13 @@ class BaseControllerSpec:
             These bounds are controller‑specific and define the feasible search
             region for tuning.
 
+        transfer_function (str):
+            Human‑readable mathematical representation of the controller's
+            transfer function, typically expressed as a LaTeX‑compatible string.
+            This is used for UI display, documentation, and tooltips. The formula
+            must correspond exactly to the controller implementation and parameter
+            naming.
+
         build_svg (Callable[[AntiWindup], list[SvgData]]):
             Callable that constructs the SVG block‑diagram representation of the
             controller. The function receives the selected anti‑windup strategy
@@ -62,6 +69,7 @@ class BaseControllerSpec:
     param_names: list[str]
     min_bounds: list[float]
     bounds: tuple[list[float], list[float]]
+    transfer_function: str
     build_svg: Callable[[AntiWindup], list[SvgData]]
 
 
@@ -71,6 +79,7 @@ class PIDControllerSpec(BaseControllerSpec):
     param_names = ["Kp", "Ti", "Td"]
     min_bounds = [0.0, 1e-9, 0.0]
     bounds = ([0.0, 0.001, 0.0], [10.0, 10.0, 10.0])
+    transfer_function = r"C(s) = K_p \frac{(T_i\, s + 1)(T_d\, s + 1)}{T_i\, s (T_f\, s + 1)}"
     build_svg = staticmethod(bd.get_pid_controller_svg)
 
 
@@ -81,6 +90,7 @@ class PIDFFControllerSpec(BaseControllerSpec):
     param_names = ["ab", "cd"]
     min_bounds = [5.0, 5.0]
     bounds = ([5.0, 5.0], [20.0, 30.0])
+    transfer_function = ""
     build_svg = staticmethod(bd.get_pid_ff_controller_svg)
 
 
