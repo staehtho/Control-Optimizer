@@ -133,6 +133,7 @@ class EvaluationViewModel(BaseViewModel):
         context = ClosedLoopResponseContext(
             num=list(self._pso_snapshot.plant_num),
             den=list(self._pso_snapshot.plant_den),
+            controller=self._pso_snapshot.controller_spec.controller_class,
             controller_params=self._pso_result.best_params,
             t0=t0,
             t1=t1,

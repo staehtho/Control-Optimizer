@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import logging
 import numpy as np
 
-from app_domain.controlsys import Plant, PIDClosedLoop
+from app_domain.controlsys import Plant
 
 if TYPE_CHECKING:
     from app_types import ClosedLoopResponseContext
@@ -35,7 +35,7 @@ class ClosedLoopResponseEngine:
         )
         plant = Plant(context.num, context.den)
 
-        pid_cl = PIDClosedLoop(
+        cl = context.controller(
             plant,
             **context.controller_params,
             control_constraint=list(context.constraint),
@@ -43,7 +43,7 @@ class ClosedLoopResponseEngine:
             ka=context.ka
         )
         dt = (context.t1 - context.t0) / 5000
-        t, u, y = pid_cl.system_response(
+        t, u, y = cl.system_response(
             t0=context.t0,
             t1=context.t1,
             dt=dt,

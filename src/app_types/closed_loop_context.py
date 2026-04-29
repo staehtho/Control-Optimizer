@@ -4,7 +4,8 @@ from dataclasses import dataclass
 import numpy as np
 
 if TYPE_CHECKING:
-    from app_domain.controlsys import AntiWindup, MySolver
+    from app_domain.controlsys import AntiWindup, MySolver, ClosedLoop
+
 
 @dataclass
 class ClosedLoopResponseContext:
@@ -13,6 +14,7 @@ class ClosedLoopResponseContext:
     num: list[float]
     den: list[float]
 
+    controller: type[ClosedLoop]
     controller_params: dict[str, float]
 
     t0: float
