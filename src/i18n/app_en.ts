@@ -523,39 +523,32 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
 <context>
     <name>EvaluationView</name>
     <message>
-        <location filename="../views/evaluation_view.py" line="83"/>
         <source>PSO finished after %(time).3f s.</source>
-        <translation>PSO finished after %(time).3f s.</translation>
+        <translation type="vanished">PSO finished after %(time).3f s.</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="88"/>
         <source>%(error_criterion)s = %(value).3f</source>
-        <translation>%(error_criterion)s = %(value).3f</translation>
+        <translation type="vanished">%(error_criterion)s = %(value).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="93"/>
         <source>Overshoot: %(value).3f %%</source>
-        <translation>Overshoot: %(value).3f %%</translation>
+        <translation type="vanished">Overshoot: %(value).3f %%</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="98"/>
         <source>Slew Rate Limit du/dt: %(value).3f</source>
-        <translation>Slew rate limit du/dt: %(value).3f</translation>
+        <translation type="vanished">Slew rate limit du/dt: %(value).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="103"/>
         <source>Gain margin: %(value).3f dB at %(omega).3f rad/s</source>
-        <translation>Gain margin: %(value).3f dB at %(omega).3f rad/s</translation>
+        <translation type="vanished">Gain margin: %(value).3f dB at %(omega).3f rad/s</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="108"/>
         <source>Phase margin: %(value).3f° at %(omega).3f rad/s</source>
-        <translation>Phase margin: %(value).3f° at %(omega).3f rad/s</translation>
+        <translation type="vanished">Phase margin: %(value).3f° at %(omega).3f rad/s</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="113"/>
         <source>Stability margin: %(value).3f dB</source>
-        <translation>Stability margin: %(value).3f dB</translation>
+        <translation type="vanished">Stability margin: %(value).3f dB</translation>
     </message>
     <message>
         <source>Kp: %(kp).3f</source>
@@ -570,9 +563,8 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <translation type="vanished">Td: %(td).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="118"/>
         <source>Tf: %(tf).3f</source>
-        <translation>Tf: %(tf).3f</translation>
+        <translation type="vanished">Tf: %(tf).3f</translation>
     </message>
     <message>
         <location filename="../views/evaluation_view.py" line="123"/>
@@ -580,9 +572,8 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <translation>Tf limited by %(limited)s</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="128"/>
         <source>Min. sampling rate: %(sampling_rate).3f Hz</source>
-        <translation>Min. sampling rate: %(sampling_rate).3f Hz</translation>
+        <translation type="vanished">Min. sampling rate: %(sampling_rate).3f Hz</translation>
     </message>
     <message>
         <location filename="../views/evaluation_view.py" line="135"/>
@@ -619,6 +610,51 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
     <message>
         <source>Evaluation</source>
         <translation type="vanished">Evaluation</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="83"/>
+        <source>PSO finished after %(time)s s.</source>
+        <translation>PSO finished after %(time)s s.</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="88"/>
+        <source>%(error_criterion)s = %(value)s</source>
+        <translation>%(error_criterion)s = %(value)s</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="93"/>
+        <source>Overshoot: %(value)s %%</source>
+        <translation>Overshoot: %(value)s %%</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="98"/>
+        <source>Slew Rate Limit du/dt: %(value)s</source>
+        <translation>Slew rate limit du/dt: %(value)s</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="103"/>
+        <source>Gain margin: %(value)s dB at %(omega)s rad/s</source>
+        <translation>Gain margin: %(value)s dB at %(omega)s rad/s</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="108"/>
+        <source>Phase margin: %(value)s° at %(omega)s rad/s</source>
+        <translation>Phase margin: %(value)s° at %(omega)s rad/s</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="113"/>
+        <source>Stability margin: %(value)s dB</source>
+        <translation>Stability margin: %(value)s dB</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="118"/>
+        <source>Tf: %(tf)s</source>
+        <translation>Tf: %(tf)s</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="128"/>
+        <source>Min. sampling rate: %(sampling_rate)s Hz</source>
+        <translation>Min. sampling rate: %(sampling_rate)s Hz</translation>
     </message>
     <message>
         <location filename="../views/evaluation_view.py" line="362"/>

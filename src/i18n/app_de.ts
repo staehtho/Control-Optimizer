@@ -523,39 +523,32 @@ Wenn die Abtastrate unbekannt ist, dieses Feld leer lassen, um einen empfohlenen
 <context>
     <name>EvaluationView</name>
     <message>
-        <location filename="../views/evaluation_view.py" line="83"/>
         <source>PSO finished after %(time).3f s.</source>
-        <translation>PSO nach %(time).3f s abgeschlossen.</translation>
+        <translation type="vanished">PSO nach %(time).3f s abgeschlossen.</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="88"/>
         <source>%(error_criterion)s = %(value).3f</source>
-        <translation>%(error_criterion)s = %(value).3f</translation>
+        <translation type="vanished">%(error_criterion)s = %(value).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="93"/>
         <source>Overshoot: %(value).3f %%</source>
-        <translation>Überschwingen: %(value).3f %%</translation>
+        <translation type="vanished">Überschwingen: %(value).3f %%</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="98"/>
         <source>Slew Rate Limit du/dt: %(value).3f</source>
-        <translation>Stellratenbegrenzung du/dt: %(value).3f</translation>
+        <translation type="vanished">Stellratenbegrenzung du/dt: %(value).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="103"/>
         <source>Gain margin: %(value).3f dB at %(omega).3f rad/s</source>
-        <translation>Amplitudenreserve: %(value).3f dB bei %(omega).3f rad/s</translation>
+        <translation type="vanished">Amplitudenreserve: %(value).3f dB bei %(omega).3f rad/s</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="108"/>
         <source>Phase margin: %(value).3f° at %(omega).3f rad/s</source>
-        <translation>Phasenreserve: %(value).3f° bei %(omega).3f rad/s</translation>
+        <translation type="vanished">Phasenreserve: %(value).3f° bei %(omega).3f rad/s</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="113"/>
         <source>Stability margin: %(value).3f dB</source>
-        <translation>Stabilitätsreserve: %(value).3f dB</translation>
+        <translation type="vanished">Stabilitätsreserve: %(value).3f dB</translation>
     </message>
     <message>
         <source>Kp: %(kp).3f</source>
@@ -570,9 +563,8 @@ Wenn die Abtastrate unbekannt ist, dieses Feld leer lassen, um einen empfohlenen
         <translation type="vanished">Td: %(td).3f</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="118"/>
         <source>Tf: %(tf).3f</source>
-        <translation>Tf: %(tf).3f</translation>
+        <translation type="vanished">Tf: %(tf).3f</translation>
     </message>
     <message>
         <location filename="../views/evaluation_view.py" line="123"/>
@@ -580,9 +572,8 @@ Wenn die Abtastrate unbekannt ist, dieses Feld leer lassen, um einen empfohlenen
         <translation>Tf begrenzt durch %(limited)s</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="128"/>
         <source>Min. sampling rate: %(sampling_rate).3f Hz</source>
-        <translation>Minimale Abtastrate: %(sampling_rate).3f Hz</translation>
+        <translation type="vanished">Minimale Abtastrate: %(sampling_rate).3f Hz</translation>
     </message>
     <message>
         <location filename="../views/evaluation_view.py" line="135"/>
@@ -619,6 +610,51 @@ Wenn die Abtastrate unbekannt ist, dieses Feld leer lassen, um einen empfohlenen
     <message>
         <source>Evaluation</source>
         <translation type="vanished">Auswertung</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="83"/>
+        <source>PSO finished after %(time)s s.</source>
+        <translation>PSO nach %(time)s s abgeschlossen.</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="88"/>
+        <source>%(error_criterion)s = %(value)s</source>
+        <translation>%(error_criterion)s = %(valu)s</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="93"/>
+        <source>Overshoot: %(value)s %%</source>
+        <translation>Überschwingen: %(value)s %%</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="98"/>
+        <source>Slew Rate Limit du/dt: %(value)s</source>
+        <translation>Stellratenbegrenzung du/dt: %(value)s</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="103"/>
+        <source>Gain margin: %(value)s dB at %(omega)s rad/s</source>
+        <translation>Amplitudenreserve: %(value)s dB bei %(omega)s rad/s</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="108"/>
+        <source>Phase margin: %(value)s° at %(omega)s rad/s</source>
+        <translation>Phasenreserve: %(value)s° bei %(omega)s rad/s</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="113"/>
+        <source>Stability margin: %(value)s dB</source>
+        <translation>Stabilitätsreserve: %(value)s dB</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="118"/>
+        <source>Tf: %(tf)s</source>
+        <translation>Tf: %(tf)s</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="128"/>
+        <source>Min. sampling rate: %(sampling_rate)s Hz</source>
+        <translation>Minimale Abtastrate: %(sampling_rate)s Hz</translation>
     </message>
     <message>
         <location filename="../views/evaluation_view.py" line="362"/>
