@@ -29,10 +29,10 @@ DEFAULT_OUTPUT_BASENAME = (
 FAMILY_ORDER = ["reference", "pm", "ms", "overshoot", "du_dt"]
 FAMILY_LABELS = {
     "reference": "Referenzfall",
-    "pm": "PM",
-    "ms": r"$M_s$",
-    "overshoot": "Überschwingen",
-    "du_dt": r"$\mathrm{d}u/\mathrm{d}t$",
+    "pm": r"$\varphi_m$",
+    "ms": r"$S_{max}$",
+    "overshoot": r"$os$",
+    "du_dt": r"$du/dt$",
 }
 FAMILY_COLORS = {
     "reference": "#111111",

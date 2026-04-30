@@ -421,13 +421,13 @@ def build_plot_ready_rows(
 
     family_meta = {
         "pm": {
-            "family_label": "Phasenreserve PM",
+            "family_label": r"Phasenreserve $\varphi_m$",
             "threshold_column": "pm_min_deg",
             "threshold_unit": "deg",
             "constraint_type": "minimum",
         },
         "ms": {
-            "family_label": "Stabilität Ms",
+            "family_label": r"Sensitivitätsmaximum $S_{max}$",
             "threshold_column": "ms_max_db",
             "threshold_unit": "dB",
             "constraint_type": "maximum",
@@ -439,7 +439,7 @@ def build_plot_ready_rows(
             "constraint_type": "maximum",
         },
         "du_dt": {
-            "family_label": "Maximale Stellrate du/dt",
+            "family_label": r"Stellrate $du/dt$",
             "threshold_column": "allowed_max_du_dt",
             "threshold_unit": "1/s",
             "constraint_type": "maximum",
@@ -688,9 +688,9 @@ def build_stacked_label_ready_rows(
 
         x_label = "\n".join(
             [
-                f"PM { _format_threshold_label_clean(float(pm_row['threshold_value']), str(pm_row['threshold_unit'])) }",
-                f"Ms { _format_threshold_label_clean(float(ms_row['threshold_value']), str(ms_row['threshold_unit'])) }",
-                f'ÜS { _format_threshold_label_clean(float(overshoot_row["threshold_value"]), str(overshoot_row["threshold_unit"])) }',
+                f"$\\varphi_m$ { _format_threshold_label_clean(float(pm_row['threshold_value']), str(pm_row['threshold_unit'])) }",
+                f"$S_{{max}}$ { _format_threshold_label_clean(float(ms_row['threshold_value']), str(ms_row['threshold_unit'])) }",
+                f'$os$ { _format_threshold_label_clean(float(overshoot_row["threshold_value"]), str(overshoot_row["threshold_unit"])) }',
                 f'du/dt { _format_threshold_label_clean(float(du_dt_row["threshold_value"]), str(du_dt_row["threshold_unit"])) }',
             ]
         )
@@ -1048,10 +1048,10 @@ def try_create_stacked_label_overlay_plot(
         "du_dt": "#ff7f0e",
     }
     labels = {
-        "pm": "Phasenreserve PM",
-        "ms": r"Stabilität $M_s$",
-        "overshoot": "Maximales Überschwingen",
-        "du_dt": r"Maximale Stellrate $\mathrm{d}u/\mathrm{d}t$",
+        "pm": r"Phasenreserve $\varphi_m$",
+        "ms": r"Sensitivitätsmaximum $S_{max}$",
+        "overshoot": r"Überschwingen $os$",
+        "du_dt": r"Stellrate $du/dt$",
     }
 
     x = np.array([float(row["x_position"]) for row in stacked_rows], dtype=np.float64)
