@@ -89,7 +89,7 @@ class PIControllerSpec(BaseControllerSpec):
     param_names = ["Kp", "Ti"]
     min_bounds = [0.0, 1e-9]
     bounds = ([0.0, 0.001], [10.0, 10.0])
-    transfer_function = r"C(s) = K_p \frac{(T_i\, s + 1)}{T_i\, s}"
+    transfer_function = r"C(s) = K_p \left(1 + \frac{1}{T_i\, s}\right)"
     build_svg = staticmethod(bd.get_pi_controller_svg)
 
 
