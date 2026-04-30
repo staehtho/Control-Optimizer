@@ -15,7 +15,7 @@
 # ------------------------------------------------------------------------------
 
 import numpy as np
-from numba import njit, prange, types, float64, int64
+from numba import njit, prange, float64, int64
 from app_domain.controlsys.enums import ControllerType, PerformanceIndexInt, AntiWindupInt, MySolverInt
 
 # State indices
@@ -82,6 +82,10 @@ def dot1D(x: np.ndarray, y: np.ndarray) -> float:
         acc += x[i] * y[i]
     return acc
 
+
+# *****************************************************************************
+# Implementation Controller Step
+# *****************************************************************************
 
 # =============================================================================
 # PI Update
@@ -482,7 +486,7 @@ def system_response_closed_loop(
     y_hist = np.zeros(n_steps, dtype=np.float64)
 
     # Single controller → state shape (1, N_CONTROLLER_STATE)
-    state = np.zeros((1, N_CONTROLLER_STATE), dtype=np.float64)
+    state = init_controller_state(1)
 
     u_min = float(control_constraint[0])
     u_max = float(control_constraint[1])
@@ -695,7 +699,7 @@ def time_domain_pso_func(
     max_du_dt = np.full(swarm_size, np.nan, dtype=np.float64)
 
     # Shared controller state for all particles
-    state = np.zeros((swarm_size, N_CONTROLLER_STATE), dtype=np.float64)
+    state = init_controller_state(swarm_size)
     x = np.zeros((swarm_size, system_order), dtype=np.float64)
 
     for i in prange(swarm_size):
