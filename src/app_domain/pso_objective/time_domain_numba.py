@@ -114,7 +114,6 @@ def pi_step(
     Ti = controller_param[1]
 
     # Load state into locals
-    e_prev = state[i, STATE_E_PREV]
     integral_prev = state[i, STATE_INTEGRAL]
 
     # 1) Proportional
@@ -193,9 +192,7 @@ def pi_step(
         u = u_unsat_updated
 
     # Write back state in-place
-    state[i, STATE_E_PREV] = e
     state[i, STATE_INTEGRAL] = integral_updated
-    state[i, STATE_D_FILTERED] = 0.0  # PI: no derivative
 
     return u
 
