@@ -4,7 +4,7 @@ from typing import Callable
 
 import numpy as np
 
-from app_domain.controlsys import ClosedLoop, PIDClosedLoop, PIClosedLoop
+from app_domain.controlsys import ClosedLoop
 from app_domain.controlsys.enums import MySolver, PerformanceIndex, map_enum_to_int, ControllerType
 from .freq_metrics import compute_loop_metrics_batch
 from .filter_time_constant_handler import (
@@ -163,16 +163,7 @@ class PsoFunc:
               - J for feasible candidates
               - V for infeasible candidates
         """
-        self.controller = controller
-        self._controller_enum = None
-
-        # define through type the Controller-Enum
-        if isinstance(controller, PIClosedLoop):
-            self._controller_enum = ControllerType.PI
-        elif isinstance(controller, PIDClosedLoop):
-            self._controller_enum = ControllerType.PID
-        else:
-            raise TypeError(f"Unsupported controller type: '{type(self.controller)}'")
+        self._controller = controller
 
         self.t0 = t0
         self.t1 = t1
@@ -186,7 +177,7 @@ class PsoFunc:
         self.use_freq_metrics = bool(use_freq_metrics)
 
         self._w = np.logspace(freq_low_exp, freq_high_exp, freq_points).astype(np.float64)
-        self._plant_tf = self.controller.plant.system
+        self._plant_tf = self._controller.plant.system
 
         if r is None:
             r = lambda t: np.zeros_like(t)
@@ -200,7 +191,7 @@ class PsoFunc:
         self.n_eval = n(self.t_eval)
 
         # Extract state-space matrices and ensure they are contiguous for Numba
-        A, B, C, D = self.controller.plant.get_state_space_model()
+        A, B, C, D = self._controller.plant.get_state_space_model()
         self.A = np.ascontiguousarray(A, dtype=np.float64)
 
         # SISO -> (n,)
@@ -208,12 +199,12 @@ class PsoFunc:
         self.C = np.ascontiguousarray(C.flatten(), dtype=np.float64)
         self.D = float(D[0, 0])
 
-        self.plant_order = self.controller.plant.get_plant_order()
+        self.plant_order = self._controller.plant.get_plant_order()
 
         self.performance_index = map_enum_to_int(performance_index)
-        self.control_constraint = np.array(self.controller.control_constraint, dtype=np.float64)
-        self.anti_windup_method = map_enum_to_int(self.controller.anti_windup_method)
-        self.ka = float(self.controller.ka)
+        self.control_constraint = np.array(self._controller.control_constraint, dtype=np.float64)
+        self.anti_windup_method = map_enum_to_int(self._controller.anti_windup_method)
+        self.ka = float(self._controller.ka)
         self.solver = map_enum_to_int(solver)
 
         self.swarm_size = swarm_size
@@ -405,7 +396,7 @@ class PsoFunc:
         Td = np.zeros(P, dtype=np.float64)
 
         # determine whether tf needs to be calculated and get Td from X
-        match self._controller_enum:
+        match self._controller.controller_type:
             case ControllerType.PI:
                 calc_tf = False
 
@@ -414,7 +405,7 @@ class PsoFunc:
                 calc_tf = True
             case _:
                 raise NotImplementedError(
-                    f"Controller type '{self._controller_enum}' is not supported in time‑domain PSO."
+                    f"Controller type '{self._controller.controller_type}' is not supported in time‑domain PSO."
                 )
 
         if calc_tf:
@@ -436,7 +427,7 @@ class PsoFunc:
             with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
                 metrics = compute_loop_metrics_batch(
                     plant_tf=self._plant_tf,
-                    controller_tf=self.controller.frf_batch,
+                    controller_tf=self._controller.frf_batch,
                     X=X,
                     w=self._w,
                 )
@@ -480,7 +471,7 @@ class PsoFunc:
             compute_max_du_dt = self.calculate_max_du_dt or self.use_max_du_dt_constraint
 
             perf_vals, overshoot_vals, max_du_dt_vals = time_domain_pso_func(
-                CONTROLLER_REGISTRY[self._controller_enum].step_fn,
+                CONTROLLER_REGISTRY[self._controller.controller_type].step_fn,
                 Xf,
                 self.t_eval,
                 self.dt,
