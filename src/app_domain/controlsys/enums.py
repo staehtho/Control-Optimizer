@@ -64,7 +64,6 @@ class ExcitationTarget(Enum):
 class ControllerType(Enum):
     PI = "pi"
     PID = "pid"
-    PID_FF = "pid_ff"
 
 
 def map_enum_to_int(enum_value: Enum) -> IntEnum:

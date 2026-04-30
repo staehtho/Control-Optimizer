@@ -1,3 +1,4 @@
+from .closedLoop import ClosedLoop
 from .PIClosedLoop import PIClosedLoop
 from .PIDClosedLoop import PIDClosedLoop
 from .PIDFFClosedLoop import PIDFFClosedLoop
