@@ -18,6 +18,25 @@ import numpy as np
 from numba import njit, prange, types, float64, int64
 from app_domain.controlsys.enums import ControllerType, PerformanceIndexInt, AntiWindupInt, MySolverInt
 
+# State indices
+STATE_E_PREV = 0
+STATE_INTEGRAL = 1
+STATE_D_FILTERED = 2
+
+N_CONTROLLER_STATE = 3  # base layout for PI/PID
+
+
+@njit
+def init_controller_state(n_controllers: int) -> np.ndarray:
+    """
+    Allocate and initialize controller state array.
+
+    state[i, STATE_E_PREV]    = previous error
+    state[i, STATE_INTEGRAL]  = integral state x_I
+    state[i, STATE_D_FILTERED]= filtered derivative state
+    """
+    return np.zeros((n_controllers, N_CONTROLLER_STATE), dtype=np.float64)
+
 
 # =============================================================================
 # Helper Functions
@@ -67,80 +86,43 @@ def dot1D(x: np.ndarray, y: np.ndarray) -> float:
 # =============================================================================
 # PI Update
 # =============================================================================
-@njit(
-    types.UniTuple(float64, 3)(
-        float64, float64, float64, float64, float64, float64, float64, float64, float64, int64,
-        float64
-    ),
-    inline="always"
-)
-def pi_update(e, e_prev, d_filtered_prev, integral_prev,
-              Kp, Ti,
-              dt, u_min, u_max,
-              anti_windup_method, ka):
+@njit(inline="always")
+def pi_step(
+        state: np.ndarray,
+        i: int,
+        e: float,
+        dt: float,
+        controller_param: np.ndarray,  # [Kp, Ti]
+        u_min: float,
+        u_max: float,
+        anti_windup_method: int,
+        ka: float,
+) -> float:
     """
-    Compute a single update of an ISA-form PI controller with anti-windup.
+    ISA-form PI with anti-windup, operating on flat state array.
 
-    This kernel evaluates the proportional and integral contributions of the
-    controller using the ISA time-constant representation (Kp, Ti). The
-    integral state is maintained as the unscaled ISA state x_I, with the
-    effective integral term computed as I = (Kp / Ti) * x_I.
-
-    Anti-windup is applied using one of three strategies:
-        - CONDITIONAL: integrate only when the unsaturated control action is
-          consistent with the actuator limits and error direction.
-        - CLAMPING: integrate only when the integral term itself is not
-          driving the controller into saturation.
-        - BACKCALCULATION: feed back the saturation error into the integral
-          state using the back-calculation gain ka.
-
-    Args:
-        e:
-            Current control error.
-        e_prev:
-            Previous error (unused for PI but kept for signature compatibility).
-        d_filtered_prev:
-            Previous derivative state (unused for PI; returned as 0.0).
-        integral_prev:
-            Previous unscaled integral state x_I.
-        Kp:
-            Proportional gain.
-        Ti:
-            Integral time constant. If Ti <= 0, integration is disabled.
-        dt:
-            Simulation time step.
-        u_min:
-            Actuator saturation lower limit.
-        u_max:
-            Actuator saturation upper limit.
-        anti_windup_method:
-            Integer code selecting the anti-windup strategy.
-        ka:
-            Back-calculation gain for the BACKCALCULATION method.
-
-    Returns:
-        u:
-            Saturated control signal.
-        integral_updated:
-            Updated unscaled integral state x_I.
-        d_filtered_updated:
-            Always 0.0 for PI controllers (placeholder for PID compatibility).
+    state[i, :] layout:
+        0: e_prev        (kept for signature symmetry / future use)
+        1: integral x_I  (unscaled ISA integral state)
+        2: d_filtered    (unused for PI, kept for compatibility)
     """
+    Kp = controller_param[0]
+    Ti = controller_param[1]
+
+    # Load state into locals
+    e_prev = state[i, STATE_E_PREV]
+    integral_prev = state[i, STATE_INTEGRAL]
 
     # 1) Proportional
     P_term = Kp * e
 
-    # 2) Integration
+    # 2) Integration (unscaled ISA state x_I)
     if Ti > 0.0:
         integral_candidate = integral_prev + e * dt
-    else:
-        integral_candidate = integral_prev
-
-    # Ki = Kp / Ti
-    if Ti > 0.0:
         I_term_prev = (Kp / Ti) * integral_prev
         I_term_candidate = (Kp / Ti) * integral_candidate
     else:
+        integral_candidate = integral_prev
         I_term_prev = 0.0
         I_term_candidate = 0.0
 
@@ -170,6 +152,7 @@ def pi_update(e, e_prev, d_filtered_prev, integral_prev,
             u_unsat_updated = u_unsat_prev
 
     elif anti_windup_method == AntiWindupInt.BACKCALCULATION:
+        # Saturate candidate
         if u_unsat_candidate > u_max:
             u_sat_candidate = u_max
         elif u_unsat_candidate < u_min:
@@ -177,6 +160,7 @@ def pi_update(e, e_prev, d_filtered_prev, integral_prev,
         else:
             u_sat_candidate = u_unsat_candidate
 
+        # Back-calculation on unscaled integral state x_I
         if Ti > 0.0 and Kp != 0.0:
             integral_updated = (
                     integral_candidate
@@ -204,104 +188,59 @@ def pi_update(e, e_prev, d_filtered_prev, integral_prev,
     else:
         u = u_unsat_updated
 
-    return u, integral_updated, 0.0
+    # Write back state in-place
+    state[i, STATE_E_PREV] = e
+    state[i, STATE_INTEGRAL] = integral_updated
+    state[i, STATE_D_FILTERED] = 0.0  # PI: no derivative
 
-
-@njit(inline="always")
-def pi_kernel(
-        e, e_prev, filtered_prev, integral,
-        dt, u_min, u_max,
-        controller_param,
-        anti_windup_method, ka):
-    Kp, Ti = controller_param
-    return pi_update(
-        e, e_prev, filtered_prev, integral,
-        Kp, Ti,
-        dt, u_min, u_max,
-        anti_windup_method, ka
-    )
+    return u
 
 
 # =============================================================================
 # PID Update
 # =============================================================================
-@njit(
-    types.UniTuple(float64, 3)(
-        float64, float64, float64, float64, float64, float64, float64, float64, float64, float64, float64, int64,
-        float64
-    ),
-    inline="always"
-)
-def pid_update(e: float, e_prev: float, d_filtered_prev: float, integral_prev: float,
-               Kp: float, Ti: float, Td: float, Tf: float, dt: float, u_min: float, u_max: float,
-               anti_windup_method: int, ka: float) -> tuple[float, float, float]:
+@njit(inline="always")
+def pid_step(
+        state: np.ndarray,
+        i: int,
+        e: float,
+        dt: float,
+        controller_param: np.ndarray,  # [Kp, Ti, Td, Tf]
+        u_min: float,
+        u_max: float,
+        anti_windup_method: int,
+        ka: float,
+) -> float:
     """
-     Compute a single update of an ISA-form PID controller with filtered
-     derivative and anti-windup.
+    ISA-form PID with filtered derivative and anti-windup, operating on flat state array.
 
-     The controller uses the ISA time-constant representation (Kp, Ti, Td, Tf).
-     The integral state is maintained as the unscaled ISA state x_I, with
-     I = (Kp / Ti) * x_I. The derivative term is evaluated using a first-order
-     low-pass filter with time constant Tf, applied to the discrete error
-     difference (e - e_prev) / dt.
+    state[i, :] layout:
+        0: e_prev
+        1: integral x_I
+        2: d_filtered
+    """
+    Kp = controller_param[0]
+    Ti = controller_param[1]
+    Td = controller_param[2]
+    Tf = controller_param[3]
 
-     Anti-windup is applied using one of three strategies:
-         - CONDITIONAL: integrate only when the unsaturated control action is
-           consistent with actuator limits and error direction.
-         - CLAMPING: integrate only when the integral term itself does not
-           push the controller into saturation.
-         - BACKCALCULATION: feed back the saturation error into the integral
-           state using the back-calculation gain ka, scaled according to the
-           ISA representation.
+    # Load state into locals
+    e_prev = state[i, STATE_E_PREV]
+    integral_prev = state[i, STATE_INTEGRAL]
+    d_filtered_prev = state[i, STATE_D_FILTERED]
 
-     Args:
-         e:
-             Current control error.
-         e_prev:
-             Previous control error.
-         d_filtered_prev:
-             Previous filtered derivative state.
-         integral_prev:
-             Previous unscaled integral state x_I.
-         Kp:
-             Proportional gain.
-         Ti:
-             Integral time constant. If Ti <= 0, integration is disabled.
-         Td:
-             Derivative time constant. If Td <= 0, derivative action is disabled.
-         Tf:
-             Derivative filter time constant for the first-order low-pass filter.
-         dt:
-             Simulation time step.
-        u_min:
-            Actuator saturation lower limit.
-        u_max:
-            Actuator saturation upper limit.
-         anti_windup_method:
-             Integer code selecting the anti-windup strategy.
-         ka:
-             Back-calculation gain for the BACKCALCULATION method.
-
-     Returns:
-         u_updated:
-             Saturated control signal.
-         integral_updated:
-             Updated unscaled integral state x_I.
-         d_filtered_updated:
-             Updated filtered derivative state.
-     """
     # 1) Proportional
     P_term = Kp * e
 
-    # 2) Integration
+    # 2) Integration (unscaled ISA state x_I)
     if Ti > 0.0:
         integral_candidate = integral_prev + e * dt
+        I_term_previous = Kp * (1.0 / Ti) * integral_prev
+        I_term_candidate = Kp * (1.0 / Ti) * integral_candidate
     else:
         integral_candidate = integral_prev
-
-    # Local gain-equivalent evaluation of the ISA controller: Ki = Kp / Ti.
-    I_term_previous = Kp * (1.0 / Ti) * integral_prev if Ti > 0 else 0.0
-    I_term_candidate = Kp * (1.0 / Ti) * integral_candidate if Ti > 0 else 0.0
+        I_term_previous = 0.0
+        I_term_candidate = 0.0
 
     # 3) Derivative (filtered)
     if Td > 0.0:
@@ -310,10 +249,9 @@ def pid_update(e: float, e_prev: float, d_filtered_prev: float, integral_prev: f
     else:
         d_filtered_updated = 0.0
 
-    # Local gain-equivalent evaluation of the ISA controller: Kd = Kp * Td.
     D_term = Kp * Td * d_filtered_updated
 
-    # 4) Build u (unsat)
+    # 4) Unsaturated u
     u_unsat_previous = P_term + I_term_previous + D_term
     u_unsat_candidate = P_term + I_term_candidate + D_term
 
@@ -339,51 +277,42 @@ def pid_update(e: float, e_prev: float, d_filtered_prev: float, integral_prev: f
             u_unsat_updated = u_unsat_previous
 
     elif anti_windup_method == AntiWindupInt.BACKCALCULATION:
-        u_sat_candidate = min(max(u_unsat_candidate, u_min), u_max)
+        u_sat_candidate = u_unsat_candidate
+        if u_sat_candidate > u_max:
+            u_sat_candidate = u_max
+        elif u_sat_candidate < u_min:
+            u_sat_candidate = u_min
 
-        # The application state integrates the unscaled integral state x_I
-        # with I_term = Ki * x_I and Ki = Kp / Ti. A block diagram that feeds
-        # the saturation error through the scaling factor ka into the already
-        # scaled I-branch therefore maps to ka * (u_sat - u_unsat) / Ki on this state.
         if Ti > 0.0 and Kp != 0.0:
             integral_updated = integral_candidate + dt * ka * (Ti / Kp) * (u_sat_candidate - u_unsat_candidate)
         else:
             integral_updated = integral_candidate
 
-        I_term_updated = Kp * (1.0 / Ti) * integral_updated if Ti > 0.0 else 0.0
+        if Ti > 0.0:
+            I_term_updated = Kp * (1.0 / Ti) * integral_updated
+        else:
+            I_term_updated = 0.0
+
         u_unsat_updated = P_term + I_term_updated + D_term
 
     else:
-        u_unsat_updated = 0.0
         integral_updated = 0.0
+        u_unsat_updated = 0.0
 
     # 6) Saturation
-    u_updated = min(max(u_unsat_updated, u_min), u_max)
+    if u_unsat_updated > u_max:
+        u = u_max
+    elif u_unsat_updated < u_min:
+        u = u_min
+    else:
+        u = u_unsat_updated
 
-    return u_updated, integral_updated, d_filtered_updated
+    # Write back state in-place
+    state[i, STATE_E_PREV] = e
+    state[i, STATE_INTEGRAL] = integral_updated
+    state[i, STATE_D_FILTERED] = d_filtered_updated
 
-
-@njit(inline="always")
-def pid_kernel(
-        e: float,
-        e_prev: float,
-        filtered_prev: float,
-        integral: float,
-        dt: float,
-        u_min: float,
-        u_max: float,
-        controller_param: np.ndarray,
-        anti_windup_method: int,
-        ka: float
-) -> tuple[float, float, float]:
-    Kp, Ti, Td, Tf = controller_param
-    return pid_update(
-        e, e_prev, filtered_prev, integral,
-        Kp, Ti, Td, Tf,
-        dt, u_min, u_max,
-        anti_windup_method, ka
-    )
-
+    return u
 
 
 # =============================================================================
@@ -497,9 +426,9 @@ def system_response(t_eval: np.ndarray, dt: float, u_eval: np.ndarray,
 # =============================================================================
 # System Response
 # =============================================================================
-@njit(inline="always")
+@njit
 def system_response_closed_loop(
-        kernel,
+        step_fn,
         controller_param: np.ndarray,
         t_eval: np.ndarray,
         dt: float,
@@ -514,7 +443,7 @@ def system_response_closed_loop(
         B: np.ndarray,
         C: np.ndarray,
         D: float,
-        solver: int
+        solver: int,
 ) -> tuple[np.ndarray, np.ndarray]:
     """
     Simulate a SISO system under PID control with reference and two disturbances (Z1, Z2).
@@ -523,7 +452,7 @@ def system_response_closed_loop(
     returns both the control signal history and the measured output trajectory.
 
     Args:
-        kernel: Simulation kernel.
+        step_fn: Simulation kernel.
         controller_param: Parameter from controller
         t_eval: Time vector.
         dt: Simulation time step.
@@ -548,37 +477,37 @@ def system_response_closed_loop(
             Measured output history y(t), including measurement disturbance and
             feedthrough term, shape (n_steps,).
     """
-    e_prev = 0.0
-    filtered_prev = 0.0
-    integral = 0.0
+    n_steps = t_eval.shape[0]
+    u_hist = np.zeros(n_steps, dtype=np.float64)
+    y_hist = np.zeros(n_steps, dtype=np.float64)
+
+    # Single controller → state shape (1, N_CONTROLLER_STATE)
+    state = np.zeros((1, N_CONTROLLER_STATE), dtype=np.float64)
 
     u_min = float(control_constraint[0])
     u_max = float(control_constraint[1])
 
-    n_steps = len(t_eval)
-    y_hist = np.zeros(n_steps)
-    u_hist = np.zeros(n_steps)
-
+    # initial output
     y = dot1D(C, x)
 
-    for i in range(n_steps):
-        r = float(r_eval[i])
-        l = float(l_eval[i])
-        n = float(n_eval[i])
+    for k in range(n_steps):
+        r = float(r_eval[k])
+        l = float(l_eval[k])
+        n = float(n_eval[k])
 
         e = r - (y + n)
 
-        u, integral, filtered_prev = kernel(
+        # In-place controller update, only u is returned
+        u = step_fn(
+            state,
+            0,  # controller index
             e,
-            e_prev,
-            filtered_prev,
-            integral,
             dt,
+            controller_param,
             u_min,
             u_max,
-            controller_param,
             anti_windup_method,
-            ka
+            ka,
         )
 
         if np.isnan(u):
@@ -586,10 +515,8 @@ def system_response_closed_loop(
 
         x, y, y_out = plant_step(A, B, C, D, x, u, l, n, dt, solver)
 
-        u_hist[i] = u
-        y_hist[i] = y_out
-
-        e_prev = e
+        u_hist[k] = u
+        y_hist[k] = y_out
 
     return u_hist, y_hist
 
@@ -599,7 +526,9 @@ def system_response_closed_loop(
 # =============================================================================
 @njit(inline="always")
 def simulate_metrics(
-        kernel,
+        step_fn,
+        state: np.ndarray,
+        idx: int,
         controller_param: np.ndarray,
         t_eval: np.ndarray,
         dt: float,
@@ -628,7 +557,12 @@ def simulate_metrics(
 
     Overshoot is tracked only from the precomputed step start index onward.
     Anti-windup behavior, including back-calculation scaling via ``ka``,
-    is applied in the internal PID update step.
+    is applied in the internal controller update step.
+
+    One time-domain simulation for a single particle/controller.
+
+    Uses shared state array:
+        state[idx, :] = [e_prev, integral, d_filtered, ...]
 
     Returns:
         tuple[float, float, float]:
@@ -638,10 +572,14 @@ def simulate_metrics(
         It represents the maximum absolute finite-difference control-rate
         estimate over a sliding window of ``du_dt_window_steps`` samples:
         ``max(|u[k] - u[k-m]| / (m * dt))`` with ``m = du_dt_window_steps``.
+
     """
-    e_prev = 0.0
-    filtered_prev = 0.0
-    integral = 0.0
+    # IMPORTANT: do NOT allocate state here; it is shared and indexed by `idx`
+    # state shape is (swarm_size, N_CONTROLLER_STATE)
+
+    # Reset this controller's state row
+    for j in range(N_CONTROLLER_STATE):
+        state[idx, j] = 0.0
 
     u_min = float(control_constraint[0])
     u_max = float(control_constraint[1])
@@ -659,9 +597,9 @@ def simulate_metrics(
     if use_du_dt:
         max_du_dt = 0.0
         window_dt = float(window_steps) * dt
-        u_hist = np.zeros(len(t_eval), dtype=np.float64)
+        u_hist = np.zeros(t_eval.shape[0], dtype=np.float64)
 
-    n_steps = len(t_eval)
+    n_steps = t_eval.shape[0]
     for i in range(n_steps):
         r = float(r_eval[i])
         l = float(l_eval[i])
@@ -669,22 +607,19 @@ def simulate_metrics(
 
         e = r - (y + n)
 
-        u, integral, filtered_prev = kernel(
+        u = step_fn(
+            state,
+            idx,  # controller index into shared state
             e,
-            e_prev,
-            filtered_prev,
-            integral,
             dt,
+            controller_param,
             u_min,
             u_max,
-            controller_param,
             anti_windup_method,
-            ka
+            ka,
         )
 
         if use_du_dt:
-            # Windowed finite-difference estimate of |du/dt|. Using m > 1
-            # smooths single-step spikes while preserving the du/dt semantics.
             u_hist[i] = u
             if i >= window_steps:
                 du_dt_abs = abs(u - u_hist[i - window_steps]) / window_dt
@@ -709,8 +644,6 @@ def simulate_metrics(
             if signed_overshoot > max_overshoot:
                 max_overshoot = signed_overshoot
 
-        e_prev = e
-
     if (not use_ov) or overshoot_step_amplitude_abs <= 0.0:
         overshoot_pct = np.nan
     else:
@@ -730,7 +663,7 @@ def simulate_metrics(
 # =============================================================================
 @njit(parallel=True)
 def time_domain_pso_func(
-        kernel,
+        step_fn,
         controller_param: np.ndarray,
         t_eval: np.ndarray,
         dt: float,
@@ -757,23 +690,26 @@ def time_domain_pso_func(
         du_dt_window_steps: int,
         swarm_size: int
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    performance_index_val = np.zeros(swarm_size, dtype=np.float64)
+    overshoot_pct = np.full(swarm_size, np.nan, dtype=np.float64)
+    max_du_dt = np.full(swarm_size, np.nan, dtype=np.float64)
 
-    performance_index_val = np.zeros(swarm_size)
-    overshoot_pct = np.full(swarm_size, np.nan)
-    max_du_dt = np.full(swarm_size, np.nan)
+    # Shared controller state for all particles
+    state = np.zeros((swarm_size, N_CONTROLLER_STATE), dtype=np.float64)
+    x = np.zeros((swarm_size, system_order), dtype=np.float64)
 
     for i in prange(swarm_size):
-        x = np.zeros(system_order, dtype=np.float64)
-
         perf_i, overshoot_i, max_du_dt_i = simulate_metrics(
-            kernel,
-            controller_param[i, :],
+            step_fn,
+            state,
+            i,  # index into state
+            controller_param[i, :],  # parameters for this particle
             t_eval,
             dt,
             r_eval,
             l_eval,
             n_eval,
-            x,
+            x[i, :],
             control_constraint,
             anti_windup_method,
             ka,
@@ -791,6 +727,7 @@ def time_domain_pso_func(
             calculate_max_du_dt,
             du_dt_window_steps,
         )
+
         performance_index_val[i] = perf_i
         overshoot_pct[i] = overshoot_i
         max_du_dt[i] = max_du_dt_i
@@ -802,11 +739,11 @@ def time_domain_pso_func(
 # Controller Registry
 # =============================================================================
 class ControllerSpec:
-    def __init__(self, kernel):
-        self.kernel = kernel
+    def __init__(self, step_fn):
+        self.step_fn = step_fn
 
 
 CONTROLLER_REGISTRY = {
-    ControllerType.PI: ControllerSpec(kernel=pi_kernel),
-    ControllerType.PID: ControllerSpec(kernel=pid_kernel)
+    ControllerType.PI: ControllerSpec(step_fn=pi_step),
+    ControllerType.PID: ControllerSpec(step_fn=pid_step),
 }

@@ -384,7 +384,7 @@ class ClosedLoop(ABC):
         D = float(D[0, 0])
 
         u, y = system_response_closed_loop(
-            kernel=CONTROLLER_REGISTRY[self.controller_type].kernel,
+            step_fn=CONTROLLER_REGISTRY[self.controller_type].step_fn,
             controller_param=np.array(self.get_controller_params()),
             t_eval=t_eval,
             dt=dt,

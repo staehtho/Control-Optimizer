@@ -480,7 +480,7 @@ class PsoFunc:
             compute_max_du_dt = self.calculate_max_du_dt or self.use_max_du_dt_constraint
 
             perf_vals, overshoot_vals, max_du_dt_vals = time_domain_pso_func(
-                CONTROLLER_REGISTRY[self._controller_enum].kernel,
+                CONTROLLER_REGISTRY[self._controller_enum].step_fn,
                 Xf,
                 self.t_eval,
                 self.dt,
