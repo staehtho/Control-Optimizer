@@ -17,8 +17,7 @@ class BaseControllerSpec:
 
     This class defines the metadata required to describe a controller in a
     controller‑agnostic and UI‑agnostic way. Subclasses provide concrete
-    specifications such as parameter names, bounds, transfer‑function formulas,
-    and SVG rendering logic. The specification is used by the controller
+    specifications. The specification is used by the controller
     registry, ViewModels, PSO configuration, and dynamic UI generation.
 
     Attributes:
@@ -51,7 +50,7 @@ class BaseControllerSpec:
         bounds (tuple[list[float], list[float]]):
             Tuple ``(lower_bounds, upper_bounds)`` defining the optimization
             bounds for PSO. Each list must match the length of ``param_names``.
-            These bounds define the feasible search region for tuning.
+            These bounds define the default search region for tuning.
 
         transfer_function (str):
             Human‑readable mathematical representation of the controller's
