@@ -1,6 +1,6 @@
 import pytest
 
-from utils.converters import str2array, expr2array, array2expr
+from utils.formating import str2array, expr2array, array2expr
 
 
 @pytest.mark.parametrize(

@@ -1,10 +1,11 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from PySide6 import QtCore
 from PySide6.QtCore import QCoreApplication
 
 from app_domain.controlsys import AntiWindup
+from utils import format_value
 from views.translations import Translation
 
 if TYPE_CHECKING:
@@ -16,19 +17,6 @@ if TYPE_CHECKING:
     )
 
 TRANSLATION = Translation()
-
-
-def _format_value(value: Any, exp_allowed: bool = False) -> str:
-    """Format values for display, using scientific notation for extreme floats."""
-    if isinstance(value, float):
-        if value == 0.0:
-            return "0.0"
-        if abs(value) >= 1e4 or abs(value) < 1e-3 and exp_allowed:
-            return f"{value:.1e}"
-
-        return str(round(value, 3))
-
-    return str(value)
 
 
 def section_result_summary(report: BaseReport, data: DynamicReportPsoResult) -> None:
@@ -47,7 +35,7 @@ def section_result_summary(report: BaseReport, data: DynamicReportPsoResult) -> 
             "Report",
             "PSO simulation finished after %(time)s seconds."
         ) % {
-            "time": _format_value(data.simulation_time),
+            "time": format_value(data.simulation_time),
         }
     )
     report.add_paragraph(
@@ -55,7 +43,7 @@ def section_result_summary(report: BaseReport, data: DynamicReportPsoResult) -> 
             "Report",
             "Controller Parameter: %(params)s."
         ) % {
-            "params": ", ".join([f"{k.title()} = {_format_value(v)}" for k, v in data.controller_params.items()])
+            "params": ", ".join([f"{k.title()} = {format_value(v)}" for k, v in data.controller_params.items()])
         }
     )
 
@@ -93,7 +81,7 @@ def section_excitation_function(report: BaseReport, data: DynamicReportExcitatio
             QCoreApplication.translate("Report", "Parameter"),
             QCoreApplication.translate("Report", "Value"),
         ]
-        table_data = [[{"latex": param}, _format_value(value)] for param, value in data.parameters.items()]
+        table_data = [[{"latex": param}, format_value(value)] for param, value in data.parameters.items()]
         report.add_table(header, table_data, width=250)
 
 
@@ -116,11 +104,11 @@ def section_controller_configuration(report: BaseReport, data: DynamicReportCont
             QCoreApplication.translate(
                 "Report",
                 "Controller maximum output: %(max_output)s"
-            ) % {"max_output": _format_value(data.constraint_max)},
+            ) % {"max_output": format_value(data.constraint_max)},
             QCoreApplication.translate(
                 "Report",
                 "Controller minimum output: %(min_output)s"
-            ) % {"min_output": _format_value(data.constraint_min)},
+            ) % {"min_output": format_value(data.constraint_min)},
         ])
 
     with report.section():
@@ -129,7 +117,7 @@ def section_controller_configuration(report: BaseReport, data: DynamicReportCont
 
         ka_part = (
             QCoreApplication.translate("Report", " with Ka = %(ka)s")
-            % {"ka": _format_value(data.factor_ka)}
+            % {"ka": format_value(data.factor_ka)}
             if data.anti_windup == AntiWindup.BACKCALCULATION or data.factor_ka is None
             else ""
         )
@@ -143,7 +131,7 @@ def section_controller_configuration(report: BaseReport, data: DynamicReportCont
 
     with report.section():
         report.add_subheading(QCoreApplication.translate("Report", "Filter Time Constant"))
-        report.add_paragraph(f"N = " + _format_value(data.factor_n))
+        report.add_paragraph(f"N = " + format_value(data.factor_n))
 
         if data.min_sampling_rate is None:
             report.add_paragraph(
@@ -157,7 +145,7 @@ def section_controller_configuration(report: BaseReport, data: DynamicReportCont
                 QCoreApplication.translate(
                     "Report",
                     "Minimum sampling rate: %(sampling_rate)s"
-                ) % {"sampling_rate": _format_value(data.min_sampling_rate) + " Hz"}
+                ) % {"sampling_rate": format_value(data.min_sampling_rate) + " Hz"}
             )
 
 
@@ -171,8 +159,8 @@ def section_pso_configuration(report: BaseReport, data: DynamicReportPsoConfigur
                 "Report",
                 "Simulation time: %(t0)s-%(t1)s s"
             ) % {
-                "t0": _format_value(data.simulation_time[0]),
-                "t1": _format_value(data.simulation_time[1]),
+                "t0": format_value(data.simulation_time[0]),
+                "t1": format_value(data.simulation_time[1]),
             }
         )
         report.add_paragraph(
@@ -192,15 +180,15 @@ def section_pso_configuration(report: BaseReport, data: DynamicReportPsoConfigur
             QCoreApplication.translate(
                 "Report",
                 "Max Overshoot: %(max_overshoot)s %%"
-            ) % {"max_overshoot": _format_value(data.overshoot_control)}
+            ) % {"max_overshoot": format_value(data.overshoot_control)}
             if data.overshoot_control is not None
             else QCoreApplication.translate("Report", "Overshoot control is disabled."),
             QCoreApplication.translate(
                 "Report",
                 "Slew rate limitation maximum du/dt: %(max_du_dt)s with window size: %(window_size)s"
             ) % {
-                "max_du_dt": _format_value(data.slew_rate_max),
-                "window_size": _format_value(data.slew_rate_window_size)
+                "max_du_dt": format_value(data.slew_rate_max),
+                "window_size": format_value(data.slew_rate_window_size)
             }
             if data.slew_rate_max is not None and data.slew_rate_window_size is not None
             else QCoreApplication.translate("Report", "Slew rate limitation is disabled."),
@@ -212,19 +200,19 @@ def section_pso_configuration(report: BaseReport, data: DynamicReportPsoConfigur
             QCoreApplication.translate(
                 "Report",
                 "Gain margin: %(gain_margin)s dB"
-            ) % {"gain_margin": _format_value(data.gain_margin)}
+            ) % {"gain_margin": format_value(data.gain_margin)}
             if data.gain_margin is not None
             else QCoreApplication.translate("Report", "Gain margin is disabled."),
             QCoreApplication.translate(
                 "Report",
                 "Phase margin: %(phase_margin)s°"
-            ) % {"phase_margin": _format_value(data.phase_margin)}
+            ) % {"phase_margin": format_value(data.phase_margin)}
             if data.phase_margin is not None
             else QCoreApplication.translate("Report", "Phase margin is disabled."),
             QCoreApplication.translate(
                 "Report",
                 "Stability margin: %(stability)s dB"
-            ) % {"stability": _format_value(data.stability)}
+            ) % {"stability": format_value(data.stability)}
             if data.stability is not None
             else QCoreApplication.translate("Report", "Stability margin is disabled."),
         ])
@@ -237,7 +225,7 @@ def section_pso_configuration(report: BaseReport, data: DynamicReportPsoConfigur
             QCoreApplication.translate("Report", "Max"),
         ]
         table_data = [
-            [param.title(), _format_value(min_val), _format_value(max_val)]
+            [param.title(), format_value(min_val), format_value(max_val)]
             for param, (min_val, max_val) in data.pso_bounds_parameters.items()
         ]
         report.add_table(header, table_data, width=250)
@@ -252,7 +240,7 @@ def section_pso_result(report: BaseReport, data_config: DynamicReportPsoConfigur
             QCoreApplication.translate("Report", "Parameter"),
             QCoreApplication.translate("Report", "Value"),
         ]
-        table_data = [[k.title(), _format_value(v)] for k, v in data.controller_params.items()]
+        table_data = [[k.title(), format_value(v)] for k, v in data.controller_params.items()]
 
         report.add_table(header, table_data, width=250)
 
@@ -278,7 +266,7 @@ def section_pso_result(report: BaseReport, data_config: DynamicReportPsoConfigur
                 QCoreApplication.translate(
                     "Report",
                     "Recommended sampling rate: %(sampling_rate)s Hz."
-                ) % {"sampling_rate": _format_value(data.recommended_sampling_rate)}
+                ) % {"sampling_rate": format_value(data.recommended_sampling_rate)}
             )
 
     with report.section():
@@ -287,16 +275,16 @@ def section_pso_result(report: BaseReport, data_config: DynamicReportPsoConfigur
             QCoreApplication.translate("Report", "Metric"),
             QCoreApplication.translate("Report", "Value"),
         ]
-        table_data = [[TRANSLATION(data_config.error_criterion), _format_value(data.error_criterion)]]
+        table_data = [[TRANSLATION(data_config.error_criterion), format_value(data.error_criterion)]]
         if data.overshoot_control is not None:
             table_data.append([
                 QCoreApplication.translate("Report", "Maximum Overshoot"),
-                _format_value(data.overshoot_control) + " %"
+                format_value(data.overshoot_control) + " %"
             ])
         table_data.extend([
             [
                 QCoreApplication.translate("Report", "Slew Rate Limit du/dt"),
-                _format_value(data.slew_rate_max)
+                format_value(data.slew_rate_max)
             ],
         ])
         report.add_table(header, table_data, width=250)
@@ -313,15 +301,15 @@ def section_pso_result(report: BaseReport, data_config: DynamicReportPsoConfigur
         table_data = [
             [
                 QCoreApplication.translate("Report", "Gain margin"),
-                f"{_format_value(data.gain_margin)} dB {at_label} {_format_value(data.omega_180, True)} rad/s"
+                f"{format_value(data.gain_margin)} dB {at_label} {format_value(data.omega_180)} rad/s"
             ],
             [
                 QCoreApplication.translate("Report", "Phase margin"),
-                f"{_format_value(data.phase_margin)}° {at_label} {_format_value(data.omega_c, True)} rad/s"
+                f"{format_value(data.phase_margin)}° {at_label} {format_value(data.omega_c)} rad/s"
             ],
             [
                 QCoreApplication.translate("Report", "Stability margin"),
-                f"{_format_value(data.stability_margin)} dB"
+                f"{format_value(data.stability_margin)} dB"
             ],
         ]
         report.add_table(header, table_data, width=250)

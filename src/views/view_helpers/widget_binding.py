@@ -6,6 +6,7 @@ from typing import Callable, Any, TYPE_CHECKING
 from PySide6.QtWidgets import QAbstractButton, QComboBox, QLineEdit, QSpinBox, QDoubleSpinBox, QWidget
 
 from app_types import FieldType
+from utils import format_value
 from . import validation_helpers
 
 if TYPE_CHECKING:
@@ -189,17 +190,6 @@ def set_attr_path(root, attribute: str, value) -> None:
     for attr_name in attrs[:-1]:
         attr = getattr(attr, attr_name)
     setattr(attr, attrs[-1], value)
-
-
-def format_value(value) -> str:
-    """Format values for display, using scientific notation for extreme floats."""
-    if isinstance(value, float):
-        if value == 0.0:
-            return "0.0"
-        if abs(value) >= 1e4 or abs(value) < 1e-3:
-            return f"{value:.1e}"
-
-    return str(value)
 
 
 def on_vm_changed(view, widget: QObject | None, key: str | FieldType, attribute: str, *args, **kwargs) -> None:

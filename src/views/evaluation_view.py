@@ -11,7 +11,7 @@ from app_types import (
     EvaluationField, SectionConfig, FieldConfig, PlotData, BodePlotData, PlotLabels, PsoResultField, NavLabels
 )
 from resources.blockdiagram import load_closed_loop_diagram
-from utils import save_svg
+from utils import save_svg, format_value
 from views import ViewMixin
 from resources.plot_style import PLOT_STYLE
 from views.widgets import (
@@ -82,42 +82,42 @@ FIELDS: dict[str, list[SectionConfig | FieldConfig]] = {
 PSO_RESULT_TEMPLATE: dict[PsoResultField, Any] = {
     PsoResultField.TIME: QT_TRANSLATE_NOOP(
         "EvaluationView",
-        "PSO finished after %(time).3f s."
+        "PSO finished after %(time)s s."
     ),
 
     PsoResultField.ERROR_CRITERION: QT_TRANSLATE_NOOP(
         "EvaluationView",
-        "%(error_criterion)s = %(value).3f"
+        "%(error_criterion)s = %(value)s"
     ),
 
     PsoResultField.OVERSHOOT_CONTROL: QT_TRANSLATE_NOOP(
         "EvaluationView",
-        "Overshoot: %(value).3f %%"
+        "Overshoot: %(value)s %%"
     ),
 
     PsoResultField.SLEW_RATE: QT_TRANSLATE_NOOP(
         "EvaluationView",
-        "Slew Rate Limit du/dt: %(value).3f"
+        "Slew Rate Limit du/dt: %(value)s"
     ),
 
     PsoResultField.GAIN_MARGIN: QT_TRANSLATE_NOOP(
         "EvaluationView",
-        "Gain margin: %(value).3f dB at %(omega).3f rad/s"
+        "Gain margin: %(value)s dB at %(omega)s rad/s"
     ),
 
     PsoResultField.PHASE_MARGIN: QT_TRANSLATE_NOOP(
         "EvaluationView",
-        "Phase margin: %(value).3f° at %(omega).3f rad/s"
+        "Phase margin: %(value)s° at %(omega)s rad/s"
     ),
 
     PsoResultField.STABILITY_MARGIN: QT_TRANSLATE_NOOP(
         "EvaluationView",
-        "Stability margin: %(value).3f dB"
+        "Stability margin: %(value)s dB"
     ),
 
     PsoResultField.TF: QT_TRANSLATE_NOOP(
         "EvaluationView",
-        "Tf: %(tf).3f"
+        "Tf: %(tf)s"
     ),
 
     PsoResultField.TF_LIMITED: QT_TRANSLATE_NOOP(
@@ -127,7 +127,7 @@ PSO_RESULT_TEMPLATE: dict[PsoResultField, Any] = {
 
     PsoResultField.MIN_SAMPLING_RATE: QT_TRANSLATE_NOOP(
         "EvaluationView",
-        "Min. sampling rate: %(sampling_rate).3f Hz"
+        "Min. sampling rate: %(sampling_rate)s Hz"
     ),
 }
 
@@ -615,14 +615,14 @@ class EvaluationView(ViewMixin, QWidget):
             val_dict, visible = value
             widget = self.field_widgets.get(key)
             widget.setVisible(visible)
-            widget.setText(self.tr(PSO_RESULT_TEMPLATE[key]) % val_dict)
+            widget.setText(self.tr(PSO_RESULT_TEMPLATE[key]) % {k: format_value(v, 3) for k, v in val_dict.items()})
 
         # set visibility of the tf section
         self.labels[PsoResultField.FILTER_TIME_CONSTANT].setVisible(result.has_tf)
 
         # set the params
         param_text = "".join(
-            f"<p>{key.title()}: {value:.3f}</p>"
+            f"<p>{key.title()}: {format_value(value, 3)}</p>"
             for key, value in result.best_params.items()
             if key != "Tf"
         )
