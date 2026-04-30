@@ -198,10 +198,6 @@ def crossover_frequency(L, omega=None, tol_db=1e-3):
     wc = 10 ** logwc
     return wc
 
-
-import numpy as np
-
-
 # TODO: kann raus
 def dominant_pole_realpart(denominator):
     """Return the real part of the dominant (slowest stable) pole.
