@@ -619,7 +619,7 @@ Wenn die Abtastrate unbekannt ist, dieses Feld leer lassen, um einen empfohlenen
     <message>
         <location filename="../views/evaluation_view.py" line="88"/>
         <source>%(error_criterion)s = %(value)s</source>
-        <translation>%(error_criterion)s = %(valu)s</translation>
+        <translation>%(error_criterion)s = %(value)s</translation>
     </message>
     <message>
         <location filename="../views/evaluation_view.py" line="93"/>
