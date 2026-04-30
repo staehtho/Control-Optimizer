@@ -209,6 +209,7 @@ class ControllerView(ViewMixin, QWidget):
                 self.field_widgets[field].setCurrentIndex(index)
 
         self._on_ka_enable_changed()
+        self._on_controller_type_changed()
 
     # ============================================================
     # Applied theme
@@ -252,6 +253,21 @@ class ControllerView(ViewMixin, QWidget):
 
         self.field_widgets.get(ControllerField.BLOCK_DIAGRAM).set_svg_bytes(merged_svg.encode("utf-8"))
 
+    def _on_controller_type_changed(self) -> None:
+        self._load_block_diagram()
+
+        # update time constant section
+        visible = self._vm_controller.controller_spec.has_filter_time_constant
+
+        w = self.labels[ControllerField.FILTER_TIME_CONSTANT]
+        w.setEnabled(visible)
+        effect = w.graphicsEffect()
+        if not isinstance(effect, QGraphicsOpacityEffect):
+            effect = QGraphicsOpacityEffect(w)
+            w.setGraphicsEffect(effect)
+        effect.setOpacity(1.0 if visible else 0.0)
+
+
     def _get_widget_bindings(self) -> list[ConnectSignalConfig]:
         k_controller_type = ControllerField.TYPE
         k_constraint_min = ControllerField.CONSTRAINT_MIN
@@ -269,7 +285,7 @@ class ControllerView(ViewMixin, QWidget):
                 widget=self.field_widgets.get(k_controller_type),
                 kwargs={"value_type": ControllerType},
                 main_event_handler=self._on_widget_changed,
-                post_event_handler=self._load_block_diagram,
+                post_event_handler=self._on_controller_type_changed,
             ),
             ConnectSignalConfig(
                 key=k_constraint_min,

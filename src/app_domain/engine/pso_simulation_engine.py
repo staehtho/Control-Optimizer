@@ -88,7 +88,7 @@ class PsoSimulationEngine:
 
         plant = Plant(param.num, param.den)
 
-        return param.controller_class(
+        return param.controller_spec.controller_class(
             plant,
             control_constraint=list(param.constraint),
             anti_windup_method=param.anti_windup,
@@ -192,11 +192,12 @@ class PsoSimulationEngine:
         objective.set_calculate_overshoot(True)
         objective.set_calculate_freq_metrics(True)
 
-        tf_report = self._evaluate_tf(param)
+        tf_report = None
+        if param.controller_spec.has_filter_time_constant:
+            tf_report = self._evaluate_tf(param)
 
-        has_tf = True
         if tf_report is None:
-            has_tf = False
+            # default tf report
             tf_report = TfLimitReport(0, 0, 0, 0, 0, False, False, False, 0)
 
         # result time domain
@@ -204,15 +205,15 @@ class PsoSimulationEngine:
 
         show_overshoot = resolve_function_type(param.function) == FunctionTypes.STEP
 
-        params = {k: v for k, v in zip(param.controller_param_names, self._best_params)}
+        params = {k: v for k, v in zip(param.controller_spec.param_names, self._best_params)}
 
-        if has_tf:
+        if param.controller_spec.has_filter_time_constant:
             params["Tf"] = float(tf_report.tf_effective)
 
         return PsoResult(
             simulation_time=self._total_duration,
             best_params=params,
-            has_tf=has_tf,
+            has_tf=param.controller_spec.has_filter_time_constant,
             tf_limited_simulation=tf_report.limited_by_simulation,
             tf_limited_sampling=tf_report.limited_by_sampling,
             min_sampling_rate=tf_report.min_sampling_rate_hz,
@@ -238,18 +239,23 @@ class PsoSimulationEngine:
     ) -> TfLimitReport | None:
         """Evaluate Tf report."""
 
-        match param.controller_type:
-            case ControllerType.PI:
-                Td = None
+        # Select the correct interpretation of the best-parameter vector based on controller type.
+        # Each controller type defines its own parameter ordering in controller_spec.param_names.
+        if not param.controller_spec.has_filter_time_constant:
+            return None
+
+        match param.controller_spec.controller_type:
             case ControllerType.PID:
+                # PID: index 2 corresponds to Td (derivative time)
                 Td = float(self._best_params[2])
+
             case _:
                 raise NotImplementedError(
-                    f"Controller type '{param.controller_type}' is not defined in tf evaluation."
+                    f"Transfer-function evaluation is not implemented for controller type "
+                    f"{param.controller_spec.controller_type!r}. "
+                    f"Add a case in this match block and define the parameter mapping in the "
+                    f"corresponding ControllerSpec to enable support."
                 )
-
-        if Td is None:
-            return None
 
         return compute_effective_tf_report(
             Td=Td,

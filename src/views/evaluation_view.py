@@ -615,7 +615,9 @@ class EvaluationView(ViewMixin, QWidget):
             val_dict, visible = value
             widget = self.field_widgets.get(key)
             widget.setVisible(visible)
-            widget.setText(self.tr(PSO_RESULT_TEMPLATE[key]) % {k: format_value(v, 3) for k, v in val_dict.items()})
+            widget.setText(self.tr(PSO_RESULT_TEMPLATE[key]) % {
+                k: format_value(v, 3) for k, v in val_dict.items()
+            })
 
         # set visibility of the tf section
         self.labels[PsoResultField.FILTER_TIME_CONSTANT].setVisible(result.has_tf)

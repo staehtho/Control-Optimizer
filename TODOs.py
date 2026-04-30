@@ -11,5 +11,4 @@
 #   Endzeit und Start zeit automatisch bestimmt werden -> Startzeit dann auf 0s -> Aufwand abschätzen
 
 # TODO: SettingsView: kommentar bei hyperparam -> Beschreibung siehe Help??
-# TODO: Tf in controllerView für PI raus
 # TODO: Anleitung für die Implementierung eines neuen Reglers

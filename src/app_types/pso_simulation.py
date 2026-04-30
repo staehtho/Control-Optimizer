@@ -2,9 +2,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from dataclasses import dataclass
 
+
 if TYPE_CHECKING:
-    from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex, MySolver, ClosedLoop, \
-        ControllerType
+    from app_types import BaseControllerSpec
+    from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex, MySolver
     from app_domain.functions import BaseFunction
 
 
@@ -30,9 +31,7 @@ class PsoSimulationParam:
     num: list[float]
     den: list[float]
 
-    controller_type: ControllerType
-    controller_param_names: list[str]
-    controller_class: type[ClosedLoop]
+    controller_spec: BaseControllerSpec
 
     t0: float
     t1: float

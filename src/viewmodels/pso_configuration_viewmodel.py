@@ -395,9 +395,7 @@ class PsoConfigurationViewModel(BaseViewModel):
         return PsoSimulationParam(
             num=self._model_plant.num,
             den=self._model_plant.den,
-            controller_type=self._model_controller.controller_type,
-            controller_param_names=self._model_controller.controller_spec.param_names,
-            controller_class=self._model_controller.controller_spec.controller_class,
+            controller_spec=self._model_controller.controller_spec,
             t0=self.t0,
             t1=self.t1,
             dt=self._settings.time_step,
