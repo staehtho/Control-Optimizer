@@ -359,7 +359,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
             PsoField.STABILITY_MARGIN: self._vm_pso.stability_margin,
         }
         for key, value in init_value.items():
-            self.field_widgets[key].setText(f"{value}")
+            self.field_widgets[key].setText(self._format_value(value))
 
         attributes: dict[PsoField, str] = {
             PsoField.EXCITATION_TARGET: "excitation_target",

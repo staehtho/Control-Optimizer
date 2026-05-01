@@ -197,7 +197,7 @@ class ControllerView(ViewMixin, QWidget):
                 self._vm_controller.sampling_rate if self._vm_controller.sampling_rate is not None else "",
         }
         for key, value in init_value.items():
-            self.field_widgets[key].setText(f"{value}")
+            self.field_widgets[key].setText(self._format_value(value))
 
         init_data = {
             ControllerField.ANTI_WINDUP_METHODE: self._vm_controller.anti_windup,

@@ -10,7 +10,7 @@ def format_value(value, decimal: int | None = None) -> str:
         if abs(value) >= 1e4 or abs(value) < 1e-3:
             return f"{value:.1e}"
         if decimal:
-            return f"{value:.{decimal}f}"
+            return str(round(value, decimal))
 
     return str(value)
 

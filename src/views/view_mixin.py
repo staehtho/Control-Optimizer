@@ -22,6 +22,7 @@ from PySide6.QtCore import Signal, Qt, QObject, QCoreApplication, QT_TRANSLATE_N
 from views.translations import Translation
 from views.view_helpers import layout_helpers, widget_binding, validation_helpers, icon_helpers
 from resources.resources import Icons
+from utils.formating import format_value
 
 if TYPE_CHECKING:
     from app_domain.ui_context import UiContext
@@ -272,7 +273,7 @@ class ViewMixin:
     @staticmethod
     def _format_value(value) -> str:
         """Format values for display, using scientific notation for extreme floats."""
-        return widget_binding.format_value(value)
+        return format_value(value, 3)
 
     @staticmethod
     def _on_vm_changed(
