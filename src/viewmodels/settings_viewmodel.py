@@ -31,7 +31,7 @@ class SettingsViewModel(BaseViewModel):
     psoConvergenceFactorChanged = Signal()
 
     def __init__(self, settings: SettingsModel, parent: QObject = None):
-        BaseViewModel.__init__(self, parent)
+        super().__init__(parent)
         self._settings = settings
 
     solver: MySolver = LoggedProperty(
