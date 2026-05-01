@@ -129,46 +129,44 @@ class HelpView(ViewMixin, QWidget):
             </li>
             
             <li>
-            <b>Randomness factor:</b> Controls the stochastic component of the velocity update.
-            Higher values promote exploration, whereas lower values support more stable convergence.
+            <b>Randomness factor:</b> Spread of the random factors used in the velocity update.
+                Higher values increase stochastic variation in the particle motion.
             </li>
             
             <li>
-            <b>Initial range:</b> Define the admissible range
-            for the inertia weight. The inertia weight determines the influence of the previous
-            velocity and is adaptively adjusted within this interval.
+            <b>Initial range:</b> Lower and upper bound for the adaptive inertia weight.
+                The swarm starts with the upper value, and later updates of are clipped to this interval.
             </li>
             
             <li>
-            <b>Cognitive factor (u1):</b> Determines the strength of the particle’s attraction
-            toward its own best-known position.
+            <b>Cognitive factor (u1):</b> Cognitive coefficient, i.e. the weight of the particle's own
+                best position in the velocity update.
             </li>
             
             <li>
-            <b>Social factor (u2):</b> Determines the strength of the attraction toward the best
-            position found within the dynamically selected neighborhood.
+            <b>Social factor (u2):</b> Social coefficient, i.e. the weight of the neighborhood best
+                position in the velocity update.
             </li>
             
             <li>
-            <b>Initial swarm span:</b> Specifies the initial spatial distribution of particles
-            within the parameter bounds. A larger span results in a broader initialization and
-            therefore stronger exploration.
+            <b>Initial swarm span:</b> Resolution of the grid used to sample initial particle
+                positions within the search bounds. Larger values create a finer initialization grid.
             </li>
             
             <li>
-            <b>Min. neighbors fraction:</b> Defines the minimum fraction of the swarm considered as
-            the local neighborhood. Smaller neighborhoods increase diversity, while larger
-            neighborhoods accelerate convergence.
+            <b>Min. neighbors fraction:</b> Minimum fraction of the swarm used to define the local
+                neighborhood size. The actual neighborhood size is derived from
+                this fraction and may grow during the optimization. 
             </li>
             
             <li>
-            <b>Max stall:</b> Indicates how many iterations without significant improvement are
-            allowed before a stall window is detected.
+            <b>Max stall:</b> Look-back window size for the weak-improvement check. The
+                current best value is compared with the best value from max_stall iterations earlier.
             </li>
             
             <li>
-            <b>Required stall windows:</b> Specifies how many consecutive stall windows must occur
-            before the optimization process is terminated.
+            <b>Required stall windows:</b> Number of consecutive weak-improvement windows required before
+                the stall-based termination criterion triggers.
             </li>
             
             <li>
@@ -177,14 +175,14 @@ class HelpView(ViewMixin, QWidget):
             </li>
             
             <li>
-            <b>Search space factor:</b> Terminates the optimization once the hypervolume spanned by
-            the swarm falls below a defined fraction of the initial search space, indicating spatial
-            convergence.
+            <b>Search space factor:</b> Relative threshold for the particle-space termination
+                criterion. The run stops when the current swarm hypervolume
+                falls below initial_space * space_factor.
             </li>
             
             <li>
-            <b>Convergence factor:</b> Defines the minimum relative improvement required within a
-            stall window for the optimization to continue.
+            <b>Convergence factor:</b> Maximum relative improvement still considered as stagnation in
+                the stall-based termination check.
             </li>
             </ul>
             

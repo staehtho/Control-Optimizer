@@ -43,16 +43,6 @@ FIELDS_LEFT: list[FieldConfig | SectionConfig] = [
             validator=QDoubleValidator(0.0, 10.0, 6),
         ),
         FieldConfig(
-            SettingsField.PSO_U1,
-            QLineEdit,
-            validator=QDoubleValidator(0.0, 4.0, 6),
-        ),
-        FieldConfig(
-            SettingsField.PSO_U2,
-            QLineEdit,
-            validator=QDoubleValidator(0.0, 4.0, 6),
-        ),
-        FieldConfig(
             SettingsField.PSO_INITIAL_RANGE_START,
             QLineEdit,
             validator=QDoubleValidator(-1e6, 1e6, 6),
@@ -61,6 +51,16 @@ FIELDS_LEFT: list[FieldConfig | SectionConfig] = [
             SettingsField.PSO_INITIAL_RANGE_END,
             QLineEdit,
             validator=QDoubleValidator(-1e6, 1e6, 6),
+        ),
+        FieldConfig(
+            SettingsField.PSO_U1,
+            QLineEdit,
+            validator=QDoubleValidator(0.0, 4.0, 6),
+        ),
+        FieldConfig(
+            SettingsField.PSO_U2,
+            QLineEdit,
+            validator=QDoubleValidator(0.0, 4.0, 6),
         ),
         FieldConfig(
             SettingsField.PSO_INITIAL_SWARM_SPAN,
@@ -78,14 +78,14 @@ FIELDS_LEFT: list[FieldConfig | SectionConfig] = [
             validator=QIntValidator(1, 10_000),
         ),
         FieldConfig(
-            SettingsField.PSO_MAX_ITER,
-            QLineEdit,
-            validator=QIntValidator(1, 1_000_000),
-        ),
-        FieldConfig(
             SettingsField.PSO_STALL_WINDOWS_REQUIRED,
             QLineEdit,
             validator=QIntValidator(1, 100),
+        ),
+        FieldConfig(
+            SettingsField.PSO_MAX_ITER,
+            QLineEdit,
+            validator=QIntValidator(1, 1_000_000),
         ),
         FieldConfig(
             SettingsField.PSO_SPACE_FACTOR,
@@ -238,7 +238,7 @@ class SettingsView(ViewMixin, QWidget):
             SettingsField.PSO_CONVERGENCE_FACTOR: self._vm_settings.pso_convergence_factor,
         }
         for key, value in init_value.items():
-            self.field_widgets[key].setText(f"{value}")
+            self.field_widgets[key].setText(self._format_value(value))
 
         attributes: dict[SettingsField, tuple[str, str]] = {
             SettingsField.LANGUAGE: ("_vm_lang", "current_language"),
