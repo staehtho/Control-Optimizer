@@ -11,7 +11,6 @@ class PsoSimulationSnapshot:
     plant_den: tuple[float, ...]
     plant_tf: str
 
-    controller_type: ControllerType
     controller_spec: BaseControllerSpec
     controller_anti_windup: AntiWindup
     controller_ka: float

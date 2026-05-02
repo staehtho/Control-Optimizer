@@ -445,7 +445,6 @@ class PsoConfigurationViewModel(BaseViewModel):
             plant_num=tuple(self._model_plant.num),
             plant_den=tuple(self._model_plant.den),
             plant_tf=self._model_plant.tf,
-            controller_type=self._model_controller.controller_type,
             controller_spec=self._model_controller.controller_spec,
             controller_anti_windup=self._model_controller.anti_windup,
             controller_ka=self._model_controller.ka,
