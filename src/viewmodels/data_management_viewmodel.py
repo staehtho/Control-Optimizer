@@ -236,7 +236,7 @@ class DataManagementViewModel(BaseViewModel):
     @staticmethod
     def _get_controller_configuration_data(snapshot: PsoSimulationSnapshot) -> DynamicReportControllerConfiguration:
         return DynamicReportControllerConfiguration(
-            controller_type=snapshot.controller_spec.controller_type,
+            controller_type=snapshot.controller_spec.controller_class.controller_type,
             anti_windup=snapshot.controller_anti_windup,
             factor_ka=snapshot.controller_ka,
             constraint_min=snapshot.controller_constraint_min,

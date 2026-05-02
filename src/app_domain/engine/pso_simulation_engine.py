@@ -244,7 +244,7 @@ class PsoSimulationEngine:
         if not param.controller_spec.has_filter_time_constant:
             return None
 
-        match param.controller_spec.controller_type:
+        match param.controller_spec.controller_class.controller_type:
             case ControllerType.PID:
                 # PID: index 2 corresponds to Td (derivative time)
                 Td = float(self._best_params[2])
@@ -252,7 +252,7 @@ class PsoSimulationEngine:
             case _:
                 raise NotImplementedError(
                     f"Transfer-function evaluation is not implemented for controller type "
-                    f"{param.controller_spec.controller_type!r}. "
+                    f"{param.controller_spec.controller_class.controller_type!r}. "
                     f"Add a case in this match block and define the parameter mapping in the "
                     f"corresponding ControllerSpec to enable support."
                 )

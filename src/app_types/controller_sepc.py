@@ -21,11 +21,6 @@ class BaseControllerSpec:
     registry, ViewModels, PSO configuration, and dynamic UI generation.
 
     Attributes:
-        controller_type (ControllerType):
-            Enum value identifying the controller family (e.g., PID, PI, PD).
-            Used by the controller registry, ViewModels, and UI routing logic
-            to select the correct specification and parameter mapping.
-
         controller_class (type[ClosedLoop]):
             The ClosedLoop subclass implementing the controller's time- and
             frequency-domain behavior. Used to instantiate the controller
@@ -72,7 +67,6 @@ class BaseControllerSpec:
             altering layout structure.
     """
 
-    controller_type: ControllerType
     controller_class: type[ClosedLoop]
     param_names: list[str]
     min_bounds: list[float]
@@ -84,7 +78,6 @@ class BaseControllerSpec:
 
 @dataclass
 class PIDControllerSpec(BaseControllerSpec):
-    controller_type = ControllerType.PID
     controller_class = PIDClosedLoop
     param_names = ["Kp", "Ti", "Td"]
     min_bounds = [0.0, 1e-9, 0.0]
@@ -96,7 +89,6 @@ class PIDControllerSpec(BaseControllerSpec):
 
 @dataclass
 class PIControllerSpec(BaseControllerSpec):
-    controller_type = ControllerType.PI
     controller_class = PIClosedLoop
     param_names = ["Kp", "Ti"]
     min_bounds = [0.0, 1e-9]
