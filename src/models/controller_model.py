@@ -6,12 +6,12 @@ from app_domain.controlsys import AntiWindup
 
 if TYPE_CHECKING:
     from app_domain.controlsys import ControllerType
-    from app_types import BaseControllerSpec
+    from app_types import ControllerSpec
 
 @dataclass
 class ControllerModel:
     controller_type: ControllerType
-    controller_spec: BaseControllerSpec
+    controller_spec: ControllerSpec
 
     constraint_min: float = -5.0
     constraint_max: float = 5.0

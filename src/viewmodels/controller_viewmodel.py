@@ -4,7 +4,7 @@ from PySide6.QtCore import QObject, Signal, Slot
 
 from app_domain.controlsys import AntiWindup, ControllerType
 from .base_viewmodel import BaseViewModel
-from app_types import ControllerField, CONTROLLER_SPECS, BaseControllerSpec
+from app_types import ControllerField, CONTROLLER_SPECS, ControllerSpec
 from utils import LoggedProperty
 
 if TYPE_CHECKING:
@@ -31,7 +31,7 @@ class ControllerViewModel(BaseViewModel):
     # ============================================================
     def _custom_setter_controller_type(self, value: ControllerType) -> ControllerType:
 
-        self._model_controller.controller_spec = CONTROLLER_SPECS[value]()
+        self._model_controller.controller_spec = CONTROLLER_SPECS[value]
 
         return value
 
@@ -42,9 +42,9 @@ class ControllerViewModel(BaseViewModel):
         custom_setter=_custom_setter_controller_type
     )
 
-    controller_spec: BaseControllerSpec = LoggedProperty(
+    controller_spec: ControllerSpec = LoggedProperty(
         path="_model_controller.controller_spec",
-        typ=BaseControllerSpec,
+        typ=ControllerSpec,
         read_only=True
     )
 

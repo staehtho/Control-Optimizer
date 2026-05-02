@@ -11,7 +11,8 @@ if TYPE_CHECKING:
 type SvgData = tuple[str, tuple[int, int]]
 
 
-class BaseControllerSpec:
+@dataclass(frozen=True)
+class ControllerSpec:
     """
     Specification container for a controller type.
 
@@ -76,29 +77,27 @@ class BaseControllerSpec:
     has_filter_time_constant: bool
 
 
-@dataclass
-class PIDControllerSpec(BaseControllerSpec):
-    controller_class = PIDClosedLoop
-    param_names = ["Kp", "Ti", "Td"]
-    min_bounds = [0.0, 1e-9, 0.0]
-    bounds = ([0.0, 0.001, 0.0], [10.0, 10.0, 10.0])
-    transfer_function = r"C(s) = K_p \frac{(T_i\, s + 1)(T_d\, s + 1)}{T_i\, s (T_f\, s + 1)}"
-    build_svg = staticmethod(bd.get_pid_controller_svg)
-    has_filter_time_constant = True
+pid_spec = ControllerSpec(
+    controller_class=PIDClosedLoop,
+    param_names=["Kp", "Ti", "Td"],
+    min_bounds=[0.0, 1e-9, 0.0],
+    bounds=([0.0, 0.001, 0.0], [10.0, 10.0, 10.0]),
+    transfer_function=r"C(s) = K_p \frac{(T_i\, s + 1)(T_d\, s + 1)}{T_i\, s (T_f\, s + 1)}",
+    build_svg=bd.get_pid_controller_svg,
+    has_filter_time_constant=True,
+)
 
-
-@dataclass
-class PIControllerSpec(BaseControllerSpec):
-    controller_class = PIClosedLoop
-    param_names = ["Kp", "Ti"]
-    min_bounds = [0.0, 1e-9]
-    bounds = ([0.0, 0.001], [10.0, 10.0])
-    transfer_function = r"C(s) = K_p \left(1 + \frac{1}{T_i\, s}\right)"
-    build_svg = staticmethod(bd.get_pi_controller_svg)
-    has_filter_time_constant = False
-
+pi_spec = ControllerSpec(
+    controller_class=PIClosedLoop,
+    param_names=["Kp", "Ti"],
+    min_bounds=[0.0, 1e-9],
+    bounds=([0.0, 0.001], [10.0, 10.0]),
+    transfer_function=r"C(s) = K_p \left(1 + \frac{1}{T_i\, s}\right)",
+    build_svg=bd.get_pi_controller_svg,
+    has_filter_time_constant=False,
+)
 
 CONTROLLER_SPECS = {
-    ControllerType.PI: PIControllerSpec,
-    ControllerType.PID: PIDControllerSpec,
+    ControllerType.PI: pi_spec,
+    ControllerType.PID: pid_spec,
 }

@@ -21,7 +21,7 @@ class ModelContainer:
         self.model_plant = PlantModel()
 
         controller_type = ControllerType.PID
-        default_controller_spec = CONTROLLER_SPECS[controller_type]()
+        default_controller_spec = CONTROLLER_SPECS[controller_type]
         self.model_controller = ControllerModel(
             controller_type=controller_type,
             controller_spec=default_controller_spec

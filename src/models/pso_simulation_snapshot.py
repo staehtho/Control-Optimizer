@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex, ControllerType
 from app_domain.functions import BaseFunction
-from app_types import BaseControllerSpec
+from app_types import ControllerSpec
 
 
 @dataclass(frozen=True)
@@ -11,7 +11,7 @@ class PsoSimulationSnapshot:
     plant_den: tuple[float, ...]
     plant_tf: str
 
-    controller_spec: BaseControllerSpec
+    controller_spec: ControllerSpec
     controller_anti_windup: AntiWindup
     controller_ka: float
     controller_constraint_min: float

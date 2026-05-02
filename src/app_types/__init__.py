@@ -4,7 +4,7 @@ from .conect_signal_config import ConnectSignalConfig
 
 from .controller_sepc import (
     CONTROLLER_SPECS,
-    BaseControllerSpec
+    ControllerSpec
 )
 
 from .enum_tooltips import (
@@ -76,7 +76,7 @@ __all__ = [
     "ClosedLoopResponseContext",
     "ConnectSignalConfig",
     "CONTROLLER_SPECS",
-    "BaseControllerSpec",
+    "ControllerSpec",
     "PerformanceIndexDescription",
     "get_performance_tooltip",
     "validate_enum_mapping",

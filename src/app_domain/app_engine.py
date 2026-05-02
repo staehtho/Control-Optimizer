@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, TypeVar, Callable
 
 from app_types import PlantResponseContext, PsoSimulationParam
 from app_domain.functions import StepFunction
-from app_types.controller_sepc import PIDControllerSpec
 from models import ModelContainer
 from service import SimulationService
 from .ui_context import UiContext
@@ -257,12 +256,14 @@ class AppEngine:
         This pre-compiles any JIT functions, initializes caches, and
         triggers one-time setup in the PSO engine for faster subsequent runs.
         """
-        from app_domain.controlsys import MySolver, AntiWindup, ExcitationTarget, PerformanceIndex
+        from app_domain.controlsys import MySolver, AntiWindup, ExcitationTarget, PerformanceIndex, ControllerType
+        from app_types.controller_sepc import CONTROLLER_SPECS
+
         # Minimal PSO parameters for warmup
         pso_param = PsoSimulationParam(
             num=[1],
             den=[1, 2, 1],
-            controller_spec=PIDControllerSpec(),
+            controller_spec=CONTROLLER_SPECS[ControllerType.PID],
             t0=0,
             t1=10,
             dt=1e-4,

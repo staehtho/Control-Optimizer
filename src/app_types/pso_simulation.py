@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 
 if TYPE_CHECKING:
-    from app_types import BaseControllerSpec
+    from app_types import ControllerSpec
     from app_domain.controlsys import AntiWindup, ExcitationTarget, PerformanceIndex, MySolver
     from app_domain.functions import BaseFunction
 
@@ -31,7 +31,7 @@ class PsoSimulationParam:
     num: list[float]
     den: list[float]
 
-    controller_spec: BaseControllerSpec
+    controller_spec: ControllerSpec
 
     t0: float
     t1: float

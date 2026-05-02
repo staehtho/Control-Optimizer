@@ -116,7 +116,7 @@ def import_project_state(container: ModelContainer, state: dict) -> None:
                 controller.get("controller_type", container.model_controller.controller_type),
             )
             container.model_controller.controller_type = controller_type
-            container.model_controller.controller_spec = CONTROLLER_SPECS[controller_type]()
+            container.model_controller.controller_spec = CONTROLLER_SPECS[controller_type]
             container.model_controller.constraint_min = float(
                 controller.get("constraint_min", container.model_controller.constraint_min)
             )
