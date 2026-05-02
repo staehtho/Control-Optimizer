@@ -316,7 +316,7 @@
     <message>
         <location filename="../service/reporting/sections.py" line="320"/>
         <source>Block Diagram</source>
-        <translation>Blockdiagramm</translation>
+        <translation>Blockschaltbild</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="326"/>

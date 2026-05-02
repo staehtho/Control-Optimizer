@@ -463,7 +463,7 @@ Wenn die Abtastrate unbekannt ist, dieses Feld leer lassen, um einen empfohlenen
     <message>
         <location filename="../views/data_management_view.py" line="163"/>
         <source>Block Diagram</source>
-        <translation>Blockdiagramm</translation>
+        <translation>Blockschaltbild</translation>
     </message>
     <message>
         <location filename="../views/data_management_view.py" line="164"/>
@@ -675,7 +675,7 @@ Wenn die Abtastrate unbekannt ist, dieses Feld leer lassen, um einen empfohlenen
     <message>
         <location filename="../views/evaluation_view.py" line="368"/>
         <source>Block Diagram</source>
-        <translation>Blockdiagramm</translation>
+        <translation>Blockschaltbild</translation>
     </message>
     <message>
         <location filename="../views/evaluation_view.py" line="369"/>
@@ -1283,7 +1283,7 @@ Der Bericht wird aus modularen Abschnitten zusammengesetzt, die der Auswahl der
 Anwenderin oder des Anwenders in der Datenverwaltung entsprechen. Abhängig von der
 Konfiguration kann der Bericht das Streckenmodell, die Anregungsfunktion, die
 Reglerkonfiguration, die PSO‑Konfiguration, die Optimierungsresultate sowie eine Reihe
-diagnostischer Grafiken wie Blockdiagramm, Zeitbereichsverlauf, Bode‑Plot und
+diagnostischer Grafiken wie Blockschaltbild, Zeitbereichsverlauf, Bode‑Plot und
 Übertragungsfunktionen enthalten.
 &lt;/p&gt;</translation>
     </message>
@@ -1601,7 +1601,7 @@ Der Bericht wird aus modularen Abschnitten zusammengesetzt, die der Auswahl der
 Anwenderin oder des Anwenders in der Datenverwaltung entsprechen. Abhängig von der
 Konfiguration kann der Bericht das Streckenmodell, die Anregungsfunktion, die
 Reglerkonfiguration, die PSO‑Konfiguration, die Optimierungsresultate sowie eine Reihe
-diagnostischer Grafiken wie Blockdiagramm, Zeitbereichsverlauf, Bode‑Plot und
+diagnostischer Grafiken wie Blockschaltbild, Zeitbereichsverlauf, Bode‑Plot und
 Übertragungsfunktionen enthalten.
 &lt;/p&gt;</translation>
     </message>
@@ -2053,7 +2053,7 @@ Muss grösser als die Startzeit sein.</translation>
     <message>
         <location filename="../views/pso_configuration_view.py" line="252"/>
         <source>Closed Loop Block Diagram</source>
-        <translation>Blockdiagramm des geschlossenen Regelkreises</translation>
+        <translation>Blockschaltbild des geschlossenen Regelkreises</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="256"/>
