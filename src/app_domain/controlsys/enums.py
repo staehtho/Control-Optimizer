@@ -21,6 +21,7 @@ from enum import Enum, IntEnum, auto
 class ControllerType(Enum):
     PI = "pi"
     PID = "pid"
+    FFPID = "ffpid"
 
 
 class AntiWindup(Enum):
