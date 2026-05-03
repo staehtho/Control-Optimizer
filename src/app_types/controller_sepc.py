@@ -68,6 +68,12 @@ class ControllerSpec:
             (e.g., Tf in PID controllers). Used by the UI to conditionally
             enable, disable, or hide the corresponding parameter field without
             altering layout structure.
+        has_integrator (bool):
+            Indicates whether the controller contains an integrator term
+            (e.g., Ti in PI/PID controllers). Used by the UI to enable or
+            disable anti‑windup configuration options. Controllers without
+            an integrator must not expose anti‑windup settings, but the
+            layout structure remains unchanged.
     """
 
     controller_class: type[ClosedLoop]
@@ -77,6 +83,7 @@ class ControllerSpec:
     transfer_function: str
     build_svg: Callable[[AntiWindup], list[SvgData]]
     has_filter_time_constant: bool
+    has_integrator: bool
 
 
 pid_spec = ControllerSpec(
@@ -87,6 +94,7 @@ pid_spec = ControllerSpec(
     transfer_function=r"C(s) = K_p \frac{(T_i\, s + 1)(T_d\, s + 1)}{T_i\, s (T_f\, s + 1)}",
     build_svg=bd.get_pid_controller_svg,
     has_filter_time_constant=True,
+    has_integrator=True,
 )
 
 pi_spec = ControllerSpec(
@@ -97,6 +105,7 @@ pi_spec = ControllerSpec(
     transfer_function=r"C(s) = K_p \left(1 + \frac{1}{T_i\, s}\right)",
     build_svg=bd.get_pi_controller_svg,
     has_filter_time_constant=False,
+    has_integrator=True,
 )
 
 CONTROLLER_SPECS = {

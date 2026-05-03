@@ -16,7 +16,6 @@ if TYPE_CHECKING:
     from viewmodels import ControllerViewModel
     from views.widgets import SectionFrame
 
-# TODO: block diagram like the closed loop in pso, now it is to saml
 
 class OptionalDoubleValidator(QDoubleValidator):
     def validate(self, input_text: str, pos: int):
@@ -26,6 +25,11 @@ class OptionalDoubleValidator(QDoubleValidator):
 
 
 FIELDS: list[FieldConfig | SectionConfig] = [
+    SectionConfig(ControllerField.CONTROLLER_TYPE, [
+        FieldConfig(ControllerField.TYPE, QComboBox),
+        FieldConfig("", QLabel, create_label=False),
+    ]),
+
     SectionConfig(ControllerField.CONSTRAINT, [
         FieldConfig(ControllerField.CONSTRAINT_MAX, QLineEdit),
         FieldConfig(ControllerField.CONSTRAINT_MIN, QLineEdit),
@@ -40,10 +44,6 @@ FIELDS: list[FieldConfig | SectionConfig] = [
         FieldConfig(ControllerField.TUNING_FACTOR, QLineEdit, validator=QDoubleValidator(0.0, 1e9, 6)),
         FieldConfig(ControllerField.SAMPLING_RATE, QLineEdit, validator=OptionalDoubleValidator(0.0, 1e9, 6)),
     ]),
-
-    SectionConfig(ControllerField.CONTROLLER_TYPE, [
-        FieldConfig(ControllerField.TYPE, QComboBox),
-    ])
 ]
 
 
@@ -257,15 +257,19 @@ class ControllerView(ViewMixin, QWidget):
         self._load_block_diagram()
 
         # update time constant section
-        visible = self._vm_controller.controller_spec.has_filter_time_constant
+        visible_data = {
+            ControllerField.FILTER_TIME_CONSTANT: self._vm_controller.controller_spec.has_filter_time_constant,
+            ControllerField.ANTI_WINDUP: self._vm_controller.controller_spec.has_integrator
+        }
 
-        w = self.labels[ControllerField.FILTER_TIME_CONSTANT]
-        w.setEnabled(visible)
-        effect = w.graphicsEffect()
-        if not isinstance(effect, QGraphicsOpacityEffect):
-            effect = QGraphicsOpacityEffect(w)
-            w.setGraphicsEffect(effect)
-        effect.setOpacity(1.0 if visible else 0.0)
+        for key, visible in visible_data.items():
+            w = self.labels[key]
+            w.setEnabled(visible)
+            effect = w.graphicsEffect()
+            if not isinstance(effect, QGraphicsOpacityEffect):
+                effect = QGraphicsOpacityEffect(w)
+                w.setGraphicsEffect(effect)
+            effect.setOpacity(1.0 if visible else 0.0)
 
 
     def _get_widget_bindings(self) -> list[ConnectSignalConfig]:
