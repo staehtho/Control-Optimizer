@@ -36,8 +36,7 @@ class PIClosedLoop(ClosedLoop):
     @classmethod
     def frf_batch(cls, X: np.ndarray, s: np.ndarray) -> np.ndarray:
         """Vectorized frequency response (core implementation)."""
-        with np.errstate(divide="ignore", invalid="ignore", over="ignore", under="ignore"):
-            Kp = X[:, 0][:, None]
-            Ti = X[:, 1][:, None]
-            s_row = s[None, :]
-            return Kp * (1 + 1 / (Ti * s_row))
+        Kp = X[:, 0][:, None]
+        Ti = X[:, 1][:, None]
+        s_row = s[None, :]
+        return Kp * (1 + 1 / (Ti * s_row))

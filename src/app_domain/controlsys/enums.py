@@ -18,6 +18,11 @@
 from enum import Enum, IntEnum, auto
 
 
+class ControllerType(Enum):
+    PI = "pi"
+    PID = "pid"
+
+
 class AntiWindup(Enum):
     CLAMPING = auto()
     CONDITIONAL = auto()
@@ -59,11 +64,6 @@ class ExcitationTarget(Enum):
     REFERENCE = "Reference"
     INPUT_DISTURBANCE = "Input Disturbance"
     MEASUREMENT_DISTURBANCE = "Measurement Disturbance"
-
-
-class ControllerType(Enum):
-    PI = "pi"
-    PID = "pid"
 
 
 def map_enum_to_int(enum_value: Enum) -> IntEnum:

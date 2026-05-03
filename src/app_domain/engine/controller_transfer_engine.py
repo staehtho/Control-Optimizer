@@ -3,8 +3,6 @@ from typing import TYPE_CHECKING
 import logging
 from numpy import ndarray, array
 
-from app_domain.controlsys import Plant, PIDClosedLoop
-
 if TYPE_CHECKING:
     from app_types import ControllerTransferContext
 

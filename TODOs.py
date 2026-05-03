@@ -9,3 +9,5 @@
 
 # TODO: Wo ist die automatische Simulationszeit in App -> ok ich verstehe wo (PSO Parameters -> Endtime) somit kann die
 #   Endzeit und Start zeit automatisch bestimmt werden -> Startzeit dann auf 0s -> Aufwand abschätzen
+
+# TODO: has_integrator -> hide section Anti Windup update the docstring and instruction in the BA

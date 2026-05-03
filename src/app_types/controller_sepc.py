@@ -2,7 +2,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Callable
 from dataclasses import dataclass
 
-from app_domain.controlsys import ControllerType, PIClosedLoop, PIDClosedLoop
+from app_domain.controlsys import ControllerType
+from app_domain.controlsys.PIClosedLoop import PIClosedLoop
+from app_domain.controlsys.PIDClosedLoop import PIDClosedLoop
 import resources.blockdiagram as bd
 
 if TYPE_CHECKING:

@@ -12,7 +12,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 SRC_PATH = PROJECT_ROOT / "src"
 sys.path.insert(0, str(SRC_PATH))
 
-from app_domain.controlsys import Plant, PIDClosedLoop, bode_plot
+from app_domain.controlsys import Plant, bode_plot
+from app_domain.controlsys.PIDClosedLoop import PIDClosedLoop
 from app_domain.pso_objective import compute_effective_tf_report
 from app_domain.pso_objective.freq_metrics import compute_loop_metrics_batch
 

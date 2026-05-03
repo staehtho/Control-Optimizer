@@ -1,4 +1,6 @@
-from app_domain.controlsys import Plant, PIDClosedLoop, AntiWindup, compute_effective_tf_report
+from app_domain.controlsys import Plant, AntiWindup
+from app_domain.controlsys.PIDClosedLoop import PIDClosedLoop
+from app_domain.pso_objective import compute_effective_tf_report
 
 plant = Plant([1], [1, 0])
 

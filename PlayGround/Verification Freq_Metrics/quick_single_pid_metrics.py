@@ -11,7 +11,8 @@ SRC_PATH = PROJECT_ROOT / "src"
 if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
-from app_domain.controlsys import Plant, PIDClosedLoop
+from app_domain.controlsys import Plant
+from app_domain.controlsys.PIDClosedLoop import PIDClosedLoop
 from app_domain.pso_objective.freq_metrics import compute_loop_metrics_batch
 
 
