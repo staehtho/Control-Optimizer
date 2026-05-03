@@ -393,22 +393,10 @@ class PsoFunc:
 
         P = X.shape[0]
 
-        Td = np.zeros(P, dtype=np.float64)
-
         # determine whether tf needs to be calculated and get Td from X
-        match self._controller.controller_type:
-            case ControllerType.PI:
-                calc_tf = False
+        if self._controller.tf_link_index is not None:
+            Td = X[:, self._controller.tf_link_index]
 
-            case ControllerType.PID:
-                Td = X[:, 2]
-                calc_tf = True
-            case _:
-                raise NotImplementedError(
-                    f"Controller type '{self._controller.controller_type}' is not supported in time‑domain PSO."
-                )
-
-        if calc_tf:
             _, Tf = compute_effective_tf_batch(
                 Td=Td,
                 dt=self.dt,

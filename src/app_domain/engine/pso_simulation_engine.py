@@ -239,23 +239,14 @@ class PsoSimulationEngine:
     ) -> TfLimitReport | None:
         """Evaluate Tf report."""
 
-        # Select the correct interpretation of the best-parameter vector based on controller type.
-        # Each controller type defines its own parameter ordering in controller_spec.param_names.
         if not param.controller_spec.has_filter_time_constant:
             return None
 
-        match param.controller_spec.controller_class.controller_type:
-            case ControllerType.PID:
-                # PID: index 2 corresponds to Td (derivative time)
-                Td = float(self._best_params[2])
+        idx = param.controller_spec.controller_class.tf_link_index
+        if idx is None:
+            return None
 
-            case _:
-                raise NotImplementedError(
-                    f"Transfer-function evaluation is not implemented for controller type "
-                    f"{param.controller_spec.controller_class.controller_type!r}. "
-                    f"Add a case in this match block and define the parameter mapping in the "
-                    f"corresponding ControllerSpec to enable support."
-                )
+        Td = float(self._best_params[idx])
 
         return compute_effective_tf_report(
             Td=Td,

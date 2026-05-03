@@ -24,6 +24,7 @@ from .plant import Plant
 
 class PIDClosedLoop(ClosedLoop):
     controller_type = ControllerType.PID
+    tf_link_index = 2
 
     def __init__(self,
                  plant: Plant,
