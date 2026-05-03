@@ -739,12 +739,12 @@ def time_domain_pso_func(
 # =============================================================================
 # Controller Registry
 # =============================================================================
-class ControllerSpec:
+class ControllerRegistry:
     def __init__(self, step_fn):
         self.step_fn = step_fn
 
 
 CONTROLLER_REGISTRY = {
-    ControllerType.PI: ControllerSpec(step_fn=pi_step),
-    ControllerType.PID: ControllerSpec(step_fn=pid_step),
+    ControllerType.PI: ControllerRegistry(step_fn=pi_step),
+    ControllerType.PID: ControllerRegistry(step_fn=pid_step),
 }
