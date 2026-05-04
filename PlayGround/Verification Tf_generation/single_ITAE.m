@@ -22,7 +22,7 @@ Tf = 0.01;
 filter = s / ( Tf * s + 1); 
 
 constraint = 10;
-plant = tf(1, [1 0 1]);
+plant = tf(1, [1 2 1]);
 
 default_start_time = 0.0;
 default_end_time = 20.0;
