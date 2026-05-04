@@ -24,10 +24,10 @@ from app_domain.PSO import Swarm
 #from services.config_loader import load_config, ConfigError
 from app_domain.controlsys import (
     Plant,
-    PIDClosedLoop,
     AntiWindup,
     PerformanceIndex,
 )
+from app_domain.controlsys.PIDClosedLoop import PIDClosedLoop
 from app_domain.pso_objective import PsoFunc, compute_effective_tf_report
 #from services.report_generator import report_generator
 from app_domain.pso_objective.freq_metrics import compute_loop_metrics_batch

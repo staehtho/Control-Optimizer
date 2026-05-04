@@ -4,26 +4,37 @@ import logging
 
 from PySide6.QtCore import QThread, Signal
 
+from app_domain.controlsys import Plant
 from app_types import PlotLabels, FrequencyResponse
 
 if TYPE_CHECKING:
     from numpy import ndarray
     from app_types import PlantTransferContext, ControllerTransferContext
     from app_domain.engine import (
-        ControllerTransferEngine, FrequencyResponseEngine, FrequencyGridEngine, PlantTransferEngine
+        FrequencyResponseEngine, FrequencyGridEngine, PlantTransferEngine
     )
 
 
-class ClosedLoopFrequencyWorker(QThread):
-    """Worker thread to compute frequency-domain responses of a closed-loop system.
+class TransferFunctionWorker(QThread):
+    """
+    Background worker for computing closed‑loop frequency responses.
 
-    This worker computes the frequency vector, evaluates the plant and controller
-    transfer functions, calculates open-loop, sensitivity, and complementary
-    sensitivity functions, converts them to magnitude (dB) and phase (deg),
-    and emits the results via the `resultReady` signal.
+    This thread assembles all components required for frequency‑domain
+    analysis of a closed‑loop system: a plant model, a controller constructed
+    from its specification context, and the engines responsible for frequency
+    grid generation and complex response evaluation.
+
+    The worker performs the entire computation asynchronously to keep the UI
+    responsive. It generates the frequency vector, evaluates the plant and
+    controller transfer functions, computes the open‑loop L(jω), sensitivity
+    S(jω), and complementary sensitivity T(jω), converts all responses to
+    magnitude (dB) and phase (deg), and finally emits a `FrequencyResponse`
+    object via the `resultReady` signal.
 
     Signals:
-        resultReady (object): Emitted when the computation is complete.
+        resultReady (FrequencyResponse):
+            Emitted when all frequency‑domain quantities have been computed
+            and packaged into a result object.
     """
 
     resultReady = Signal(object)
@@ -31,7 +42,6 @@ class ClosedLoopFrequencyWorker(QThread):
     def __init__(
             self,
             plant_engine: PlantTransferEngine,
-            controller_engine: ControllerTransferEngine,
             response_engine: FrequencyResponseEngine,
             frequency_engine: FrequencyGridEngine,
             context_plant: PlantTransferContext,
@@ -39,11 +49,10 @@ class ClosedLoopFrequencyWorker(QThread):
             omega_min: float,
             omega_max: float
     ) -> None:
-        """Initialize the ClosedLoopFrequencyWorker.
+        """Initialize the TransferFunctionWorker.
 
         Args:
             plant_engine: Engine to compute plant transfer function.
-            controller_engine: Engine to compute controller transfer function.
             response_engine: Engine to compute open-loop, sensitivity, and complementary sensitivity.
             frequency_engine: Engine to generate frequency vector and convert complex responses to magnitude/phase.
             context_plant: Plant transfer context with coefficients.
@@ -53,7 +62,6 @@ class ClosedLoopFrequencyWorker(QThread):
         """
         super().__init__()
         self._plant_engine = plant_engine
-        self._controller_engine = controller_engine
         self._response_engine = response_engine
         self._frequency_engine = frequency_engine
         self._context_plant = context_plant
@@ -63,7 +71,7 @@ class ClosedLoopFrequencyWorker(QThread):
 
         self._logger = logging.getLogger(f"Worker.{self.__class__.__name__}.{id(self)}")
         self._logger.debug(
-            "ClosedLoopFrequencyWorker initialized (omega=[%.3f, %.3f])",
+            "TransferFunctionWorker initialized (omega=[%.3f, %.3f])",
             omega_min, omega_max
         )
 
@@ -85,16 +93,17 @@ class ClosedLoopFrequencyWorker(QThread):
         # Generate frequency vector
         omega: ndarray = self._frequency_engine.compute(self._omega_min, self._omega_max)
         self._logger.debug("Frequency vector generated (size=%d)", omega.size)
+        plant = Plant(self._context_plant.num, self._context_plant.den)
+        cl = self._context_controller.controller(plant, **self._context_controller.controller_parmas)
 
-        # Compute plant and controller transfer functions
-        G: ndarray = self._plant_engine.compute(self._context_plant, omega)
-        C: ndarray = self._controller_engine.compute(self._context_controller, omega)
+        # Compute controller transfer functions
+        C: ndarray = self._response_engine.compute(cl.controller, omega)
         self._logger.debug("Plant and controller transfer functions computed (size=%d)", omega.size)
 
         # Compute open-loop, sensitivity, and complementary sensitivity
-        L: ndarray = self._response_engine.open_loop(C, G)
-        S: ndarray = self._response_engine.sensitivity(L)
-        T: ndarray = self._response_engine.complementary_sensitivity(L)
+        L: ndarray = self._response_engine.compute(cl.open_loop, omega)
+        S: ndarray = self._response_engine.compute(cl.sensitivity, omega)
+        T: ndarray = self._response_engine.compute(cl.closed_loop, omega)
         self._logger.debug("Open-loop, sensitivity, and complementary sensitivity computed")
 
         # Convert complex responses to magnitude and phase

@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
     from infrastructure import (
         PlantResponseWorker, FunctionWorker, PsoSimulationWorker, ClosedLoopResponseWorker, PlantFrequencyWorker,
-        ClosedLoopFrequencyWorker
+        TransferFunctionWorker
     )
 
 
@@ -41,7 +41,7 @@ class SimulationService:
         self._pso_simulation_workers: list[PsoSimulationWorker] = []
         self._closed_loop_workers: list[ClosedLoopResponseWorker] = []
         self._plant_transfer_worker: PlantFrequencyWorker | None = None
-        self._closed_loop_frequency_worker: ClosedLoopFrequencyWorker | None = None
+        self._transfer_function_worker: TransferFunctionWorker | None = None
 
     def _stop_worker(self, worker: QThread | None, name: str, timeout_ms: int = 2000) -> None:
         """Try graceful stop first, then force terminate as a last resort."""
@@ -83,8 +83,8 @@ class SimulationService:
         self._stop_worker(self._plant_transfer_worker, "PlantFrequencyWorker")
         self._plant_transfer_worker = None
 
-        self._stop_worker(self._closed_loop_frequency_worker, "ClosedLoopFrequencyWorker")
-        self._closed_loop_frequency_worker = None
+        self._stop_worker(self._transfer_function_worker, "TransferFunctionWorker")
+        self._transfer_function_worker = None
 
         self._logger.info("SimulationService shutdown finished.")
 
@@ -285,7 +285,7 @@ class SimulationService:
     ) -> None:
         """Compute the closed-loop frequency-domain response asynchronously.
 
-        This method starts a `ClosedLoopFrequencyWorker` in a background thread.
+        This method starts a `TransferFunctionWorker` in a background thread.
         It generates the frequency vector, computes plant and controller transfer
         functions, calculates open-loop, sensitivity, and complementary sensitivity,
         converts all results to magnitude and phase, and invokes the callback when done.
@@ -300,20 +300,16 @@ class SimulationService:
             callback: Function invoked with a `FrequencyResponse`
                       when the worker completes.
         """
-        from infrastructure import ClosedLoopFrequencyWorker
-        if self._closed_loop_frequency_worker and self._closed_loop_frequency_worker.isRunning():
-            self._logger.warning("ClosedLoopFrequencyWorker is busy. Ignoring request.")
+        from infrastructure import TransferFunctionWorker
+        if self._transfer_function_worker and self._transfer_function_worker.isRunning():
+            self._logger.warning("TransferFunctionWorker is busy. Ignoring request.")
             return
 
-        self._logger.info("Starting ClosedLoopFrequencyWorker for asynchronous closed-loop Bode computation")
+        self._logger.info("Starting TransferFunctionWorker for asynchronous closed-loop Bode computation")
 
         if self._plant_transfer_engine is None:
             from app_domain.engine import PlantTransferEngine
             self._plant_transfer_engine = PlantTransferEngine()
-
-        if self._controller_transfer_engine is None:
-            from app_domain.engine import ControllerTransferEngine
-            self._controller_transfer_engine = ControllerTransferEngine()
 
         if self._frequency_response_engine is None:
             from app_domain.engine import FrequencyResponseEngine
@@ -324,9 +320,8 @@ class SimulationService:
             self._frequency_grid_engine = FrequencyGridEngine()
 
         # Create and start the worker
-        self._closed_loop_frequency_worker = ClosedLoopFrequencyWorker(
+        self._transfer_function_worker = TransferFunctionWorker(
             self._plant_transfer_engine,
-            self._controller_transfer_engine,
             self._frequency_response_engine,
             self._frequency_grid_engine,
             context_plant,
@@ -334,6 +329,5 @@ class SimulationService:
             omega_min,
             omega_max
         )
-        self._closed_loop_frequency_worker.resultReady.connect(callback)
-        self._closed_loop_frequency_worker.start()
-
+        self._transfer_function_worker.resultReady.connect(callback)
+        self._transfer_function_worker.start()

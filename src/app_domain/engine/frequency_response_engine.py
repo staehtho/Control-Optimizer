@@ -1,6 +1,7 @@
 import logging
-from numpy import ndarray
+from typing import Callable
 
+from numpy import ndarray, array
 
 class FrequencyResponseEngine:
     """Engine for frequency-domain analysis of control systems.
@@ -15,46 +16,36 @@ class FrequencyResponseEngine:
         self._logger = logging.getLogger(f"{self.__class__.__name__}.{id(self)}")
         self._logger.debug("FrequencyResponseEngine initialized.")
 
-    def open_loop(self, C: ndarray, G: ndarray) -> ndarray:
-        """Compute the open-loop transfer function L = C * G.
+    def compute(self, tf_func: Callable[[complex | ndarray], complex | ndarray], omega: ndarray) -> ndarray:
+        """
+        Evaluate a transfer function on the imaginary axis to obtain its
+        frequency response.
+
+        Computes L(jω) by calling the provided transfer‑function callable
+        `tf_func` with the complex frequency grid s = j·ω.
 
         Args:
-            C: Controller frequency response C(s)
-            G: Plant frequency response G(s)
+            tf_func: Callable that accepts a complex scalar or ndarray `s`
+                and returns the corresponding transfer‑function value(s).
+            omega: 1D array of angular frequencies (rad/s) at which the
+                transfer function should be evaluated.
 
         Returns:
-            ndarray: Open-loop transfer function L(s)
+            ndarray: Complex frequency response L(jω) evaluated at all
+            frequencies in `omega`.
         """
-        self._logger.info("Computing open-loop transfer function (size=%d)", C.size)
-        L = C * G
-        self._logger.info("Open-loop computation finished")
-        return L
 
-    def sensitivity(self, L: ndarray) -> ndarray:
-        """Compute the sensitivity function S = 1 / (1 + L).
+        self._logger.info(
+            f"Starting open loop transfer computation (n=%d)",
+            omega.size,
+        )
 
-        Args:
-            L: Open-loop transfer function L(s)
+        s = 1j * omega
+        tf = tf_func(s)
 
-        Returns:
-            ndarray: Sensitivity function S(s)
-        """
-        self._logger.info("Computing sensitivity function (size=%d)", L.size)
-        S = 1 / (1 + L)
-        self._logger.info("Sensitivity computation finished")
-        return S
+        self._logger.info(
+            "Controller transfer computation finished (n=%d)",
+            omega.size,
+        )
 
-    def complementary_sensitivity(self, L: ndarray) -> ndarray:
-        """Compute the complementary sensitivity function T = L / (1 + L).
-
-        Args:
-            L: Open-loop transfer function L(s)
-
-        Returns:
-            ndarray: Complementary sensitivity function T(s)
-        """
-        self._logger.info("Computing complementary sensitivity function (size=%d)", L.size)
-        T = L / (1 + L)
-        self._logger.info("Complementary sensitivity computation finished")
-        return T
-
+        return array(tf)

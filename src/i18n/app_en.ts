@@ -304,6 +304,11 @@
         <translation>PID</translation>
     </message>
     <message>
+        <location filename="../views/translations/enum_translations.py" line="262"/>
+        <source>FFPID</source>
+        <translation>FFPID</translation>
+    </message>
+    <message>
         <source>PID FF</source>
         <translation type="vanished">PID FF</translation>
     </message>
@@ -315,74 +320,74 @@
         <translation type="vanished">Controller</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="136"/>
+        <location filename="../views/controller_view.py" line="135"/>
         <source>Parameters</source>
         <translation>Parameters</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="148"/>
+        <location filename="../views/controller_view.py" line="147"/>
         <source>Controller Type</source>
         <translation>Controller Type</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="139"/>
+        <location filename="../views/controller_view.py" line="138"/>
         <source>Anti Windup</source>
         <translation>Anti Windup</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="140"/>
+        <location filename="../views/controller_view.py" line="139"/>
         <source>Methode</source>
         <translation>Methode</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="141"/>
+        <location filename="../views/controller_view.py" line="140"/>
         <source>Constraint</source>
         <translation>Constraint</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="142"/>
+        <location filename="../views/controller_view.py" line="141"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="143"/>
+        <location filename="../views/controller_view.py" line="142"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="144"/>
+        <location filename="../views/controller_view.py" line="143"/>
         <source>Ka</source>
         <translation>Ka</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="145"/>
+        <location filename="../views/controller_view.py" line="144"/>
         <source>Filter Time Constant Tf</source>
         <translation>Filter Time Constant Tf</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="147"/>
+        <location filename="../views/controller_view.py" line="146"/>
         <source>Sampling Rate [Hz]</source>
         <translation>Sampling rate [Hz]</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="149"/>
+        <location filename="../views/controller_view.py" line="148"/>
         <source>Type</source>
         <translation>Type</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="157"/>
+        <location filename="../views/controller_view.py" line="156"/>
         <source>Sampling rate unknown</source>
         <translation>Sampling rate unknown</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="173"/>
+        <location filename="../views/controller_view.py" line="172"/>
         <source>Defines the filter factor N used to compute the filter time constant Tf = Td/N.
                 Smaller values of N result in stronger filtering and a smoother but slower control response.</source>
         <translation>Defines the filter factor N used to compute the filter time constant Tf = Td/N.
 Smaller values of N result in stronger filtering and a smoother but slower control response.</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="177"/>
+        <location filename="../views/controller_view.py" line="176"/>
         <source>The filter time constant Tf is automatically limited by the system’s sampling rate and
                 the simulation time step to ensure stable and proper behavior.
                 If the sampling rate is unknown, leave this field empty to receive a recommended value.</source>
@@ -391,7 +396,7 @@ the simulation time step to ensure stable and proper behavior.
 If the sampling rate is unknown, leave this field empty to receive a recommended value.</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="146"/>
+        <location filename="../views/controller_view.py" line="145"/>
         <source>N</source>
         <translation>N</translation>
     </message>

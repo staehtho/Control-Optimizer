@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 import numpy as np
-from typing import TYPE_CHECKING, Type, Callable
+from typing import Callable
 
-if TYPE_CHECKING:
-    from app_domain.controlsys import Plant, ClosedLoop
-
+type Plant_Tf = Callable[[np.ndarray | complex], np.ndarray | complex]
 
 # ---------------------------------------------------------------------------
 # Utility
@@ -365,8 +363,8 @@ def compute_loop_metrics_batch_from_open_loop(
 # ---------------------------------------------------------------------------
 
 def compute_loop_metrics_batch(
-        plant_tf: Callable[[np.ndarray | complex], np.ndarray | complex],
-        controller_tf: Callable[[np.ndarray, np.ndarray], np.ndarray],
+        plant_tf: Plant_Tf,
+        controller_tf: Callable[[Plant_Tf, np.ndarray, np.ndarray], np.ndarray],
         X: np.ndarray,
         w: np.ndarray | tuple | list,
 ) -> dict[str, np.ndarray]:
@@ -396,8 +394,6 @@ def compute_loop_metrics_batch(
     w_arr = _ensure_frequency_grid(w)
     s = 1j * w_arr
 
-    G = np.array(plant_tf(s)).reshape(-1)
-    C = controller_tf(X, s)
-    L = C * G[None, :]
+    L = controller_tf(plant_tf, X, s)
 
     return compute_loop_metrics_batch_from_open_loop(L, w_arr)

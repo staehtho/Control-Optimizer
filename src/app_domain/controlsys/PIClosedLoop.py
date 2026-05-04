@@ -1,3 +1,5 @@
+from typing import Callable
+
 import numpy as np
 
 from .closedLoop import ClosedLoop
@@ -24,19 +26,32 @@ class PIClosedLoop(ClosedLoop):
     def get_controller_params(self) -> list[float]:
         return [self._kp, self._ti]
 
+    @staticmethod
+    def _controller_formula(Kp: np.ndarray, Ti: np.ndarray, s: np.ndarray) -> np.ndarray:
+        return Kp * (1 + 1 / (Ti * s))
+
     def controller(self, s: complex | np.ndarray) -> complex | np.ndarray:
-        X = np.array([[self._kp, self._ti]])
-        return self.frf_batch(X, np.atleast_1d(s))[0]
+        s_arr = np.atleast_1d(s)
+        Kp = np.array([[self._kp]])
+        Ti = np.array([[self._ti]])
+
+        C = self._controller_formula(Kp, Ti, s_arr[None, :])
+
+        return C[0, 0] if np.isscalar(s) else C[0]
 
     @classmethod
-    def transfer_function(cls, s: complex | np.ndarray, **params) -> complex | np.ndarray:
-        X = np.array([[params["Kp"], params["Ti"]]])
-        return cls.frf_batch(X, np.atleast_1d(s))[0]
-
-    @classmethod
-    def frf_batch(cls, X: np.ndarray, s: np.ndarray) -> np.ndarray:
-        """Vectorized frequency response (core implementation)."""
+    def frf_batch(
+            cls,
+            plant_tf: Callable[[np.ndarray | complex], np.ndarray | complex],
+            X: np.ndarray,
+            s: np.ndarray
+    ) -> np.ndarray:
         Kp = X[:, 0][:, None]
         Ti = X[:, 1][:, None]
         s_row = s[None, :]
-        return Kp * (1 + 1 / (Ti * s_row))
+
+        G = np.array(plant_tf(s_row)).reshape(-1)
+
+        C = cls._controller_formula(Kp, Ti, s_row)
+
+        return C * G[None, :]

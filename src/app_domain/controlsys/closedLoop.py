@@ -116,21 +116,62 @@ class ClosedLoop(ABC):
 
     @classmethod
     @abstractmethod
-    def transfer_function(cls, s: complex | np.ndarray, **params) -> complex | np.ndarray:
-        """Class-level controller evaluation."""
+    def frf_batch(
+            cls,
+            plant_tf: Callable[[np.ndarray | complex], np.ndarray | complex],
+            X: np.ndarray,
+            s: np.ndarray
+    ) -> np.ndarray:
+        """
+        Vectorized batch open-loop frequency response.
+
+        Computes the open-loop transfer function
+
+            L(s) = C(s) * G(s)
+
+        for a batch of controller parameter sets and a shared plant transfer
+        function.
+
+        Args:
+            plant_tf:
+                Callable evaluating the plant transfer function G(s) for scalar
+                or vector s.
+            X:
+                Parameter matrix of shape (P, n_params), where each row contains
+                one controller parameter set.
+            s:
+                Frequency vector of shape (N,) representing the Laplace variable
+                s = jω.
+
+        Returns:
+            np.ndarray:
+                Open-loop frequency response matrix L(jω) of shape (P, N),
+                where each row corresponds to one parameter set.
+        """
         pass
 
-    @classmethod
-    @abstractmethod
-    def frf_batch(cls, X: np.ndarray, s: np.ndarray) -> np.ndarray:
+    def open_loop(self, s: complex | np.ndarray) -> complex | np.ndarray:
         """
-        Vectorized batch FRF.
+        Compute the open‑loop transfer function.
 
-        X: parameter matrix of shape (P, n_params)
-        s: frequency vector of shape (N,)
-        returns: C(jw) matrix of shape (P, N)
+            L(s) = C(s) · G(s)
+
+        where ``C(s)`` is the controller transfer function and ``G(s)`` is the
+        plant transfer function. Supports scalar and vectorized Laplace‑domain
+        inputs.
+
+        Args:
+            s (complex | np.ndarray):
+                Laplace variable. May be a single complex value or a NumPy array
+                for frequency‑sweep evaluations.
+
+        Returns:
+            complex | np.ndarray:
+                Open‑loop transfer function ``L(s)`` evaluated at ``s``.
         """
-        pass
+        C = self.controller(s)
+        G = self._plant.system(s)
+        return C * G
 
     def closed_loop(self, s: complex | np.ndarray) -> complex | np.ndarray:
         """Compute the closed-loop transfer function.
@@ -152,9 +193,29 @@ class ClosedLoop(ABC):
             complex | np.ndarray:
                 Closed-loop transfer function ``G_cl(s)`` evaluated at ``s``.
         """
-        C = self.controller(s)
-        G = self._plant.system(s)
-        return (C * G) / (1 + C * G)
+        L = self.open_loop(s)
+        return L / (1 + L)
+
+    def sensitivity(self, s: complex | np.ndarray) -> complex | np.ndarray:
+        """
+        Compute the sensitivity function.
+
+            S(s) = 1 / (1 + L(s))
+
+        where ``L(s)`` is the open‑loop transfer function. Supports scalar and
+        vectorized Laplace‑domain inputs.
+
+        Args:
+            s (complex | np.ndarray):
+                Laplace variable. May be a single complex value or a NumPy array
+                for frequency‑sweep evaluations.
+
+        Returns:
+            complex | np.ndarray:
+                Sensitivity function ``S(s)`` evaluated at ``s``.
+        """
+        L = self.open_loop(s)
+        return 1 / (1 + L)
 
     def closed_loop_l(self, s: complex | np.ndarray) -> complex | np.ndarray:
         """Compute the closed-loop transfer function for an input disturbance (l).

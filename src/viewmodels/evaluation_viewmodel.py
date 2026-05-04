@@ -112,10 +112,10 @@ class EvaluationViewModel(BaseViewModel):
     def get_transfer_functions(self) -> TransferFunctions:
         return TransferFunctions(
             plant=r"G(s) = " + self._pso_snapshot.plant_tf if self._pso_snapshot is not None else "",
-            controller=self._pso_snapshot.controller_spec.transfer_function if self._pso_snapshot is not None else "",
-            open_loop=r"L(s) = C(S) \cdot G(s)",
-            closed_loop=r"T(s) = \frac{L(s)}{1 + L(s)} = \frac{C(s) \cdot G(s)}{1 + C(s) \cdot G(s)}",
-            sensitivity=r"S(s) = \frac{1}{1 + L(s)} = \frac{1}{1 + C(s) \cdot G(s)}"
+            controller=self._pso_snapshot.controller_spec.tf_controller if self._pso_snapshot is not None else "",
+            open_loop=self._pso_snapshot.controller_spec.tf_open_loop if self._pso_snapshot is not None else "",
+            closed_loop=self._pso_snapshot.controller_spec.tf_close_loop if self._pso_snapshot is not None else "",
+            sensitivity=self._pso_snapshot.controller_spec.tf_sensitivity if self._pso_snapshot is not None else "",
         )
 
 

@@ -23,10 +23,10 @@ from tqdm import tqdm
 from app_domain.PSO import Swarm
 from app_domain.controlsys import (
     AntiWindup,
-    PIDClosedLoop,
     PerformanceIndex,
     Plant,
 )
+from app_domain.controlsys.PIDClosedLoop import PIDClosedLoop
 from app_domain.pso_objective import PsoFunc, compute_effective_tf_report
 from app_domain.pso_objective.freq_metrics import compute_loop_metrics_batch
 
