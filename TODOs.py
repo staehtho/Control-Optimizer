@@ -9,3 +9,6 @@
 
 # TODO: Wo ist die automatische Simulationszeit in App -> ok ich verstehe wo (PSO Parameters -> Endtime) somit kann die
 #   Endzeit und Start zeit automatisch bestimmt werden -> Startzeit dann auf 0s -> Aufwand abschätzen
+
+# TODO: Meinung von Thomas: da der Code veröffentlicht wird, sollten am Ende alle nicht relevanten Skripte entweder in
+#   in das Doku-Repo verschoben oder gelöscht werden (PlayGround)
