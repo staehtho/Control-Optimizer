@@ -2255,17 +2255,16 @@ Begrenzt, wie stark das geschlossene System auf Störungen und Modellunsicherhei
         <translation>Ungültiger Wert: Endzeit ({t1}) muss grösser sein als Startzeit ({t0}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="242"/>
         <source>Invalid value: min ({value}) must be greater or equal than ({min}).</source>
-        <translation>Ungültiger Wert: Minimum ({value}) muss grösser oder gleich sein als ({min}).</translation>
+        <translation type="vanished">Ungültiger Wert: Minimum ({value}) muss grösser oder gleich sein als ({min}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="252"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="242"/>
         <source>Invalid value: min ({value}) must be smaller than max ({max}).</source>
         <translation>Ungültiger Wert: Minimum ({value}) muss kleiner sein als Maximum ({max}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="277"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="267"/>
         <source>Invalid value: max ({value}) must be greater than min ({min}).</source>
         <translation>Ungültiger Wert: Maximum ({value}) muss grösser sein als Minimum ({min}).</translation>
     </message>

@@ -2330,17 +2330,16 @@ Limits how strongly the closed loop system responds to disturbances and model un
         <translation>Invalid value: end time ({t1}) must be greater than start time ({t0}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="242"/>
         <source>Invalid value: min ({value}) must be greater or equal than ({min}).</source>
-        <translation>Invalid value: min ({value}) must be greater or equal than ({min}).</translation>
+        <translation type="vanished">Invalid value: min ({value}) must be greater or equal than ({min}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="252"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="242"/>
         <source>Invalid value: min ({value}) must be smaller than max ({max}).</source>
         <translation>Invalid value: min ({value}) must be smaller than max ({max}).</translation>
     </message>
     <message>
-        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="277"/>
+        <location filename="../viewmodels/pso_configuration_viewmodel.py" line="267"/>
         <source>Invalid value: max ({value}) must be greater than min ({min}).</source>
         <translation>Invalid value: max ({value}) must be greater than min ({min}).</translation>
     </message>
