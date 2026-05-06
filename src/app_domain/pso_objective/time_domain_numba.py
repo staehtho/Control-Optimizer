@@ -94,6 +94,7 @@ def dot1D(x: np.ndarray, y: np.ndarray) -> float:
 def pi_step(
         state: np.ndarray,
         i: int,
+        r: int,
         e: float,
         dt: float,
         controller_param: np.ndarray,  # [Kp, Ti]
@@ -204,6 +205,7 @@ def pi_step(
 def pid_step(
         state: np.ndarray,
         i: int,
+        r: int,
         e: float,
         dt: float,
         controller_param: np.ndarray,  # [Kp, Ti, Td, Tf]
@@ -502,6 +504,7 @@ def system_response_closed_loop(
         u = step_fn(
             state,
             0,  # controller index
+            r,
             e,
             dt,
             controller_param,
@@ -611,6 +614,7 @@ def simulate_metrics(
         u = step_fn(
             state,
             idx,  # controller index into shared state
+            r,
             e,
             dt,
             controller_param,
