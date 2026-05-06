@@ -30,7 +30,6 @@ class ModelContainer:
         lw, up = default_controller_spec.bounds
         params = default_controller_spec.param_names
         self.model_pso = PsoConfigurationModel(
-            min_bounds={k: v for k, v in zip(params, default_controller_spec.min_bounds)},
             lower_bounds={k: v for k, v in zip(params, lw)},
             upper_bounds={k: v for k, v in zip(params, up)},
             n_params=len(lw)

@@ -637,12 +637,12 @@ class PsoConfigurationView(ViewMixin, QWidget):
                     FieldConfig(
                         f"{key}.{PsoField.PSO_UPPER_KEY.value}.{PsoField.PSO_BOUNDS_KEY.value}",
                         QLineEdit,
-                        validator=QDoubleValidator(0.0, 1e9, 6)
+                        validator=QDoubleValidator()
                     ),
                     FieldConfig(
                         f"{key}.{PsoField.PSO_LOWER_KEY.value}.{PsoField.PSO_BOUNDS_KEY.value}",
                         QLineEdit,
-                        validator=QDoubleValidator(0.0, 1e9, 6)
+                        validator=QDoubleValidator()
                     )
                 ])
             )

@@ -39,11 +39,6 @@ class ControllerSpec:
             The parameter names MUST exactly match the attribute names expected by
             the corresponding controller implementation.
 
-        min_bounds (list[float]):
-            Hard lower limits for each controller parameter. These represent
-            absolute constraints (e.g., positivity) and are used for validation
-            and safety checks.
-
         bounds (tuple[list[float], list[float]]):
             Tuple ``(lower_bounds, upper_bounds)`` defining the optimization
             bounds for PSO. Each list must match the length of ``param_names``.
@@ -84,7 +79,6 @@ class ControllerSpec:
 
     controller_class: type[ClosedLoop]
     param_names: list[str]
-    min_bounds: list[float]
     bounds: tuple[list[float], list[float]]
     build_svg: Callable[[AntiWindup], list[SvgData]]
     tf_controller: str
@@ -96,7 +90,6 @@ class ControllerSpec:
 pid_spec = ControllerSpec(
     controller_class=PIDClosedLoop,
     param_names=["Kp", "Ti", "Td"],
-    min_bounds=[0.0, 1e-9, 0.0],
     bounds=([0.0, 0.001, 0.0], [10.0, 10.0, 10.0]),
     build_svg=bd.get_pid_controller_svg,
     tf_controller=r"C(s) = K_p \frac{(T_i\, s + 1)(T_d\, s + 1)}{T_i\, s (T_f\, s + 1)}",
@@ -105,7 +98,6 @@ pid_spec = ControllerSpec(
 pi_spec = ControllerSpec(
     controller_class=PIClosedLoop,
     param_names=["Kp", "Ti"],
-    min_bounds=[0.0, 1e-9],
     bounds=([0.0, 0.001], [10.0, 10.0]),
     build_svg=bd.get_pi_controller_svg,
     tf_controller=r"C(s) = K_p \left(1 + \frac{1}{T_i\, s}\right)",

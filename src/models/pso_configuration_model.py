@@ -10,7 +10,6 @@ class PsoConfigurationModel:
 
     excitation_target: ExcitationTarget = ExcitationTarget.REFERENCE
 
-    min_bounds: dict[str, float] = field(default_factory=dict)
     lower_bounds: dict[str, float] = field(default_factory=dict)
     upper_bounds: dict[str, float] = field(default_factory=dict)
     n_params: int = 0

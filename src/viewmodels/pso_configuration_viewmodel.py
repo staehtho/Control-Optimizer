@@ -237,16 +237,6 @@ class PsoConfigurationViewModel(BaseViewModel):
         field_key = f"{key}.{PsoField.PSO_LOWER_KEY.value}.{PsoField.PSO_BOUNDS_KEY.value}"
 
         result = self._validate_relation(
-            valid=value >= self._model_pso.min_bounds[key],
-            message=self.tr(
-                "Invalid value: min ({value}) must be greater or equal than ({min})."
-            ).format(value=value, min=self._model_pso.min_bounds[key])
-        )
-
-        if not self._verify(field_key, result):
-            return
-
-        result = self._validate_relation(
             valid=value <= self._model_pso.upper_bounds[key],
             message=self.tr(
                 "Invalid value: min ({value}) must be smaller than max ({max})."
@@ -372,8 +362,6 @@ class PsoConfigurationViewModel(BaseViewModel):
         expected_keys = list(params)
         lower_keys_match = list(current_lower.keys()) == expected_keys
         upper_keys_match = list(current_upper.keys()) == expected_keys
-
-        self._model_pso.min_bounds = {k: v for k, v in zip(params, spec.min_bounds)}
 
         if preserve_existing and lower_keys_match and upper_keys_match:
             self._model_pso.lower_bounds = {key: current_lower[key] for key in params}

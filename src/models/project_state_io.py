@@ -284,14 +284,12 @@ def _import_pso_bounds(container: ModelContainer, pso_state: dict) -> None:
     spec = container.model_controller.controller_spec
     param_names = list(spec.param_names)
 
-    default_min = {key: float(value) for key, value in zip(param_names, spec.min_bounds)}
     default_lower = {key: float(value) for key, value in zip(param_names, spec.bounds[0])}
     default_upper = {key: float(value) for key, value in zip(param_names, spec.bounds[1])}
 
     lower_bounds, has_lower_bounds = _read_bounds_map(pso_state.get("lower_bounds"), default_lower)
     upper_bounds, has_upper_bounds = _read_bounds_map(pso_state.get("upper_bounds"), default_upper)
 
-    container.model_pso.min_bounds = {key: default_min[key] for key in param_names}
     container.model_pso.lower_bounds = {key: lower_bounds.get(key, default_lower[key]) for key in param_names}
     container.model_pso.upper_bounds = {key: upper_bounds.get(key, default_upper[key]) for key in param_names}
     container.model_pso.n_params = int(pso_state.get("n_params", len(param_names)))
