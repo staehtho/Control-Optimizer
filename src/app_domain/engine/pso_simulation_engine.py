@@ -193,7 +193,7 @@ class PsoSimulationEngine:
         objective.set_calculate_freq_metrics(True)
 
         tf_report = None
-        if param.controller_spec.has_filter_time_constant:
+        if param.controller_spec.controller_class.tf_link_index > -1:
             tf_report = self._evaluate_tf(param)
 
         if tf_report is None:
@@ -207,13 +207,13 @@ class PsoSimulationEngine:
 
         params = {k: v for k, v in zip(param.controller_spec.param_names, self._best_params)}
 
-        if param.controller_spec.has_filter_time_constant:
+        if param.controller_spec.controller_class.tf_link_index > -1:
             params["Tf"] = float(tf_report.tf_effective)
 
         return PsoResult(
             simulation_time=self._total_duration,
             best_params=params,
-            has_tf=param.controller_spec.has_filter_time_constant,
+            has_tf=param.controller_spec.controller_class.tf_link_index > -1,
             tf_limited_simulation=tf_report.limited_by_simulation,
             tf_limited_sampling=tf_report.limited_by_sampling,
             min_sampling_rate=tf_report.min_sampling_rate_hz,
@@ -239,11 +239,8 @@ class PsoSimulationEngine:
     ) -> TfLimitReport | None:
         """Evaluate Tf report."""
 
-        if not param.controller_spec.has_filter_time_constant:
-            return None
-
         idx = param.controller_spec.controller_class.tf_link_index
-        if idx is None:
+        if idx <= -1:
             return None
 
         Td = float(self._best_params[idx])

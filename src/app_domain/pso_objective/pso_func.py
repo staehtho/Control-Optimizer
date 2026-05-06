@@ -394,7 +394,7 @@ class PsoFunc:
         P = X.shape[0]
 
         # determine whether tf needs to be calculated and get Td from X
-        if self._controller.tf_link_index is not None:
+        if self._controller.tf_link_index > -1:
             Td = X[:, self._controller.tf_link_index]
 
             _, Tf = compute_effective_tf_batch(

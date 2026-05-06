@@ -9,6 +9,7 @@ from .plant import Plant
 
 class PIClosedLoop(ClosedLoop):
     controller_type = ControllerType.PI
+    has_integrator = True
 
     def __init__(
             self,

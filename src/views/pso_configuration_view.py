@@ -269,7 +269,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
             PsoField.FREQUENCY_DOMAIN: self.tr("Frequency Domain"),
             PsoField.GAIN_MARGIN: self.tr("Gain margin [dB]"),
             PsoField.PHASE_MARGIN: self.tr("Phase margin [°]"),
-            PsoField.STABILITY_MARGIN: self.tr("Stability margin [dB]"),
+            PsoField.STABILITY_MARGIN: self.tr("Stability margin [dB]"),  # TODO: wie heisst dies??? und auf Deutsch
             PsoField.PSO_BOUNDS: self.tr("PSO Bounds"),
             PsoField.RUN_PSO: self.tr("Start PSO Simulation"),
             PsoField.INTERRUPT_PSO: self.tr("Interrupt"),

@@ -26,7 +26,9 @@ from .plant import Plant
 
 class ClosedLoop(ABC):
     controller_type: ControllerType  # each subclass sets this
-    tf_link_index: int | None = None
+    tf_link_index: int = -1
+    has_integrator: bool = False
+
 
     def __init__(
             self,

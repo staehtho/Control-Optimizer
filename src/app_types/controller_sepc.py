@@ -54,16 +54,6 @@ class ControllerSpec:
             controller. The function receives the selected anti‑windup strategy
             and returns a list of positioned SVG elements.
 
-        has_filter_time_constant (bool):
-            Indicates whether the controller includes a filter time constant
-            (e.g., Tf in PID controllers). Used by the UI to conditionally
-            enable or hide the corresponding parameter field.
-
-        has_integrator (bool):
-            Indicates whether the controller contains an integrator term
-            (e.g., Ti in PI/PID controllers). Used by the UI to enable or
-            disable anti‑windup configuration options.
-
         tf_controller (str):
             Human‑readable mathematical representation of the controller
             transfer function ``C(s)``, typically a LaTeX‑compatible string.
@@ -97,8 +87,6 @@ class ControllerSpec:
     min_bounds: list[float]
     bounds: tuple[list[float], list[float]]
     build_svg: Callable[[AntiWindup], list[SvgData]]
-    has_filter_time_constant: bool
-    has_integrator: bool
     tf_controller: str
     tf_open_loop: str = r"L(s) = C(S) \cdot G(s)"
     tf_close_loop: str = r"T(s) = \frac{L(s)}{1 + L(s)} = \frac{C(s) \cdot G(s)}{1 + C(s) \cdot G(s)}"
@@ -111,8 +99,6 @@ pid_spec = ControllerSpec(
     min_bounds=[0.0, 1e-9, 0.0],
     bounds=([0.0, 0.001, 0.0], [10.0, 10.0, 10.0]),
     build_svg=bd.get_pid_controller_svg,
-    has_filter_time_constant=True,
-    has_integrator=True,
     tf_controller=r"C(s) = K_p \frac{(T_i\, s + 1)(T_d\, s + 1)}{T_i\, s (T_f\, s + 1)}",
 )
 
@@ -122,8 +108,6 @@ pi_spec = ControllerSpec(
     min_bounds=[0.0, 1e-9],
     bounds=([0.0, 0.001], [10.0, 10.0]),
     build_svg=bd.get_pi_controller_svg,
-    has_filter_time_constant=False,
-    has_integrator=True,
     tf_controller=r"C(s) = K_p \left(1 + \frac{1}{T_i\, s}\right)",
 )
 

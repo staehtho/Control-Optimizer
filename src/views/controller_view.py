@@ -257,9 +257,10 @@ class ControllerView(ViewMixin, QWidget):
         self._load_block_diagram()
 
         # update time constant section
+        controller_class = self._vm_controller.controller_spec.controller_class
         visible_data = {
-            ControllerField.FILTER_TIME_CONSTANT: self._vm_controller.controller_spec.has_filter_time_constant,
-            ControllerField.ANTI_WINDUP: self._vm_controller.controller_spec.has_integrator
+            ControllerField.FILTER_TIME_CONSTANT: controller_class.tf_link_index is not None,
+            ControllerField.ANTI_WINDUP: controller_class.has_integrator
         }
 
         for key, visible in visible_data.items():
