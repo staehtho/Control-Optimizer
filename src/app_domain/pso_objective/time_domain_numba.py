@@ -94,7 +94,7 @@ def dot1D(x: np.ndarray, y: np.ndarray) -> float:
 def pi_step(
         state: np.ndarray,
         i: int,
-        r: int,
+        r: float,
         e: float,
         dt: float,
         controller_param: np.ndarray,  # [Kp, Ti]
@@ -113,6 +113,7 @@ def pi_step(
     """
     Kp = controller_param[0]
     Ti = controller_param[1]
+    _ = r
 
     # Load state into locals
     integral_prev = state[i, STATE_INTEGRAL]
@@ -205,7 +206,7 @@ def pi_step(
 def pid_step(
         state: np.ndarray,
         i: int,
-        r: int,
+        r: float,
         e: float,
         dt: float,
         controller_param: np.ndarray,  # [Kp, Ti, Td, Tf]
@@ -226,6 +227,7 @@ def pid_step(
     Ti = controller_param[1]
     Td = controller_param[2]
     Tf = controller_param[3]
+    _ = r
 
     # Load state into locals
     e_prev = state[i, STATE_E_PREV]
@@ -311,6 +313,109 @@ def pid_step(
         u = u_unsat_updated
 
     # Write back state in-place
+    state[i, STATE_E_PREV] = e
+    state[i, STATE_INTEGRAL] = integral_updated
+    state[i, STATE_D_FILTERED] = d_filtered_updated
+
+    return u
+
+
+@njit(inline="always")
+def ffpid_step(
+        state: np.ndarray,
+        i: int,
+        r: float,
+        e: float,
+        dt: float,
+        controller_param: np.ndarray,  # [Kp, Ti, Td, Kff, Tf]
+        u_min: float,
+        u_max: float,
+        anti_windup_method: int,
+        ka: float,
+) -> float:
+    Kp = controller_param[0]
+    Ti = controller_param[1]
+    Td = controller_param[2]
+    Kff = controller_param[3]
+    Tf = controller_param[4]
+
+    e_prev = state[i, STATE_E_PREV]
+    integral_prev = state[i, STATE_INTEGRAL]
+    d_filtered_prev = state[i, STATE_D_FILTERED]
+
+    P_term = Kp * e
+    FF_term = Kff * r
+
+    if Ti > 0.0:
+        integral_candidate = integral_prev + e * dt
+        I_term_previous = Kp * (1.0 / Ti) * integral_prev
+        I_term_candidate = Kp * (1.0 / Ti) * integral_candidate
+    else:
+        integral_candidate = integral_prev
+        I_term_previous = 0.0
+        I_term_candidate = 0.0
+
+    if Td > 0.0:
+        alpha = Tf / (Tf + dt)
+        d_filtered_updated = alpha * d_filtered_prev + (1.0 - alpha) * ((e - e_prev) / dt)
+    else:
+        d_filtered_updated = 0.0
+
+    D_term = Kp * Td * d_filtered_updated
+
+    u_unsat_previous = P_term + I_term_previous + D_term + FF_term
+    u_unsat_candidate = P_term + I_term_candidate + D_term + FF_term
+
+    if anti_windup_method == AntiWindupInt.CONDITIONAL:
+        if (u_min < u_unsat_candidate < u_max) or \
+                (u_unsat_candidate >= u_max and e < 0.0) or \
+                (u_unsat_candidate <= u_min and e > 0.0):
+            integral_updated = integral_candidate
+            u_unsat_updated = u_unsat_candidate
+        else:
+            integral_updated = integral_prev
+            u_unsat_updated = u_unsat_previous
+
+    elif anti_windup_method == AntiWindupInt.CLAMPING:
+        if (u_min < I_term_candidate < u_max) or \
+                (I_term_candidate >= u_max and e < 0.0) or \
+                (I_term_candidate <= u_min and e > 0.0):
+            integral_updated = integral_candidate
+            u_unsat_updated = u_unsat_candidate
+        else:
+            integral_updated = integral_prev
+            u_unsat_updated = u_unsat_previous
+
+    elif anti_windup_method == AntiWindupInt.BACKCALCULATION:
+        u_sat_candidate = u_unsat_candidate
+        if u_sat_candidate > u_max:
+            u_sat_candidate = u_max
+        elif u_sat_candidate < u_min:
+            u_sat_candidate = u_min
+
+        if Ti > 0.0 and Kp != 0.0:
+            integral_updated = integral_candidate + dt * ka * (Ti / Kp) * (u_sat_candidate - u_unsat_candidate)
+        else:
+            integral_updated = integral_candidate
+
+        if Ti > 0.0:
+            I_term_updated = Kp * (1.0 / Ti) * integral_updated
+        else:
+            I_term_updated = 0.0
+
+        u_unsat_updated = P_term + I_term_updated + D_term + FF_term
+
+    else:
+        integral_updated = 0.0
+        u_unsat_updated = 0.0
+
+    if u_unsat_updated > u_max:
+        u = u_max
+    elif u_unsat_updated < u_min:
+        u = u_min
+    else:
+        u = u_unsat_updated
+
     state[i, STATE_E_PREV] = e
     state[i, STATE_INTEGRAL] = integral_updated
     state[i, STATE_D_FILTERED] = d_filtered_updated
@@ -751,4 +856,5 @@ class ControllerRegistry:
 CONTROLLER_REGISTRY = {
     ControllerType.PI: ControllerRegistry(step_fn=pi_step),
     ControllerType.PID: ControllerRegistry(step_fn=pid_step),
+    ControllerType.FFPID: ControllerRegistry(step_fn=ffpid_step),
 }

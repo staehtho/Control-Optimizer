@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Callable
 from dataclasses import dataclass
 
 from app_domain.controlsys import ControllerType
+from app_domain.controlsys.FFPIDClosedLoop import FFPIDClosedLoop
 from app_domain.controlsys.PIClosedLoop import PIClosedLoop
 from app_domain.controlsys.PIDClosedLoop import PIDClosedLoop
 import resources.blockdiagram as bd
@@ -103,7 +104,22 @@ pi_spec = ControllerSpec(
     tf_controller=r"C(s) = K_p \left(1 + \frac{1}{T_i\, s}\right)",
 )
 
+ffpid_spec = ControllerSpec(
+    controller_class=FFPIDClosedLoop,
+    param_names=["Kp", "Ti", "Td", "Kff"],
+    bounds=([0.0, 0.001, 0.0, -10.0], [10.0, 10.0, 10.0, 10.0]),
+    build_svg=bd.get_pid_controller_svg,
+    tf_controller=(
+        r"C_{fb}(s) = K_p \frac{(T_i\, s + 1)(T_d\, s + 1)}{T_i\, s (T_f\, s + 1)}, "
+        r"\quad U(s) = C_{fb}(s) E(s) + K_{ff} R(s)"
+    ),
+    tf_open_loop=r"L(s) = C_{fb}(s) \cdot G(s)",
+    tf_close_loop=r"T(s) = \frac{G(s)\,(C_{fb}(s) + K_{ff})}{1 + C_{fb}(s) \cdot G(s)}",
+    tf_sensitivity=r"S(s) = \frac{1}{1 + C_{fb}(s) \cdot G(s)}",
+)
+
 CONTROLLER_SPECS = {
     ControllerType.PI: pi_spec,
     ControllerType.PID: pid_spec,
+    ControllerType.FFPID: ffpid_spec,
 }

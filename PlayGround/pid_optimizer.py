@@ -1,90 +1,87 @@
-# ──────────────────────────────────────────────────────────────────────────────
-# Project:       PID Optimizer
-# Script:        main.py
-# Description:   Serves as the entry point of the PID Optimizer. Loads configuration settings,
-#                initializes the plant and PID controller, constructs the PSO objective
-#                function, runs the optimization loop with progress feedback, and generates a
-#                comprehensive report with the final tuned parameters and system responses.
-#
-# Authors:       Florin Büchi, Thomas Stähli
-# Created:       01.12.2025
-# Modified:      01.12.2025
-# Version:       1.0
-#
-# License:       ZHAW Zürcher Hochschule für angewandte Wissenschaften (or internal use only)
-# ──────────────────────────────────────────────────────────────────────────────
-
-
 import sys
 
+import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
 
 from app_domain.PSO import Swarm
-#from services.config_loader import load_config, ConfigError
-from app_domain.controlsys import (
-    Plant,
-    settling_time,
-    AntiWindup,
-    PerformanceIndex,
-    bode_plot,
-)
+from app_domain.controlsys.FFPIDClosedLoop import FFPIDClosedLoop
+from app_domain.controlsys.PIClosedLoop import PIClosedLoop
 from app_domain.controlsys.PIDClosedLoop import PIDClosedLoop
+from app_domain.controlsys import (
+    AntiWindup,
+    ControllerType,
+    PerformanceIndex,
+    Plant,
+    bode_plot,
+    settling_time,
+)
 from app_domain.pso_objective import PsoFunc, compute_effective_tf_report
-#from services.report_generator import report_generator
 from app_domain.pso_objective.freq_metrics import compute_loop_metrics_batch
-import matplotlib.pyplot as plt
 
 print("Starting the PID Optimizer. Loading modules, please wait...")
 
 
 def print_result_block(title: str, data: dict) -> None:
-    """Print a result block with spacing between entries for CLI readability."""
     print(f"\n=== {title} ===")
     for key, value in data.items():
         print(f"{key}: {value}")
 
 
+def build_bounds(param_names: list[str], bounds_by_name: dict[str, tuple[float, float]]) -> list[list[float]]:
+    lower: list[float] = []
+    upper: list[float] = []
+
+    for name in param_names:
+        if name not in bounds_by_name:
+            raise KeyError(f"Missing bounds for controller parameter '{name}'.")
+        param_min, param_max = bounds_by_name[name]
+        lower.append(float(param_min))
+        upper.append(float(param_max))
+
+    return [lower, upper]
+
+
+def build_controller(
+        controller_cfg: dict,
+        plant: Plant,
+        param_values: np.ndarray,
+        *,
+        tf_value: float | None,
+        control_constraint: list[float],
+        anti_windup_method: AntiWindup,
+        ka: float,
+):
+    kwargs = {
+        name: float(value)
+        for name, value in zip(controller_cfg["param_names"], param_values, strict=True)
+    }
+    if controller_cfg["tf_link_index"] >= 0:
+        kwargs["Tf"] = 0.0 if tf_value is None else float(tf_value)
+
+    return controller_cfg["controller_class"](
+        plant,
+        **kwargs,
+        control_constraint=control_constraint,
+        anti_windup_method=anti_windup_method,
+        ka=ka,
+    )
+
+
+def build_frf_candidate_row(
+        controller_cfg: dict,
+        param_values: np.ndarray,
+        tf_value: float | None,
+) -> np.ndarray:
+    row = np.asarray(param_values, dtype=np.float64)
+    if controller_cfg["tf_link_index"] >= 0:
+        if tf_value is None:
+            raise ValueError("Controllers with derivative filter require a Tf value.")
+        row = np.concatenate([row, np.array([tf_value], dtype=np.float64)])
+    return row[None, :]
+
+
 def main():
-
-    '''print("Loading Configuration..")
-
-    try:
-        config = load_config()
-        print("Configuration loaded successfully!")
-    except ConfigError as e:
-        print("error in configuration!:")
-        print(e)
-        input("Press Enter to exit..")
-        return'''
-
-    '''plant_num = config["system"]["plant"]["numerator"]
-    plant_den = config["system"]["plant"]["denominator"]
-
-    sim_mode = config["system"]["simulation_time"]["mode"]
-    start_time = config["system"]["simulation_time"]["start_time"]
-    end_time = config["system"]["simulation_time"]["end_time"]
-    time_step = config["system"]["simulation_time"]["time_step"]
-
-    anti_windup = config["system"]["anti_windup"]
-
-    excitation_target = config["system"]["excitation_target"]
-
-    constraint_min = config["system"]["control_constraint"]["min_constraint"]
-    constraint_max = config["system"]["control_constraint"]["max_constraint"]
-
-    performance_index = config["system"]["performance_index"]
-
-    swarm_size = config["pso"]["swarm_size"]
-    iterations = config["pso"]["iterations"]
-
-    kp_min = config["pso"]["bounds"]["kp_min"]
-    kp_max = config["pso"]["bounds"]["kp_max"]
-    ti_min = co nfig["pso"]["bounds"]["ti_min"]
-    ti_max = config["pso"]["bounds"]["ti_max"]
-    td_min = config["pso"]["bounds"]["td_min"]
-    td_max = config["pso"]["bounds"]["td_max"]'''
-
     plant_num = [1]
     plant_den = [1, 0.2, 1]
 
@@ -95,16 +92,9 @@ def main():
 
     use_overshoot_control = False
     allowed_overshoot_pct = 20
-    # Compute the overshoot metric even when the
-    # feasibility constraint stays disabled.
     calculate_overshoot = True
 
-    # Maximum absolute control-rate estimate over a window of m steps:
-    # max(|u[k] - u[k-m]| / (m * dt))
-    # Keep disabled until a project-specific limit has been calibrated.
     use_max_du_dt_constraint = False
-    # Compute the diagnostic metric for the best candidate even when the
-    # feasibility constraint stays disabled.
     calculate_max_du_dt = True
     allowed_max_du_dt = 350
     du_dt_window_steps = 10
@@ -127,29 +117,62 @@ def main():
     swarm_size = 40
     iterations = 14
 
-    kp_min = 0
-    kp_max = 10
-    ti_min = 0.01
-    ti_max = 10
-    td_min = 0
-    td_max = 10
-
     tf_tuning_factor_n = 5.0
     tf_limit_factor_k = 5.0
-    sampling_rate_hz = None  # e.g. 100.0
+    sampling_rate_hz = None
 
-    # generate plant
-    plant: Plant = Plant(plant_num, plant_den)
-    bounds = [[kp_min, ti_min, td_min], [kp_max, ti_max, td_max]]
+    # Switch controller here.
+    controller_type = ControllerType.PID
 
-    # generate closed loop
-    pid: PIDClosedLoop = PIDClosedLoop(plant, Kp=10, Ti=5, Td=3,
-                                       Tf=0.0,
-                                       control_constraint=[constraint_min, constraint_max],
-                                       anti_windup_method=anti_windup,
-                                       ka=ka)
+    controller_initial_params = {
+        ControllerType.PI: {"Kp": 10.0, "Ti": 5.0},
+        ControllerType.PID: {"Kp": 10.0, "Ti": 5.0, "Td": 3.0},
+        ControllerType.FFPID: {"Kp": 10.0, "Ti": 5.0, "Td": 3.0, "Kff": 0.0},
+    }
 
-    # generate function to be optimized
+    controller_param_bounds = {
+        "Kp": (0.0, 1.0),
+        "Ti": (0.01, 10.0),
+        "Td": (0.0, 10.0),
+        "Kff": (-100.0, 100.0),
+    }
+
+    controller_configs = {
+        ControllerType.PI: {
+            "controller_class": PIClosedLoop,
+            "param_names": ["Kp", "Ti"],
+            "tf_link_index": -1,
+        },
+        ControllerType.PID: {
+            "controller_class": PIDClosedLoop,
+            "param_names": ["Kp", "Ti", "Td"],
+            "tf_link_index": PIDClosedLoop.tf_link_index,
+        },
+        ControllerType.FFPID: {
+            "controller_class": FFPIDClosedLoop,
+            "param_names": ["Kp", "Ti", "Td", "Kff"],
+            "tf_link_index": FFPIDClosedLoop.tf_link_index,
+        },
+    }
+
+    controller_cfg = controller_configs[controller_type]
+    param_names = controller_cfg["param_names"]
+    initial_param_dict = controller_initial_params[controller_type]
+    initial_param_values = np.array([initial_param_dict[name] for name in param_names], dtype=np.float64)
+    bounds = build_bounds(param_names, controller_param_bounds)
+
+    plant = Plant(plant_num, plant_den)
+    control_constraint = [constraint_min, constraint_max]
+    controller = build_controller(
+        controller_cfg,
+        plant,
+        initial_param_values,
+        tf_value=0.0,
+        control_constraint=control_constraint,
+        anti_windup_method=anti_windup,
+        ka=ka,
+    )
+
     r = lambda t: np.zeros_like(t)
     l = lambda t: np.zeros_like(t)
     n = lambda t: np.zeros_like(t)
@@ -162,13 +185,12 @@ def main():
         case "measurement_disturbance":
             n = lambda t: np.ones_like(t)
 
-    # in case of sim-mode 'auto', find settling time of plant
     if sim_mode == "auto" and excitation_target == "reference":
         t_set, y_set = plant.system_response(u=r, t0=start_time, t1=end_time, dt=time_step)
         end_time = settling_time(t=t_set, y=y_set, r=r, tolerance=0.05, max_allowed_time=end_time)
 
     obj_func = PsoFunc(
-        pid,
+        controller,
         start_time, end_time, time_step,
         r=r, l=l, n=n,
         use_freq_metrics=use_freq_metrics,
@@ -192,74 +214,69 @@ def main():
         swarm_size=swarm_size,
     )
 
-    # init values
-    best_Kp = 0
-    best_Ti = 0
-    best_Td = 0
-    # NOTE: this is the scalar objective/cost returned by PSO (BIG-M compatible),
-    # not necessarily a pure performance index J for infeasible candidates.
+    best_param_values = initial_param_values.copy()
     best_objective_cost = sys.float_info.max
 
-    # progressbar
     pbar = tqdm(range(iterations), desc="Processing", unit="step", colour="green")
 
-
-
-    for run_idx in pbar:
-        swarm = Swarm(obj_func, swarm_size, 3, bounds)
+    for _ in pbar:
+        swarm = Swarm(obj_func, swarm_size, len(param_names), bounds)
         swarm_result, objective_cost_val = swarm.simulate_swarm()
-
-        # Best parameters from the swarm
-        Kp = swarm_result[0]
-        Ti = swarm_result[1]
-        Td = swarm_result[2]
+        candidate = np.asarray(swarm_result[:len(param_names)], dtype=np.float64)
 
         if objective_cost_val < best_objective_cost:
             best_objective_cost = objective_cost_val
-            best_Kp = Kp
-            best_Ti = Ti
-            best_Td = Td
+            best_param_values = candidate.copy()
 
-    tf_report = compute_effective_tf_report(
-        Td=best_Td,
-        dt=time_step,
-        tf_tuning_factor_n=tf_tuning_factor_n,
-        tf_limit_factor_k=tf_limit_factor_k,
-        sampling_rate_hz=sampling_rate_hz,
+    tf_report = None
+    tf_effective = None
+    if controller_cfg["tf_link_index"] >= 0:
+        td_value = float(best_param_values[controller_cfg["tf_link_index"]])
+        tf_report = compute_effective_tf_report(
+            Td=td_value,
+            dt=time_step,
+            tf_tuning_factor_n=tf_tuning_factor_n,
+            tf_limit_factor_k=tf_limit_factor_k,
+            sampling_rate_hz=sampling_rate_hz,
+        )
+        tf_effective = tf_report.tf_effective
+
+    best_controller = build_controller(
+        controller_cfg,
+        plant,
+        best_param_values,
+        tf_value=tf_effective,
+        control_constraint=control_constraint,
+        anti_windup_method=anti_windup,
+        ka=ka,
     )
 
-    pid.set_pid_param(Kp=best_Kp, Ti=best_Ti, Td=best_Td)
-    pid.set_filter(Tf=tf_report.tf_effective)
-    best_eval = obj_func.evaluate_candidates(np.array([[best_Kp, best_Ti, best_Td]], dtype=np.float64))
+    best_eval = obj_func.evaluate_candidates(best_param_values[None, :])
     best_overshoot_pct = float(best_eval.overshoot_pct[0])
     best_max_du_dt = float(best_eval.max_du_dt[0])
 
     data = {
-        "best_Kp": best_Kp,
-        "best_Ti": best_Ti,
-        "best_Td": best_Td,
-        "best_Tf": tf_report.tf_effective,
+        "controller_type": controller_type.name,
+        **{
+            f"best_{name}": float(value)
+            for name, value in zip(param_names, best_param_values, strict=True)
+        },
         "best_overshoot_pct": best_overshoot_pct,
         "best_max_du_dt": best_max_du_dt,
         "performance_index": performance_index,
-        # Backward-compatible key name kept for existing consumers.
         "best_performance_index": best_objective_cost,
         "best_objective_cost": best_objective_cost,
-
         "plant": plant,
-        "pid": pid,
-
+        "controller": best_controller,
         "anti_windup_method": anti_windup,
         "ka": ka,
         "constraint_min": constraint_min,
         "constraint_max": constraint_max,
-
         "start_time": start_time,
         "end_time": end_time,
         "time_step": time_step,
         "sim_mode": sim_mode,
         "excitation_target": excitation_target,
-
         "plant_num": plant_num,
         "plant_den": plant_den,
         "calculate_overshoot": calculate_overshoot,
@@ -268,42 +285,47 @@ def main():
         "allowed_max_du_dt": allowed_max_du_dt,
         "du_dt_window_steps": du_dt_window_steps,
     }
+    if tf_effective is not None:
+        data["best_Tf"] = tf_effective
 
-    print_result_block("Best PID summary", data)
+    print_result_block(f"Best {controller_type.name} summary", data)
 
-    active_limits: list[str] = []
-    if tf_report.limited_by_simulation:
-        active_limits.append("simulation_dt")
-    if tf_report.limited_by_sampling:
-        active_limits.append("sampling_rate")
+    if tf_report is not None:
+        active_limits: list[str] = []
+        if tf_report.limited_by_simulation:
+            active_limits.append("simulation_dt")
+        if tf_report.limited_by_sampling:
+            active_limits.append("sampling_rate")
 
-    print("\n=== Tf evaluation (best PID) ===")
-    print(f"N: {tf_tuning_factor_n:.3f}")
-    print(f"k: {tf_limit_factor_k:.3f}")
-    print(f"Td: {best_Td:.6f}")
-    print(f"Tf_raw = Td / N: {tf_report.tf_raw:.6f}")
-    print(f"Tf_eff: {tf_report.tf_effective:.6f}")
-    print(f"Tf_min: {tf_report.tf_min:.6f}")
-    print(f"Simulation limit k*dt: {tf_report.simulation_limit:.6f}")
-    if sampling_rate_hz is None:
-        print("Sampling limit: not set")
-    else:
-        print(f"Sampling limit k/fs: {tf_report.sampling_limit:.6f} (fs={sampling_rate_hz:.6f} Hz)")
-    print(f"Tf limited: {'yes' if tf_report.limited else 'no'}")
-    print(f"Active limit(s): {', '.join(active_limits) if active_limits else 'none'}")
-    print(f"Minimum sampling rate for k-spacing: {tf_report.min_sampling_rate_hz:.6f} Hz")
-    print("\n=== Overshoot (best PID) ===")
+        print(f"\n=== Tf evaluation (best {controller_type.name}) ===")
+        print(f"N: {tf_tuning_factor_n:.3f}")
+        print(f"k: {tf_limit_factor_k:.3f}")
+        print(f"Td: {float(best_param_values[controller_cfg['tf_link_index']]):.6f}")
+        print(f"Tf_raw = Td / N: {tf_report.tf_raw:.6f}")
+        print(f"Tf_eff: {tf_report.tf_effective:.6f}")
+        print(f"Tf_min: {tf_report.tf_min:.6f}")
+        print(f"Simulation limit k*dt: {tf_report.simulation_limit:.6f}")
+        if sampling_rate_hz is None:
+            print("Sampling limit: not set")
+        else:
+            print(f"Sampling limit k/fs: {tf_report.sampling_limit:.6f} (fs={sampling_rate_hz:.6f} Hz)")
+        print(f"Tf limited: {'yes' if tf_report.limited else 'no'}")
+        print(f"Active limit(s): {', '.join(active_limits) if active_limits else 'none'}")
+        print(f"Minimum sampling rate for k-spacing: {tf_report.min_sampling_rate_hz:.6f} Hz")
+
+    print(f"\n=== Overshoot (best {controller_type.name}) ===")
     print(f"overshoot_pct: {best_overshoot_pct:.6f}")
-    print("\n=== Max du/dt (best PID) ===")
+    print(f"\n=== Max du/dt (best {controller_type.name}) ===")
     print(f"max_du_dt: {best_max_du_dt:.6f}")
 
-    # --------------------------------------------------
-    # Frequency metrics for best solution (DEBUG)
-    # --------------------------------------------------
     w_dbg = np.logspace(-2, 5, 600)
-
-    X = np.column_stack([best_Kp, best_Ti, best_Td, pid.Tf])
-    metrics_dbg = compute_loop_metrics_batch(plant.system, PIDClosedLoop.frf_batch, X, w_dbg)
+    X = build_frf_candidate_row(controller_cfg, best_param_values, tf_effective)
+    metrics_dbg = compute_loop_metrics_batch(
+        plant.system,
+        controller_cfg["controller_class"].frf_batch,
+        X,
+        w_dbg,
+    )
 
     pm_dbg = metrics_dbg["pm_deg"][0]
     gm_dbg = metrics_dbg["gm_db"][0]
@@ -311,13 +333,11 @@ def main():
     has_wc_dbg = metrics_dbg["has_wc"][0]
     has_w180_dbg = metrics_dbg["has_w180"][0]
 
-    print("\n=== Frequency metrics (best PID) ===")
+    print(f"\n=== Frequency metrics (best {controller_type.name}) ===")
     print(f"PM  [deg]: {pm_dbg:.3f}   (has_wc={has_wc_dbg})")
     print(f"GM  [dB ]: {gm_dbg:.3f}   (has_w180={has_w180_dbg})")
     print(f"Ms  [dB ]: {ms_dbg:.3f}")
 
-
-    # --- Open-loop step ---
     t_ol, y_ol = plant.step_response(
         t0=start_time,
         t1=end_time,
@@ -325,40 +345,39 @@ def main():
     )
 
     systems_for_bode = {}
-
     fig, (ax_y, ax_u) = plt.subplots(2, 1, sharex=True)
 
     match excitation_target:
         case "reference":
-            t_cl, u_cl, y_cl = pid.step_response(
+            t_cl, u_cl, y_cl = best_controller.step_response(
                 t0=start_time,
                 t1=end_time,
                 dt=time_step,
             )
             systems_for_bode["Plant"] = plant.system
-            systems_for_bode["Closed Loop"] = pid.closed_loop
+            systems_for_bode["Closed Loop"] = best_controller.closed_loop
 
             ax_y.plot(t_ol, y_ol, label="Plant")
             ax_y.plot(t_cl, y_cl, label="Closed Loop")
             ax_u.plot(t_cl, u_cl, label="u_sat")
 
         case "input_disturbance":
-            t_cl, u_cl, y_cl = pid.step_response_l(
+            t_cl, u_cl, y_cl = best_controller.step_response_l(
                 t0=start_time,
                 t1=end_time,
                 dt=time_step,
             )
-            systems_for_bode["Closed Loop input disturbance"] = pid.closed_loop_l
+            systems_for_bode["Closed Loop input disturbance"] = best_controller.closed_loop_l
             ax_y.plot(t_cl, y_cl, label="Closed Loop input disturbance")
             ax_u.plot(t_cl, u_cl, label="u_sat")
 
         case "measurement_disturbance":
-            t_cl, u_cl, y_cl = pid.step_response_n(
+            t_cl, u_cl, y_cl = best_controller.step_response_n(
                 t0=start_time,
                 t1=end_time,
                 dt=time_step,
             )
-            systems_for_bode["Closed Loop measurement disturbance"] = pid.closed_loop_n
+            systems_for_bode["Closed Loop measurement disturbance"] = best_controller.closed_loop_n
             ax_y.plot(t_cl, y_cl, label="Closed Loop measurement disturbance")
             ax_u.plot(t_cl, u_cl, label="u_sat")
 
@@ -375,15 +394,15 @@ def main():
 
     fig.tight_layout()
 
-    systems_for_bode["Open Loop L=C*G"] = lambda s: pid.controller(s) * plant.system(s)
+    systems_for_bode["Open Loop L=C*G"] = (
+        lambda s: best_controller.controller(s) * plant.system(s)
+    )
     systems_for_bode["Sensitivity S=1/(1+L)"] = (
-        lambda s: 1.0 / (1.0 + pid.controller(s) * plant.system(s))
+        lambda s: 1.0 / (1.0 + best_controller.controller(s) * plant.system(s))
     )
 
-    # --- Bode ---
-    bode_fig = bode_plot(systems_for_bode, high_exp=5)
-
-    plt.show()  # ← für temporären Test
+    bode_plot(systems_for_bode, high_exp=5)
+    plt.show()
 
 
 if __name__ == "__main__":
