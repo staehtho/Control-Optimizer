@@ -241,7 +241,7 @@ def run_app():
     main_view.show()
     splash.finish(main_view)
 
-    QTimer.singleShot(750, lambda: engine.run_warmup(1))
+    QTimer.singleShot(750, lambda: engine.run_warmup())
 
     sys.exit(app.exec())
 

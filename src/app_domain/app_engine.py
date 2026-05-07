@@ -293,8 +293,8 @@ class AppEngine:
             gain_margin_enabled=True,
             phase_margin=60,
             phase_margin_enabled=True,
-            stability_margin=6.0,
-            stability_margin_enabled=True,
+            sensitivity_peak=6.0,
+            sensitivity_peak_enabled=True,
             omega_exp_low=-5,
             omega_exp_high=5,
             omega_points=500,
@@ -312,10 +312,9 @@ class AppEngine:
             )
         )
 
-    def run_warmup(self, runs: int = 2) -> None:
+    def run_warmup(self) -> None:
         """Run PSO warmup multiple times to prime caches/JIT."""
-        for _ in range(max(0, runs)):
-            self.pso_warmup()
+        self.pso_warmup()
 
     def export_project_state(self) -> dict:
         return self.model_container.export_project_state()
