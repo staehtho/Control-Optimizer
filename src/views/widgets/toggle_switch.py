@@ -143,10 +143,19 @@ class ToggleSwitch(QAbstractButton):
     # -----------------------------
     # Animation
     # -----------------------------
-    def _animate_toggle(self, checked: bool):
-        self.setProperty("checked", checked)
+    def setChecked(self, checked: bool) -> None:
+        """Set checked state and keep QSS dynamic properties in sync."""
+        super().setChecked(bool(checked))
+        self._refresh_checked_style(bool(checked))
+
+    def _refresh_checked_style(self, checked: bool) -> None:
+        self.setProperty("checked", bool(checked))
         self.style().unpolish(self)
         self.style().polish(self)
+        self.update()
+
+    def _animate_toggle(self, checked: bool):
+        self._refresh_checked_style(checked)
 
         self._animation.stop()
         self._animation.setStartValue(self._offset)

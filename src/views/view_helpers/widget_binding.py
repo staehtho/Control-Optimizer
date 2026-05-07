@@ -16,6 +16,13 @@ if TYPE_CHECKING:
 # ============================================================
 # Widget <-> ViewModel Synchronization
 # ============================================================
+def _refresh_checkable_style(field: QAbstractButton) -> None:
+    """Force QSS pseudo-state/dynamic-property repaint after programmatic changes."""
+    field.style().unpolish(field)
+    field.style().polish(field)
+    field.update()
+
+
 def connect_signal(view, config: ConnectSignalConfig) -> None:
     """Connect a signal to a configurable event handling pipeline.
 
@@ -255,6 +262,7 @@ def on_vm_changed(view, widget: QObject | None, key: str | FieldType, attribute:
     elif isinstance(field, QAbstractButton) and field.isCheckable():
         if field.isChecked() != bool(value):
             field.setChecked(bool(value))
+            _refresh_checkable_style(field)
 
     else:
         view.logger.warning(
@@ -308,6 +316,7 @@ def on_vm_changed_old(view, key: str | FieldType, attribute: str) -> None:
     elif isinstance(widget, QAbstractButton) and widget.isCheckable():
         if widget.isChecked() != bool(value):
             widget.setChecked(bool(value))
+            _refresh_checkable_style(widget)
 
     else:
         view.logger.warning(
