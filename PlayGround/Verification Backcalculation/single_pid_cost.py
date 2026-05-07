@@ -15,11 +15,11 @@ if str(SRC_PATH) not in sys.path:
 from app_domain.controlsys import (
     AntiWindup,
     MySolver,
-    PIDClosedLoop,
     PerformanceIndex,
     Plant,
-    PsoFunc,
 )
+from app_domain.pso_objective import PsoFunc
+from app_domain.controlsys.PIDClosedLoop import PIDClosedLoop
 
 
 # Strecke
@@ -79,7 +79,16 @@ def main() -> None:
     )
 
     tf_report = objective.evaluate_tf_for_td(Td)
-    controller.set_filter(tf_report.tf_effective)
+    controller = PIDClosedLoop(
+        plant,
+        Kp=Kp,
+        Ti=Ti,
+        Td=Td,
+        Tf=tf_report.tf_effective,
+        control_constraint=list(control_constraint),
+        anti_windup_method=anti_windup,
+        ka=ka,
+    )
 
     result = objective.evaluate_candidates(
         np.array([[Kp, Ti, Td]], dtype=np.float64)

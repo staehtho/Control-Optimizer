@@ -217,7 +217,6 @@ def main():
             best_Td = Td
 
     # Set parameters
-    pid.set_pid_param(Kp=best_Kp, Ti=best_Ti, Td=best_Td)
     tf_report = compute_effective_tf_report(
         Td=best_Td,
         dt=time_step,
@@ -225,7 +224,9 @@ def main():
         tf_limit_factor_k=tf_limit_factor_k,
         sampling_rate_hz=sampling_rate_hz,
     )
-    pid.set_filter(Tf=tf_report.tf_effective)
+    pid = PIDClosedLoop(plant, Kp=best_Kp, Ti=best_Ti, Td=best_Td, Tf=tf_report.tf_effective,
+                        control_constraint=[constraint_min, constraint_max], anti_windup_method=anti_windup)
+
     best_eval = obj_func.evaluate_candidates(np.array([[best_Kp, best_Ti, best_Td]], dtype=np.float64))
     best_overshoot_pct = float(best_eval.overshoot_pct[0])
     best_max_du_dt = float(best_eval.max_du_dt[0])
@@ -271,7 +272,7 @@ def main():
     # --------------------------------------------------
     w_dbg = np.logspace(-2, 5, 600)
 
-    X = np.column_stack([best_Kp, best_Ti, best_Td, pid.Tf])
+    X = np.column_stack([best_Kp, best_Ti, best_Td, tf_report.tf_effective])
     metrics_dbg = compute_loop_metrics_batch(plant.system, PIDClosedLoop.frf_batch, X, w_dbg)
 
     pm_dbg = metrics_dbg["pm_deg"][0]

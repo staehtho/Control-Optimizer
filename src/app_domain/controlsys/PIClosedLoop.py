@@ -14,8 +14,8 @@ class PIClosedLoop(ClosedLoop):
     def __init__(
             self,
             plant: Plant,
-            Kp: float = 0,
-            Ti: float = 0,
+            Kp: float = 0.0,
+            Ti: float = 0.0,
             control_constraint: list[float] = None,
             anti_windup_method: AntiWindup = AntiWindup.CLAMPING,
             ka: float = 1.0

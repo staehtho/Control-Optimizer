@@ -179,7 +179,7 @@ def run_one_case(
             )
 
     # Best setzen + Frequenzmetriken berechnen
-    pid.set_pid_param(Kp=best["Kp"], Ti=best["Ti"], Td=best["Td"])
+
     tf_report = compute_effective_tf_report(
         Td=best["Td"],
         dt=time_step,
@@ -187,11 +187,20 @@ def run_one_case(
         tf_limit_factor_k=tf_limit_factor_k,
         sampling_rate_hz=sampling_rate_hz,
     )
-    pid.set_filter(Tf=tf_report.tf_effective)
+
+    pid = PIDClosedLoop(
+        plant,
+        Kp=best["Kp"],
+        Ti=best["Ti"],
+        Td=best["Td"],
+        Tf=tf_report.tf_effective,
+        control_constraint=[-A, +A],
+        anti_windup_method=anti_windup,
+    )
 
     w = np.logspace(-5, 5, 600)
 
-    X = np.column_stack([best["Kp"], best["Ti"], best["Td"], pid.Tf])
+    X = np.column_stack([best["Kp"], best["Ti"], best["Td"], tf_report.tf_effective])
     metrics = compute_loop_metrics_batch(plant.system, PIDClosedLoop.frf_batch, X, w)
 
     out = {

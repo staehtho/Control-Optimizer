@@ -80,8 +80,7 @@ def main():
 
     # -------------------------------------------------------------------------
     # Bode plot (diagnostic) on the *same grid*
-    pid = PIDClosedLoop(plant, Kp=Kp, Ti=Ti, Td=Td)
-    pid.set_filter(Tf=Tf)
+    pid = PIDClosedLoop(plant, Kp=Kp, Ti=Ti, Td=Td, Tf=Tf)
 
     systems_for_bode = {
         "Open Loop L=C*G": (lambda s: pid.controller(s) * plant.system(s)),

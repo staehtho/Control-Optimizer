@@ -15,10 +15,18 @@ pid_cl = PIDClosedLoop(
 )
 
 tf_report = compute_effective_tf_report(
-    Td=pid_cl.Td,
+    Td=pid_cl.get_controller_params()[2],   # Td
     dt=1e-4,
     tf_tuning_factor_n=5.0,
     tf_limit_factor_k=5.0,
     sampling_rate_hz=None,
 )
-pid_cl.set_filter(Tf=tf_report.tf_effective)
+pid_cl = PIDClosedLoop(
+    plant,
+    Kp=10,
+    Ti=1,
+    Td=1,
+    Tf=tf_report.tf_effective,
+    control_constraint=[-5, 5],
+    anti_windup_method=AntiWindup.CLAMPING
+)
