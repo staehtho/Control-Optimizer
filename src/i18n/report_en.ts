@@ -214,13 +214,26 @@
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="212"/>
-        <source>Stability margin: %(stability)s dB</source>
-        <translation>Stability margin: %(stability)s dB</translation>
+        <source>Sensitivity peak: %(sensitivity)s dB</source>
+        <translation>Sensitivity peak: %(sensitivity)s dB</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="217"/>
+        <source>Sensitivity peak is disabled.</source>
+        <translation>Sensitivity peak is disabled.</translation>
+    </message>
+    <message>
+        <location filename="../service/reporting/sections.py" line="311"/>
+        <source>Sensitivity peak</source>
+        <translation>Sensitivity peak</translation>
+    </message>
+    <message>
+        <source>Stability margin: %(stability)s dB</source>
+        <translation type="vanished">Stability margin: %(stability)s dB</translation>
+    </message>
+    <message>
         <source>Stability margin is disabled.</source>
-        <translation>Stability margin is disabled.</translation>
+        <translation type="vanished">Stability margin is disabled.</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="221"/>
@@ -309,9 +322,8 @@
         <translation>Phase margin</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="311"/>
         <source>Stability margin</source>
-        <translation>Stability margin</translation>
+        <translation type="vanished">Stability margin</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="320"/>

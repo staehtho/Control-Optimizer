@@ -211,10 +211,10 @@ def section_pso_configuration(report: BaseReport, data: DynamicReportPsoConfigur
             else QCoreApplication.translate("Report", "Phase margin is disabled."),
             QCoreApplication.translate(
                 "Report",
-                "Stability margin: %(stability)s dB"
-            ) % {"stability": format_value(data.stability, 3)}
-            if data.stability is not None
-            else QCoreApplication.translate("Report", "Stability margin is disabled."),
+                "Sensitivity peak: %(sensitivity)s dB"
+            ) % {"sensitivity": format_value(data.sensitivity_peak, 3)}
+            if data.sensitivity_peak is not None
+            else QCoreApplication.translate("Report", "Sensitivity peak is disabled."),
         ])
 
     with report.section():
@@ -308,8 +308,8 @@ def section_pso_result(report: BaseReport, data_config: DynamicReportPsoConfigur
                 f"{format_value(data.phase_margin, 3)}° {at_label} {format_value(data.omega_c, 3)} rad/s"
             ],
             [
-                QCoreApplication.translate("Report", "Stability margin"),
-                f"{format_value(data.stability_margin, 3)} dB"
+                QCoreApplication.translate("Report", "Sensitivity peak"),
+                f"{format_value(data.sensitivity_peak, 3)} dB"
             ],
         ]
         report.add_table(header, table_data, width=250)

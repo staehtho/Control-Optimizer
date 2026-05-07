@@ -32,8 +32,8 @@ class PsoConfigurationViewModel(BaseViewModel):
     gainMarginEnabledChanged = Signal()
     phaseMarginChanged = Signal()
     phaseMarginEnabledChanged = Signal()
-    stabilityMarginChanged = Signal()
-    stabilityMarginEnabledChanged = Signal()
+    sensitivityPeakChanged = Signal()
+    sensitivityPeakEnabledChanged = Signal()
     lowerBoundsChanged = Signal(str)
     upperBoundsChanged = Signal(str)
     psoProgressChanged = Signal(int)
@@ -209,16 +209,16 @@ class PsoConfigurationViewModel(BaseViewModel):
     )
 
     # ============================================================
-    # stability margin
+    # sensitivity peak
     # ============================================================
-    stability_margin: float = LoggedProperty(
-        path="_model_pso.stability_margin",
-        signal="stabilityMarginChanged",
+    sensitivity_peak: float = LoggedProperty(
+        path="_model_pso.sensitivity_peak",
+        signal="sensitivityPeakChanged",
         typ=float
     )
-    stability_margin_enabled: bool = LoggedProperty(
-        path="_model_pso.stability_margin_enabled",
-        signal="stabilityMarginEnabledChanged",
+    sensitivity_peak_enabled: bool = LoggedProperty(
+        path="_model_pso.sensitivity_peak_enabled",
+        signal="sensitivityPeakEnabledChanged",
         typ=bool
     )
 
@@ -336,8 +336,8 @@ class PsoConfigurationViewModel(BaseViewModel):
         self.gainMarginEnabledChanged.emit()
         self.phaseMarginChanged.emit()
         self.phaseMarginEnabledChanged.emit()
-        self.stabilityMarginChanged.emit()
-        self.stabilityMarginEnabledChanged.emit()
+        self.sensitivityPeakChanged.emit()
+        self.sensitivityPeakEnabledChanged.emit()
 
         self._sync_controller_bounds(preserve_existing=True)
 
@@ -416,8 +416,8 @@ class PsoConfigurationViewModel(BaseViewModel):
             gain_margin_enabled=self._model_pso.gain_margin_enabled,
             phase_margin=self._model_pso.phase_margin,
             phase_margin_enabled=self._model_pso.phase_margin_enabled,
-            stability_margin=self._model_pso.stability_margin,
-            stability_margin_enabled=self._model_pso.stability_margin_enabled,
+            sensitivity_peak=self._model_pso.sensitivity_peak,
+            sensitivity_peak_enabled=self._model_pso.sensitivity_peak_enabled,
             omega_exp_low=-5,
             omega_exp_high=5,
             omega_points=500,
@@ -458,6 +458,6 @@ class PsoConfigurationViewModel(BaseViewModel):
             gain_margin_enabled=self._model_pso.gain_margin_enabled,
             phase_margin=self._model_pso.phase_margin,
             phase_margin_enabled=self._model_pso.phase_margin_enabled,
-            stability_margin=self._model_pso.stability_margin,
-            stability_margin_enabled=self._model_pso.stability_margin_enabled,
+            sensitivity_peak=self._model_pso.sensitivity_peak,
+            sensitivity_peak_enabled=self._model_pso.sensitivity_peak_enabled,
         )

@@ -256,7 +256,7 @@ class DataManagementViewModel(BaseViewModel):
             slew_rate_window_size=snapshot.slew_window_size if snapshot.slew_rate_limit_enabled else None,
             gain_margin=snapshot.gain_margin if snapshot.gain_margin_enabled else None,
             phase_margin=snapshot.phase_margin if snapshot.phase_margin_enabled else None,
-            stability=snapshot.stability_margin if snapshot.stability_margin_enabled else None,
+            sensitivity_peak=snapshot.sensitivity_peak if snapshot.sensitivity_peak_enabled else None,
             pso_bounds_parameters={
                 k: (float(lw), float(up))
                 for k, (lw, up) in zip(snapshot.controller_spec.param_names, zip(*snapshot.bounds))
@@ -284,7 +284,7 @@ class DataManagementViewModel(BaseViewModel):
             omega_180=result.omega_180,
             phase_margin=result.phase_margin,
             omega_c=result.omega_c,
-            stability_margin=result.stability_margin
+            sensitivity_peak=result.sensitivity_peak
         )
 
     @staticmethod

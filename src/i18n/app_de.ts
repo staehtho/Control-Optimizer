@@ -646,9 +646,13 @@ Wenn die Abtastrate unbekannt ist, dieses Feld leer lassen, um einen empfohlenen
         <translation>Phasenreserve: %(value)s° bei %(omega)s rad/s</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="113"/>
         <source>Stability margin: %(value)s dB</source>
-        <translation>Stabilitätsreserve: %(value)s dB</translation>
+        <translation type="vanished">Stabilitätsreserve: %(value)s dB</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="113"/>
+        <source>Sensitivity peak: %(value)s dB</source>
+        <translation>Sensitivitätsmaximum: %(value)s dB</translation>
     </message>
     <message>
         <location filename="../views/evaluation_view.py" line="118"/>
@@ -2121,6 +2125,11 @@ Muss grösser als die Startzeit sein.</translation>
         <translation>Frequenzbereich</translation>
     </message>
     <message>
+        <location filename="../views/pso_configuration_view.py" line="272"/>
+        <source>Sensitivity peak [dB]</source>
+        <translation>Sensitivitätsmaximums [dB]</translation>
+    </message>
+    <message>
         <location filename="../views/pso_configuration_view.py" line="273"/>
         <source>PSO Bounds</source>
         <translation>PSO‑Grenzen</translation>
@@ -2222,9 +2231,8 @@ Begrenzt, wie stark das geschlossene System auf Störungen und Modellunsicherhei
         <translation>Phasenreserve [°]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="272"/>
         <source>Stability margin [dB]</source>
-        <translation>Stabilitätsreserve [dB]</translation>
+        <translation type="vanished">Stabilitätsreserve [dB]</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="297"/>

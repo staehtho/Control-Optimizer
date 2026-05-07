@@ -45,7 +45,7 @@ FIELDS_LEFT: list[FieldConfig | SectionConfig] = [
         SectionConfig(PsoField.FREQUENCY_DOMAIN, [
             FieldConfig(PsoField.GAIN_MARGIN, QLineEdit, validator=QDoubleValidator(0.0, 1e9, 6), toggleable=True),
             FieldConfig(PsoField.PHASE_MARGIN, QLineEdit, validator=QDoubleValidator(0.0, 1e9, 6), toggleable=True),
-            FieldConfig(PsoField.STABILITY_MARGIN, QLineEdit, validator=QDoubleValidator(0.0, 1e9, 6), toggleable=True)
+            FieldConfig(PsoField.SENSITIVITY_PEAK, QLineEdit, validator=QDoubleValidator(0.0, 1e9, 6), toggleable=True)
         ])
     ]),
 ]
@@ -269,7 +269,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
             PsoField.FREQUENCY_DOMAIN: self.tr("Frequency Domain"),
             PsoField.GAIN_MARGIN: self.tr("Gain margin [dB]"),
             PsoField.PHASE_MARGIN: self.tr("Phase margin [°]"),
-            PsoField.STABILITY_MARGIN: self.tr("Stability margin [dB]"),  # TODO: wie heisst dies??? und auf Deutsch
+            PsoField.SENSITIVITY_PEAK: self.tr("Sensitivity peak [dB]"),
             PsoField.PSO_BOUNDS: self.tr("PSO Bounds"),
             PsoField.RUN_PSO: self.tr("Start PSO Simulation"),
             PsoField.INTERRUPT_PSO: self.tr("Interrupt"),
@@ -331,7 +331,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
                 """Defines the minimum required phase margin (in degrees).
                 Ensures adequate stability by limiting the allowable additional phase lag before instability."""
             ),
-            PsoField.STABILITY_MARGIN: self.tr(
+            PsoField.SENSITIVITY_PEAK: self.tr(
                 """Defines the maximum allowed sensitivity (in dB).
                 Limits how strongly the closed loop system responds to disturbances and model uncertainties."""
             )
@@ -356,7 +356,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
             PsoField.SLEW_WINDOW_SIZE: self._vm_pso.slew_window_size,
             PsoField.GAIN_MARGIN: self._vm_pso.gain_margin,
             PsoField.PHASE_MARGIN: self._vm_pso.phase_margin,
-            PsoField.STABILITY_MARGIN: self._vm_pso.stability_margin,
+            PsoField.SENSITIVITY_PEAK: self._vm_pso.sensitivity_peak,
         }
         for key, value in init_value.items():
             self.field_widgets[key].setText(self._format_value(value))
@@ -707,7 +707,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
         k_slew_window_size = PsoField.SLEW_WINDOW_SIZE
         k_gain_margin = PsoField.GAIN_MARGIN
         k_phase_margin = PsoField.PHASE_MARGIN
-        k_stability_margin = PsoField.STABILITY_MARGIN
+        k_sensitivity_peak = PsoField.SENSITIVITY_PEAK
         k_slew_rate_limiter = PsoField.SLEW_RATE_LIMITER
 
         return [
@@ -787,10 +787,10 @@ class PsoConfigurationView(ViewMixin, QWidget):
                 main_event_handler=self._on_widget_changed
             ),
             ConnectSignalConfig(
-                key=k_stability_margin,
+                key=k_sensitivity_peak,
                 signal_name="editingFinished",
-                attr_name="_vm_pso.stability_margin",
-                widget=self.field_widgets.get(k_stability_margin),
+                attr_name="_vm_pso.sensitivity_peak",
+                widget=self.field_widgets.get(k_sensitivity_peak),
                 kwargs={"value_type": float},
                 main_event_handler=self._on_widget_changed
             ),
@@ -829,10 +829,10 @@ class PsoConfigurationView(ViewMixin, QWidget):
                 main_event_handler=self._on_widget_changed
             ),
             ConnectSignalConfig(
-                key=k_stability_margin,
+                key=k_sensitivity_peak,
                 signal_name="toggled",
-                attr_name="_vm_pso.stability_margin_enabled",
-                widget=self.labels.get(k_stability_margin),
+                attr_name="_vm_pso.sensitivity_peak_enabled",
+                widget=self.labels.get(k_sensitivity_peak),
                 kwargs={"value_type": bool},
                 main_event_handler=self._on_widget_changed
             ),
@@ -848,7 +848,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
         k_slew_window_size = PsoField.SLEW_WINDOW_SIZE
         k_gain_margin = PsoField.GAIN_MARGIN
         k_phase_margin = PsoField.PHASE_MARGIN
-        k_stability_margin = PsoField.STABILITY_MARGIN
+        k_sensitivity_peak = PsoField.SENSITIVITY_PEAK
 
         return [
             ConnectSignalConfig(
@@ -924,11 +924,11 @@ class PsoConfigurationView(ViewMixin, QWidget):
                 main_event_handler=self._on_vm_changed,
             ),
             ConnectSignalConfig(
-                key=k_stability_margin,
-                signal_name="stabilityMarginChanged",
-                attr_name="stability_margin",
+                key=k_sensitivity_peak,
+                signal_name="sensitivityPeakChanged",
+                attr_name="sensitivity_peak",
                 widget=self._vm_pso,
-                kwargs={"field": self.field_widgets.get(k_stability_margin)},
+                kwargs={"field": self.field_widgets.get(k_sensitivity_peak)},
                 main_event_handler=self._on_vm_changed,
             ),
         ]
@@ -958,7 +958,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
         k_slew_rate_limiter = PsoField.SLEW_RATE_LIMITER
         k_gain_margin = PsoField.GAIN_MARGIN
         k_phase_margin = PsoField.PHASE_MARGIN
-        k_stability_margin = PsoField.STABILITY_MARGIN
+        k_sensitivity_peak = PsoField.SENSITIVITY_PEAK
 
         return [
             ConnectSignalConfig(
@@ -1009,14 +1009,14 @@ class PsoConfigurationView(ViewMixin, QWidget):
                 override_event_handler=self._on_vm_field_enabled_changed,
             ),
             ConnectSignalConfig(
-                key=k_stability_margin,
-                signal_name="stabilityMarginEnabledChanged",
-                attr_name="stability_margin_enabled",
+                key=k_sensitivity_peak,
+                signal_name="sensitivityPeakEnabledChanged",
+                attr_name="sensitivity_peak_enabled",
                 widget=self._vm_pso,
                 kwargs={
-                    "lable": self.labels.get(k_stability_margin),
-                    "field": self.field_widgets.get(k_stability_margin),
-                    "is_enabled": lambda: self._vm_pso.stability_margin_enabled,
+                    "lable": self.labels.get(k_sensitivity_peak),
+                    "field": self.field_widgets.get(k_sensitivity_peak),
+                    "is_enabled": lambda: self._vm_pso.sensitivity_peak_enabled,
                 },
                 override_event_handler=self._on_vm_field_enabled_changed,
             ),

@@ -646,9 +646,13 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <translation>Phase margin: %(value)s° at %(omega)s rad/s</translation>
     </message>
     <message>
-        <location filename="../views/evaluation_view.py" line="113"/>
         <source>Stability margin: %(value)s dB</source>
-        <translation>Stability margin: %(value)s dB</translation>
+        <translation type="vanished">Stability margin: %(value)s dB</translation>
+    </message>
+    <message>
+        <location filename="../views/evaluation_view.py" line="113"/>
+        <source>Sensitivity peak: %(value)s dB</source>
+        <translation>Sensitivity peak: %(value)s dB</translation>
     </message>
     <message>
         <location filename="../views/evaluation_view.py" line="118"/>
@@ -2196,6 +2200,11 @@ Must be greater than the start time.</translation>
         <translation>Frequency Domain</translation>
     </message>
     <message>
+        <location filename="../views/pso_configuration_view.py" line="272"/>
+        <source>Sensitivity peak [dB]</source>
+        <translation>Sensitivity peak [dB]</translation>
+    </message>
+    <message>
         <location filename="../views/pso_configuration_view.py" line="273"/>
         <source>PSO Bounds</source>
         <translation>PSO Bounds</translation>
@@ -2297,9 +2306,8 @@ Limits how strongly the closed loop system responds to disturbances and model un
         <translation>Phase margin [°]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="272"/>
         <source>Stability margin [dB]</source>
-        <translation>Stability margin [dB]</translation>
+        <translation type="vanished">Stability margin [dB]</translation>
     </message>
     <message>
         <location filename="../views/pso_configuration_view.py" line="297"/>

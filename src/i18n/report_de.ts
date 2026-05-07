@@ -214,13 +214,26 @@
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="212"/>
-        <source>Stability margin: %(stability)s dB</source>
-        <translation>Stabilitätsreserve: %(stability)s dB</translation>
+        <source>Sensitivity peak: %(sensitivity)s dB</source>
+        <translation>Sensitivitätsmaximums %(sensitivity)s dB</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="217"/>
+        <source>Sensitivity peak is disabled.</source>
+        <translation>Sensitivitätsmaximum deaktiviert.</translation>
+    </message>
+    <message>
+        <location filename="../service/reporting/sections.py" line="311"/>
+        <source>Sensitivity peak</source>
+        <translation>Sensitivitätsmaximum</translation>
+    </message>
+    <message>
+        <source>Stability margin: %(stability)s dB</source>
+        <translation type="vanished">Stabilitätsreserve: %(stability)s dB</translation>
+    </message>
+    <message>
         <source>Stability margin is disabled.</source>
-        <translation>Stabilitätsreserve deaktiviert.</translation>
+        <translation type="vanished">Stabilitätsreserve deaktiviert.</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="221"/>
@@ -309,9 +322,8 @@
         <translation>Phasenreserve</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="311"/>
         <source>Stability margin</source>
-        <translation>Stabilitätsreserve</translation>
+        <translation type="vanished">Stabilitätsreserve</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="320"/>

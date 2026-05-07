@@ -73,7 +73,7 @@ FIELDS: dict[str, list[SectionConfig | FieldConfig]] = {
             SectionConfig(PsoResultField.FREQUENCY_DOMAIN, [
                 FieldConfig(PsoResultField.GAIN_MARGIN, QLabel, False),
                 FieldConfig(PsoResultField.PHASE_MARGIN, QLabel, False),
-                FieldConfig(PsoResultField.STABILITY_MARGIN, QLabel, False),
+                FieldConfig(PsoResultField.SENSITIVITY_PEAK, QLabel, False),
             ])
         ]),
     ]
@@ -110,9 +110,9 @@ PSO_RESULT_TEMPLATE: dict[PsoResultField, Any] = {
         "Phase margin: %(value)s° at %(omega)s rad/s"
     ),
 
-    PsoResultField.STABILITY_MARGIN: QT_TRANSLATE_NOOP(
+    PsoResultField.SENSITIVITY_PEAK: QT_TRANSLATE_NOOP(
         "EvaluationView",
-        "Stability margin: %(value)s dB"
+        "Sensitivity peak: %(value)s dB"
     ),
 
     PsoResultField.TF: QT_TRANSLATE_NOOP(
@@ -605,7 +605,7 @@ class EvaluationView(ViewMixin, QWidget):
             PsoResultField.SLEW_RATE: ({"value": result.slew_rate}, True),
             PsoResultField.GAIN_MARGIN: ({"value": result.gain_margin, "omega": result.omega_180}, True),
             PsoResultField.PHASE_MARGIN: ({"value": result.phase_margin, "omega": result.omega_c}, True),
-            PsoResultField.STABILITY_MARGIN: ({"value": result.stability_margin}, True),
+            PsoResultField.SENSITIVITY_PEAK: ({"value": result.sensitivity_peak}, True),
             PsoResultField.TF: ({"tf": result.best_params.get("Tf", 0)}, True),
             PsoResultField.TF_LIMITED: ({"limited": LIMITED_TEMPLATE.get(limited_key, "")}, show_limited),
             PsoResultField.MIN_SAMPLING_RATE: ({"sampling_rate": result.min_sampling_rate}, not show_limited),

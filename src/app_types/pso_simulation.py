@@ -66,8 +66,8 @@ class PsoSimulationParam:
     gain_margin_enabled: bool
     phase_margin: float
     phase_margin_enabled: bool
-    stability_margin: float
-    stability_margin_enabled: bool
+    sensitivity_peak: float
+    sensitivity_peak_enabled: bool
 
     omega_exp_low: int
     omega_exp_high: int
@@ -102,4 +102,4 @@ class PsoResult:
     phase_margin: float
     omega_c: float
     has_omega_c: bool
-    stability_margin: float
+    sensitivity_peak: float

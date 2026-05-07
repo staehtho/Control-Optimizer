@@ -57,7 +57,7 @@ class DynamicReportPsoConfiguration:
 
     gain_margin: float | None
     phase_margin: float | None
-    stability: float | None
+    sensitivity_peak: float | None
 
     pso_bounds_parameters: dict[str, tuple[float, float]]
 
@@ -78,7 +78,7 @@ class DynamicReportPsoResult:
     omega_180: float
     phase_margin: float
     omega_c: float
-    stability_margin: float
+    sensitivity_peak: float
 
 
 @dataclass(frozen=True)

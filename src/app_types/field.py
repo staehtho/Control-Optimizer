@@ -106,7 +106,7 @@ class PsoField(FieldType):
     FREQUENCY_DOMAIN = "frequency_domain"
     GAIN_MARGIN = "gain_margin"
     PHASE_MARGIN = "phase_margin"
-    STABILITY_MARGIN = "stability_margin"
+    SENSITIVITY_PEAK = "sensitivity_peak"
 
     PSO_BOUNDS = "pso_bounds"
     PSO_BOUNDS_KEY = "[)bound(]"
@@ -153,7 +153,7 @@ class PsoResultField(FieldType):
     FREQUENCY_DOMAIN = "frequency_domain"
     GAIN_MARGIN = "gain_margin"
     PHASE_MARGIN = "phase_margin"
-    STABILITY_MARGIN = "stability_margin"
+    SENSITIVITY_PEAK = "sensitivity_peak"
 
 
 # DataManagementViewModel / DataManagementView

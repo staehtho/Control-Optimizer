@@ -43,7 +43,7 @@ class PsoSimulationEngine:
         cl = self._create_controller(param)
         r, l, n = self._configure_excitation(param)
 
-        use_freq_metrics = param.gain_margin_enabled or param.phase_margin_enabled or param.stability_margin_enabled
+        use_freq_metrics = param.gain_margin_enabled or param.phase_margin_enabled or param.sensitivity_peak_enabled
 
         objective = PsoFunc(
             controller=cl,
@@ -67,7 +67,7 @@ class PsoSimulationEngine:
             use_freq_metrics=use_freq_metrics,
             gm_min_db=param.gain_margin if param.gain_margin_enabled else 0,
             pm_min_deg=param.phase_margin if param.phase_margin_enabled else 0,
-            ms_max_db=param.stability_margin if param.stability_margin_enabled else None,
+            ms_max_db=param.sensitivity_peak if param.sensitivity_peak_enabled else None,
             freq_low_exp=param.omega_exp_low,
             freq_high_exp=param.omega_exp_high,
             freq_points=param.omega_points,
@@ -230,7 +230,7 @@ class PsoSimulationEngine:
             phase_margin=float(eval_result.pm_deg[0]),
             omega_c=float(eval_result.wc[0]),
             has_omega_c=bool(eval_result.has_wc[0]),
-            stability_margin=float(eval_result.ms_db[0]),
+            sensitivity_peak=float(eval_result.ms_db[0]),
         )
 
     def _evaluate_tf(

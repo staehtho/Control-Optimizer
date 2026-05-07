@@ -53,8 +53,8 @@ def export_project_state(container: ModelContainer) -> dict:
             "gain_margin_enabled": pso.gain_margin_enabled,
             "phase_margin": pso.phase_margin,
             "phase_margin_enabled": pso.phase_margin_enabled,
-            "stability_margin": pso.stability_margin,
-            "stability_margin_enabled": pso.stability_margin_enabled,
+            "sensitivity_peak": pso.sensitivity_peak,
+            "sensitivity_peak_enabled": pso.sensitivity_peak_enabled,
         },
         "settings": {
             "solver": settings.solver.name,
@@ -173,11 +173,11 @@ def import_project_state(container: ModelContainer, state: dict) -> None:
             container.model_pso.phase_margin_enabled = bool(
                 pso.get("phase_margin_enabled", container.model_pso.phase_margin_enabled)
             )
-            container.model_pso.stability_margin = float(
-                pso.get("stability_margin", container.model_pso.stability_margin)
+            container.model_pso.sensitivity_peak = float(
+                pso.get("sensitivity_peak", container.model_pso.sensitivity_peak)
             )
-            container.model_pso.stability_margin_enabled = bool(
-                pso.get("stability_margin_enabled", container.model_pso.stability_margin_enabled)
+            container.model_pso.sensitivity_peak_enabled = bool(
+                pso.get("sensitivity_peak_enabled", container.model_pso.sensitivity_peak_enabled)
             )
 
         settings = state.get("settings", {})

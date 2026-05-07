@@ -777,8 +777,7 @@ def time_domain_pso_func(
         controller_param: np.ndarray,
         t_eval: np.ndarray,
         dt: float,
-        r_eval:
-        np.ndarray,
+        r_eval: np.ndarray,
         l_eval: np.ndarray,
         n_eval: np.ndarray,
         A: np.ndarray,

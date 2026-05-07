@@ -36,5 +36,5 @@ class PsoSimulationSnapshot:
     gain_margin_enabled: bool
     phase_margin: float
     phase_margin_enabled: bool
-    stability_margin: float
-    stability_margin_enabled: bool
+    sensitivity_peak: float
+    sensitivity_peak_enabled: bool
