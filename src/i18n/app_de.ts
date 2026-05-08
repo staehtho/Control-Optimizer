@@ -2060,77 +2060,77 @@ Muss grösser als die Startzeit sein.</translation>
         <translation type="vanished">PSO‑Parameter</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="252"/>
+        <location filename="../views/pso_configuration_view.py" line="251"/>
         <source>Closed Loop Block Diagram</source>
         <translation>Blockschaltbild des geschlossenen Regelkreises</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="256"/>
+        <location filename="../views/pso_configuration_view.py" line="255"/>
         <source>Plant</source>
         <translation>Regelstrecke</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="257"/>
+        <location filename="../views/pso_configuration_view.py" line="256"/>
         <source>Excitation Function</source>
         <translation>Anregungsfunktion</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="253"/>
+        <location filename="../views/pso_configuration_view.py" line="252"/>
         <source>PSO Simulation</source>
         <translation>PSO‑Simulation</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="259"/>
+        <location filename="../views/pso_configuration_view.py" line="258"/>
         <source>Simulation Time</source>
         <translation>Simulationszeit</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="264"/>
+        <location filename="../views/pso_configuration_view.py" line="263"/>
         <source>Error Criterion</source>
         <translation>Fehlerkriterium</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="260"/>
+        <location filename="../views/pso_configuration_view.py" line="259"/>
         <source>Start Time [s]</source>
         <translation>Startzeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="261"/>
+        <location filename="../views/pso_configuration_view.py" line="260"/>
         <source>End Time [s]</source>
         <translation>Endzeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="265"/>
+        <location filename="../views/pso_configuration_view.py" line="264"/>
         <source>Max Overshoot [%]</source>
         <translation>Maximales Überschwingen [%]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="266"/>
+        <location filename="../views/pso_configuration_view.py" line="265"/>
         <source>Slew Rate Limit</source>
         <translation>Stellratenbegrenzung</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="267"/>
+        <location filename="../views/pso_configuration_view.py" line="266"/>
         <source>Maximum du/dt</source>
         <translation>Maximales du/dt</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="268"/>
+        <location filename="../views/pso_configuration_view.py" line="267"/>
         <source>Window Size</source>
         <translation>Fenstergrösse</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="269"/>
+        <location filename="../views/pso_configuration_view.py" line="268"/>
         <source>Frequency Domain</source>
         <translation>Frequenzbereich</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="272"/>
+        <location filename="../views/pso_configuration_view.py" line="271"/>
         <source>Sensitivity peak [dB]</source>
         <translation>Sensitivitätsmaximums [dB]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="273"/>
+        <location filename="../views/pso_configuration_view.py" line="272"/>
         <source>PSO Bounds</source>
         <translation>PSO‑Grenzen</translation>
     </message>
@@ -2147,24 +2147,24 @@ Muss grösser als die Startzeit sein.</translation>
         <translation type="vanished">Td‑Grenzen</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="275"/>
+        <location filename="../views/pso_configuration_view.py" line="274"/>
         <source>Interrupt</source>
         <translation>PSO‑Simulation unterbrechen</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="304"/>
+        <location filename="../views/pso_configuration_view.py" line="303"/>
         <source>%(param_name)s bounds</source>
         <translation>%(param_name)s-Grenze</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="311"/>
+        <location filename="../views/pso_configuration_view.py" line="310"/>
         <source>Specifies the maximum allowed overshoot as a percentage.
                 This setting is only available for excitation type %(excitation_target)s and function type %(function_type)s.</source>
         <translation>Legt das maximal zulässige Überschwingen in Prozent fest.
 Diese Einstellung ist nur für Anregungstyp %(excitation_target)s und Funktionstyp %(function_type)s verfügbar.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="318"/>
+        <location filename="../views/pso_configuration_view.py" line="317"/>
         <source>Limits the maximum rate of change of the controller output du/dt.
                 This constrains how quickly the control signal u can change over time,
                 helping to prevent actuator saturation and excessive dynamics.</source>
@@ -2173,60 +2173,60 @@ Dies limitiert, wie schnell sich das Steuersignal u ändern darf,
 und hilft, Aktorsättigung und übermässige Dynamik zu vermeiden.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="323"/>
+        <location filename="../views/pso_configuration_view.py" line="322"/>
         <source>Defines the time window used to compute the rate of change du/dt of the controller output.
                 Larger windows provide smoother estimates, while smaller windows increase sensitivity to rapid changes.</source>
         <translation>Definiert das Zeitfenster zur Berechnung der Änderungsrate du/dt des Reglerausgangs.
 Grössere Fenster liefern glattere Schätzungen, kleinere erhöhen die Sensitivität auf schnelle Änderungen.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="327"/>
+        <location filename="../views/pso_configuration_view.py" line="326"/>
         <source>Defines the minimum required gain margin (in dB).
                 Ensures sufficient robustness by specifying how much the open loop gain can increase before instability occurs.</source>
         <translation>Definiert die minimal erforderliche Verstärkungsreserve (in dB).
 Stellt ausreichende Robustheit sicher, indem festgelegt wird, wie stark die offene Kreisverstärkung steigen darf, bevor Instabilität auftritt.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="331"/>
+        <location filename="../views/pso_configuration_view.py" line="330"/>
         <source>Defines the minimum required phase margin (in degrees).
                 Ensures adequate stability by limiting the allowable additional phase lag before instability.</source>
         <translation>Definiert die minimal erforderliche Phasenreserve (in Grad).
 Stellt ausreichende Stabilität sicher, indem der zulässige zusätzliche Phasenverzug begrenzt wird.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="335"/>
+        <location filename="../views/pso_configuration_view.py" line="334"/>
         <source>Defines the maximum allowed sensitivity (in dB).
                 Limits how strongly the closed loop system responds to disturbances and model uncertainties.</source>
         <translation>Definiert die maximal zulässige Sensitivität (in dB).
 Begrenzt, wie stark das geschlossene System auf Störungen und Modellunsicherheiten reagiert.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="467"/>
+        <location filename="../views/pso_configuration_view.py" line="466"/>
         <source>Interrupted</source>
         <translation>Unterbrochen</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="258"/>
+        <location filename="../views/pso_configuration_view.py" line="257"/>
         <source>Excitation Target</source>
         <translation>Anregungsziel</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="262"/>
+        <location filename="../views/pso_configuration_view.py" line="261"/>
         <source>Performance Index</source>
         <translation>Gütekriterium</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="263"/>
+        <location filename="../views/pso_configuration_view.py" line="262"/>
         <source>Time Domain</source>
         <translation>Zeitbereich</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="270"/>
+        <location filename="../views/pso_configuration_view.py" line="269"/>
         <source>Gain margin [dB]</source>
         <translation>Amplitudenreserve [dB]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="271"/>
+        <location filename="../views/pso_configuration_view.py" line="270"/>
         <source>Phase margin [°]</source>
         <translation>Phasenreserve [°]</translation>
     </message>
@@ -2235,17 +2235,17 @@ Begrenzt, wie stark das geschlossene System auf Störungen und Modellunsicherhei
         <translation type="vanished">Stabilitätsreserve [dB]</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="297"/>
+        <location filename="../views/pso_configuration_view.py" line="296"/>
         <source>Minimum</source>
         <translation>Minimum</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="301"/>
+        <location filename="../views/pso_configuration_view.py" line="300"/>
         <source>Maximum</source>
         <translation>Maximum</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="274"/>
+        <location filename="../views/pso_configuration_view.py" line="273"/>
         <source>Start PSO Simulation</source>
         <translation>PSO‑Simulation starten</translation>
     </message>
