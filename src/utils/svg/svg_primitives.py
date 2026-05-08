@@ -93,7 +93,7 @@ def build_path(
         label_anchor = "middle"
     else:  # vertical
         arrow_rotation = 90
-        label_x = -15
+        label_x = 15
         label_y = length / 2
         label_anchor = "end"
 

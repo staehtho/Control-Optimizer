@@ -21,12 +21,18 @@ def closed_loop_builder_svg(
         [
             build_path(0, 0, 85, "horizontal", label="r"),
             sum_configurator(95, 0, south="minus", west="plus"),
-            param_block(750, 0, "G(s)", 50, 100),
-            build_path(850, 0, 100, "horizontal", "end", "y"),
-            node(900, 0),
-            build_path(900, 0, 176, "vertical"),
+            sum_configurator(755, 0, north="plus", west="plus"),
+            build_path(755, -10, -90, "vertical", label="l"),
+            build_path(760, 0, 40, "horizontal", "end"),
+            param_block(800, 0, "G(s)", 50, 100),
+            sum_configurator(950, 0, north="plus", west="plus"),
+            build_path(950, -10, -90, "vertical", label="n"),
+            build_path(900, 0, 40, "horizontal"),
+            build_path(955, 0, 95, "horizontal", "end", "y"),
+            node(1000, 0),
+            build_path(1000, 0, 176, "vertical"),
             build_path(95, 10, 166, "vertical"),
-            build_path(95, 175, 805, "horizontal"),
+            build_path(95, 175, 905, "horizontal"),
         ]
     )
 
@@ -51,12 +57,18 @@ def ff_closed_loop_builder_svg(
         [
             build_path(0, 0, 85, "horizontal", label="r"),
             sum_configurator(95, 0, south="minus", west="plus"),
-            param_block(750, 0, "G(s)", 50, 100),
-            build_path(850, 0, 100, "horizontal", "end", "y"),
-            node(900, 0),
-            build_path(900, 0, 176, "vertical"),
+            sum_configurator(755, 0, north="plus", west="plus"),
+            build_path(755, -10, -90, "vertical", label="l"),
+            build_path(760, 0, 40, "horizontal", "end"),
+            param_block(800, 0, "G(s)", 50, 100),
+            sum_configurator(950, 0, north="plus", west="plus"),
+            build_path(950, -10, -90, "vertical", label="n"),
+            build_path(900, 0, 40, "horizontal"),
+            build_path(955, 0, 95, "horizontal", "end", "y"),
+            node(1000, 0),
+            build_path(1000, 0, 176, "vertical"),
             build_path(95, 10, 166, "vertical"),
-            build_path(95, 175, 805, "horizontal"),
+            build_path(95, 175, 905, "horizontal"),
 
             # Feed-forward branch
             node(65, 0),
