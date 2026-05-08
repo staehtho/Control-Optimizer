@@ -10,7 +10,7 @@ from numpy import ndarray
 from app_types import (
     EvaluationField, SectionConfig, FieldConfig, PlotData, BodePlotData, PlotLabels, PsoResultField, NavLabels
 )
-from resources.blockdiagram import load_closed_loop_diagram
+from utils.svg.diagram_loader import load_closed_loop_diagram
 from utils import save_svg, format_value
 from views import ViewMixin
 from resources.plot_style import PLOT_STYLE

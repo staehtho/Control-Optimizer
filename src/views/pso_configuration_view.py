@@ -14,7 +14,7 @@ from app_types import PsoField, FieldConfig, SectionConfig, ConnectSignalConfig,
 from views.view_mixin import ViewMixin
 from views.widgets import FormulaWidget, AspectRatioSvgWidget, ToggleSwitch, ToggleableSectionFrame
 from resources.resources import Icons
-from resources.blockdiagram import load_closed_loop_diagram
+from utils.svg.diagram_loader import load_closed_loop_diagram
 
 if TYPE_CHECKING:
     from app_domain.ui_context import UiContext
@@ -552,7 +552,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
             self,
             None,
             field_key,
-            bounds[key],
+            str(bounds[key]),
             field=field,
         )
 

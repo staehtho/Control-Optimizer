@@ -9,7 +9,7 @@ from app_types import ControllerField, FieldConfig, SectionConfig, ConnectSignal
 from .view_mixin import ViewMixin
 from views.widgets import AspectRatioSvgWidget
 from resources.resources import Icons
-from resources.blockdiagram import load_controller_diagram
+from utils.svg.diagram_loader import load_controller_diagram
 
 if TYPE_CHECKING:
     from app_domain.ui_context import UiContext
@@ -100,7 +100,7 @@ class ControllerView(ViewMixin, QWidget):
         frame_layout.addLayout(self._create_grid(FIELDS))
 
         svg_widget = AspectRatioSvgWidget()
-        svg_widget.set_initial_scale(2)
+        svg_widget.set_initial_scale(1)
         frame_layout.addWidget(svg_widget)
         self.field_widgets.setdefault(ControllerField.BLOCK_DIAGRAM, svg_widget)
         self._load_block_diagram()

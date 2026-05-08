@@ -6,7 +6,8 @@ from app_domain.controlsys import ControllerType, AntiWindup
 from app_domain.controlsys.FFPIDClosedLoop import FFPIDClosedLoop
 from app_domain.controlsys.PIClosedLoop import PIClosedLoop
 from app_domain.controlsys.PIDClosedLoop import PIDClosedLoop
-import resources.blockdiagram as bd
+import utils.svg.controller_builders as c
+import utils.svg.layout_closed_loop as cl
 
 if TYPE_CHECKING:
     from app_domain.controlsys import ClosedLoop
@@ -79,8 +80,8 @@ class ControllerSpec:
     controller_class: type[ClosedLoop]
     param_names: list[str]
     bounds: tuple[list[float], list[float]]
-    build_controller_svg: bd.ControllerBuilder
-    build_closed_loop_svg: Callable[[bd.ControllerBuilder, AntiWindup, tuple[float, float]], list[bd.SvgData]]
+    build_controller_svg: c.ControllerBuilder
+    build_closed_loop_svg: Callable[[c.ControllerBuilder, AntiWindup, tuple[float, float]], list[c.SvgData]]
     tf_controller: str
     tf_open_loop: str = r"L(s) = C(S) \cdot G(s)"
     tf_close_loop: str = r"T(s) = \frac{L(s)}{1 + L(s)} = \frac{C(s) \cdot G(s)}{1 + C(s) \cdot G(s)}"
@@ -91,8 +92,8 @@ pid_spec = ControllerSpec(
     controller_class=PIDClosedLoop,
     param_names=["Kp", "Ti", "Td"],
     bounds=([0.0, 0.001, 0.0], [10.0, 10.0, 10.0]),
-    build_controller_svg=bd.get_pid_controller_svg,
-    build_closed_loop_svg=bd.closed_loop_builder_svg,
+    build_controller_svg=c.get_pid_controller_svg,
+    build_closed_loop_svg=cl.closed_loop_builder_svg,
     tf_controller=r"C(s) = K_p \frac{(T_i\, s + 1)(T_d\, s + 1)}{T_i\, s (T_f\, s + 1)}",
 )
 
@@ -100,8 +101,8 @@ pi_spec = ControllerSpec(
     controller_class=PIClosedLoop,
     param_names=["Kp", "Ti"],
     bounds=([0.0, 0.001], [10.0, 10.0]),
-    build_controller_svg=bd.get_pi_controller_svg,
-    build_closed_loop_svg=bd.closed_loop_builder_svg,
+    build_controller_svg=c.get_pi_controller_svg,
+    build_closed_loop_svg=cl.closed_loop_builder_svg,
     tf_controller=r"C(s) = K_p \left(1 + \frac{1}{T_i\, s}\right)",
 )
 
@@ -109,8 +110,8 @@ ffpid_spec = ControllerSpec(
     controller_class=FFPIDClosedLoop,
     param_names=["Kp", "Ti", "Td", "Kff"],
     bounds=([0.0, 0.001, 0.0, -10.0], [10.0, 10.0, 10.0, 10.0]),
-    build_controller_svg=bd.get_pid_controller_svg,
-    build_closed_loop_svg=bd.closed_loop_builder_svg,
+    build_controller_svg=c.get_pid_controller_svg,
+    build_closed_loop_svg=cl.closed_loop_builder_svg,
     tf_controller=(
         r"C_{fb}(s) = K_p \frac{(T_i\, s + 1)(T_d\, s + 1)}{T_i\, s (T_f\, s + 1)}, "
         r"\quad U(s) = C_{fb}(s) E(s) + K_{ff} R(s)"
