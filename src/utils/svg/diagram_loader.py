@@ -8,7 +8,7 @@ from .svg_primitives import SvgData, SVG_STYLE
 from .controller_builders import ControllerBuilder
 
 CONTROLLER_SVG_SIZE = (1300, 650)
-CLOSED_LOOP_SVG_SIZE = (1850, 800)
+CLOSED_LOOP_SVG_SIZE = (1900, 800)
 
 
 def create_svg(size: tuple[int, int], elements: list[SvgData]) -> str:
