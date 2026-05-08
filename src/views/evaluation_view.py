@@ -298,7 +298,7 @@ class EvaluationView(ViewMixin, QWidget):
         container.setLayout(layout)
 
         svg_widget = AspectRatioSvgWidget()
-        svg_widget.set_initial_scale(2)
+        svg_widget.set_initial_scale(1)
         layout.addWidget(svg_widget)
 
         self.field_widgets.setdefault(BLOCK_DIAGRAM, svg_widget)
