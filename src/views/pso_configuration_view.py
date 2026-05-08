@@ -38,8 +38,7 @@ FIELDS_LEFT: list[FieldConfig | SectionConfig] = [
             ),
             SectionConfig(PsoField.SLEW_RATE_LIMITER, [
                 FieldConfig(PsoField.SLEW_RATE_MAX, QLineEdit, validator=QDoubleValidator(0.0, 1e9, 6)),
-                # TODO: max value?
-                FieldConfig(PsoField.SLEW_WINDOW_SIZE, QLineEdit, validator=QIntValidator(0, 1000000)),
+                FieldConfig(PsoField.SLEW_WINDOW_SIZE, QLineEdit, validator=QIntValidator(0, int(1e9))),
             ], toggleable=True)
         ]),
         SectionConfig(PsoField.FREQUENCY_DOMAIN, [
