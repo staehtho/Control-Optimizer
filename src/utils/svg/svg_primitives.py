@@ -22,6 +22,7 @@ class SvgData:
     translate: tuple[int, int]
     rotate: int
     inline_svg: Optional[str] = None
+    tag: str = ""
 
 
 def sum_configurator(
@@ -31,6 +32,7 @@ def sum_configurator(
         east: str = "",
         south: str = "",
         west: str = "",
+        tag: str = "",
 ) -> SvgData:
     """Create a configurable summing junction with directional signs."""
     parts: list[str] = []
@@ -69,6 +71,7 @@ def sum_configurator(
         translate=(x, y),
         rotate=0,
         inline_svg=grouped_svg,
+        tag=tag
     )
 
 
@@ -79,6 +82,7 @@ def build_path(
         orientation: str = "horizontal",  # "horizontal" | "vertical"
         arrow_pos: str = "none",  # "start" | "end" | "none"
         label: str = "",
+        tag: str = "",
 ) -> SvgData:
     """Create a straight signal line with optional arrow and label."""
     # Arrow rotation logic
@@ -120,19 +124,21 @@ def build_path(
         translate=(x, y),
         rotate=0,
         inline_svg=grouped,
+        tag=tag
     )
 
 
-def node(x: int, y: int) -> SvgData:
+def node(x: int, y: int, tag: str = "", ) -> SvgData:
     """Create a filled node (connection dot)."""
     return SvgData(
         translate=(x, y),
         rotate=0,
         inline_svg=NODE,
+        tag=tag
     )
 
 
-def param_block(x: int, y: int, param: str, height: int = 50, width: int = 50) -> SvgData:
+def param_block(x: int, y: int, param: str, height: int = 50, width: int = 50, tag: str = "", ) -> SvgData:
     """Create a rectangular parameter block with a label."""
     block = f"""
     <g transform="translate(0, -{height / 2})">
@@ -145,10 +151,11 @@ def param_block(x: int, y: int, param: str, height: int = 50, width: int = 50) -
         translate=(x, y),
         rotate=0,
         inline_svg=block,
+        tag=tag
     )
 
 
-def param_block_as_fraction(x: int, y: int, param: str) -> SvgData:
+def param_block_as_fraction(x: int, y: int, param: str, tag: str = "", ) -> SvgData:
     """Create a parameter block representing a reciprocal (1 / param)."""
     block = """
     <g transform="translate(0, -25)">
@@ -163,10 +170,11 @@ def param_block_as_fraction(x: int, y: int, param: str) -> SvgData:
         translate=(x, y),
         rotate=0,
         inline_svg=block,
+        tag=tag
     )
 
 
-def saturation(x: int, y: int, constraint: tuple[float, float]) -> SvgData:
+def saturation(x: int, y: int, constraint: tuple[float, float], tag: str = "", ) -> SvgData:
     """Create a saturation block with min/max annotations."""
     sat = f"""
     <g transform="translate(0, -25)">
@@ -183,10 +191,11 @@ def saturation(x: int, y: int, constraint: tuple[float, float]) -> SvgData:
         translate=(x, y),
         rotate=0,
         inline_svg=sat,
+        tag=tag
     )
 
 
-def filter_with_differentiator(x: int, y: int) -> SvgData:
+def filter_with_differentiator(x: int, y: int, tag: str = "", ) -> SvgData:
     """Create a differentiator block with first-order filter (Tf s + 1)."""
     tf = """
     <g transform="translate(0, -25)">
@@ -202,10 +211,11 @@ def filter_with_differentiator(x: int, y: int) -> SvgData:
         translate=(x, y),
         rotate=0,
         inline_svg=tf,
+        tag=tag
     )
 
 
-def integrator(x: int, y: int, constraint: Optional[tuple[float, float]] = None) -> SvgData:
+def integrator(x: int, y: int, constraint: Optional[tuple[float, float]] = None, tag: str = "", ) -> SvgData:
     """Create an integrator block, optionally with clamping visualization."""
     if constraint is None:
         tf = """
@@ -237,10 +247,11 @@ def integrator(x: int, y: int, constraint: Optional[tuple[float, float]] = None)
         translate=(x, y),
         rotate=0,
         inline_svg=tf,
+        tag=tag
     )
 
 
-def decider(x: int, y: int) -> SvgData:
+def decider(x: int, y: int, tag: str = "", ) -> SvgData:
     """Create a conditional-integration decision block."""
     dec = """
     <g transform="translate(0, -25)">
@@ -260,10 +271,11 @@ def decider(x: int, y: int) -> SvgData:
         translate=(x, y),
         rotate=0,
         inline_svg=dec,
+        tag=tag
     )
 
 
-def text(x: int, y: int, label: str, font_size: int = 10) -> SvgData:
+def text(x: int, y: int, label: str, font_size: int = 10, tag: str = "", ) -> SvgData:
     """Create a positioned text label."""
     return SvgData(
         translate=(x, y),
@@ -272,4 +284,5 @@ def text(x: int, y: int, label: str, font_size: int = 10) -> SvgData:
             f'<text class="text" x="0" y="0" '
             f'style="font-size:{font_size}px; text-anchor:start">{label}</text>'
         ),
+        tag=tag
     )
