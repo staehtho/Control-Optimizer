@@ -321,7 +321,7 @@ def pid_step(
 
 
 @njit(inline="always")
-def ffpid_step(
+def ff_pid_step(
         state: np.ndarray,
         i: int,
         r: float,
@@ -855,5 +855,5 @@ class ControllerRegistry:
 CONTROLLER_REGISTRY = {
     ControllerType.PI: ControllerRegistry(step_fn=pi_step),
     ControllerType.PID: ControllerRegistry(step_fn=pid_step),
-    ControllerType.FFPID: ControllerRegistry(step_fn=ffpid_step),
+    ControllerType.FFPID: ControllerRegistry(step_fn=ff_pid_step),
 }

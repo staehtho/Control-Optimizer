@@ -106,7 +106,7 @@ pi_spec = ControllerSpec(
     tf_controller=r"C(s) = K_p \left(1 + \frac{1}{T_i\, s}\right)",
 )
 
-ffpid_spec = ControllerSpec(
+ff_pid_spec = ControllerSpec(
     controller_class=FFPIDClosedLoop,
     param_names=["Kp", "Ti", "Td", "Kff"],
     bounds=([0.0, 0.001, 0.0, -10.0], [10.0, 10.0, 10.0, 10.0]),
@@ -124,5 +124,5 @@ ffpid_spec = ControllerSpec(
 CONTROLLER_SPECS = {
     ControllerType.PI: pi_spec,
     ControllerType.PID: pid_spec,
-    ControllerType.FFPID: ffpid_spec,
+    ControllerType.FFPID: ff_pid_spec,
 }
