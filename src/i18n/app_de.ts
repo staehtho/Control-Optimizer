@@ -2201,7 +2201,7 @@ Stellt ausreichende Stabilität sicher, indem der zulässige zusätzliche Phasen
 Begrenzt, wie stark das geschlossene System auf Störungen und Modellunsicherheiten reagiert.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="467"/>
+        <location filename="../views/pso_configuration_view.py" line="468"/>
         <source>Interrupted</source>
         <translation>Unterbrochen</translation>
     </message>

@@ -642,7 +642,8 @@ class EvaluationView(ViewMixin, QWidget):
             return ""
 
         return load_closed_loop_diagram(
-            snapshot.controller_spec.build_svg,
+            snapshot.controller_spec.build_closed_loop_svg,
+            snapshot.controller_spec.build_controller_svg,
             snapshot.controller_anti_windup,
             (snapshot.controller_constraint_min, snapshot.controller_constraint_max),
             self._vm_theme.get_svg_color_map() if use_color_mape else None,

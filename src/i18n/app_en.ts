@@ -2276,7 +2276,7 @@ Ensures adequate stability by limiting the allowable additional phase lag before
 Limits how strongly the closed loop system responds to disturbances and model uncertainties.</translation>
     </message>
     <message>
-        <location filename="../views/pso_configuration_view.py" line="467"/>
+        <location filename="../views/pso_configuration_view.py" line="468"/>
         <source>Interrupted</source>
         <translation>Interrupted</translation>
     </message>

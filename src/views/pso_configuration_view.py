@@ -128,7 +128,7 @@ class PsoConfigurationView(ViewMixin, QWidget):
         frame, frame_layout = self._create_card(parent=self)
 
         svg_widget = AspectRatioSvgWidget()
-        svg_widget.set_initial_scale(4)
+        svg_widget.set_initial_scale(1)
         svg_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         svg_widget.setMinimumHeight(400)
         frame_layout.addWidget(svg_widget)
@@ -440,7 +440,8 @@ class PsoConfigurationView(ViewMixin, QWidget):
     def _load_closed_loop_block_diagram(self) -> None:
         """Build and recolor the closed loop block diagram SVG."""
         merged_svg = load_closed_loop_diagram(
-            self._vm_controller.controller_spec.build_svg,
+            self._vm_controller.controller_spec.build_closed_loop_svg,
+            self._vm_controller.controller_spec.build_controller_svg,
             self._vm_controller.anti_windup,
             (self._vm_controller.constraint_min, self._vm_controller.constraint_max),
             self._vm_theme.get_svg_color_map(),

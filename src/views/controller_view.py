@@ -245,7 +245,7 @@ class ControllerView(ViewMixin, QWidget):
     def _load_block_diagram(self) -> None:
         """Build and recolor the controller block diagram SVG."""
         merged_svg = load_controller_diagram(
-            self._vm_controller.controller_spec.build_svg,
+            self._vm_controller.controller_spec.build_controller_svg,
             self._vm_controller.anti_windup,
             (self._vm_controller.constraint_min, self._vm_controller.constraint_max),
             self._vm_theme.get_svg_color_map(),

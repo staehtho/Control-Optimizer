@@ -75,14 +75,12 @@ class AspectRatioSvgWidget(QSvgWidget):
             super().paintEvent(event)
             return
 
-        scaled_svg_width = svg_size.width() * self.initial_scale
-        scaled_svg_height = svg_size.height() * self.initial_scale
-
         w, h = self.width(), self.height()
-        scale = min(w / scaled_svg_width, h / scaled_svg_height)
+        fit_scale = min(w / svg_size.width(), h / svg_size.height())
+        scale = fit_scale / max(self.initial_scale, 1e-6)
 
-        new_w = scaled_svg_width * scale
-        new_h = scaled_svg_height * scale
+        new_w = svg_size.width() * scale
+        new_h = svg_size.height() * scale
         x = (w - new_w) / 2
         y = (h - new_h) / 2
 

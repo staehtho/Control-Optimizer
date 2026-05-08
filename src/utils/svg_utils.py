@@ -14,6 +14,7 @@ from matplotlib.figure import Figure
 class SvgLayer:
     svg: str
     translate: tuple[float, float] = (0, 0)
+    rotate: float = 0.0
 
 
 def recolor_svg(svg_text: str, color_map: dict[str, str]) -> str:
@@ -40,9 +41,15 @@ def merge_svgs(layers: list[SvgLayer]) -> str:
         inner = _extract_svg_inner(prepared)
 
         tx, ty = layer.translate
-        transform_attr = ""
+        transforms: list[str] = []
         if tx or ty:
-            transform_attr = f' transform="translate({tx},{ty})"'
+            transforms.append(f"translate({tx},{ty})")
+        if layer.rotate:
+            transforms.append(f"rotate({layer.rotate})")
+
+        transform_attr = ""
+        if transforms:
+            transform_attr = f' transform="{" ".join(transforms)}"'
 
         if inner:
             merged_body.append(
