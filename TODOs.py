@@ -3,3 +3,4 @@
 
 # TODO: values 3 Signifikate stellen (Evaluation, Report)
 # TODO: BodePlot nicht start und Endtime !!!
+# TODO: no Td do not show the filter time constatnet
