@@ -219,7 +219,7 @@ class PsoSimulationEngine:
             min_sampling_rate=tf_report.min_sampling_rate_hz,
             t0=param.t0,
             t1=param.t1,
-            is_feasible=bool(eval_result.feasible[0]),
+            is_feasible= False,#bool(eval_result.feasible[0]),
             error_criterion=float(eval_result.perf[0]),
             overshoot=float(eval_result.overshoot_pct[0]),
             show_overshoot=show_overshoot,

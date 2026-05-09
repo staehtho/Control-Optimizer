@@ -386,7 +386,9 @@ class EvaluationView(ViewMixin, QWidget):
         for key in labels.keys():
             self.labels[key].setText(labels[key])
 
-        self._feasible_widget.setText(self.tr("Not feasible"))  # TODO: better Text evtl. with ToolTip?
+        self._feasible_widget.setText(self.tr(
+            "No parameters could be found that would not violate the constraints. Try different settings."
+        ))
         self._update_pso_result_values()
 
     # ============================================================

@@ -19,9 +19,8 @@
         <translation>Control Optimizer Bericht</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="25"/>
         <source>Not feasible</source>
-        <translation>Nicht zulässig</translation>
+        <translation type="vanished">Nicht zulässig</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="34"/>
@@ -101,6 +100,11 @@
         <location filename="../service/reporting/sections.py" line="104"/>
         <source>Controller maximum output: %(max_output)s</source>
         <translation>Maximaler Reglerausgang: %(max_output)s</translation>
+    </message>
+    <message>
+        <location filename="../service/reporting/sections.py" line="25"/>
+        <source>No parameters could be found that would not violate the constraints. Try different settings.</source>
+        <translation>Es konnten keine Parameter gefunden werden, die nicht gegen die Nebenbedingungen verstossen würden. Versuche andere Einstellungen.</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="42"/>

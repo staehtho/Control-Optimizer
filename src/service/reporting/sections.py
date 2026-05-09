@@ -24,7 +24,7 @@ def section_result_summary(report: BaseReport, data: DynamicReportPsoResult) -> 
         report.add_paragraph(
             QCoreApplication.translate(
                 "Report",
-                "Not feasible"  # TODO: better Text
+                "No parameters could be found that would not violate the constraints. Try different settings."
             ),
             color="red",
             bold=True,
