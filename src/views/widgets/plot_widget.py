@@ -250,6 +250,7 @@ class PlotWidget(ViewMixin, QWidget):
             ),
         ]
         self._connect_object_signals(configs)
+
     # ============================================================
     # Translation
     # ============================================================

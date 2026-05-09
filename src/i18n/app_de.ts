@@ -50,6 +50,36 @@
         <source>Phase</source>
         <translation>Phase</translation>
     </message>
+    <message>
+        <location filename="../views/widgets/bode_plot_widget.py" line="73"/>
+        <source>Min. frequency</source>
+        <translation>Minimale Frequenz</translation>
+    </message>
+    <message>
+        <location filename="../views/widgets/bode_plot_widget.py" line="74"/>
+        <source>Max. frequency</source>
+        <translation>Maximale Frequenz</translation>
+    </message>
+    <message>
+        <location filename="../views/widgets/bode_plot_widget.py" line="77"/>
+        <source>Lower frequency limit (ω_min).
+            Defines where the frequency axis begins.
+            Unit: rad/s.</source>
+        <translation>Untere Frequenzgrenze (ω_min).
+Definiert, wo die Frequenzachse beginnt.
+Einheit: rad/s.</translation>
+    </message>
+    <message>
+        <location filename="../views/widgets/bode_plot_widget.py" line="83"/>
+        <source>Upper frequency limit (ω_max).
+            Defines where the frequency axis ends.
+            Unit: rad/s.
+            Must be greater than the lower frequency limit.</source>
+        <translation>Obere Frequenzgrenze (ω_max).
+Definiert, wo die Frequenzachse endet.
+Einheit: rad/s.
+Muss groesser sein als die untere Frequenzgrenze.</translation>
+    </message>
 </context>
 <context>
     <name>ControlEnums</name>
@@ -2017,22 +2047,22 @@ Beispiel: (s+1)(s+2) oder s^2 + 3*s + 2</translation>
 <context>
     <name>PlotWidget</name>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="258"/>
+        <location filename="../views/widgets/plot_widget.py" line="259"/>
         <source>plot.grid</source>
         <translation>Gitter</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="259"/>
+        <location filename="../views/widgets/plot_widget.py" line="260"/>
         <source>plot.start</source>
         <translation>Startzeit</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="260"/>
+        <location filename="../views/widgets/plot_widget.py" line="261"/>
         <source>plot.end</source>
         <translation>Endzeit</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="261"/>
+        <location filename="../views/widgets/plot_widget.py" line="262"/>
         <source>Lower x-axis limit (x_min).
         Defines where the time axis begins.
         Unit: seconds (s).</source>
@@ -2041,7 +2071,7 @@ Definiert den Beginn der Zeitachse.
 Einheit: Sekunden (s).</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="264"/>
+        <location filename="../views/widgets/plot_widget.py" line="265"/>
         <source>Upper x-axis limit (x_max).
         Defines where the time axis ends.
         Unit: seconds (s).
@@ -2052,7 +2082,7 @@ Einheit: Sekunden (s).
 Muss grösser als die Startzeit sein.</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="269"/>
+        <location filename="../views/widgets/plot_widget.py" line="270"/>
         <source>plot.legend</source>
         <translation>Legende</translation>
     </message>

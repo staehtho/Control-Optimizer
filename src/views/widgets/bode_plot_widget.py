@@ -6,7 +6,7 @@ import numpy as np
 from matplotlib.ticker import LogLocator
 from pytestqt.qtbot import QWidget
 
-from app_types import BodePlotData
+from app_types import BodePlotData, PlotField
 from .plot_widget import PlotWidget, PlotWidgetConfiguration, SubplotConfiguration
 
 if TYPE_CHECKING:
@@ -63,6 +63,28 @@ class BodePlotWidget(PlotWidget):
         )
 
         super().__init__(ui_context, vm, plt_cfg, parent)
+
+    # ============================================================
+    # Translation
+    # ============================================================
+    def _retranslate(self) -> None:
+        """Update all UI texts after a language change."""
+        super()._retranslate()
+        self.labels.get(PlotField.X_MIN).setText(self.tr("Min. frequency"))
+        self.labels.get(PlotField.X_MAX).setText(self.tr("Max. frequency"))
+
+        self.field_widgets.get(PlotField.X_MIN).setToolTip(self.tr(
+            """Lower frequency limit (ω_min).
+            Defines where the frequency axis begins.
+            Unit: rad/s."""
+        ))
+
+        self.field_widgets.get(PlotField.X_MAX).setToolTip(self.tr(
+            """Upper frequency limit (ω_max).
+            Defines where the frequency axis ends.
+            Unit: rad/s.
+            Must be greater than the lower frequency limit."""
+        ))
 
     # ============================================================
     # Plotting
