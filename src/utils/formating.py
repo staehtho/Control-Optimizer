@@ -2,17 +2,19 @@ import re
 from sympy import expand, Poly, symbols, factor, simplify, latex, sympify
 
 
-def format_value(value, decimal: int | None = None) -> str:
-    """Format values for display, using scientific notation for extreme floats."""
+def format_value(value, sig: int = 3) -> str:
+    """Format numbers with N significant digits, preserving floats like 5.0."""
+
     if isinstance(value, float):
-        if value == 0.0:
-            return "0.0"
-        if abs(value) >= 1e4 or abs(value) < 1e-3:
-            return f"{value:.1e}"
-        if decimal:
-            return str(round(value, decimal))
+        if value.is_integer():
+            if abs(value) < 10 ** sig:
+                return f"{value:.1f}"
+            return f"{value:.{sig}g}"
+
+        return f"{value:.{sig}g}"
 
     return str(value)
+
 
 def str2array(text: str) -> list[float]:
     """

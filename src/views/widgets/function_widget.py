@@ -279,7 +279,7 @@ class FunctionWidget(ViewMixin, QWidget):
             txt.setText(self._format_value(value))
             return
 
-        txt.setText(self._format_value(value))
+        txt.setText(self._format_value(text))
         self._vm_function.update_param_value(key, value)
 
     # ============================================================

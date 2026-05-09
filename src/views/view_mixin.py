@@ -273,7 +273,7 @@ class ViewMixin:
     @staticmethod
     def _format_value(value) -> str:
         """Format values for display, using scientific notation for extreme floats."""
-        return format_value(value, 3)
+        return format_value(value, 6)
 
     @staticmethod
     def _on_vm_changed(

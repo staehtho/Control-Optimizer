@@ -225,7 +225,7 @@ def on_vm_changed(view, widget: QObject | None, key: str | FieldType, attribute:
     validation_helpers.clear_input_error(field)
 
     # Format value if necessary
-    formatted_value = format_value(value, 3)
+    formatted_value = format_value(value, 6)
 
     # Update based on widget type
     if isinstance(field, QComboBox):
@@ -291,7 +291,7 @@ def on_vm_changed_old(view, key: str | FieldType, attribute: str) -> None:
     validation_helpers.clear_input_error(widget)
 
     # Format value if necessary
-    formatted_value = format_value(value, 3)
+    formatted_value = format_value(value, 6)
 
     # Update based on widget type
     if isinstance(widget, QComboBox):
