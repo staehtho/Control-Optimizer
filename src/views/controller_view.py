@@ -259,7 +259,7 @@ class ControllerView(ViewMixin, QWidget):
         # update time constant section
         controller_class = self._vm_controller.controller_spec.controller_class
         visible_data = {
-            ControllerField.FILTER_TIME_CONSTANT: controller_class.tf_link_index is not None,
+            ControllerField.FILTER_TIME_CONSTANT: controller_class.tf_link_index > -1,
             ControllerField.ANTI_WINDUP: controller_class.has_integrator
         }
 
