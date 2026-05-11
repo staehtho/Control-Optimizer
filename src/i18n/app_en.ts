@@ -335,8 +335,12 @@ Must be greater than the lower frequency limit.</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="262"/>
+        <source>Feed-forward PID</source>
+        <translation>Feed-forward PID</translation>
+    </message>
+    <message>
         <source>FFPID</source>
-        <translation>FFPID</translation>
+        <translation type="vanished">FFPID</translation>
     </message>
     <message>
         <source>PID FF</source>

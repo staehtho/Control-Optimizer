@@ -259,6 +259,6 @@ class Translation:
             case ControllerType.PID:
                 return QCoreApplication.translate("ControlEnums", "PID")
             case ControllerType.FFPID:
-                return QCoreApplication.translate("ControlEnums", "FFPID")
+                return QCoreApplication.translate("ControlEnums", "Feed-forward PID")
             case _:
                 raise ValueError(f"No translation registered for enum value: {value}")

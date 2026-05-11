@@ -335,8 +335,12 @@ Muss groesser sein als die untere Frequenzgrenze.</translation>
     </message>
     <message>
         <location filename="../views/translations/enum_translations.py" line="262"/>
+        <source>Feed-forward PID</source>
+        <translation>PID Vorsteuerung</translation>
+    </message>
+    <message>
         <source>FFPID</source>
-        <translation>FFPID</translation>
+        <translation type="vanished">FFPID</translation>
     </message>
     <message>
         <source>PID FF</source>
