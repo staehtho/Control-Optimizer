@@ -83,20 +83,20 @@ def build_frf_candidate_row(
 
 def main():
     plant_num = [1]
-    plant_den = [1, 0.2, 1]
+    plant_den = [1, 3, 3, 1]
 
     use_freq_metrics = False
-    pm_min_deg = 54
-    gm_min_db = 10
-    ms_max_db = None
+    pm_min_deg = 1
+    gm_min_db = 1
+    ms_max_db = 3
 
-    use_overshoot_control = False
-    allowed_overshoot_pct = 20
+    use_overshoot_control = True
+    allowed_overshoot_pct = 0
     calculate_overshoot = True
 
     use_max_du_dt_constraint = False
-    calculate_max_du_dt = True
-    allowed_max_du_dt = 350
+    calculate_max_du_dt = False
+    allowed_max_du_dt = 10
     du_dt_window_steps = 10
 
     sim_mode = "fixed"
@@ -109,8 +109,8 @@ def main():
 
     excitation_target = "reference"
 
-    constraint_min = -100
-    constraint_max = 100
+    constraint_min = -5
+    constraint_max = 5
 
     performance_index = PerformanceIndex.ITAE
 
@@ -131,7 +131,7 @@ def main():
     }
 
     controller_param_bounds = {
-        "Kp": (0.0, 1.0),
+        "Kp": (0.0, 10.0),
         "Ti": (0.01, 10.0),
         "Td": (0.0, 10.0),
         "Kff": (-100.0, 100.0),
@@ -216,17 +216,31 @@ def main():
 
     best_param_values = initial_param_values.copy()
     best_objective_cost = sys.float_info.max
+    pso_iterations_per_run: list[int] = []
+    best_run_iterations = 0
 
     pbar = tqdm(range(iterations), desc="Processing", unit="step", colour="green")
 
     for _ in pbar:
         swarm = Swarm(obj_func, swarm_size, len(param_names), bounds)
         swarm_result, objective_cost_val = swarm.simulate_swarm()
+        run_iterations = int(swarm.iterations)
+        pso_iterations_per_run.append(run_iterations)
         candidate = np.asarray(swarm_result[:len(param_names)], dtype=np.float64)
 
         if objective_cost_val < best_objective_cost:
             best_objective_cost = objective_cost_val
             best_param_values = candidate.copy()
+            best_run_iterations = run_iterations
+
+    if pso_iterations_per_run:
+        vg_pso_iterations = float(np.mean(pso_iterations_per_run))
+        min_pso_iterations = int(min(pso_iterations_per_run))
+        max_pso_iterations = int(max(pso_iterations_per_run))
+    else:
+        vg_pso_iterations = 0.0
+        min_pso_iterations = 0
+        max_pso_iterations = 0
 
     tf_report = None
     tf_effective = None
@@ -284,6 +298,10 @@ def main():
         "calculate_max_du_dt": calculate_max_du_dt,
         "allowed_max_du_dt": allowed_max_du_dt,
         "du_dt_window_steps": du_dt_window_steps,
+        "vg_pso_iterations": vg_pso_iterations,
+        "min_pso_iterations": min_pso_iterations,
+        "max_pso_iterations": max_pso_iterations,
+        "best_run_iterations": best_run_iterations,
     }
     if tf_effective is not None:
         data["best_Tf"] = tf_effective
