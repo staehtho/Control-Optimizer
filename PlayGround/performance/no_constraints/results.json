@@ -1,22 +1,22 @@
 {
   "compute_effective_tf_batch": {
-    "total_seconds": 0.023666399996727705,
-    "count": 314,
-    "avg_seconds": 7.537070062652135e-05
+    "total_seconds": 0.08553440003379364,
+    "count": 3033,
+    "avg_seconds": 2.8201252896074396e-05
   },
   "evaluate_candidates": {
-    "total_seconds": 29.267686199998934,
-    "count": 314,
-    "avg_seconds": 0.09320919171974183
+    "total_seconds": 124.66559729999608,
+    "count": 3033,
+    "avg_seconds": 0.04110306538080979
   },
   "simulate_swarm": {
-    "total_seconds": 29.783408899998904,
-    "count": 10,
-    "avg_seconds": 2.9783408899998904
+    "total_seconds": 130.95772220000345,
+    "count": 100,
+    "avg_seconds": 1.3095772220000343
   },
   "time_domain_pso_func": {
-    "total_seconds": 29.132314800006498,
-    "count": 314,
-    "avg_seconds": 0.09277807261148566
+    "total_seconds": 124.25830169997698,
+    "count": 3033,
+    "avg_seconds": 0.04096877734915166
   }
 }

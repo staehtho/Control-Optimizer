@@ -121,7 +121,7 @@ def main():
             use_freq_metrics=config["use_freq_metrics"],
             gm_min_db=config["gm_min_db"],
             pm_min_deg=config["gm_min_db"],
-            ms_max_db=config["ms_max_db"],
+            ms_max_db=config["ms_max_db"] if config["ms_max_db"] != "" else None,
             pre_compiling=False,
         )
 
@@ -129,7 +129,7 @@ def main():
         swarm.simulate_swarm()
 
         with patch_timing(objective, stats):
-            for _ in tqdm(range(10), desc="Swarm"):
+            for _ in tqdm(range(100), desc=f"{file.parent.stem}"):
                 swarm = Swarm(objective, 40, 3, [[0, 0, 0], [10, 10, 10]])
                 swarm.simulate_swarm = stats.wrap("simulate_swarm", swarm.simulate_swarm)
                 swarm.simulate_swarm()
