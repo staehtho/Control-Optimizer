@@ -85,43 +85,58 @@ def patch_timing(objective: PsoFunc, stats: TimingStats):
 
 
 def main():
-    stats = TimingStats()
-    output_path = Path(__file__).with_name("performance_results.json")
 
-    plant = Plant([1], [1, 2, 1])
-    pid = PIDClosedLoop(plant)
+    src = Path(__file__).parent
 
-    objective = PsoFunc(
-        controller=pid,
-        t0=0,
-        t1=10,
-        dt=1e-4,
-        r=lambda t: np.ones_like(t),
-        sampling_rate_hz=2e4,
-        use_overshoot_control=True,
-        allowed_overshoot_pct=100,
-        use_max_du_dt_constraint=True,
-        allowed_max_du_dt=2000,
-        du_dt_window_steps=10,
-        use_freq_metrics=True,
-        gm_min_db=5,
-        pm_min_deg=30,
-        ms_max_db=10,
-        pre_compiling=False,
-    )
+    configs: list[Path] = []
+    for item in src.iterdir():
+        if item.is_dir():
+            for file in item.iterdir():
+                if file.stem == "config":
+                    configs.append(file)
 
-    swarm = Swarm(objective, 40, 3, [[0, 0.001, 0], [10, 10, 10]])
-    swarm.simulate_swarm()
+    for file in configs:
 
-    with patch_timing(objective, stats):
-        for _ in tqdm(range(1000)):
-            swarm = Swarm(objective, 40, 3, [[0, 0.001, 0], [10, 10, 10]])
-            swarm.simulate_swarm = stats.wrap("simulate_swarm", swarm.simulate_swarm)
-            swarm.simulate_swarm()
+        with open(str(file), "r", encoding="utf-8") as f:
+            config = json.load(f)
 
-    stats.print_summary()
-    output_path.write_text(json.dumps(stats.to_dict(), indent=2), encoding="utf-8")
-    print(f"\nSaved JSON results to {output_path}")
+        stats = TimingStats()
+        output_path = file.parent / "results.json"
+
+        plant = Plant([1], [1, 3, 3, 1])
+        pid = PIDClosedLoop(plant)
+
+        objective = PsoFunc(
+            controller=pid,
+            t0=config["t0"],
+            t1=config["t1"],
+            dt=config["dt"],
+            r=lambda t: np.ones_like(t),
+            sampling_rate_hz=config["sampling_rate_hz"],
+            use_overshoot_control=config["use_overshoot_control"],
+            allowed_overshoot_pct=config["allowed_overshoot_pct"],
+            use_max_du_dt_constraint=config["use_max_du_dt_constraint"],
+            allowed_max_du_dt=config["allowed_max_du_dt"],
+            du_dt_window_steps=config["du_dt_window_steps"],
+            use_freq_metrics=config["use_freq_metrics"],
+            gm_min_db=config["gm_min_db"],
+            pm_min_deg=config["gm_min_db"],
+            ms_max_db=config["ms_max_db"],
+            pre_compiling=False,
+        )
+
+        swarm = Swarm(objective, 40, 3, [[0, 0, 0], [10, 10, 10]])
+        swarm.simulate_swarm()
+
+        with patch_timing(objective, stats):
+            for _ in tqdm(range(10), desc="Swarm"):
+                swarm = Swarm(objective, 40, 3, [[0, 0, 0], [10, 10, 10]])
+                swarm.simulate_swarm = stats.wrap("simulate_swarm", swarm.simulate_swarm)
+                swarm.simulate_swarm()
+
+        stats.print_summary()
+        output_path.write_text(json.dumps(stats.to_dict(), indent=2), encoding="utf-8")
+        print(f"\nSaved JSON results to {output_path}")
 
 
 if __name__ == "__main__":

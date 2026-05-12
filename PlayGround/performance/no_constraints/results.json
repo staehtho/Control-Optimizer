@@ -1,0 +1,22 @@
+{
+  "compute_effective_tf_batch": {
+    "total_seconds": 0.023666399996727705,
+    "count": 314,
+    "avg_seconds": 7.537070062652135e-05
+  },
+  "evaluate_candidates": {
+    "total_seconds": 29.267686199998934,
+    "count": 314,
+    "avg_seconds": 0.09320919171974183
+  },
+  "simulate_swarm": {
+    "total_seconds": 29.783408899998904,
+    "count": 10,
+    "avg_seconds": 2.9783408899998904
+  },
+  "time_domain_pso_func": {
+    "total_seconds": 29.132314800006498,
+    "count": 314,
+    "avg_seconds": 0.09277807261148566
+  }
+}
