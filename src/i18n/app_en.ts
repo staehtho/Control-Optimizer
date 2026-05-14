@@ -782,22 +782,22 @@ If the sampling rate is unknown, leave this field empty to receive a recommended
         <translation type="vanished">Excitation Function</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="104"/>
+        <location filename="../views/function_view.py" line="97"/>
         <source>Time [s]</source>
         <translation>Time [s]</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="105"/>
+        <location filename="../views/function_view.py" line="98"/>
         <source>Output</source>
         <translation>Output</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="143"/>
+        <location filename="../views/function_view.py" line="136"/>
         <source>Excitation Function Definition</source>
         <translation>Excitation Function Definition</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="144"/>
+        <location filename="../views/function_view.py" line="137"/>
         <source>Excitation Function Plot</source>
         <translation>Excitation Function Plot</translation>
     </message>

@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, TypeVar, Callable
 
 from app_types import PlantResponseContext, PsoSimulationParam
-from app_domain.functions import StepFunction
+from app_domain.functions import FunctionTypes
 from models import ModelContainer
 from service import SimulationService
 from .ui_context import UiContext
@@ -275,7 +275,7 @@ class AppEngine:
             ka=1.0,
             constraint=(-5, 5),
             excitation_target=ExcitationTarget.REFERENCE,
-            function=StepFunction(),
+            function=FunctionTypes.STEP.value(),
             bounds=(
                 [0, 0.001, 0],
                 [10, 10, 10]

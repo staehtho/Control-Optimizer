@@ -1,7 +1,14 @@
 from enum import Enum
 
-from app_domain.functions import BaseFunction, StepFunction, SineFunction, CosineFunction, NullFunction, \
-    RectangularFunction, WhiteNoise, BrownianNoise, PinkNoise
+from ..functions.base_function import BaseFunction
+from ..functions.browian_noise import BrownianNoise
+from ..functions.cosine_function import CosineFunction
+from ..functions.null_function import NullFunction
+from ..functions.pink_noise import PinkNoise
+from ..functions.rectangular_function import RectangularFunction
+from ..functions.sine_function import SineFunction
+from ..functions.step_function import StepFunction
+from ..functions.white_noise import WhiteNoise
 
 
 class FunctionTypes(Enum):
@@ -15,6 +22,14 @@ class FunctionTypes(Enum):
     PINK_NOISE = PinkNoise
     WHITE_NOISE = WhiteNoise
 
+
+# Function types excluded from use as excitation targets
+EXCLUDED_FUNCTION_TYPES: list[FunctionTypes] = [
+    FunctionTypes.NULL,
+    FunctionTypes.BROWNIAN_NOISE,
+    FunctionTypes.PINK_NOISE,
+    FunctionTypes.WHITE_NOISE
+]
 
 # ------------------------------------------------------------------
 # Function Type Resolution

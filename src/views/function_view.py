@@ -5,7 +5,7 @@ from PySide6.QtCore import QT_TRANSLATE_NOOP
 from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QSizePolicy, QHBoxLayout
 from numpy import ndarray
 
-from app_domain.functions import FunctionTypes, resolve_function_type
+from app_domain.functions import FunctionTypes, EXCLUDED_FUNCTION_TYPES, resolve_function_type
 from app_types import PlotData, PlotLabels, NavLabels
 from views import ViewMixin
 from resources.plot_style import PLOT_STYLE
@@ -79,15 +79,8 @@ class FunctionView(ViewMixin, QWidget):
         frame: SectionFrame
         frame, frame_layout = self._create_card(parent=self)
 
-        excluded_function_types: list[FunctionTypes] = [
-            FunctionTypes.NULL,
-            FunctionTypes.BROWNIAN_NOISE,
-            FunctionTypes.PINK_NOISE,
-            FunctionTypes.WHITE_NOISE
-        ]
-
         self._function_widget = FunctionWidget(
-            self._ui_context, self._vm_function, excluded_function_types, parent=self
+            self._ui_context, self._vm_function, EXCLUDED_FUNCTION_TYPES, parent=self
         )
 
         frame_layout.addWidget(self._function_widget)

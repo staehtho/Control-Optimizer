@@ -782,22 +782,22 @@ Wenn die Abtastrate unbekannt ist, dieses Feld leer lassen, um einen empfohlenen
         <translation type="vanished">Anregungsfunktion</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="104"/>
+        <location filename="../views/function_view.py" line="97"/>
         <source>Time [s]</source>
         <translation>Zeit [s]</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="105"/>
+        <location filename="../views/function_view.py" line="98"/>
         <source>Output</source>
         <translation>Ausgang</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="143"/>
+        <location filename="../views/function_view.py" line="136"/>
         <source>Excitation Function Definition</source>
         <translation>Definition der Anregungsfunktion</translation>
     </message>
     <message>
-        <location filename="../views/function_view.py" line="144"/>
+        <location filename="../views/function_view.py" line="137"/>
         <source>Excitation Function Plot</source>
         <translation>Plot der Anregungsfunktion</translation>
     </message>
