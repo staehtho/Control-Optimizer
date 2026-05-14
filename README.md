@@ -161,11 +161,12 @@ Adding another controller requires updates in these areas:
 
 1. Register the controller enum value.
 2. Add UI translation support.
-3. Implement a frequency-domain `ClosedLoop` subclass.
-4. Add controller and closed-loop block-diagram builders.
-5. Register a `ControllerSpec`.
-6. Implement the Numba time-domain step function.
-7. Register the step function in the simulation core.
+3. Rebuild translations.
+4. Implement a frequency-domain `ClosedLoop` subclass.
+5. Add controller and closed-loop block-diagram builders.
+6. Register a `ControllerSpec`.
+7. Implement the Numba time-domain step function.
+8. Register the step function in the simulation core.
 
 ### 1. Register the Controller Type
 
@@ -201,7 +202,19 @@ def _controller_type(self, value: Enum) -> str:
 
 After adding or changing translatable strings, run the i18n build script.
 
-### 3. Implement the Frequency-Domain ClosedLoop Class
+### 3. Rebuild Translations
+
+Run the translation pipeline from the project root:
+
+```powershell
+cd src
+.\i18n\build-i18n.ps1
+```
+
+This updates the translation sources, compiled `.qm` files, and generated language resources so the new controller is
+available throughout the application.
+
+### 4. Implement the Frequency-Domain ClosedLoop Class
 
 Create a new class under `src/app_domain/controlsys/` and inherit from `ClosedLoop`.
 
@@ -240,7 +253,7 @@ The base `ClosedLoop` implementation provides the standard unity-feedback relati
 Override these methods when the controller structure differs from the standard PI/PID feedback path, as is done for
 feed-forward PID behavior.
 
-### 4. Add Block-Diagram Builders
+### 5. Add Block-Diagram Builders
 
 Controller SVG builders live in:
 
@@ -252,7 +265,7 @@ src/utils/svg/layout_closed_loop.py
 Add a controller builder and, if the closed-loop structure is not the default unity-feedback layout, add a closed-loop
 layout builder as well.
 
-### 5. Register the ControllerSpec
+### 6. Register the ControllerSpec
 
 Update `src/app_types/controller_sepc.py` and register the controller in `CONTROLLER_SPECS`.
 
@@ -277,7 +290,7 @@ CONTROLLER_SPECS = {
 `param_names`, default bounds, controller formulas, block-diagram builders, and the controller implementation must stay
 in the same parameter order.
 
-### 6. Implement the Time-Domain Controller
+### 7. Implement the Time-Domain Controller
 
 Time-domain PSO simulation is implemented in:
 
@@ -318,7 +331,7 @@ N_CONTROLLER_STATE = 3
 If a new controller requires additional time-dependent state, extend `N_CONTROLLER_STATE` and define named state indices
 so the simulation and Numba compilation remain consistent.
 
-### 7. Register the Controller in the Simulation Core
+### 8. Register the Controller in the Simulation Core
 
 Register the step function in `CONTROLLER_REGISTRY`:
 
@@ -333,6 +346,114 @@ CONTROLLER_REGISTRY = {
 
 Even controllers that do not use the reference value directly must still accept `r` in the function signature so the
 generic simulation core can call all controllers uniformly.
+
+## Extending the System with a New Excitation Function
+
+New excitation functions are implemented as `BaseFunction` subclasses, registered in the central function enum,
+translated for the UI, and then included in the i18n build output.
+
+Adding another excitation function requires updates in these areas:
+
+1. Implement the function class.
+2. Register the function in `FunctionTypes`.
+3. Decide whether the function is allowed for PSO optimization.
+4. Add UI translation support.
+5. Rebuild translations.
+
+### 1. Implement the Function Class
+
+Create a new class under `src/app_domain/functions/` and inherit from `BaseFunction`.
+
+```python
+class ExampleFunction(BaseFunction):
+    def __init__(self) -> None:
+        super().__init__()
+        self._param: dict[str, float] = {
+            r"\alpha": 1.0,
+            r"\beta": 2.0,
+            r"\gamma": -5.0,
+        }
+
+    def get_formula(self) -> str:
+        return r"u(t) = \alpha t + \frac{\beta}{t} - \gamma"
+
+    def get_function(self) -> Callable[[np.ndarray], np.ndarray]:
+        alpha = self._param[r"\alpha"]
+        beta = self._param[r"\beta"]
+        gamma = self._param[r"\gamma"]
+
+        def u(t: np.ndarray) -> np.ndarray:
+            return alpha * t + beta / t + gamma
+
+        return u
+```
+
+Use raw Python strings such as `r"\alpha"` and `r"u(t) = ..."` for parameter names and formulas so the generated
+formula text remains LaTeX-compatible.
+
+### 2. Register the Function in `FunctionTypes`
+
+Update `src/app_domain/functions/function_types.py`:
+
+```python
+class FunctionTypes(Enum):
+    NULL = NullFunction
+    STEP = StepFunction
+    SINE = SineFunction
+    COSINE = CosineFunction
+    RECTANGULAR = RectangularFunction
+    BROWNIAN_NOISE = BrownianNoise
+    PINK_NOISE = PinkNoise
+    WHITE_NOISE = WhiteNoise
+    EXAMPLE_FUNCTION = ExampleFunction
+```
+
+### 3. Decide Whether the Function Is Allowed for PSO Optimization
+
+`EXCLUDED_FUNCTION_TYPES` contains function types that must not be offered as excitation functions for PSO
+optimization. Functions listed there remain available for simulation only.
+
+```python
+EXCLUDED_FUNCTION_TYPES: list[FunctionTypes] = [
+    FunctionTypes.NULL,
+    FunctionTypes.BROWNIAN_NOISE,
+    FunctionTypes.PINK_NOISE,
+    FunctionTypes.WHITE_NOISE,
+    FunctionTypes.EXAMPLE_FUNCTION,
+]
+```
+
+Leave the new function out of this list if it should be selectable for PSO optimization.
+
+### 4. Add UI Translation Support
+
+Update `src/views/translations/enum_translations.py`:
+
+```python
+@register_translation(FunctionTypes)
+def _function_type(self, value: Enum) -> str:
+    match value:
+        case FunctionTypes.NULL:
+            return QCoreApplication.translate("ControlEnums", "Null")
+        case FunctionTypes.STEP:
+            return QCoreApplication.translate("ControlEnums", "Step")
+        case FunctionTypes.EXAMPLE_FUNCTION:
+            return QCoreApplication.translate("ControlEnums", "Example")
+        case _:
+            raise ValueError(f"No translation registered for enum value: {value}")
+```
+
+### 5. Rebuild Translations
+
+Run the translation pipeline from the project root:
+
+```powershell
+cd src
+.\i18n\build-i18n.ps1
+```
+
+This updates the translation sources, compiled `.qm` files, and generated language resources so the new excitation
+function is available throughout the application.
 
 ## Notes for Maintainers
 
