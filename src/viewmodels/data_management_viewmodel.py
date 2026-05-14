@@ -237,10 +237,12 @@ class DataManagementViewModel(BaseViewModel):
     def _get_controller_configuration_data(snapshot: PsoSimulationSnapshot) -> DynamicReportControllerConfiguration:
         return DynamicReportControllerConfiguration(
             controller_type=snapshot.controller_spec.controller_class.controller_type,
+            has_integrator=snapshot.controller_spec.controller_class.has_integrator,
             anti_windup=snapshot.controller_anti_windup,
             factor_ka=snapshot.controller_ka,
             constraint_min=snapshot.controller_constraint_min,
             constraint_max=snapshot.controller_constraint_max,
+            has_tf=snapshot.controller_spec.controller_class.tf_link_index > -1,
             factor_n=snapshot.controller_tuning_factor,
             min_sampling_rate=snapshot.sampling_rate,
         )
@@ -275,6 +277,7 @@ class DataManagementViewModel(BaseViewModel):
             is_feasible=result.is_feasible,
             simulation_time=result.simulation_time,
             controller_params=result.best_params,
+            has_tf=result.has_tf,
             recommended_sampling_rate=result.min_sampling_rate,
             tf_limitation=tf_limitation,
             error_criterion=result.error_criterion,

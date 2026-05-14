@@ -58,16 +58,16 @@
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="81"/>
-        <location filename="../service/reporting/sections.py" line="223"/>
-        <location filename="../service/reporting/sections.py" line="240"/>
+        <location filename="../service/reporting/sections.py" line="225"/>
+        <location filename="../service/reporting/sections.py" line="242"/>
         <source>Parameter</source>
         <translation>Parameter</translation>
     </message>
     <message>
         <location filename="../service/reporting/sections.py" line="82"/>
-        <location filename="../service/reporting/sections.py" line="241"/>
-        <location filename="../service/reporting/sections.py" line="262"/>
-        <location filename="../service/reporting/sections.py" line="282"/>
+        <location filename="../service/reporting/sections.py" line="243"/>
+        <location filename="../service/reporting/sections.py" line="279"/>
+        <location filename="../service/reporting/sections.py" line="299"/>
         <source>Value</source>
         <translation>Value</translation>
     </message>
@@ -112,122 +112,132 @@
         <translation>Controller Parameter: %(params)s.</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="115"/>
+        <location filename="../service/reporting/sections.py" line="116"/>
         <source>Anti Windup</source>
         <translation>Anti Windup</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="119"/>
+        <location filename="../service/reporting/sections.py" line="120"/>
         <source> with Ka = %(ka)s</source>
         <translation> with Ka = %(ka)s</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="125"/>
+        <location filename="../service/reporting/sections.py" line="126"/>
         <source>%(anti_windup)s method%(ka_part)s.</source>
         <translation>%(anti_windup)s method%(ka_part)s.</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="133"/>
+        <location filename="../service/reporting/sections.py" line="135"/>
         <source>Filter Time Constant</source>
         <translation>Filter Time Constant</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="138"/>
+        <location filename="../service/reporting/sections.py" line="140"/>
         <source>Sampling rate unknown.</source>
         <translation>Sampling rate unknown.</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="145"/>
+        <location filename="../service/reporting/sections.py" line="147"/>
         <source>Minimum sampling rate: %(sampling_rate)s</source>
         <translation>Minimum sampling rate: %(sampling_rate)s</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="153"/>
+        <location filename="../service/reporting/sections.py" line="155"/>
         <source>PSO Configuration</source>
         <translation>PSO Configuration</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="156"/>
+        <location filename="../service/reporting/sections.py" line="158"/>
         <source>Simulation Settings</source>
         <translation>Simulation Settings</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="158"/>
+        <location filename="../service/reporting/sections.py" line="160"/>
         <source>Simulation time: %(t0)s-%(t1)s s</source>
         <translation>Simulation time: %(t0)s-%(t1)s s</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="167"/>
+        <location filename="../service/reporting/sections.py" line="169"/>
         <source>Excitation target: %(target)s</source>
         <translation>Excitation target: %(target)s</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="174"/>
+        <location filename="../service/reporting/sections.py" line="176"/>
         <source>Time Domain Targets</source>
         <translation>Time Domain Targets</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="176"/>
+        <location filename="../service/reporting/sections.py" line="178"/>
         <source>Error criterion: %(error)s</source>
         <translation>Error criterion: %(error)s</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="180"/>
+        <location filename="../service/reporting/sections.py" line="182"/>
         <source>Max Overshoot: %(max_overshoot)s %%</source>
         <translation>Max Overshoot: %(max_overshoot)s %%</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="185"/>
+        <location filename="../service/reporting/sections.py" line="187"/>
         <source>Overshoot control is disabled.</source>
         <translation>Overshoot control is disabled.</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="186"/>
+        <location filename="../service/reporting/sections.py" line="188"/>
         <source>Slew rate limitation maximum du/dt: %(max_du_dt)s with window size: %(window_size)s</source>
         <translation>Slew rate limitation maximum du/dt: %(max_du_dt)s with window size: %(window_size)s</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="194"/>
+        <location filename="../service/reporting/sections.py" line="196"/>
         <source>Slew rate limitation is disabled.</source>
         <translation>Slew rate limitation is disabled.</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="198"/>
+        <location filename="../service/reporting/sections.py" line="200"/>
         <source>Frequency Domain Targets</source>
         <translation>Frequency Domain Targets</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="200"/>
+        <location filename="../service/reporting/sections.py" line="202"/>
         <source>Gain margin: %(gain_margin)s dB</source>
         <translation>Gain margin: %(gain_margin)s dB</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="205"/>
+        <location filename="../service/reporting/sections.py" line="207"/>
         <source>Gain margin is disabled.</source>
         <translation>Gain margin is disabled.</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="206"/>
+        <location filename="../service/reporting/sections.py" line="208"/>
         <source>Phase margin: %(phase_margin)s°</source>
         <translation>Phase margin: %(phase_margin)s°</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="211"/>
+        <location filename="../service/reporting/sections.py" line="213"/>
         <source>Phase margin is disabled.</source>
         <translation>Phase margin is disabled.</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="212"/>
+        <location filename="../service/reporting/sections.py" line="214"/>
         <source>Sensitivity peak: %(sensitivity)s dB</source>
         <translation>Sensitivity peak: %(sensitivity)s dB</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="217"/>
+        <location filename="../service/reporting/sections.py" line="219"/>
         <source>Sensitivity peak is disabled.</source>
         <translation>Sensitivity peak is disabled.</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="297"/>
+        <location filename="../service/reporting/sections.py" line="255"/>
+        <source>Filter time constant was limited by simulation.</source>
+        <translation>Filter time constant was limited by simulation.</translation>
+    </message>
+    <message>
+        <location filename="../service/reporting/sections.py" line="262"/>
+        <source>Filter time constant rate limited by sampling rate.</source>
+        <translation>Filter time constant rate limited by sampling rate.</translation>
+    </message>
+    <message>
+        <location filename="../service/reporting/sections.py" line="314"/>
         <source>Sensitivity peak</source>
         <translation>Sensitivity peak</translation>
     </message>
@@ -240,32 +250,32 @@
         <translation type="vanished">Stability margin is disabled.</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="221"/>
+        <location filename="../service/reporting/sections.py" line="223"/>
         <source>PSO Parameter Bounds</source>
         <translation>PSO Parameter Bounds</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="224"/>
+        <location filename="../service/reporting/sections.py" line="226"/>
         <source>Min</source>
         <translation>Min</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="225"/>
+        <location filename="../service/reporting/sections.py" line="227"/>
         <source>Max</source>
         <translation>Max</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="235"/>
+        <location filename="../service/reporting/sections.py" line="237"/>
         <source>PSO Result</source>
         <translation>PSO Result</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="238"/>
+        <location filename="../service/reporting/sections.py" line="240"/>
         <source>Optimized Controller Parameters</source>
         <translation>Optimized Controller Parameters</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="249"/>
+        <location filename="../service/reporting/sections.py" line="251"/>
         <source>Sampling Rate</source>
         <translation>Sampling Rate</translation>
     </message>
@@ -278,48 +288,48 @@
         <translation type="vanished">Sampling rate was limited by sampling rate.</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="252"/>
+        <location filename="../service/reporting/sections.py" line="269"/>
         <source>Recommended sampling rate: %(sampling_rate)s Hz.</source>
         <translation>Recommended sampling rate: %(sampling_rate)s Hz.</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="259"/>
+        <location filename="../service/reporting/sections.py" line="276"/>
         <source>Time Domain Characteristics</source>
         <translation>Time Domain Characteristics</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="261"/>
-        <location filename="../service/reporting/sections.py" line="281"/>
+        <location filename="../service/reporting/sections.py" line="278"/>
+        <location filename="../service/reporting/sections.py" line="298"/>
         <source>Metric</source>
         <translation>Metric</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="267"/>
+        <location filename="../service/reporting/sections.py" line="284"/>
         <source>Maximum Overshoot</source>
         <translation>Maximum Overshoot</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="272"/>
+        <location filename="../service/reporting/sections.py" line="289"/>
         <source>Slew Rate Limit du/dt</source>
         <translation>Slew Rate Limit du/dt</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="279"/>
+        <location filename="../service/reporting/sections.py" line="296"/>
         <source>Frequency Domain Characteristics</source>
         <translation>Frequency Domain Characteristics</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="285"/>
+        <location filename="../service/reporting/sections.py" line="302"/>
         <source>at</source>
         <translation>at</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="289"/>
+        <location filename="../service/reporting/sections.py" line="306"/>
         <source>Gain margin</source>
         <translation>Gain margin</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="293"/>
+        <location filename="../service/reporting/sections.py" line="310"/>
         <source>Phase margin</source>
         <translation>Phase margin</translation>
     </message>
@@ -328,47 +338,47 @@
         <translation type="vanished">Stability margin</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="306"/>
+        <location filename="../service/reporting/sections.py" line="323"/>
         <source>Block Diagram</source>
         <translation>Block Diagram</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="312"/>
+        <location filename="../service/reporting/sections.py" line="329"/>
         <source>Plot Time Domain</source>
         <translation>Plot Time Domain</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="318"/>
+        <location filename="../service/reporting/sections.py" line="335"/>
         <source>Bode Plot</source>
         <translation>Bode Plot</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="324"/>
+        <location filename="../service/reporting/sections.py" line="341"/>
         <source>Transfer Functions</source>
         <translation>Transfer Functions</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="327"/>
+        <location filename="../service/reporting/sections.py" line="344"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="328"/>
+        <location filename="../service/reporting/sections.py" line="345"/>
         <source>Controller</source>
         <translation>Controller</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="329"/>
+        <location filename="../service/reporting/sections.py" line="346"/>
         <source>Open Loop</source>
         <translation>Open Loop</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="330"/>
+        <location filename="../service/reporting/sections.py" line="347"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="331"/>
+        <location filename="../service/reporting/sections.py" line="348"/>
         <source>Sensitivity</source>
         <translation>Sensitivity</translation>
     </message>

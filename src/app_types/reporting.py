@@ -38,9 +38,11 @@ class DynamicReportControllerConfiguration:
     anti_windup: AntiWindup
     factor_ka: float | None
 
+    has_integrator: bool
     constraint_min: float
     constraint_max: float
 
+    has_tf: bool
     factor_n: float
     min_sampling_rate: float | None
 
@@ -67,6 +69,7 @@ class DynamicReportPsoResult:
     is_feasible: bool
     simulation_time: float
     controller_params: dict[str, float]
+    has_tf: bool
     recommended_sampling_rate: float | None
     tf_limitation: str | None
 

@@ -111,42 +111,44 @@ def section_controller_configuration(report: BaseReport, data: DynamicReportCont
             ) % {"min_output": format_value(data.constraint_min, 3)},
         ])
 
-    with report.section():
-        report.add_subheading(QCoreApplication.translate("Report", "Anti Windup"))
-        base = TRANSLATION(data.anti_windup)
+    if data.has_integrator:
+        with report.section():
+            report.add_subheading(QCoreApplication.translate("Report", "Anti Windup"))
+            base = TRANSLATION(data.anti_windup)
 
-        ka_part = (
-            QCoreApplication.translate("Report", " with Ka = %(ka)s")
-            % {"ka": format_value(data.factor_ka, 3)}
-            if data.anti_windup == AntiWindup.BACKCALCULATION or data.factor_ka is None
-            else ""
-        )
+            ka_part = (
+                QCoreApplication.translate("Report", " with Ka = %(ka)s")
+                % {"ka": format_value(data.factor_ka, 3)}
+                if data.anti_windup == AntiWindup.BACKCALCULATION or data.factor_ka is None
+                else ""
+            )
 
-        str_anti_windup = QCoreApplication.translate(
-            "Report",
-            "%(anti_windup)s method%(ka_part)s."
-        ) % {"anti_windup": base, "ka_part": ka_part}
+            str_anti_windup = QCoreApplication.translate(
+                "Report",
+                "%(anti_windup)s method%(ka_part)s."
+            ) % {"anti_windup": base, "ka_part": ka_part}
 
-        report.add_paragraph(str_anti_windup)
+            report.add_paragraph(str_anti_windup)
 
-    with report.section():
-        report.add_subheading(QCoreApplication.translate("Report", "Filter Time Constant"))
-        report.add_paragraph(f"N = " + format_value(data.factor_n, 3))
+    if data.has_tf:
+        with report.section():
+            report.add_subheading(QCoreApplication.translate("Report", "Filter Time Constant"))
+            report.add_paragraph(f"N = " + format_value(data.factor_n, 3))
 
-        if data.min_sampling_rate is None:
-            report.add_paragraph(
-                QtCore.QCoreApplication.translate(
-                    "Report",
-                    "Sampling rate unknown."
+            if data.min_sampling_rate is None:
+                report.add_paragraph(
+                    QtCore.QCoreApplication.translate(
+                        "Report",
+                        "Sampling rate unknown."
+                    )
                 )
-            )
-        else:
-            report.add_paragraph(
-                QCoreApplication.translate(
-                    "Report",
-                    "Minimum sampling rate: %(sampling_rate)s"
-                ) % {"sampling_rate": format_value(data.min_sampling_rate, 3) + " Hz"}
-            )
+            else:
+                report.add_paragraph(
+                    QCoreApplication.translate(
+                        "Report",
+                        "Minimum sampling rate: %(sampling_rate)s"
+                    ) % {"sampling_rate": format_value(data.min_sampling_rate, 3) + " Hz"}
+                )
 
 
 def section_pso_configuration(report: BaseReport, data: DynamicReportPsoConfiguration) -> None:
@@ -244,16 +246,31 @@ def section_pso_result(report: BaseReport, data_config: DynamicReportPsoConfigur
 
         report.add_table(header, table_data, width=250)
 
-    if data.tf_limitation not in ("simulation", "sampling"):
+    if data.has_tf:
         with report.section():
             report.add_subheading(QCoreApplication.translate("Report", "Sampling Rate"))
-            
-            report.add_paragraph(
-                QCoreApplication.translate(
-                    "Report",
-                    "Recommended sampling rate: %(sampling_rate)s Hz."
-                ) % {"sampling_rate": format_value(data.recommended_sampling_rate, 3)}
-            )
+
+            if data.tf_limitation == "simulation":
+                report.add_paragraph(
+                    QCoreApplication.translate(
+                        "Report",
+                        "Filter time constant was limited by simulation."
+                    )
+                )
+            elif data.tf_limitation == "sampling":
+                report.add_paragraph(
+                    QCoreApplication.translate(
+                        "Report",
+                        "Filter time constant rate limited by sampling rate."
+                    )
+                )
+            else:
+                report.add_paragraph(
+                    QCoreApplication.translate(
+                        "Report",
+                        "Recommended sampling rate: %(sampling_rate)s Hz."
+                    ) % {"sampling_rate": format_value(data.recommended_sampling_rate, 3)}
+                )
 
     with report.section():
         report.add_subheading(QCoreApplication.translate("Report", "Time Domain Characteristics"))
