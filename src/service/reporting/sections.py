@@ -244,24 +244,10 @@ def section_pso_result(report: BaseReport, data_config: DynamicReportPsoConfigur
 
         report.add_table(header, table_data, width=250)
 
-    with report.section():
-        report.add_subheading(QCoreApplication.translate("Report", "Sampling Rate"))
-
-        if data.tf_limitation == "simulation":
-            report.add_paragraph(
-                QCoreApplication.translate(
-                    "Report",
-                    "Sampling rate was limited by simulation."
-                )
-            )
-        elif data.tf_limitation == "sampling":
-            report.add_paragraph(
-                QCoreApplication.translate(
-                    "Report",
-                    "Sampling rate was limited by sampling rate."
-                )
-            )
-        else:
+    if data.tf_limitation not in ("simulation", "sampling"):
+        with report.section():
+            report.add_subheading(QCoreApplication.translate("Report", "Sampling Rate"))
+            
             report.add_paragraph(
                 QCoreApplication.translate(
                     "Report",

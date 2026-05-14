@@ -66,8 +66,8 @@
     <message>
         <location filename="../service/reporting/sections.py" line="82"/>
         <location filename="../service/reporting/sections.py" line="241"/>
-        <location filename="../service/reporting/sections.py" line="276"/>
-        <location filename="../service/reporting/sections.py" line="296"/>
+        <location filename="../service/reporting/sections.py" line="262"/>
+        <location filename="../service/reporting/sections.py" line="282"/>
         <source>Value</source>
         <translation>Value</translation>
     </message>
@@ -227,7 +227,7 @@
         <translation>Sensitivity peak is disabled.</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="311"/>
+        <location filename="../service/reporting/sections.py" line="297"/>
         <source>Sensitivity peak</source>
         <translation>Sensitivity peak</translation>
     </message>
@@ -265,63 +265,61 @@
         <translation>Optimized Controller Parameters</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="248"/>
+        <location filename="../service/reporting/sections.py" line="249"/>
         <source>Sampling Rate</source>
         <translation>Sampling Rate</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="252"/>
         <source>Sampling rate was limited by simulation.</source>
-        <translation>Sampling rate was limited by simulation.</translation>
+        <translation type="vanished">Sampling rate was limited by simulation.</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="259"/>
         <source>Sampling rate was limited by sampling rate.</source>
-        <translation>Sampling rate was limited by sampling rate.</translation>
+        <translation type="vanished">Sampling rate was limited by sampling rate.</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="266"/>
+        <location filename="../service/reporting/sections.py" line="252"/>
         <source>Recommended sampling rate: %(sampling_rate)s Hz.</source>
         <translation>Recommended sampling rate: %(sampling_rate)s Hz.</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="273"/>
+        <location filename="../service/reporting/sections.py" line="259"/>
         <source>Time Domain Characteristics</source>
         <translation>Time Domain Characteristics</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="275"/>
-        <location filename="../service/reporting/sections.py" line="295"/>
+        <location filename="../service/reporting/sections.py" line="261"/>
+        <location filename="../service/reporting/sections.py" line="281"/>
         <source>Metric</source>
         <translation>Metric</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="281"/>
+        <location filename="../service/reporting/sections.py" line="267"/>
         <source>Maximum Overshoot</source>
         <translation>Maximum Overshoot</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="286"/>
+        <location filename="../service/reporting/sections.py" line="272"/>
         <source>Slew Rate Limit du/dt</source>
         <translation>Slew Rate Limit du/dt</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="293"/>
+        <location filename="../service/reporting/sections.py" line="279"/>
         <source>Frequency Domain Characteristics</source>
         <translation>Frequency Domain Characteristics</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="299"/>
+        <location filename="../service/reporting/sections.py" line="285"/>
         <source>at</source>
         <translation>at</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="303"/>
+        <location filename="../service/reporting/sections.py" line="289"/>
         <source>Gain margin</source>
         <translation>Gain margin</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="307"/>
+        <location filename="../service/reporting/sections.py" line="293"/>
         <source>Phase margin</source>
         <translation>Phase margin</translation>
     </message>
@@ -330,47 +328,47 @@
         <translation type="vanished">Stability margin</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="320"/>
+        <location filename="../service/reporting/sections.py" line="306"/>
         <source>Block Diagram</source>
         <translation>Block Diagram</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="326"/>
+        <location filename="../service/reporting/sections.py" line="312"/>
         <source>Plot Time Domain</source>
         <translation>Plot Time Domain</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="332"/>
+        <location filename="../service/reporting/sections.py" line="318"/>
         <source>Bode Plot</source>
         <translation>Bode Plot</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="338"/>
+        <location filename="../service/reporting/sections.py" line="324"/>
         <source>Transfer Functions</source>
         <translation>Transfer Functions</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="341"/>
+        <location filename="../service/reporting/sections.py" line="327"/>
         <source>Plant</source>
         <translation>Plant</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="342"/>
+        <location filename="../service/reporting/sections.py" line="328"/>
         <source>Controller</source>
         <translation>Controller</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="343"/>
+        <location filename="../service/reporting/sections.py" line="329"/>
         <source>Open Loop</source>
         <translation>Open Loop</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="344"/>
+        <location filename="../service/reporting/sections.py" line="330"/>
         <source>Closed Loop</source>
         <translation>Closed Loop</translation>
     </message>
     <message>
-        <location filename="../service/reporting/sections.py" line="345"/>
+        <location filename="../service/reporting/sections.py" line="331"/>
         <source>Sensitivity</source>
         <translation>Sensitivity</translation>
     </message>
