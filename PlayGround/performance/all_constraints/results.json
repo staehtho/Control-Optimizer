@@ -1,0 +1,27 @@
+{
+  "compute_effective_tf_batch": {
+    "total_seconds": 0.4370626021118369,
+    "count": 14532,
+    "avg_seconds": 3.0075874078711594e-05
+  },
+  "compute_loop_metrics_batch": {
+    "total_seconds": 53.74842780109611,
+    "count": 14532,
+    "avg_seconds": 0.003698625640042397
+  },
+  "evaluate_candidates": {
+    "total_seconds": 563.0774983982265,
+    "count": 14532,
+    "avg_seconds": 0.03874741937780254
+  },
+  "simulate_swarm": {
+    "total_seconds": 595.924454800348,
+    "count": 500,
+    "avg_seconds": 1.1918489096006961
+  },
+  "time_domain_pso_func": {
+    "total_seconds": 504.99805030046264,
+    "count": 14532,
+    "avg_seconds": 0.034750760411537476
+  }
+}

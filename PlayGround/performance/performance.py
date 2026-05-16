@@ -129,7 +129,7 @@ def main():
         swarm.simulate_swarm()
 
         with patch_timing(objective, stats):
-            for _ in tqdm(range(100), desc=f"{file.parent.stem}"):
+            for _ in tqdm(range(500), desc=f"{file.parent.stem}"):
                 swarm = Swarm(objective, 40, 3, [[0, 0, 0], [10, 10, 10]])
                 swarm.simulate_swarm = stats.wrap("simulate_swarm", swarm.simulate_swarm)
                 swarm.simulate_swarm()

@@ -6,7 +6,7 @@
   "use_overshoot_control": true,
   "allowed_overshoot_pct": 100,
   "use_max_du_dt_constraint": true,
-  "allowed_max_du_dt": 2000,
+  "allowed_max_du_dt": 100,
   "du_dt_window_steps": 10,
   "use_freq_metrics": true,
   "gm_min_db": 0.1,

@@ -6,10 +6,10 @@
   "use_overshoot_control": false,
   "allowed_overshoot_pct": 0,
   "use_max_du_dt_constraint": false,
-  "allowed_max_du_dt": 2000,
+  "allowed_max_du_dt": 0,
   "du_dt_window_steps": 10,
   "use_freq_metrics": false,
-  "gm_min_db": 5,
-  "pm_min_deg": 30,
-  "ms_max_db": 10
+  "gm_min_db": 0,
+  "pm_min_deg": 0,
+  "ms_max_db": ""
 }

@@ -1,27 +1,27 @@
 {
   "compute_effective_tf_batch": {
-    "total_seconds": 0.07819819999986066,
-    "count": 2838,
-    "avg_seconds": 2.7553981677188393e-05
+    "total_seconds": 0.4168370008992497,
+    "count": 14441,
+    "avg_seconds": 2.8864829367720358e-05
   },
   "compute_loop_metrics_batch": {
-    "total_seconds": 9.579375099997378,
-    "count": 2838,
-    "avg_seconds": 0.00337539644115482
+    "total_seconds": 48.247021698305616,
+    "count": 14441,
+    "avg_seconds": 0.00334097511933423
   },
   "evaluate_candidates": {
-    "total_seconds": 118.50792439997167,
-    "count": 2838,
-    "avg_seconds": 0.041757549119087974
+    "total_seconds": 608.5120093986625,
+    "count": 14441,
+    "avg_seconds": 0.04213780274209975
   },
   "simulate_swarm": {
-    "total_seconds": 123.76576250000471,
-    "count": 100,
-    "avg_seconds": 1.237657625000047
+    "total_seconds": 636.039990499441,
+    "count": 500,
+    "avg_seconds": 1.272079980998882
   },
   "time_domain_pso_func": {
-    "total_seconds": 108.41375929995593,
-    "count": 2838,
-    "avg_seconds": 0.03820076085269765
+    "total_seconds": 557.5123730977648,
+    "count": 14441,
+    "avg_seconds": 0.0386062165430209
   }
 }
