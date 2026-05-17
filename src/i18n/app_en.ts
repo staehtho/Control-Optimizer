@@ -35,53 +35,33 @@
 <context>
     <name>BodePlotWidget</name>
     <message>
-        <location filename="../views/widgets/bode_plot_widget.py" line="23"/>
+        <location filename="../views/widgets/bode_plot_widget.py" line="47"/>
         <source>Margin</source>
         <translation>Margin</translation>
     </message>
     <message>
-        <location filename="../views/widgets/bode_plot_widget.py" line="24"/>
-        <location filename="../views/widgets/bode_plot_widget.py" line="29"/>
+        <location filename="../views/widgets/bode_plot_widget.py" line="48"/>
+        <location filename="../views/widgets/bode_plot_widget.py" line="53"/>
         <source>Frequency /rad/s</source>
         <translation>Frequency /rad/s</translation>
     </message>
     <message>
-        <location filename="../views/widgets/bode_plot_widget.py" line="28"/>
+        <location filename="../views/widgets/bode_plot_widget.py" line="52"/>
         <source>Phase</source>
         <translation>Phase</translation>
     </message>
     <message>
-        <location filename="../views/widgets/bode_plot_widget.py" line="44"/>
+        <location filename="../views/widgets/bode_plot_widget.py" line="73"/>
         <source>Min. frequency</source>
         <translation>Min. frequency</translation>
     </message>
     <message>
-        <location filename="../views/widgets/bode_plot_widget.py" line="45"/>
+        <location filename="../views/widgets/bode_plot_widget.py" line="74"/>
         <source>Max. frequency</source>
         <translation>Max. frequency</translation>
     </message>
     <message>
-        <location filename="../views/widgets/bode_plot_widget.py" line="48"/>
         <source>Lower frequency limit (omega_min).
-            Defines where the frequency axis begins.
-            Unit: rad/s.</source>
-        <translation>Lower frequency limit (ω_min).
-Defines where the frequency axis begins.
-Unit: rad/s.</translation>
-    </message>
-    <message>
-        <location filename="../views/widgets/bode_plot_widget.py" line="54"/>
-        <source>Upper frequency limit (omega_max).
-            Defines where the frequency axis ends.
-            Unit: rad/s.
-            Must be greater than the lower frequency limit.</source>
-        <translation>Upper frequency limit (ω_max).
-Defines where the frequency axis ends.
-Unit: rad/s.
-Must be greater than the lower frequency limit.</translation>
-    </message>
-    <message>
-        <source>Lower frequency limit (ω_min).
             Defines where the frequency axis begins.
             Unit: rad/s.</source>
         <translation type="vanished">Lower frequency limit (ω_min).
@@ -89,11 +69,31 @@ Defines where the frequency axis begins.
 Unit: rad/s.</translation>
     </message>
     <message>
-        <source>Upper frequency limit (ω_max).
+        <source>Upper frequency limit (omega_max).
             Defines where the frequency axis ends.
             Unit: rad/s.
             Must be greater than the lower frequency limit.</source>
         <translation type="vanished">Upper frequency limit (ω_max).
+Defines where the frequency axis ends.
+Unit: rad/s.
+Must be greater than the lower frequency limit.</translation>
+    </message>
+    <message>
+        <location filename="../views/widgets/bode_plot_widget.py" line="77"/>
+        <source>Lower frequency limit (ω_min).
+            Defines where the frequency axis begins.
+            Unit: rad/s.</source>
+        <translation>Lower frequency limit (ω_min).
+Defines where the frequency axis begins.
+Unit: rad/s.</translation>
+    </message>
+    <message>
+        <location filename="../views/widgets/bode_plot_widget.py" line="83"/>
+        <source>Upper frequency limit (ω_max).
+            Defines where the frequency axis ends.
+            Unit: rad/s.
+            Must be greater than the lower frequency limit.</source>
+        <translation>Upper frequency limit (ω_max).
 Defines where the frequency axis ends.
 Unit: rad/s.
 Must be greater than the lower frequency limit.</translation>
@@ -2152,22 +2152,22 @@ Example: (s+1)(s+2) or s^2 + 3*s + 2</translation>
 <context>
     <name>PlotWidget</name>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="265"/>
+        <location filename="../views/widgets/plot_widget.py" line="264"/>
         <source>plot.grid</source>
         <translation>Grid</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="266"/>
+        <location filename="../views/widgets/plot_widget.py" line="265"/>
         <source>plot.start</source>
         <translation>Start time</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="267"/>
+        <location filename="../views/widgets/plot_widget.py" line="266"/>
         <source>plot.end</source>
         <translation>End time</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="268"/>
+        <location filename="../views/widgets/plot_widget.py" line="267"/>
         <source>Lower x-axis limit (x_min).
         Defines where the time axis begins.
         Unit: seconds (s).</source>
@@ -2176,7 +2176,7 @@ Defines where the time axis begins.
 Unit: seconds (s).</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="271"/>
+        <location filename="../views/widgets/plot_widget.py" line="270"/>
         <source>Upper x-axis limit (x_max).
         Defines where the time axis ends.
         Unit: seconds (s).
@@ -2187,7 +2187,7 @@ Unit: seconds (s).
 Must be greater than the start time.</translation>
     </message>
     <message>
-        <location filename="../views/widgets/plot_widget.py" line="276"/>
+        <location filename="../views/widgets/plot_widget.py" line="275"/>
         <source>plot.legend</source>
         <translation>Legend</translation>
     </message>
