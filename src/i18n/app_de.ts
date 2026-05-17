@@ -416,12 +416,20 @@ Muss groesser sein als die untere Frequenzgrenze.</translation>
     <message>
         <location filename="../views/controller_view.py" line="172"/>
         <source>Defines the filter factor N used to compute the filter time constant Tf = Td/N.
+                Smaller values of N increase filtering and produce a smoother but slower control response,
+                while larger values reduce Tf and therefore diminish the influence of the filter.</source>
+        <translation>Definiert den Filterfaktor (N), mit dem die Filterzeitkonstante Tf = T_d/N berechnet wird.
+Kleinere Werte von N verstärken die Filterwirkung und führen zu einem ruhigeren, aber langsameren Regelverhalten,
+während grössere Werte Tf verkleinern und damit den Einfluss des Filters verringern.</translation>
+    </message>
+    <message>
+        <source>Defines the filter factor N used to compute the filter time constant Tf = Td/N.
                 Smaller values of N result in stronger filtering and a smoother but slower control response.</source>
-        <translation>Definiert den Filterfaktor N zur Berechnung der Filterzeitkonstante Tf = Td/N.
+        <translation type="vanished">Definiert den Filterfaktor N zur Berechnung der Filterzeitkonstante Tf = Td/N.
 Kleinere Werte von N führen zu stärkerer Filterung und einer glatteren, aber langsameren Regelantwort.</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="176"/>
+        <location filename="../views/controller_view.py" line="177"/>
         <source>The filter time constant Tf is automatically limited by the system’s sampling rate and
                 the simulation time step to ensure stable and proper behavior.
                 If the sampling rate is unknown, leave this field empty to receive a recommended value.</source>
@@ -2020,17 +2028,17 @@ Beispiel: (s+1)(s+2) oder s^2 + 3*s + 2</translation>
         <translation>Ungültiger Ausdruck: Geben Sie einen gültigen Ausdruck ein.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="402"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="403"/>
         <source>Invalid numerator: first coefficient must be non-zero.</source>
         <translation>Ungültiger Zähler: Der erste Koeffizient darf nicht null sein.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="408"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="409"/>
         <source>Invalid denominator: first coefficient must be non-zero.</source>
         <translation>Ungültiger Nenner: Der erste Koeffizient darf nicht null sein.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="416"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="417"/>
         <source>Invalid transfer function: denominator order must be greater than or equal to numerator order.</source>
         <translation>Ungültige Übertragungsfunktion: Die Ordnung des Nenners muss grösser oder gleich der Ordnung des Zähler sein.</translation>
     </message>

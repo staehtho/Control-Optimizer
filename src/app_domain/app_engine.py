@@ -239,6 +239,7 @@ class AppEngine:
             den=[1, 2, 1],
             t0=0,
             t1=10,
+            dt=1e-4,
             solver=MySolver.RK4,
             reference=lambda t: np.where(t >= 0, 1.0, 0.0),
         )

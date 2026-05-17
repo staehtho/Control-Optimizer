@@ -362,6 +362,7 @@ class PlantViewModel(BaseViewModel):
             den=self._model_plant.den,
             t0=t0,
             t1=t1,
+            dt=self._settings.time_step,
             solver=solver,
             reference=lambda t: np.where(t >= 0, 1.0, 0.0),
         )

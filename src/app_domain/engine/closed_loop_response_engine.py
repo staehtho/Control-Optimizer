@@ -42,11 +42,11 @@ class ClosedLoopResponseEngine:
             anti_windup_method=context.anti_windup,
             ka=context.ka
         )
-        dt = (context.t1 - context.t0) / 5000
+
         t, u, y = cl.system_response(
             t0=context.t0,
             t1=context.t1,
-            dt=dt,
+            dt=context.dt,
             r=context.reference,
             l=context.input_disturbance,
             n=context.measurement_disturbance,

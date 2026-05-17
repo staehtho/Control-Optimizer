@@ -416,12 +416,20 @@ Must be greater than the lower frequency limit.</translation>
     <message>
         <location filename="../views/controller_view.py" line="172"/>
         <source>Defines the filter factor N used to compute the filter time constant Tf = Td/N.
-                Smaller values of N result in stronger filtering and a smoother but slower control response.</source>
+                Smaller values of N increase filtering and produce a smoother but slower control response,
+                while larger values reduce Tf and therefore diminish the influence of the filter.</source>
         <translation>Defines the filter factor N used to compute the filter time constant Tf = Td/N.
+Smaller values of N increase filtering and produce a smoother but slower control response,
+while larger values reduce Tf and therefore diminish the influence of the filter.</translation>
+    </message>
+    <message>
+        <source>Defines the filter factor N used to compute the filter time constant Tf = Td/N.
+                Smaller values of N result in stronger filtering and a smoother but slower control response.</source>
+        <translation type="vanished">Defines the filter factor N used to compute the filter time constant Tf = Td/N.
 Smaller values of N result in stronger filtering and a smoother but slower control response.</translation>
     </message>
     <message>
-        <location filename="../views/controller_view.py" line="176"/>
+        <location filename="../views/controller_view.py" line="177"/>
         <source>The filter time constant Tf is automatically limited by the system’s sampling rate and
                 the simulation time step to ensure stable and proper behavior.
                 If the sampling rate is unknown, leave this field empty to receive a recommended value.</source>
@@ -2095,17 +2103,17 @@ Example: (s+1)(s+2) or s^2 + 3*s + 2</translation>
         <translation>Invalid expression: enter a valid expression.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="402"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="403"/>
         <source>Invalid numerator: first coefficient must be non-zero.</source>
         <translation>Invalid numerator: first coefficient must be non-zero.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="408"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="409"/>
         <source>Invalid denominator: first coefficient must be non-zero.</source>
         <translation>Invalid denominator: first coefficient must be non-zero.</translation>
     </message>
     <message>
-        <location filename="../viewmodels/plant_viewmodel.py" line="416"/>
+        <location filename="../viewmodels/plant_viewmodel.py" line="417"/>
         <source>Invalid transfer function: denominator order must be greater than or equal to numerator order.</source>
         <translation>Invalid transfer function: denominator order must be greater than or equal to numerator order.</translation>
     </message>

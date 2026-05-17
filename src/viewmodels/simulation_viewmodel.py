@@ -103,6 +103,7 @@ class SimulationViewModel(BaseViewModel):
             controller_params=self._pso_result.best_params,
             t0=t0,
             t1=t1,
+            dt=self._settings.time_step,
             solver=self._settings.solver,
             anti_windup=self._pso_snapshot.controller_anti_windup,
             ka=self._pso_snapshot.controller_ka,
@@ -136,6 +137,7 @@ class SimulationViewModel(BaseViewModel):
             den=list(self._pso_snapshot.plant_den),
             t0=t0,
             t1=t1,
+            dt=self._settings.time_step,
             solver=self._settings.solver,
             reference=self._model_functions[ExcitationTarget.REFERENCE.name].selected_function.get_function()
         )

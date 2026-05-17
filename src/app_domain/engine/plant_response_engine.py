@@ -35,12 +35,12 @@ class PlantResponseEngine:
                 - **y** (*np.ndarray*): Measured plant output y(t).
         """
         self._logger.info("Starting step response computation from %.3f to %.3f", context.t0, context.t1)
-        dt = (context.t1 - context.t0) / 5000
+
         plant = Plant(context.num, context.den)
-        t, y = plant.system_response(context.reference, context.t0, context.t1, dt, solver=context.solver)
+        t, y = plant.system_response(context.reference, context.t0, context.t1, context.dt, solver=context.solver)
         self._logger.info(
             "Step response computation finished (dt=%.6f, t.size=%d, y.size=%d)",
-            dt,
+            context.dt,
             t.size,
             y.size,
         )

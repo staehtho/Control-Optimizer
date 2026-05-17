@@ -137,6 +137,7 @@ class EvaluationViewModel(BaseViewModel):
             controller_params=self._pso_result.best_params,
             t0=t0,
             t1=t1,
+            dt=self._settings.time_step,
             solver=self._settings.solver,
             anti_windup=self._pso_snapshot.controller_anti_windup,
             ka=self._pso_snapshot.controller_ka,
@@ -171,6 +172,7 @@ class EvaluationViewModel(BaseViewModel):
             den=list(self._pso_snapshot.plant_den),
             t0=t0,
             t1=t1,
+            dt=self._settings.time_step,
             solver=self._settings.solver,
             reference=function.get_function()
         )

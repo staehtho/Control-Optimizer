@@ -170,7 +170,8 @@ class ControllerView(ViewMixin, QWidget):
         tool_tips: dict[ControllerField, Any] = {
             ControllerField.TUNING_FACTOR: self.tr(
                 """Defines the filter factor N used to compute the filter time constant Tf = Td/N.
-                Smaller values of N result in stronger filtering and a smoother but slower control response."""
+                Smaller values of N increase filtering and produce a smoother but slower control response,
+                while larger values reduce Tf and therefore diminish the influence of the filter."""
             ),
             ControllerField.SAMPLING_RATE: self.tr(
                 """The filter time constant Tf is automatically limited by the system’s sampling rate and

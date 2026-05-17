@@ -17,7 +17,7 @@ class PlantResponseContext:
 
     t0: float
     t1: float
-
+    dt: float
     solver: MySolver
 
     reference: Callable[[ndarray], ndarray]
