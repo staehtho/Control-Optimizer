@@ -25,6 +25,7 @@ class PlantViewModel(BaseViewModel):
     polyTfChanged = Signal()
     binomTfChanged = Signal()
     stepResponseChanged = Signal(ndarray, ndarray)
+    stepResponsePendingChanged = Signal(bool)
 
     def __init__(self, model_container: ModelContainer, simulation_service: SimulationService, parent: QObject = None):
 
@@ -48,6 +49,9 @@ class PlantViewModel(BaseViewModel):
         self._pole_input: str = ""
 
         self._step_time: tuple[float, float] = (0, 10)
+        self._step_response_request_id: int = 0
+        self._step_response_pending: bool = False
+        self._step_response_pending_count: int = 0
 
         self._recalc_timer = QTimer()
         self._recalc_timer.setSingleShot(True)
@@ -350,9 +354,12 @@ class PlantViewModel(BaseViewModel):
     def compute_step_response(self, t0: float, t1: float) -> None:
         # save step time
         self._step_time = (t0, t1)
+        self._step_response_request_id += 1
+        request_id = self._step_response_request_id
 
         if not self._model_plant.is_valid:
             self.logger.debug("Model is invalid -> no (new) calculation")
+            self._reset_step_response_pending()
             return
 
         self.logger.debug(f"Computing step response for {t0} to {t1}")
@@ -366,9 +373,18 @@ class PlantViewModel(BaseViewModel):
             solver=solver,
             reference=lambda t: np.where(t >= 0, 1.0, 0.0),
         )
-        self._simulation_service.compute_plant_response(context, self._on_result)
+        self._begin_step_response_pending()
+        self._simulation_service.compute_plant_response(
+            context,
+            lambda t, y, req_id=request_id: self._on_result(req_id, t, y),
+        )
 
-    def _on_result(self, t: ndarray, y: ndarray) -> None:
+    def _on_result(self, request_id: int, t: ndarray, y: ndarray) -> None:
+        self._end_step_response_pending()
+        if request_id != self._step_response_request_id:
+            self.logger.debug("Ignoring stale step response result (request_id=%s)", request_id)
+            return
+
         self.stepResponseChanged.emit(t, y)
 
     # -------------------
@@ -442,6 +458,33 @@ class PlantViewModel(BaseViewModel):
 
             except SympifyError:
                 self.logger.warning("Error while building poly representation")
+
+    def _set_step_response_pending(self, is_pending: bool) -> None:
+        if self._step_response_pending == is_pending:
+            return
+
+        self._step_response_pending = is_pending
+        self.stepResponsePendingChanged.emit(is_pending)
+
+    def _begin_step_response_pending(self) -> None:
+        self._step_response_pending_count += 1
+        if self._step_response_pending_count == 1:
+            self._set_step_response_pending(True)
+
+    def _end_step_response_pending(self) -> None:
+        if self._step_response_pending_count == 0:
+            return
+
+        self._step_response_pending_count -= 1
+        if self._step_response_pending_count == 0:
+            self._set_step_response_pending(False)
+
+    def _reset_step_response_pending(self) -> None:
+        if self._step_response_pending_count == 0:
+            return
+
+        self._step_response_pending_count = 0
+        self._set_step_response_pending(False)
 
     @Slot()
     def refresh_from_model(self) -> None:

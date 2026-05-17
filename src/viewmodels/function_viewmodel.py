@@ -19,6 +19,7 @@ class FunctionViewModel(BaseViewModel):
 
     functionChanged = Signal()
     computeFinished = Signal(np.ndarray, np.ndarray)
+    computePendingChanged = Signal(bool)
     parameterChanged = Signal(str)
 
     def __init__(self, model_function: FunctionModel, simulation_service: SimulationService, parent: QObject = None) -> None:
@@ -28,6 +29,8 @@ class FunctionViewModel(BaseViewModel):
         self._simulation_service = simulation_service
 
         self._function_time: tuple[float, float] = (0, 10)
+        self._function_request_id: int = 0
+        self._compute_pending_count: int = 0
 
         self._recalc_timer = QTimer()
         self._recalc_timer.setSingleShot(True)
@@ -72,6 +75,7 @@ class FunctionViewModel(BaseViewModel):
 
         if self._model_function.selected_function is None:
             self.logger.warning("Computation not started, ignoring request")
+            self._reset_compute_pending()
             return
 
         # Avoid t0 being exactly zero for numerical reasons
@@ -81,14 +85,46 @@ class FunctionViewModel(BaseViewModel):
 
         # save step time
         self._function_time = (t0, t1)
+        self._function_request_id += 1
+        request_id = self._function_request_id
 
         self.logger.debug(
             f"Computing function (type={type(self._model_function.selected_function).__name__}) for {t0} to {t1}")
         func = self._model_function.selected_function.get_function()
-        self._simulation_service.compute_function(t, func, self._on_result)
+        self._begin_compute_pending()
+        self._simulation_service.compute_function(
+            t,
+            func,
+            lambda time, values, req_id=request_id: self._on_result(req_id, time, values),
+        )
 
-    def _on_result(self, t: np.ndarray, y: np.ndarray) -> None:
+    def _on_result(self, request_id: int, t: np.ndarray, y: np.ndarray) -> None:
+        self._end_compute_pending()
+        if request_id != self._function_request_id:
+            self.logger.debug("Ignoring stale function result (request_id=%s)", request_id)
+            return
+
         self.computeFinished.emit(t, y)
+
+    def _begin_compute_pending(self) -> None:
+        self._compute_pending_count += 1
+        if self._compute_pending_count == 1:
+            self.computePendingChanged.emit(True)
+
+    def _end_compute_pending(self) -> None:
+        if self._compute_pending_count == 0:
+            return
+
+        self._compute_pending_count -= 1
+        if self._compute_pending_count == 0:
+            self.computePendingChanged.emit(False)
+
+    def _reset_compute_pending(self) -> None:
+        if self._compute_pending_count == 0:
+            return
+
+        self._compute_pending_count = 0
+        self.computePendingChanged.emit(False)
 
     @Slot()
     def refresh_from_model(self) -> None:

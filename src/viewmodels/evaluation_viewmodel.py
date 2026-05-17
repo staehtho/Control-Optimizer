@@ -28,6 +28,8 @@ class EvaluationViewModel(BaseViewModel):
     functionChanged = Signal(ndarray, ndarray)
     plantFrequencyResponseChanged = Signal(object)
     closedLoopFrequencyResponseChanged = Signal(object)
+    timeDomainPendingChanged = Signal(bool)
+    frequencyDomainPendingChanged = Signal(bool)
 
     def __init__(
             self,
@@ -44,6 +46,13 @@ class EvaluationViewModel(BaseViewModel):
 
         self._vm_pso = vm_pso
         self._simulation_service = simulation_service
+        self._closed_loop_request_id: int = 0
+        self._plant_response_request_id: int = 0
+        self._function_request_id: int = 0
+        self._plant_frequency_request_id: int = 0
+        self._closed_loop_frequency_request_id: int = 0
+        self._time_domain_pending_count: int = 0
+        self._frequency_domain_pending_count: int = 0
 
         self._connect_signals()
         self._on_pso_simulation_finished()
@@ -123,8 +132,11 @@ class EvaluationViewModel(BaseViewModel):
     def compute_closed_loop_response(self, t0: float, t1: float) -> None:
         if self._pso_result is None or self._pso_snapshot is None:
             self.logger.debug("Plant is not valid, closed loop response are not computed")
+            self._reset_time_domain_pending()
             return
 
+        self._closed_loop_request_id += 1
+        request_id = self._closed_loop_request_id
         self.logger.debug("Running closed loop response.")
 
         function: dict[ExcitationTarget, BaseFunction] = {target: NullFunction() for target in ExcitationTarget}
@@ -150,17 +162,29 @@ class EvaluationViewModel(BaseViewModel):
             measurement_disturbance=function[ExcitationTarget.MEASUREMENT_DISTURBANCE].get_function(),
         )
 
-        self._simulation_service.compute_closed_loop_response(context, self._on_closed_loop_compute_finished)
+        self._begin_time_domain_pending()
+        self._simulation_service.compute_closed_loop_response(
+            context,
+            lambda t, u, y, req_id=request_id: self._on_closed_loop_compute_finished(req_id, t, u, y),
+        )
 
-    def _on_closed_loop_compute_finished(self, t: ndarray, u: ndarray, y: ndarray) -> None:
+    def _on_closed_loop_compute_finished(self, request_id: int, t: ndarray, u: ndarray, y: ndarray) -> None:
+        self._end_time_domain_pending()
+        if request_id != self._closed_loop_request_id:
+            self.logger.debug("Ignoring stale closed-loop evaluation result (request_id=%s)", request_id)
+            return
+
         self.closedLoopResponseChanged.emit(t, u, y)
 
     @Slot(float, float)
     def compute_plant_response(self, t0: float, t1: float) -> None:
         if self._pso_result is None or self._pso_snapshot is None:
             self.logger.debug("Plant is not valid, plant response are not computed")
+            self._reset_time_domain_pending()
             return
 
+        self._plant_response_request_id += 1
+        request_id = self._plant_response_request_id
         self.logger.debug("Running plant response.")
 
         function = NullFunction()
@@ -177,17 +201,29 @@ class EvaluationViewModel(BaseViewModel):
             reference=function.get_function()
         )
 
-        self._simulation_service.compute_plant_response(context, self._on_plant_compute_finished)
+        self._begin_time_domain_pending()
+        self._simulation_service.compute_plant_response(
+            context,
+            lambda t, y, req_id=request_id: self._on_plant_compute_finished(req_id, t, y),
+        )
 
-    def _on_plant_compute_finished(self, t: ndarray, y: ndarray) -> None:
+    def _on_plant_compute_finished(self, request_id: int, t: ndarray, y: ndarray) -> None:
+        self._end_time_domain_pending()
+        if request_id != self._plant_response_request_id:
+            self.logger.debug("Ignoring stale plant evaluation result (request_id=%s)", request_id)
+            return
+
         self.plantResponseChanged.emit(t, y)
 
     @Slot(float, float)
     def compute_function(self, t0: float, t1: float) -> None:
         if self._pso_result is None or self._pso_snapshot is None:
             self.logger.debug("No Result are available, function are not computed")
+            self._reset_time_domain_pending()
             return
 
+        self._function_request_id += 1
+        request_id = self._function_request_id
         self.logger.debug("Running function.")
 
         # Avoid t0 being exactly zero for numerical reasons
@@ -196,17 +232,30 @@ class EvaluationViewModel(BaseViewModel):
         t = linspace(t0, t1, 5000)
 
         function = self._pso_snapshot.excitation_function.get_function()
-        self._simulation_service.compute_function(t, function, self._on_function_compute_finished)
+        self._begin_time_domain_pending()
+        self._simulation_service.compute_function(
+            t,
+            function,
+            lambda time, values, req_id=request_id: self._on_function_compute_finished(req_id, time, values),
+        )
 
-    def _on_function_compute_finished(self, t: ndarray, y: ndarray) -> None:
+    def _on_function_compute_finished(self, request_id: int, t: ndarray, y: ndarray) -> None:
+        self._end_time_domain_pending()
+        if request_id != self._function_request_id:
+            self.logger.debug("Ignoring stale evaluation function result (request_id=%s)", request_id)
+            return
+
         self.functionChanged.emit(t, y)
 
     @Slot(float, float)
     def compute_plant_frequency_response(self, omega_min: float, omega_max: float) -> None:
         if self._pso_result is None or self._pso_snapshot is None:
             self.logger.debug("Plant is not valid, plant frequency response are not computed")
+            self._reset_frequency_domain_pending()
             return
 
+        self._plant_frequency_request_id += 1
+        request_id = self._plant_frequency_request_id
         self.logger.debug("Running plant frequency response.")
 
         context = PlantTransferContext(
@@ -214,22 +263,31 @@ class EvaluationViewModel(BaseViewModel):
             den=list(self._pso_snapshot.plant_den),
         )
 
+        self._begin_frequency_domain_pending()
         self._simulation_service.compute_plant_transfer_response(
             context,
             omega_min=omega_min,
             omega_max=omega_max,
-            callback=self._on_plant_frequency_response_finished,
+            callback=lambda result, req_id=request_id: self._on_plant_frequency_response_finished(req_id, result),
         )
 
-    def _on_plant_frequency_response_finished(self, result) -> None:
+    def _on_plant_frequency_response_finished(self, request_id: int, result) -> None:
+        self._end_frequency_domain_pending()
+        if request_id != self._plant_frequency_request_id:
+            self.logger.debug("Ignoring stale plant frequency result (request_id=%s)", request_id)
+            return
+
         self.plantFrequencyResponseChanged.emit(result)
 
     @Slot(float, float)
     def compute_closed_loop_frequency_response(self, omega_min: float, omega_max: float) -> None:
         if self._pso_result is None or self._pso_snapshot is None:
             self.logger.debug("Plant is not valid, closed loop frequency response are not computed")
+            self._reset_frequency_domain_pending()
             return
 
+        self._closed_loop_frequency_request_id += 1
+        request_id = self._closed_loop_frequency_request_id
         self.logger.debug("Running closed loop frequency response.")
 
         context_plant = PlantTransferContext(
@@ -242,13 +300,59 @@ class EvaluationViewModel(BaseViewModel):
             self._pso_result.best_params
         )
 
+        self._begin_frequency_domain_pending()
         self._simulation_service.compute_closed_loop_transfer_response(
             context_plant=context_plant,
             context_control=context_controller,
             omega_min=omega_min,
             omega_max=omega_max,
-            callback=self._on_closed_loop_frequency_response_finished
+            callback=lambda result, req_id=request_id: self._on_closed_loop_frequency_response_finished(req_id, result)
         )
 
-    def _on_closed_loop_frequency_response_finished(self, result) -> None:
+    def _on_closed_loop_frequency_response_finished(self, request_id: int, result) -> None:
+        self._end_frequency_domain_pending()
+        if request_id != self._closed_loop_frequency_request_id:
+            self.logger.debug("Ignoring stale closed-loop frequency result (request_id=%s)", request_id)
+            return
+
         self.closedLoopFrequencyResponseChanged.emit(result)
+
+    def _begin_time_domain_pending(self) -> None:
+        self._time_domain_pending_count += 1
+        if self._time_domain_pending_count == 1:
+            self.timeDomainPendingChanged.emit(True)
+
+    def _end_time_domain_pending(self) -> None:
+        if self._time_domain_pending_count == 0:
+            return
+
+        self._time_domain_pending_count -= 1
+        if self._time_domain_pending_count == 0:
+            self.timeDomainPendingChanged.emit(False)
+
+    def _reset_time_domain_pending(self) -> None:
+        if self._time_domain_pending_count == 0:
+            return
+
+        self._time_domain_pending_count = 0
+        self.timeDomainPendingChanged.emit(False)
+
+    def _begin_frequency_domain_pending(self) -> None:
+        self._frequency_domain_pending_count += 1
+        if self._frequency_domain_pending_count == 1:
+            self.frequencyDomainPendingChanged.emit(True)
+
+    def _end_frequency_domain_pending(self) -> None:
+        if self._frequency_domain_pending_count == 0:
+            return
+
+        self._frequency_domain_pending_count -= 1
+        if self._frequency_domain_pending_count == 0:
+            self.frequencyDomainPendingChanged.emit(False)
+
+    def _reset_frequency_domain_pending(self) -> None:
+        if self._frequency_domain_pending_count == 0:
+            return
+
+        self._frequency_domain_pending_count = 0
+        self.frequencyDomainPendingChanged.emit(False)

@@ -148,9 +148,11 @@ class SimulationView(ViewMixin, QWidget):
         """Bind ViewModel signals to View update handlers."""
         # Function ViewModel
         for key, vm in self._vm_functions.items():
+            vm.computePendingChanged.connect(self._vm_plot.track_loading)
             vm.computeFinished.connect(partial(self._on_vm_function_compute_finished, key))
 
         # Simulation ViewModel
+        self._vm_simulation.timeDomainPendingChanged.connect(self._vm_plot.track_loading)
         self._vm_simulation.closedLoopResponseChanged.connect(self._on_vm_closed_loop_compute_finished)
         self._vm_simulation.plantResponseChanged.connect(self._on_vm_plant_compute_finished)
         self._vm_simulation.psoSimulationFinished.connect(self._on_vm_pso_simulation_finished)
@@ -227,7 +229,7 @@ class SimulationView(ViewMixin, QWidget):
             "Closed-loop response computation finished -> updating response plot (samples=%d)",
             len(t),
         )
-        self._vm_plot.update_data(
+        self._vm_plot.update_data_batch([
             PlotData(
                 key=PlotLabels.CLOSED_LOOP.value,
                 label=self._enum_translation(PlotLabels.CLOSED_LOOP),
@@ -235,10 +237,7 @@ class SimulationView(ViewMixin, QWidget):
                 y=y,
                 plot_style=PLOT_STYLE.get(PlotLabels.CLOSED_LOOP),
                 subplot_position=1,
-            )
-        )
-
-        self._vm_plot.update_data(
+            ),
             PlotData(
                 key=PlotLabels.CONTROL_SIGNAL.value,
                 label=self._enum_translation(PlotLabels.CONTROL_SIGNAL),
@@ -246,8 +245,8 @@ class SimulationView(ViewMixin, QWidget):
                 y=u,
                 plot_style=PLOT_STYLE.get(PlotLabels.CONTROL_SIGNAL),
                 subplot_position=2,
-            )
-        )
+            ),
+        ])
 
     def _on_vm_plant_compute_finished(self, t: ndarray, y: ndarray) -> None:
         self.logger.debug(

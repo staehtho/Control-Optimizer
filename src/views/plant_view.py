@@ -266,6 +266,7 @@ class PlantView(ViewMixin, QWidget):
         # vm plant
         self._vm_plant.validationFailed.connect(self._on_validation_failed)
         self._vm_plant.polyTfChanged.connect(self._on_vm_formula_changed)
+        self._vm_plant.stepResponsePendingChanged.connect(self._vm_plot.track_loading)
         self._vm_plant.stepResponseChanged.connect(self._on_step_response_changed)
         # vm plot
         self._vm_plot.xMinChanged.connect(self._on_plot_time_changed)

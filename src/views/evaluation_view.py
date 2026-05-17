@@ -336,6 +336,8 @@ class EvaluationView(ViewMixin, QWidget):
     def _bind_vm(self) -> None:
         """Bind ViewModel signals to View update handlers."""
         # vm evaluator
+        self._vm_evaluator.timeDomainPendingChanged.connect(self._vm_plots[TIME_DOMAIN].track_loading)
+        self._vm_evaluator.frequencyDomainPendingChanged.connect(self._vm_plots[FREQUENCY_DOMAIN].track_loading)
         self._vm_evaluator.closedLoopResponseChanged.connect(self._on_vm_closed_loop_compute_finished)
         self._vm_evaluator.plantResponseChanged.connect(self._on_vm_plant_compute_finished)
         self._vm_evaluator.functionChanged.connect(self._on_vm_compute_finished)
@@ -443,7 +445,7 @@ class EvaluationView(ViewMixin, QWidget):
             "Closed-loop response computation finished -> updating response plot (samples=%d)",
             len(t),
         )
-        self._vm_plots[TIME_DOMAIN].update_data(
+        self._vm_plots[TIME_DOMAIN].update_data_batch([
             PlotData(
                 key=PlotLabels.CLOSED_LOOP.value,
                 label=self._enum_translation(PlotLabels.CLOSED_LOOP),
@@ -451,10 +453,7 @@ class EvaluationView(ViewMixin, QWidget):
                 y=y,
                 plot_style=PLOT_STYLE.get(PlotLabels.CLOSED_LOOP),
                 subplot_position=1,
-            )
-        )
-
-        self._vm_plots[TIME_DOMAIN].update_data(
+            ),
             PlotData(
                 key=PlotLabels.CONTROL_SIGNAL.value,
                 label=self._enum_translation(PlotLabels.CONTROL_SIGNAL),
@@ -462,8 +461,8 @@ class EvaluationView(ViewMixin, QWidget):
                 y=u,
                 plot_style=PLOT_STYLE.get(PlotLabels.CONTROL_SIGNAL),
                 subplot_position=2,
-            )
-        )
+            ),
+        ])
 
     def _on_vm_plant_compute_finished(self, t: ndarray, y: ndarray) -> None:
         self.logger.debug(
@@ -489,12 +488,13 @@ class EvaluationView(ViewMixin, QWidget):
 
         keys = set(result.margin.keys()) | set(result.phase.keys())
 
+        batch: list[BodePlotData] = []
         for key in keys:
             if key in PlotLabels.__members__:
                 label_enum = PlotLabels[key]
             else:
                 label_enum = PlotLabels(key)
-            self._vm_plots[FREQUENCY_DOMAIN].update_data(
+            batch.append(
                 BodePlotData(
                     key=label_enum.value,
                     label=self._enum_translation(label_enum),
@@ -504,6 +504,8 @@ class EvaluationView(ViewMixin, QWidget):
                     plot_style=PLOT_STYLE.get(label_enum),
                 )
             )
+
+        self._vm_plots[FREQUENCY_DOMAIN].update_data_batch(batch)
 
     def _on_vm_pso_simulation_finished(self) -> None:
         self.logger.debug("PSO simulation finished -> refreshing excitation function")

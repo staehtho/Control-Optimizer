@@ -7,8 +7,8 @@ import math
 import warnings
 
 from PySide6.QtWidgets import QWidget, QLabel, QCheckBox, QLineEdit, QSizePolicy, QGridLayout, QVBoxLayout, QHBoxLayout
-from PySide6.QtCore import QCoreApplication, QSize, Qt
-from PySide6.QtGui import QDoubleValidator, QColor, QPainter, QPixmap, QIcon
+from PySide6.QtCore import QCoreApplication, QSize, Qt, QTimer
+from PySide6.QtGui import QDoubleValidator, QColor, QPainter, QPixmap, QIcon, QPen, QBrush
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
@@ -17,6 +17,7 @@ from matplotlib import cbook
 from app_types import PlotField, ConnectSignalConfig
 from views import ViewMixin
 from views.widgets.toggle_switch import ToggleSwitch, TextPosition
+from views.widgets.figma_loading_overlay import FigmaLoadingOverlay
 
 if TYPE_CHECKING:
     from app_domain.ui_context import UiContext
@@ -74,6 +75,7 @@ class PlotWidget(ViewMixin, QWidget):
         self._vm = vm
         self._cfg = plot_configuration
         self._series_checkboxes: dict[str, QCheckBox] = {}
+        self._plot_update_pending: bool = False
 
         ViewMixin.__init__(self, ui_context)
 
@@ -156,6 +158,8 @@ class PlotWidget(ViewMixin, QWidget):
             self._canvas = _AspectCanvas(self._figure, self._cfg.fixed_aspect_ratio)
         else:
             self._canvas = FigureCanvas(self._figure)
+        self._loading_overlay = FigmaLoadingOverlay(self._vm_theme, self._canvas)
+        self._loading_overlay.hide()
 
         # Toolbar
         self._toolbar = NavigationToolbar(self._canvas, self)
@@ -221,10 +225,11 @@ class PlotWidget(ViewMixin, QWidget):
         """Bind ViewModel signals to View update handlers."""
         # Thread-safe call to update plot
         self._vm.validationFailed.connect(self._on_validation_failed)
-        self._vm.gridChanged.connect(self._update_plot)
-        self._vm.dataChanged.connect(self._update_plot)
-        self._vm.xMinChanged.connect(self._update_plot)
-        self._vm.xMaxChanged.connect(self._update_plot)
+        self._vm.gridChanged.connect(self._schedule_plot_update)
+        self._vm.dataChanged.connect(self._schedule_plot_update)
+        self._vm.loadingChanged.connect(self._update_loading_state)
+        self._vm.xMinChanged.connect(self._schedule_plot_update)
+        self._vm.xMaxChanged.connect(self._schedule_plot_update)
         self._vm.saveSvgRequested.connect(self.save_svg)
 
         # Define key variables for readability
@@ -280,6 +285,7 @@ class PlotWidget(ViewMixin, QWidget):
         self.field_widgets.get(PlotField.X_MIN).setText(self._format_value(self._vm.x_min))
         self.field_widgets.get(PlotField.X_MAX).setText(self._format_value(self._vm.x_max))
         self._chk_grid.setChecked(self._vm.grid)
+        self._update_loading_state()
         # Ensure initial layout is consistent even with no data plotted yet.
         self._update_plot()
 
@@ -460,8 +466,30 @@ class PlotWidget(ViewMixin, QWidget):
         self.logger.debug(f"UI event: series visibility changed -> {key}={checked}")
         self._vm.set_data_visibility(key, checked)
 
+    def _schedule_plot_update(self) -> None:
+        if self._plot_update_pending:
+            return
+
+        self._plot_update_pending = True
+        QTimer.singleShot(0, self._run_scheduled_plot_update)
+
+    def _run_scheduled_plot_update(self) -> None:
+        self._plot_update_pending = False
+        self._update_plot()
+
+    def _update_loading_state(self) -> None:
+        self._sync_loading_overlay_geometry()
+        self._loading_overlay.setVisible(self._vm.is_loading)
+        if self._vm.is_loading:
+            self._loading_overlay.raise_()
+            self._loading_overlay.repaint()
+
+    def _sync_loading_overlay_geometry(self) -> None:
+        self._loading_overlay.setGeometry(self._canvas.rect())
+
     def resizeEvent(self, event) -> None:
         """Redraw canvas on widget resize."""
+        self._sync_loading_overlay_geometry()
         if self._has_valid_canvas_geometry():
             self._canvas.draw_idle()
         super().resizeEvent(event)

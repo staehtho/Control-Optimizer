@@ -119,6 +119,7 @@ class FunctionView(ViewMixin, QWidget):
         """Bind ViewModel signals to View update handlers."""
 
         # Function ViewModel -> View
+        self._vm_function.computePendingChanged.connect(self._vm_plot.track_loading)
         self._vm_function.computeFinished.connect(self._on_vm_compute_finished)
 
         # Plot ViewModel -> Function recomputation

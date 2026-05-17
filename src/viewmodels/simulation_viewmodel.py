@@ -20,6 +20,7 @@ class SimulationViewModel(BaseViewModel):
     psoSimulationFinished = Signal()
     closedLoopResponseChanged = Signal(ndarray, ndarray, ndarray)
     plantResponseChanged = Signal(ndarray, ndarray)
+    timeDomainPendingChanged = Signal(bool)
 
     def __init__(
             self,
@@ -38,6 +39,9 @@ class SimulationViewModel(BaseViewModel):
 
         self._vm_pso = vm_pso
         self._simulation_service = simulation_service
+        self._closed_loop_request_id: int = 0
+        self._plant_response_request_id: int = 0
+        self._time_domain_pending_count: int = 0
 
         self._connect_signals()
         self._on_pso_simulation_finished()
@@ -92,8 +96,11 @@ class SimulationViewModel(BaseViewModel):
     def compute_closed_loop_response(self, t0: float, t1: float) -> None:
         if self._pso_result is None or self._pso_snapshot is None:
             self.logger.debug("Plant is not valid, closed loop response are not computed")
+            self._reset_time_domain_pending()
             return
 
+        self._closed_loop_request_id += 1
+        request_id = self._closed_loop_request_id
         self.logger.debug("Running closed loop response.")
 
         context = ClosedLoopResponseContext(
@@ -119,17 +126,29 @@ class SimulationViewModel(BaseViewModel):
                 ExcitationTarget.MEASUREMENT_DISTURBANCE.name].selected_function.get_function()
         )
 
-        self._simulation_service.compute_closed_loop_response(context, self._on_closed_loop_compute_finished)
+        self._begin_time_domain_pending()
+        self._simulation_service.compute_closed_loop_response(
+            context,
+            lambda t, u, y, req_id=request_id: self._on_closed_loop_compute_finished(req_id, t, u, y),
+        )
 
-    def _on_closed_loop_compute_finished(self, t: ndarray, u: ndarray, y: ndarray) -> None:
+    def _on_closed_loop_compute_finished(self, request_id: int, t: ndarray, u: ndarray, y: ndarray) -> None:
+        self._end_time_domain_pending()
+        if request_id != self._closed_loop_request_id:
+            self.logger.debug("Ignoring stale closed-loop response result (request_id=%s)", request_id)
+            return
+
         self.closedLoopResponseChanged.emit(t, u, y)
 
     @Slot(float, float)
     def compute_plant_response(self, t0: float, t1: float) -> None:
         if self._pso_result is None or self._pso_snapshot is None:
             self.logger.debug("Plant is not valid, plant response are not computed")
+            self._reset_time_domain_pending()
             return
 
+        self._plant_response_request_id += 1
+        request_id = self._plant_response_request_id
         self.logger.debug("Running plant response.")
 
         context = PlantResponseContext(
@@ -142,7 +161,36 @@ class SimulationViewModel(BaseViewModel):
             reference=self._model_functions[ExcitationTarget.REFERENCE.name].selected_function.get_function()
         )
 
-        self._simulation_service.compute_plant_response(context, self._on_plant_compute_finished)
+        self._begin_time_domain_pending()
+        self._simulation_service.compute_plant_response(
+            context,
+            lambda t, y, req_id=request_id: self._on_plant_compute_finished(req_id, t, y),
+        )
 
-    def _on_plant_compute_finished(self, t: ndarray, y: ndarray) -> None:
+    def _on_plant_compute_finished(self, request_id: int, t: ndarray, y: ndarray) -> None:
+        self._end_time_domain_pending()
+        if request_id != self._plant_response_request_id:
+            self.logger.debug("Ignoring stale plant response result (request_id=%s)", request_id)
+            return
+
         self.plantResponseChanged.emit(t, y)
+
+    def _begin_time_domain_pending(self) -> None:
+        self._time_domain_pending_count += 1
+        if self._time_domain_pending_count == 1:
+            self.timeDomainPendingChanged.emit(True)
+
+    def _end_time_domain_pending(self) -> None:
+        if self._time_domain_pending_count == 0:
+            return
+
+        self._time_domain_pending_count -= 1
+        if self._time_domain_pending_count == 0:
+            self.timeDomainPendingChanged.emit(False)
+
+    def _reset_time_domain_pending(self) -> None:
+        if self._time_domain_pending_count == 0:
+            return
+
+        self._time_domain_pending_count = 0
+        self.timeDomainPendingChanged.emit(False)
