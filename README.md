@@ -301,7 +301,7 @@ src/app_domain/pso_objective/time_domain_numba.py
 Every controller step function must use the shared signature:
 
 ```python
-@njit(inline="always")
+@njit(inline="always", nogil=True)
 def example_step(
     state: np.ndarray,
     i: int,
