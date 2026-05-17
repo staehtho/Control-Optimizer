@@ -26,7 +26,7 @@ STATE_D_FILTERED = 2
 N_CONTROLLER_STATE = 3  # base layout for PI/PID
 
 
-@njit
+@njit(nogil=True)
 def init_controller_state(n_controllers: int) -> np.ndarray:
     """
     Allocate and initialize controller state array.
@@ -41,7 +41,7 @@ def init_controller_state(n_controllers: int) -> np.ndarray:
 # =============================================================================
 # Helper Functions
 # =============================================================================
-@njit(float64[:](float64[:, :], float64[:]), inline="always")
+@njit(float64[:](float64[:, :], float64[:]), inline="always", nogil=True)
 def _matvec_auto(A: np.ndarray, x: np.ndarray) -> np.ndarray:
     """
     Perform matrix-vector multiplication manually for Numba.
@@ -65,7 +65,7 @@ def _matvec_auto(A: np.ndarray, x: np.ndarray) -> np.ndarray:
     return y
 
 
-@njit(float64(float64[:], float64[:]), inline="always")
+@njit(float64(float64[:], float64[:]), inline="always", nogil=True)
 def dot1D(x: np.ndarray, y: np.ndarray) -> float:
     """
     Compute dot product of two 1-D vectors manually for Numba.
@@ -90,7 +90,7 @@ def dot1D(x: np.ndarray, y: np.ndarray) -> float:
 # =============================================================================
 # PI Update
 # =============================================================================
-@njit(inline="always")
+@njit(inline="always", nogil=True)
 def pi_step(
         state: np.ndarray,
         i: int,
@@ -202,7 +202,7 @@ def pi_step(
 # =============================================================================
 # PID Update
 # =============================================================================
-@njit(inline="always")
+@njit(inline="always", nogil=True)
 def pid_step(
         state: np.ndarray,
         i: int,
@@ -320,7 +320,7 @@ def pid_step(
     return u
 
 
-@njit(inline="always")
+@njit(inline="always", nogil=True)
 def ff_pid_step(
         state: np.ndarray,
         i: int,
@@ -426,7 +426,7 @@ def ff_pid_step(
 # =============================================================================
 # ODE Solver
 # =============================================================================
-@njit(float64[:](float64[:, :], float64[:], float64[:], float64, float64), inline="always")
+@njit(float64[:](float64[:, :], float64[:], float64[:], float64, float64), inline="always", nogil=True)
 def rk4(A: np.ndarray, B: np.ndarray, x: np.ndarray, u: float, dt: float) -> np.ndarray:
     """Perform a single RK4 integration step."""
     Bu = B * u
@@ -438,7 +438,7 @@ def rk4(A: np.ndarray, B: np.ndarray, x: np.ndarray, u: float, dt: float) -> np.
     return x
 
 
-@njit(inline="always")
+@njit(inline="always", nogil=True)
 def plant_step(
         A: np.ndarray,
         B: np.ndarray,
@@ -512,7 +512,9 @@ def itse(t: np.ndarray, y: np.ndarray, r: np.ndarray) -> float:
     float64[:], float64, float64[:], float64[:],
     float64[:, :], float64[:], float64[:], float64, int64
 ),
-    inline="always"
+    inline="always",
+    cache=True,
+    nogil=True
 )
 def system_response(t_eval: np.ndarray, dt: float, u_eval: np.ndarray,
                     x: np.ndarray, A: np.ndarray, B: np.ndarray,
@@ -534,7 +536,7 @@ def system_response(t_eval: np.ndarray, dt: float, u_eval: np.ndarray,
 # =============================================================================
 # System Response
 # =============================================================================
-@njit
+@njit(nogil=True)
 def system_response_closed_loop(
         step_fn,
         controller_param: np.ndarray,
@@ -633,7 +635,7 @@ def system_response_closed_loop(
 # =============================================================================
 # PSO helper
 # =============================================================================
-@njit(inline="always")
+@njit(inline="always", nogil=True)
 def simulate_metrics(
         step_fn,
         state: np.ndarray,
@@ -771,7 +773,7 @@ def simulate_metrics(
 # =============================================================================
 # PSO Function
 # =============================================================================
-@njit(parallel=True)
+@njit(parallel=True, nogil=True)
 def time_domain_pso_func(
         step_fn,
         controller_param: np.ndarray,
