@@ -76,6 +76,23 @@ TARGET_FEASIBLE_RATIOS = {
     "hard": 0.05,
 }
 
+TARGET_FEASIBLE_LABELS = {
+    "easy": "leicht",
+    "medium": "mittel",
+    "hard": "hart",
+}
+
+PLOT_FONT_SIZES = {
+    "title": 20,
+    "axis_label": 20,
+    "legend": 17,
+    "x_tick": 17,
+    "y_tick": 16,
+    "section_label": 17,
+    "small_x_tick": 13,
+    "small_axis_label": 15,
+}
+
 SAMPLING_CONFIG = {
     "particles_per_batch": 300,
     "batches_per_point": 10,
@@ -748,10 +765,14 @@ def try_create_combined_plot(
         ax.errorbar(x, y, yerr=yerr, fmt="-o", linewidth=1.4, markersize=3.5, capsize=2.5)
         ax.set_ylim(-0.02, 1.02)
         ax.grid(True, alpha=0.3)
-        ax.set_title(str(family_rows[0]["family_label"]))
-        ax.set_xlabel(f"Schwellenwert [{family_rows[0]['threshold_unit']}]")
+        ax.set_title(str(family_rows[0]["family_label"]), fontsize=PLOT_FONT_SIZES["title"])
+        ax.set_xlabel(
+            f"Schwellenwert [{family_rows[0]['threshold_unit']}]",
+            fontsize=PLOT_FONT_SIZES["axis_label"],
+        )
         if idx % 2 == 0:
-            ax.set_ylabel("Feasible-Anteil")
+            ax.set_ylabel("Feasible-Anteil", fontsize=PLOT_FONT_SIZES["axis_label"])
+        ax.tick_params(axis="both", labelsize=PLOT_FONT_SIZES["y_tick"])
 
         if str(family_rows[0]["constraint_type"]) == "maximum":
             ax.invert_xaxis()
@@ -773,9 +794,20 @@ def try_create_combined_plot(
 
     handles, labels = axes_list[0].get_legend_handles_labels()
     if handles:
-        fig.legend(handles, labels, loc="lower center", ncol=3, frameon=False)
+        fig.legend(
+            handles,
+            labels,
+            loc="lower center",
+            ncol=3,
+            frameon=False,
+            fontsize=PLOT_FONT_SIZES["legend"],
+        )
 
-    fig.suptitle(f"{PLANT_PRESET} | Nebenbedingungen und Feasible-Anteil", y=0.995)
+    fig.suptitle(
+        f"{PLANT_PRESET} | Nebenbedingungen und Feasible-Anteil",
+        y=0.995,
+        fontsize=PLOT_FONT_SIZES["title"],
+    )
     fig.tight_layout(rect=(0, 0.04, 1, 0.98))
     fig.savefig(out_dir / "constraint_hardness_combined.png", dpi=180)
     plt.close(fig)
@@ -839,11 +871,15 @@ def try_create_overlay_plot(
 
     ax.set_xlim(-0.02, 1.02)
     ax.set_ylim(-0.02, 1.02)
-    ax.set_xlabel("Normierte Härte innerhalb der jeweiligen Nebenbedingung")
-    ax.set_ylabel("Feasible-Anteil")
-    ax.set_title(f"{PLANT_PRESET} | Alle Nebenbedingungen in einem Plot")
+    ax.set_xlabel(
+        "Normierte Härte innerhalb der jeweiligen Nebenbedingung",
+        fontsize=PLOT_FONT_SIZES["axis_label"],
+    )
+    ax.set_ylabel("Feasible-Anteil", fontsize=PLOT_FONT_SIZES["axis_label"])
+    ax.set_title(f"{PLANT_PRESET} | Alle Nebenbedingungen in einem Plot", fontsize=PLOT_FONT_SIZES["title"])
     ax.grid(True, alpha=0.3)
-    ax.legend(frameon=False)
+    ax.tick_params(axis="both", labelsize=PLOT_FONT_SIZES["y_tick"])
+    ax.legend(frameon=False, fontsize=PLOT_FONT_SIZES["legend"])
 
     fig.tight_layout()
     fig.savefig(out_dir / "constraint_hardness_overlay.png", dpi=180)
@@ -917,6 +953,7 @@ def try_create_categorical_overlay_plot(
             transform=ax.get_xaxis_transform(),
             ha="center",
             va="top",
+            fontsize=PLOT_FONT_SIZES["section_label"],
         )
         ax.axvline(block_end + 1.0, color="lightgray", linewidth=0.8, alpha=0.8)
 
@@ -924,13 +961,14 @@ def try_create_categorical_overlay_plot(
         ax.axhline(target_ratio, linestyle="--", linewidth=0.9, color="gray", alpha=0.7)
 
     ax.set_ylim(-0.02, 1.02)
-    ax.set_ylabel("Feasible-Anteil")
-    ax.set_xlabel("Schwellenwerte der Nebenbedingungen")
-    ax.set_title(f"{PLANT_PRESET} | Alle Nebenbedingungen in einem Plot")
+    ax.set_ylabel("Feasible-Anteil", fontsize=PLOT_FONT_SIZES["axis_label"])
+    ax.set_xlabel("Schwellenwerte der Nebenbedingungen", fontsize=PLOT_FONT_SIZES["axis_label"])
+    ax.set_title(f"{PLANT_PRESET} | Alle Nebenbedingungen in einem Plot", fontsize=PLOT_FONT_SIZES["title"])
     ax.grid(True, axis="y", alpha=0.3)
     ax.set_xticks(xticks)
-    ax.set_xticklabels(xticklabels, rotation=65, ha="right")
-    ax.legend(frameon=False, loc="upper right")
+    ax.set_xticklabels(xticklabels, rotation=65, ha="right", fontsize=PLOT_FONT_SIZES["x_tick"])
+    ax.tick_params(axis="y", labelsize=PLOT_FONT_SIZES["y_tick"])
+    ax.legend(frameon=False, loc="upper right", fontsize=PLOT_FONT_SIZES["legend"])
 
     fig.tight_layout(rect=(0, 0.08, 1, 1))
     fig.savefig(out_dir / "constraint_hardness_categorical_overlay.png", dpi=180)
@@ -999,11 +1037,12 @@ def try_create_multi_axis_overlay_plot(
 
     ax.set_xlim(-0.2, max_points - 0.8)
     ax.set_ylim(-0.02, 1.02)
-    ax.set_ylabel("Feasible-Anteil")
-    ax.set_title(f"{PLANT_PRESET} | Overlay mit vier x-Achsen")
+    ax.set_ylabel("Feasible-Anteil", fontsize=PLOT_FONT_SIZES["axis_label"])
+    ax.set_title(f"{PLANT_PRESET} | Overlay mit vier x-Achsen", fontsize=PLOT_FONT_SIZES["title"])
     ax.grid(True, axis="y", alpha=0.3)
     ax.tick_params(axis="x", bottom=False, labelbottom=False)
-    ax.legend(frameon=False, loc="upper right")
+    ax.tick_params(axis="y", labelsize=PLOT_FONT_SIZES["y_tick"])
+    ax.legend(frameon=False, loc="upper right", fontsize=PLOT_FONT_SIZES["legend"])
 
     axis_offsets = [0, 26, 52, 78]
     for idx, family in enumerate(families):
@@ -1018,13 +1057,20 @@ def try_create_multi_axis_overlay_plot(
         axis.spines["top"].set_visible(False)
         axis.spines["bottom"].set_position(("outward", axis_offsets[idx]))
         axis.spines["bottom"].set_color(colors[family])
-        axis.tick_params(axis="x", colors=colors[family], labelsize=7, pad=1, length=3)
+        axis.tick_params(
+            axis="x",
+            colors=colors[family],
+            labelsize=PLOT_FONT_SIZES["small_x_tick"],
+            pad=1,
+            length=3,
+        )
         axis.set_xticks(x_positions)
         axis.set_xticklabels([str(row["x_label"]) for row in family_rows], rotation=55, ha="right")
         axis.set_xlabel(
             f"{family_rows[0]['family_label']} [{family_rows[0]['threshold_unit']}]",
             color=colors[family],
             labelpad=8,
+            fontsize=PLOT_FONT_SIZES["small_axis_label"],
         )
 
     fig.tight_layout(rect=(0, 0.18, 1, 1))
@@ -1060,36 +1106,104 @@ def try_create_stacked_label_overlay_plot(
 
     for family in ("pm", "ms", "overshoot", "du_dt"):
         y = np.array([float(row[f"{family}_mean_feasible_ratio"]) for row in stacked_rows], dtype=np.float64)
-        yerr = np.array([float(row[f"{family}_std_feasible_ratio"]) for row in stacked_rows], dtype=np.float64)
-        ax.errorbar(
+        ax.plot(
             x,
             y,
-            yerr=yerr,
-            fmt="-o",
-            linewidth=1.6,
-            markersize=3.8,
-            capsize=2.5,
+            "-",
+            linewidth=2.0,
             color=colors[family],
             label=labels[family],
         )
 
-    for hardness_name, target_ratio in TARGET_FEASIBLE_RATIOS.items():
-        ax.axhline(target_ratio, linestyle="--", linewidth=0.9, color="gray", alpha=0.7)
+        highlighted_points: list[tuple[float, float]] = []
+        for target_ratio in TARGET_FEASIBLE_RATIOS.values():
+            crossing_positions: list[float] = []
+            for idx in range(len(x) - 1):
+                x0 = float(x[idx])
+                x1 = float(x[idx + 1])
+                y0 = float(y[idx])
+                y1 = float(y[idx + 1])
 
-    tick_indices = np.linspace(0, len(stacked_rows) - 1, 4, dtype=int)
+                if math.isclose(y0, target_ratio, rel_tol=0.0, abs_tol=1e-12):
+                    crossing_positions.append(x0)
+
+                if math.isclose(y0, y1, rel_tol=0.0, abs_tol=1e-12):
+                    continue
+
+                if (y0 - target_ratio) * (y1 - target_ratio) < 0.0:
+                    t = (target_ratio - y0) / (y1 - y0)
+                    crossing_positions.append(x0 + t * (x1 - x0))
+
+            if math.isclose(float(y[-1]), target_ratio, rel_tol=0.0, abs_tol=1e-12):
+                crossing_positions.append(float(x[-1]))
+
+            unique_crossings: list[float] = []
+            for x_cross in sorted(crossing_positions):
+                if unique_crossings and math.isclose(unique_crossings[-1], x_cross, rel_tol=0.0, abs_tol=1e-9):
+                    continue
+                unique_crossings.append(x_cross)
+
+            if unique_crossings:
+                for x_cross in unique_crossings:
+                    highlighted_points.append((x_cross, target_ratio))
+            else:
+                highlighted_points.append((float(x[-1]), float(y[-1])))
+
+        unique_highlighted_points: list[tuple[float, float]] = []
+        for x_highlight, y_highlight in highlighted_points:
+            if any(
+                math.isclose(existing_x, x_highlight, rel_tol=0.0, abs_tol=1e-9)
+                and math.isclose(existing_y, y_highlight, rel_tol=0.0, abs_tol=1e-9)
+                for existing_x, existing_y in unique_highlighted_points
+            ):
+                continue
+            unique_highlighted_points.append((x_highlight, y_highlight))
+
+        if unique_highlighted_points:
+            ax.scatter(
+                [point[0] for point in unique_highlighted_points],
+                [point[1] for point in unique_highlighted_points],
+                marker="o",
+                s=64,
+                facecolors="white",
+                edgecolors=colors[family],
+                linewidths=2.0,
+                zorder=6,
+            )
+
+    tick_indices = np.linspace(0, len(stacked_rows) - 1, 5, dtype=int)
     tick_indices = np.unique(tick_indices)
     tick_positions = x[tick_indices]
     tick_labels = [str(stacked_rows[idx]["x_label"]) for idx in tick_indices]
 
     ax.set_xlim(-0.4, float(len(stacked_rows)) - 0.6)
     ax.set_ylim(-0.02, 1.02)
-    ax.set_ylabel("Anteil zulässiger Initialpartikel", fontsize=16)
-    ax.set_xlabel("Schwellenwerte je Stützstelle", fontsize=16, labelpad=8)
+    ax.set_ylabel("Anteil zulässiger Initialpartikel", fontsize=PLOT_FONT_SIZES["axis_label"])
+    ax.set_xlabel(
+        "Schwellenwerte je Stützstelle",
+        fontsize=PLOT_FONT_SIZES["axis_label"],
+        labelpad=8,
+    )
     ax.grid(True, axis="y", alpha=0.3)
     ax.set_xticks(tick_positions)
-    ax.set_xticklabels(tick_labels, fontsize=11)
-    ax.tick_params(axis="y", labelsize=12)
-    ax.legend(frameon=False, loc="upper right", fontsize=13)
+    ax.set_xticklabels(tick_labels, fontsize=PLOT_FONT_SIZES["x_tick"])
+    ax.tick_params(axis="y", labelsize=PLOT_FONT_SIZES["y_tick"])
+
+    left_label_x = ax.get_xlim()[0] + 0.12
+    for hardness_name, target_ratio in TARGET_FEASIBLE_RATIOS.items():
+        ax.axhline(target_ratio, linestyle="--", linewidth=0.9, color="gray", alpha=0.7, zorder=0)
+        ax.text(
+            left_label_x,
+            target_ratio,
+            TARGET_FEASIBLE_LABELS[hardness_name],
+            ha="left",
+            va="center",
+            fontsize=PLOT_FONT_SIZES["legend"],
+            color="dimgray",
+            zorder=7,
+        )
+
+    ax.legend(frameon=False, loc="upper right", fontsize=PLOT_FONT_SIZES["legend"])
 
     fig.tight_layout(rect=(0, 0.16, 1, 1))
     fig.savefig(out_dir / "constraint_hardness_overlay_stacked_labels.png", dpi=180)
@@ -1115,21 +1229,22 @@ def try_create_plot(rows: list[dict[str, float | str | int]], out_dir: Path) -> 
         fig, ax = plt.subplots(figsize=(12, 5))
         ax.errorbar(x, y, yerr=yerr, fmt="-o", linewidth=1.5, markersize=4, capsize=3)
         ax.set_ylim(-0.02, 1.02)
-        ax.set_ylabel("Feasible ratio")
-        ax.set_xlabel("Sweep index")
-        ax.set_title(f"{PLANT_PRESET} PT2 | {family} constraint family")
+        ax.set_ylabel("Feasible ratio", fontsize=PLOT_FONT_SIZES["axis_label"])
+        ax.set_xlabel("Sweep index", fontsize=PLOT_FONT_SIZES["axis_label"])
+        ax.set_title(f"{PLANT_PRESET} PT2 | {family} constraint family", fontsize=PLOT_FONT_SIZES["title"])
         ax.grid(True, alpha=0.3)
 
         tick_step = max(1, len(family_rows) // 8)
         tick_positions = x[::tick_step]
         tick_labels = [family_rows[idx]["label"] for idx in tick_positions]
         ax.set_xticks(tick_positions)
-        ax.set_xticklabels(tick_labels, rotation=25, ha="right")
+        ax.set_xticklabels(tick_labels, rotation=25, ha="right", fontsize=PLOT_FONT_SIZES["x_tick"])
+        ax.tick_params(axis="y", labelsize=PLOT_FONT_SIZES["y_tick"])
 
         for hardness_name, target_ratio in TARGET_FEASIBLE_RATIOS.items():
             ax.axhline(target_ratio, linestyle="--", linewidth=1.0, label=f"{hardness_name}: {target_ratio:.0%}")
 
-        ax.legend()
+        ax.legend(fontsize=PLOT_FONT_SIZES["legend"])
         fig.tight_layout()
         fig.savefig(out_dir / f"{family}_feasible_ratio.png", dpi=150)
         plt.close(fig)
